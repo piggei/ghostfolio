@@ -959,6 +959,10 @@ export abstract class PortfolioCalculator {
     return this.holdingBalancesByDate;
   }
 
+  protected getBaseCurrency() {
+    return this.currency;
+  }
+
   protected abstract getHoldingPerformance({
     chartDates,
     dataSource,
@@ -1945,6 +1949,10 @@ export abstract class PortfolioCalculator {
   public async getSnapshot() {
     await this.snapshotPromise;
 
+    return this.snapshot;
+  }
+
+  protected getCurrentSnapshot() {
     return this.snapshot;
   }
 
