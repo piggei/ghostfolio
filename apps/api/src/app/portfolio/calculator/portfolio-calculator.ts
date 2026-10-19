@@ -922,10 +922,6 @@ export abstract class PortfolioCalculator {
     return this.dataProviderInfos;
   }
 
-  protected getBaseCurrency() {
-    return this.currency;
-  }
-
   protected getExchangeRatesByCurrency() {
     return this.exchangeRatesByCurrency;
   }
