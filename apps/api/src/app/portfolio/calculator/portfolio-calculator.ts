@@ -163,6 +163,8 @@ export abstract class PortfolioCalculator {
           feeInAssetProfileCurrency,
           feeInBaseCurrency,
           quantity,
+          taxInAssetProfileCurrency,
+          taxInBaseCurrency,
           tags = [],
           type,
           unitPriceInAssetProfileCurrency
@@ -185,6 +187,8 @@ export abstract class PortfolioCalculator {
             fee: new Big(feeInAssetProfileCurrency),
             feeInBaseCurrency: new Big(feeInBaseCurrency),
             quantity: new Big(quantity),
+            tax: new Big(taxInAssetProfileCurrency ?? 0),
+            taxInBaseCurrency: new Big(taxInBaseCurrency ?? 0),
             unitPrice: new Big(unitPriceInAssetProfileCurrency)
           };
         }
@@ -526,6 +530,8 @@ export abstract class PortfolioCalculator {
         dividendInBaseCurrency: totalDividendInBaseCurrency,
         fee: item.fee,
         feeInBaseCurrency: item.feeInBaseCurrency,
+        tax: item.tax,
+        taxInBaseCurrency: item.taxInBaseCurrency,
         grossPerformance: !hasErrors ? (grossPerformance ?? null) : null,
         grossPerformancePercentage: !hasErrors
           ? (grossPerformancePercentage ?? null)
@@ -800,6 +806,8 @@ export abstract class PortfolioCalculator {
       date: startDateString,
       fee: new Big(0),
       feeInBaseCurrency: new Big(0),
+      tax: new Big(0),
+      taxInBaseCurrency: new Big(0),
       itemType: 'start',
       quantity: new Big(0),
       type: 'BUY',
@@ -811,6 +819,8 @@ export abstract class PortfolioCalculator {
       date: endDateString,
       fee: new Big(0),
       feeInBaseCurrency: new Big(0),
+      tax: new Big(0),
+      taxInBaseCurrency: new Big(0),
       itemType: 'end',
       quantity: new Big(0),
       type: 'BUY',
@@ -885,6 +895,8 @@ export abstract class PortfolioCalculator {
           fee: new Big(0),
           feeInBaseCurrency: new Big(0),
           quantity: new Big(0),
+          tax: new Big(0),
+          taxInBaseCurrency: new Big(0),
           type: 'BUY',
           unitPriceFromMarketData: unitPrice
         });
@@ -1090,6 +1102,10 @@ export abstract class PortfolioCalculator {
     let feesAtStartDate = new Big(0);
     let feesAtStartDateWithCurrencyEffect = new Big(0);
     let feesWithCurrencyEffect = new Big(0);
+    let taxes = new Big(0);
+    let taxesAtStartDate = new Big(0);
+    let taxesAtStartDateWithCurrencyEffect = new Big(0);
+    let taxesWithCurrencyEffect = new Big(0);
     let grossPerformance = new Big(0);
     let grossPerformanceWithCurrencyEffect = new Big(0);
     let grossPerformanceAtStartDate = new Big(0);
@@ -1149,6 +1165,13 @@ export abstract class PortfolioCalculator {
       if (activity.fee) {
         activity.feeInBaseCurrency = activity.fee.mul(currentExchangeRate ?? 1);
         activity.feeInBaseCurrencyWithCurrencyEffect = activity.fee.mul(
+          exchangeRateAtActivityDate ?? 1
+        );
+      }
+
+      if (activity.tax) {
+        activity.taxInBaseCurrency = activity.tax.mul(currentExchangeRate ?? 1);
+        activity.taxInBaseCurrencyWithCurrencyEffect = activity.tax.mul(
           exchangeRateAtActivityDate ?? 1
         );
       }
@@ -1249,6 +1272,12 @@ export abstract class PortfolioCalculator {
         activity.feeInBaseCurrencyWithCurrencyEffect ?? 0
       );
 
+      taxes = taxes.plus(activity.taxInBaseCurrency ?? 0);
+
+      taxesWithCurrencyEffect = taxesWithCurrencyEffect.plus(
+        activity.taxInBaseCurrencyWithCurrencyEffect ?? 0
+      );
+
       totalQuantity = totalQuantity.plus(
         activity.quantity.mul(getFactor(activity.type))
       );
@@ -1332,6 +1361,8 @@ export abstract class PortfolioCalculator {
         dividendsAtStartDateWithCurrencyEffect = dividendsWithCurrencyEffect;
         feesAtStartDate = fees;
         feesAtStartDateWithCurrencyEffect = feesWithCurrencyEffect;
+        taxesAtStartDate = taxes;
+        taxesAtStartDateWithCurrencyEffect = taxesWithCurrencyEffect;
         grossPerformanceAtStartDate = grossPerformance;
 
         grossPerformanceAtStartDateWithCurrencyEffect =
@@ -1351,13 +1382,17 @@ export abstract class PortfolioCalculator {
 
         netPerformanceValues[activity.date] = grossPerformance
           .minus(grossPerformanceAtStartDate)
-          .minus(fees.minus(feesAtStartDate));
+          .minus(fees.minus(feesAtStartDate))
+          .minus(taxes.minus(taxesAtStartDate));
 
         netPerformanceValuesWithCurrencyEffect[activity.date] =
           grossPerformanceWithCurrencyEffect
             .minus(grossPerformanceAtStartDateWithCurrencyEffect)
             .minus(
               feesWithCurrencyEffect.minus(feesAtStartDateWithCurrencyEffect)
+            )
+            .minus(
+              taxesWithCurrencyEffect.minus(taxesAtStartDateWithCurrencyEffect)
             );
 
         investmentValuesAccumulated[activity.date] = totalInvestment;
@@ -1395,6 +1430,8 @@ export abstract class PortfolioCalculator {
         fees,
         feesWithCurrencyEffect,
         grossPerformance,
+        taxes,
+        taxesWithCurrencyEffect,
         grossPerformanceWithCurrencyEffect,
         transactionInvestment,
         transactionInvestmentWithCurrencyEffect,
@@ -1617,7 +1654,8 @@ export abstract class PortfolioCalculator {
       fees: feesAtStartDate,
       grossPerformance: grossPerformanceAtStartDate,
       grossPerformanceWithCurrencyEffect:
-        grossPerformanceAtStartDateWithCurrencyEffect
+        grossPerformanceAtStartDateWithCurrencyEffect,
+      taxes: taxesAtStartDate
     } = items[indexOfStartActivity];
 
     const {
@@ -1626,7 +1664,8 @@ export abstract class PortfolioCalculator {
       grossPerformanceWithCurrencyEffect,
       investment: totalInvestment,
       investmentWithCurrencyEffect: totalInvestmentWithCurrencyEffect,
-      quantity: totalQuantity
+      quantity: totalQuantity,
+      taxes
     } = items[indexOfEndActivity];
 
     const totalGrossPerformance = grossPerformance.minus(
@@ -1638,9 +1677,9 @@ export abstract class PortfolioCalculator {
         grossPerformanceAtStartDateWithCurrencyEffect
       );
 
-    const totalNetPerformance = totalGrossPerformance.minus(
-      fees.minus(feesAtStartDate)
-    );
+    const totalNetPerformance = totalGrossPerformance
+      .minus(fees.minus(feesAtStartDate))
+      .minus(taxes.minus(taxesAtStartDate));
 
     const dateRanges = (
       [
@@ -2099,6 +2138,8 @@ export abstract class PortfolioCalculator {
       feeInBaseCurrency,
       quantity,
       tags,
+      tax,
+      taxInBaseCurrency,
       type,
       unitPrice
     } of this.activities) {
@@ -2168,6 +2209,9 @@ export abstract class PortfolioCalculator {
             previousHoldingBalance.feeInBaseCurrency.plus(feeInBaseCurrency),
           includeInHoldings: previousHoldingBalance.includeInHoldings,
           quantity: newQuantity,
+          tax: previousHoldingBalance.tax.plus(tax),
+          taxInBaseCurrency:
+            previousHoldingBalance.taxInBaseCurrency.plus(taxInBaseCurrency),
           tags: previousHoldingBalance.tags.concat(tags)
         };
       } else {
@@ -2180,6 +2224,8 @@ export abstract class PortfolioCalculator {
           skipErrors,
           symbol,
           tags,
+          tax,
+          taxInBaseCurrency,
           activitiesCount: 1,
           averagePrice: unitPrice,
           dateOfFirstActivity: date,

@@ -1010,6 +1010,7 @@ export class PortfolioService {
       dividendYieldPercentWithCurrencyEffect,
       feeInBaseCurrency,
       grossPerformance,
+      taxInBaseCurrency,
       grossPerformancePercentage,
       grossPerformancePercentageWithCurrencyEffect,
       grossPerformanceWithCurrencyEffect,
@@ -1142,6 +1143,7 @@ export class PortfolioService {
         dividendYieldPercentWithCurrencyEffect.toNumber(),
       feeInBaseCurrency: feeInBaseCurrency.toNumber(),
       grossPerformance: grossPerformance?.toNumber(),
+      taxInBaseCurrency: taxInBaseCurrency.toNumber(),
       grossPerformancePercent: grossPerformancePercentage?.toNumber(),
       grossPerformancePercentWithCurrencyEffect:
         grossPerformancePercentageWithCurrencyEffect?.toNumber(),
