@@ -78,6 +78,8 @@ model AccountCashState {
   createdAt         DateTime    @default(now())
   currency          String
   defaultUpdateCash Boolean     @default(false)
+  includeCashInPortfolio Boolean @default(true)
+  isAutomaticOpening Boolean    @default(false)
   events            CashEvent[]
   lastSequence      Int         @default(0)
   openingBalance    Decimal     @db.Decimal(65, 30)

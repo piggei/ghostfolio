@@ -3,75 +3,44 @@
   @if (error()) {
     <p class="text-danger" role="alert">{{ error() }}</p>
   }
-  @if (snapshot() === null && canWrite()) {
-    <p i18n>
-      Start with your broker's cash balance. Earlier balances and activities
-      will remain unchanged.
-    </p>
-    <form
-      class="d-flex flex-wrap gap-2"
-      [formGroup]="openingForm"
-      (ngSubmit)="open()"
-    >
-      <mat-form-field appearance="outline">
-        <mat-label i18n>Starting Date</mat-label>
-        <input formControlName="date" matInput type="date" [max]="today" />
-      </mat-form-field>
-      <mat-form-field appearance="outline">
-        <mat-label i18n>Opening Cash Balance</mat-label>
-        <input formControlName="balance" inputmode="decimal" matInput />
-        <span matTextSuffix>{{ currency() }}</span>
-      </mat-form-field>
-      <button
-        class="align-self-center"
-        i18n
-        mat-flat-button
-        type="submit"
-        [disabled]="openingForm.invalid || busy()"
-      >
-        Start Cash Management
-      </button>
-    </form>
-  }
   @if (snapshot(); as state) {
-    <p>
-      <span i18n>Opening Cash Balance</span>: {{ state.openingBalance.balance }}
-      {{ currency() }} · {{ state.openingBalance.date }}
-    </p>
     @if (canWrite()) {
-      <mat-checkbox
-        class="mb-3"
-        i18n
-        [checked]="state.defaultUpdateCash"
-        [disabled]="busy()"
-        (change)="preferences($event.checked)"
-        >Update Cash Balance by default for new activities</mat-checkbox
-      >
-      <form
-        class="d-flex flex-wrap gap-2"
-        [formGroup]="form"
-        (ngSubmit)="save()"
-      >
+      <div class="d-flex flex-column mb-3">
+        <mat-checkbox
+          i18n
+          [checked]="state.defaultUpdateCash"
+          [disabled]="busy()"
+          (change)="preferences({ defaultUpdateCash: $event.checked })"
+          >Update Cash Balance by default for new activities</mat-checkbox
+        >
+        <mat-checkbox
+          i18n
+          [checked]="state.includeCashInPortfolio !== false"
+          [disabled]="busy()"
+          (change)="preferences({ includeCashInPortfolio: $event.checked })"
+          >Include this account's cash in portfolio totals and value
+          charts</mat-checkbox
+        >
+      </div>
+      <form class="cash-form" [formGroup]="form" (ngSubmit)="save()">
+        <mat-form-field appearance="outline">
+          <mat-label i18n>Date</mat-label>
+          <input formControlName="date" matInput type="date" [max]="today" />
+        </mat-form-field>
         <mat-form-field appearance="outline">
           <mat-label i18n>Operation</mat-label>
-          <mat-select formControlName="operation" [disabled]="!!editing()">
+          <mat-select formControlName="operation">
             <mat-option i18n value="DEPOSIT">Deposit</mat-option>
             <mat-option i18n value="WITHDRAWAL">Withdrawal</mat-option>
             <mat-option i18n value="CHECKPOINT">Reconciliation</mat-option>
           </mat-select>
         </mat-form-field>
         <mat-form-field appearance="outline">
-          <mat-label i18n>Date</mat-label>
-          <input
-            formControlName="date"
-            matInput
-            type="date"
-            [max]="today"
-            [min]="state.openingBalance.date"
-          />
-        </mat-form-field>
-        <mat-form-field appearance="outline">
-          <mat-label i18n>Amount</mat-label>
+          @if (form.controls.operation.value === 'CHECKPOINT') {
+            <mat-label i18n>Actual cash balance</mat-label>
+          } @else {
+            <mat-label i18n>Amount</mat-label>
+          }
           <input formControlName="amount" inputmode="decimal" matInput />
           <span matTextSuffix>{{ currency() }}</span>
         </mat-form-field>
@@ -85,82 +54,115 @@
         </mat-form-field>
         <button
           class="align-self-center"
-          i18n
           mat-flat-button
           type="submit"
           [disabled]="form.invalid || busy()"
         >
-          Save
+          @if (editing()) {
+            <ng-container i18n>Save changes</ng-container>
+          } @else {
+            <ng-container i18n>Insert</ng-container>
+          }
         </button>
         @if (editing()) {
-          <button
-            class="align-self-center"
-            i18n
-            mat-button
-            type="button"
-            (click)="cancelEdit()"
-          >
+          <button i18n mat-button type="button" (click)="cancelEdit()">
             Cancel
           </button>
         }
       </form>
       @if (form.controls.operation.value === 'CHECKPOINT') {
         <p class="small" i18n>
-          A reconciliation sets the actual broker balance for this date. Earlier
-          changes will not alter this balance.
+          Enter the actual balance at this date. A reconciliation replaces the
+          calculated balance; it is not an additional deposit.
+        </p>
+      } @else {
+        <p class="small" i18n>
+          Enter a positive amount. Withdrawals are subtracted automatically.
         </p>
       }
     }
     <div class="table-responsive">
-      <table class="table">
+      <table class="cash-history">
         <thead>
           <tr>
             <th i18n>Date</th>
             <th i18n>Operation</th>
             <th class="text-end" i18n>Amount</th>
+            <th class="text-end" i18n>Cash Balance</th>
             <th i18n>Note</th>
             <th><span class="visually-hidden" i18n>Actions</span></th>
           </tr>
         </thead>
         <tbody>
-          @for (event of state.events; track event.id) {
+          @for (event of orderedEvents(); track event.id) {
             <tr>
-              <td>{{ event.date }}</td>
+              <td class="text-nowrap">{{ event.date }}</td>
               <td>{{ eventLabel(event) }}</td>
               <td class="text-end text-nowrap">
                 {{ eventAmount(event) }} {{ currency() }}
               </td>
-              <td>{{ event.comment }}</td>
               <td class="text-end text-nowrap">
-                @if (canWrite() && !event.orderId && !event.transferId) {
+                {{ balanceAfter(event) }} {{ currency() }}
+              </td>
+              <td>{{ event.comment }}</td>
+              <td>
+                @if (canWrite()) {
                   <button
-                    i18n
-                    mat-button
+                    aria-label="Actions"
+                    i18n-aria-label
+                    mat-icon-button
                     type="button"
                     [disabled]="busy()"
-                    (click)="edit(event)"
+                    [matMenuTriggerFor]="actions"
                   >
-                    Edit
+                    <ion-icon name="ellipsis-vertical" />
                   </button>
-                  <button
-                    i18n
-                    mat-button
-                    type="button"
-                    [disabled]="busy()"
-                    (click)="remove(event)"
-                  >
-                    Delete
-                  </button>
+                  <mat-menu #actions="matMenu">
+                    @if (event.orderId || event.transferId) {
+                      <button
+                        mat-menu-item
+                        type="button"
+                        (click)="openSource(event)"
+                      >
+                        @if (event.orderId) {
+                          <ng-container i18n
+                            >View linked operation</ng-container
+                          >
+                        } @else {
+                          <ng-container i18n>Transfer information</ng-container>
+                        }
+                      </button>
+                    } @else {
+                      <button
+                        i18n
+                        mat-menu-item
+                        type="button"
+                        (click)="edit(event)"
+                      >
+                        Edit
+                      </button>
+                      <button
+                        i18n
+                        mat-menu-item
+                        type="button"
+                        (click)="remove(event)"
+                      >
+                        Delete
+                      </button>
+                    }
+                  </mat-menu>
                 }
               </td>
             </tr>
           } @empty {
             <tr>
-              <td colspan="5" i18n>No cash transactions yet.</td>
+              <td colspan="6" i18n>No cash transactions yet.</td>
             </tr>
           }
         </tbody>
       </table>
     </div>
+  } @else {
+    <p i18n>Loading cash transactions…</p>
   }
 </section>

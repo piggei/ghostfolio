@@ -17,6 +17,8 @@ export interface CashManagementSnapshot {
   balances: { date: string; value: string }[];
   currency: string;
   defaultUpdateCash: boolean;
+  includeCashInPortfolio?: boolean;
+  isAutomaticOpening?: boolean;
   events: ManagedCashEvent[];
   minimumBalance: { date: string; sequence: number; value: string };
   openingBalance: { balance: string; date: string; sequence: number };
@@ -26,6 +28,8 @@ export interface CashManagementSnapshot {
 export interface CashManagementExport {
   currency: string;
   defaultUpdateCash: boolean;
+  includeCashInPortfolio?: boolean;
+  isAutomaticOpening?: boolean;
   events: ManagedCashEvent[];
   openingBalance: { balance: string; date: string; sequence: number };
   version: 1;

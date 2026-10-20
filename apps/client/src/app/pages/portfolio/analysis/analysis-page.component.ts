@@ -45,6 +45,7 @@ import {
 import { takeUntilDestroyed } from '@angular/core/rxjs-interop';
 import { MatButtonModule } from '@angular/material/button';
 import { MatCardModule } from '@angular/material/card';
+import { MatCheckboxModule } from '@angular/material/checkbox';
 import { MatMenuModule, MatMenuTrigger } from '@angular/material/menu';
 import { MatProgressSpinnerModule } from '@angular/material/progress-spinner';
 import { MatSnackBar } from '@angular/material/snack-bar';
@@ -69,6 +70,7 @@ import { forkJoin } from 'rxjs';
     IonIcon,
     MatButtonModule,
     MatCardModule,
+    MatCheckboxModule,
     MatMenuModule,
     MatProgressSpinnerModule,
     NgxSkeletonLoaderModule,
@@ -81,6 +83,9 @@ import { forkJoin } from 'rxjs';
 export class GfAnalysisPageComponent implements OnInit {
   protected benchmark?: Partial<SymbolProfile>;
   protected benchmarkDataItems: LineChartItem[] = [];
+  protected readonly includeCashInValueChart = signal(true);
+  protected portfolioValueDataItems: LineChartItem[] = [];
+  protected investmentsOnlyDataItems: LineChartItem[] = [];
   protected readonly benchmarks: Partial<SymbolProfile>[];
   protected bottom3: PortfolioPosition[];
   protected dividendsByGroup: InvestmentItem[];
@@ -362,6 +367,8 @@ export class GfAnalysisPageComponent implements OnInit {
         this.investments = [];
         this.performance = performance;
         this.performanceDataItems = [];
+        this.portfolioValueDataItems = [];
+        this.investmentsOnlyDataItems = [];
         this.performanceDataItemsInPercentage = [];
 
         for (const {
@@ -369,6 +376,8 @@ export class GfAnalysisPageComponent implements OnInit {
           dividendInPercentageWithCurrencyEffect,
           netPerformanceInPercentageWithCurrencyEffect,
           totalInvestmentValueWithCurrencyEffect,
+          netWorth,
+          totalCashInBaseCurrency,
           valueInPercentage,
           valueWithCurrencyEffect
         } of chart ?? []) {
@@ -382,6 +391,14 @@ export class GfAnalysisPageComponent implements OnInit {
           const value = isNumber(valueWithCurrencyEffect)
             ? valueWithCurrencyEffect
             : valueInPercentage;
+
+          if (isNumber(netWorth)) {
+            this.portfolioValueDataItems.push({ date, value: netWorth });
+            this.investmentsOnlyDataItems.push({
+              date,
+              value: netWorth - (totalCashInBaseCurrency ?? 0)
+            });
+          }
 
           if (isNumber(value)) {
             this.performanceDataItems.push({

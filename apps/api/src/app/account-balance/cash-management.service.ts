@@ -17,6 +17,7 @@ import {
 import { EventEmitter2 } from '@nestjs/event-emitter';
 import { Account, CashEvent, Order, Prisma } from '@prisma/client';
 import { Big } from 'big.js';
+import { format } from 'date-fns';
 import { randomUUID } from 'node:crypto';
 
 import {
@@ -46,6 +47,7 @@ type EventValue = Pick<CashEvent, 'date' | 'sequence' | 'type'> & {
 };
 
 const MAX_DATABASE_INTEGER = 2147483647;
+const IMPLICIT_OPENING_DATE = '0001-01-01';
 
 /**
  * Canonical cash ledger and the compatibility projection consumed by portfolio calculators.
@@ -136,11 +138,9 @@ export class CashManagementService {
     scope: CashAccountScope
   ): Promise<CashManagementSnapshot | null> {
     return this.inAccountTransaction(scope, async (transaction, account) => {
-      const state = await this.readState(transaction, scope);
-
-      if (!state) {
-        return null;
-      }
+      const state =
+        (await this.readState(transaction, scope)) ??
+        (await this.draftState(transaction, scope, account.currency));
 
       this.checkCurrency(account, state);
 
@@ -240,12 +240,6 @@ export class CashManagementService {
           expectedRevision
         });
         const previousEvent = this.requireEvent(state, eventId);
-
-        if (previousEvent.type !== normalizedEvent.type) {
-          throw new BadRequestException(
-            'The cash event type cannot be changed'
-          );
-        }
 
         const dateChanged =
           previousEvent.date.getTime() !== normalizedEvent.date.getTime();
@@ -412,6 +406,10 @@ export class CashManagementService {
       snapshot?.version !== 1 ||
       snapshot.currency !== currency ||
       typeof snapshot.defaultUpdateCash !== 'boolean' ||
+      (snapshot.includeCashInPortfolio !== undefined &&
+        typeof snapshot.includeCashInPortfolio !== 'boolean') ||
+      (snapshot.isAutomaticOpening !== undefined &&
+        typeof snapshot.isAutomaticOpening !== 'boolean') ||
       snapshot.openingBalance?.sequence !== 0 ||
       !Array.isArray(snapshot.events)
     ) {
@@ -433,7 +431,7 @@ export class CashManagementService {
       const normalized = this.normalizeEvent(event);
       if (
         !Number.isInteger(event.sequence) ||
-        event.sequence < 1 ||
+        event.sequence < (snapshot.isAutomaticOpening ? 0 : 1) ||
         event.sequence > MAX_DATABASE_INTEGER ||
         (event.orderId &&
           (typeof event.orderId !== 'string' || orderIds.has(event.orderId)))
@@ -521,6 +519,8 @@ export class CashManagementService {
           ...scope,
           currency: account.currency,
           defaultUpdateCash: snapshot.defaultUpdateCash,
+          includeCashInPortfolio: snapshot.includeCashInPortfolio ?? true,
+          isAutomaticOpening: snapshot.isAutomaticOpening ?? false,
           openingDate,
           openingBalance: this.normalizeValue(snapshot.openingBalance.balance),
           lastSequence: Math.max(
@@ -539,7 +539,8 @@ export class CashManagementService {
   public async updatePreferences(
     scope: CashAccountScope & {
       expectedRevision: number;
-      defaultUpdateCash: boolean;
+      defaultUpdateCash?: boolean;
+      includeCashInPortfolio?: boolean;
     }
   ): Promise<CashManagementSnapshot> {
     const result = await this.inAccountTransaction(
@@ -560,19 +561,24 @@ export class CashManagementService {
           },
           data: {
             defaultUpdateCash: scope.defaultUpdateCash,
+            includeCashInPortfolio: scope.includeCashInPortfolio,
             revision: state.revision + 1
           }
         });
         return this.toSnapshot(
           {
             ...state,
-            defaultUpdateCash: scope.defaultUpdateCash,
+            defaultUpdateCash:
+              scope.defaultUpdateCash ?? state.defaultUpdateCash,
+            includeCashInPortfolio:
+              scope.includeCashInPortfolio ?? state.includeCashInPortfolio,
             revision: state.revision + 1
           },
           this.calculateState(state)
         );
       }
     );
+    this.publishChange(scope.userId);
     return result;
   }
 
@@ -1181,10 +1187,50 @@ export class CashManagementService {
       throw new BadRequestException('A valid cash revision is required');
     }
 
-    const state = await this.readState(transaction, scope);
-
+    let state = await this.readState(transaction, scope);
+    if (!state && expectedRevision === 0) {
+      const draft = await this.draftState(transaction, scope, account.currency);
+      const {
+        events,
+        accountId,
+        userId,
+        currency,
+        openingDate,
+        openingBalance,
+        isAutomaticOpening
+      } = draft;
+      state = await transaction.accountCashState.create({
+        data: {
+          accountId,
+          userId,
+          currency,
+          openingDate,
+          openingBalance,
+          isAutomaticOpening,
+          lastSequence: draft.lastSequence,
+          events: {
+            create: events.map(
+              ({ accountId: _account, userId: _user, ...event }) => event
+            )
+          }
+        },
+        include: { events: true }
+      });
+      // Every legacy snapshot was copied to a dated reconciliation in this
+      // transaction. Replace only its compatibility projection, never activities.
+      await transaction.accountBalance.deleteMany({
+        where: { accountId: scope.accountId, userId: scope.userId }
+      });
+      await this.writeProjection(
+        transaction,
+        state,
+        this.calculateState(state)
+      );
+    }
     if (!state) {
-      throw new ConflictException('Cash management is not open');
+      throw new ConflictException(
+        'The cash history changed; reload the account'
+      );
     }
 
     this.checkCurrency(account, state);
@@ -1220,6 +1266,49 @@ export class CashManagementService {
     }
   }
 
+  private async draftState(
+    transaction: Prisma.TransactionClient,
+    scope: CashAccountScope,
+    currency: string
+  ): Promise<CashState> {
+    scope = { accountId: scope.accountId, userId: scope.userId };
+    if (!currency?.trim()) {
+      throw new BadRequestException('The account must have a currency');
+    }
+    const balances = await transaction.accountBalance.findMany({
+      where: scope,
+      orderBy: [{ date: 'asc' }, { id: 'asc' }]
+    });
+    const now = new Date();
+    const events: CashEvent[] = balances.map((balance, index) => ({
+      ...scope,
+      id: balance.id,
+      date: this.toUtcDate(format(balance.date, 'yyyy-MM-dd')),
+      sequence: index + 1,
+      type: 'CHECKPOINT',
+      value: new Prisma.Decimal(String(balance.value)),
+      comment: null,
+      orderId: null,
+      transferId: null,
+      createdAt: balance.createdAt,
+      updatedAt: balance.updatedAt
+    }));
+    return {
+      ...scope,
+      currency,
+      events,
+      openingDate: this.toUtcDate(IMPLICIT_OPENING_DATE),
+      openingBalance: new Prisma.Decimal(0),
+      isAutomaticOpening: true,
+      defaultUpdateCash: false,
+      includeCashInPortfolio: true,
+      lastSequence: events.length,
+      revision: 0,
+      createdAt: now,
+      updatedAt: now
+    };
+  }
+
   private toOpeningBalance(state: CashState): CashOpeningBalance {
     return {
       balance: state.openingBalance.toString(),
@@ -1252,11 +1341,15 @@ export class CashManagementService {
 
     return {
       accountId: state.accountId,
-      balances: calculation.balances.map(({ date, value }) => {
-        return { date, value: value.toString() };
-      }),
+      balances: this.visibleBalances(state, calculation).map(
+        ({ date, value }) => {
+          return { date, value: value.toString() };
+        }
+      ),
       currency: state.currency,
       defaultUpdateCash: state.defaultUpdateCash ?? false,
+      includeCashInPortfolio: state.includeCashInPortfolio ?? true,
+      isAutomaticOpening: state.isAutomaticOpening ?? false,
       events,
       minimumBalance: {
         ...calculation.minimumBalance,
@@ -1286,19 +1379,24 @@ export class CashManagementService {
     calculation: CashBalanceCalculation
   ): Promise<void> {
     const scope = { accountId: state.accountId, userId: state.userId };
-    const balances = calculation.balances.map(({ date, value }) => {
-      // Compatibility boundary: AccountBalance remains Float. These approximate
-      // projections must never be used to reconstruct the decimal journal.
-      const projectedValue = value.toNumber();
+    const balances = this.visibleBalances(state, calculation).map(
+      ({ date, value }) => {
+        // Compatibility boundary: AccountBalance remains Float. These approximate
+        // projections must never be used to reconstruct the decimal journal.
+        const projectedValue = value.toNumber();
 
-      if (!Number.isFinite(projectedValue)) {
-        throw new BadRequestException(
-          'Cash balance cannot be projected as a number'
-        );
+        if (!Number.isFinite(projectedValue)) {
+          throw new BadRequestException(
+            'Cash balance cannot be projected as a number'
+          );
+        }
+
+        return {
+          date: new Date(`${date}T00:00:00.000Z`),
+          value: projectedValue
+        };
       }
-
-      return { date: new Date(`${date}T00:00:00.000Z`), value: projectedValue };
-    });
+    );
 
     for (const { date, value } of balances) {
       await transaction.accountBalance.upsert({
@@ -1321,6 +1419,17 @@ export class CashManagementService {
         isCashManagementProjection: true
       }
     });
+  }
+
+  private visibleBalances(
+    state: CashState,
+    calculation: CashBalanceCalculation
+  ) {
+    return state.isAutomaticOpening
+      ? calculation.balances.filter(
+          ({ date }) => date !== IMPLICIT_OPENING_DATE
+        )
+      : calculation.balances;
   }
 
   private async writeState(

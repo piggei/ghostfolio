@@ -5,6 +5,7 @@ import {
   CashManagementSnapshot,
   ManagedCashEvent
 } from '@ghostfolio/common/interfaces';
+import { internalRoutes } from '@ghostfolio/common/routes/routes';
 import { DataService } from '@ghostfolio/ui/services';
 
 import {
@@ -15,12 +16,14 @@ import {
   inject,
   input,
   output,
-  signal
+  signal,
+  viewChild
 } from '@angular/core';
 import { takeUntilDestroyed } from '@angular/core/rxjs-interop';
 import {
   FormControl,
   FormGroup,
+  FormGroupDirective,
   ReactiveFormsModule,
   Validators
 } from '@angular/forms';
@@ -28,9 +31,14 @@ import { MatButtonModule } from '@angular/material/button';
 import { MatCheckboxModule } from '@angular/material/checkbox';
 import { MatFormFieldModule } from '@angular/material/form-field';
 import { MatInputModule } from '@angular/material/input';
+import { MatMenuModule } from '@angular/material/menu';
 import { MatSelectModule } from '@angular/material/select';
+import { Router } from '@angular/router';
+import { IonIcon } from '@ionic/angular/standalone';
 import { Big } from 'big.js';
 import { format } from 'date-fns';
+import { addIcons } from 'ionicons';
+import { ellipsisVertical } from 'ionicons/icons';
 import { finalize, Observable } from 'rxjs';
 
 @Component({
@@ -42,9 +50,12 @@ import { finalize, Observable } from 'rxjs';
     MatCheckboxModule,
     MatFormFieldModule,
     MatInputModule,
-    MatSelectModule
+    MatSelectModule,
+    MatMenuModule,
+    IonIcon
   ],
-  templateUrl: './cash-management.component.html'
+  templateUrl: './cash-management.component.html',
+  styleUrls: ['./cash-management.component.scss']
 })
 export class GfCashManagementComponent {
   public readonly accountId = input.required<string>();
@@ -61,6 +72,8 @@ export class GfCashManagementComponent {
   protected readonly busy = signal(false);
   protected readonly error = signal('');
   protected readonly editing = signal<string | undefined>(undefined);
+  protected readonly orderedEvents = () =>
+    [...(this.snapshot()?.events ?? [])].reverse();
   protected readonly form = new FormGroup({
     operation: new FormControl('DEPOSIT', { nonNullable: true }),
     date: new FormControl(this.today, {
@@ -73,21 +86,13 @@ export class GfCashManagementComponent {
     }),
     comment: new FormControl('', { nonNullable: true })
   });
-  protected readonly openingForm = new FormGroup({
-    date: new FormControl(this.today, {
-      nonNullable: true,
-      validators: [Validators.required]
-    }),
-    balance: new FormControl('', {
-      nonNullable: true,
-      validators: [Validators.required, Validators.pattern(/^-?\d+(\.\d+)?$/)]
-    })
-  });
-
   private readonly dataService = inject(DataService);
   private readonly destroyRef = inject(DestroyRef);
+  private readonly formDirective = viewChild(FormGroupDirective);
+  private readonly router = inject(Router);
 
   public constructor() {
+    addIcons({ ellipsisVertical });
     effect(() => {
       const accountId = this.accountId();
       this.dataService
@@ -99,27 +104,6 @@ export class GfCashManagementComponent {
             this.error.set($localize`Unable to load cash transactions.`)
         });
     });
-    effect(() => {
-      const balance = this.currentBalance();
-      if (
-        this.openingForm.controls.balance.pristine &&
-        Number.isFinite(balance)
-      ) {
-        this.openingForm.controls.balance.setValue(String(balance));
-      }
-    });
-  }
-
-  protected open() {
-    if (this.openingForm.invalid || this.busy()) {
-      return;
-    }
-    this.run(
-      this.dataService.openCashManagement(
-        this.accountId(),
-        this.openingForm.getRawValue()
-      )
-    );
   }
 
   protected save() {
@@ -176,7 +160,7 @@ export class GfCashManagementComponent {
 
   protected cancelEdit() {
     this.editing.set(undefined);
-    this.form.reset({
+    this.formDirective()?.resetForm({
       operation: 'DEPOSIT',
       date: this.today,
       amount: '',
@@ -197,14 +181,18 @@ export class GfCashManagementComponent {
     }
   }
 
-  protected preferences(defaultUpdateCash: boolean) {
+  protected preferences(change: {
+    defaultUpdateCash?: boolean;
+    includeCashInPortfolio?: boolean;
+  }) {
     const state = this.snapshot();
     if (state && !this.busy()) {
       this.run(
         this.dataService.updateCashPreferences(
           this.accountId(),
           state.revision,
-          defaultUpdateCash
+          change.defaultUpdateCash,
+          change.includeCashInPortfolio
         )
       );
     }
@@ -223,6 +211,35 @@ export class GfCashManagementComponent {
     return new Big(event.amount).lt(0)
       ? $localize`Withdrawal`
       : $localize`Deposit`;
+  }
+
+  protected openSource(event: ManagedCashEvent) {
+    if (event.orderId) {
+      void this.router.navigate(
+        internalRoutes.portfolio.subRoutes.activities.subRoutes.update.routerLink(
+          event.orderId
+        )
+      );
+    } else {
+      this.error.set(
+        $localize`This transfer has a matching entry in the other account. Use a new transfer to reverse it.`
+      );
+    }
+  }
+
+  protected balanceAfter(event: ManagedCashEvent) {
+    const state = this.snapshot();
+    let balance = new Big(state?.openingBalance.balance ?? 0);
+    for (const item of state?.events ?? []) {
+      balance =
+        item.type === 'CHECKPOINT'
+          ? new Big(item.balance)
+          : balance.plus(item.amount);
+      if (item.id === event.id) {
+        return balance.toFixed();
+      }
+    }
+    return balance.toFixed();
   }
 
   protected eventAmount(event: ManagedCashEvent) {

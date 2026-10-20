@@ -11,6 +11,7 @@ import {
 import { isCashPosition } from '@ghostfolio/common/helper';
 import {
   AssetProfileIdentifier,
+  HistoricalDataItem,
   LineChartItem,
   PortfolioPerformance,
   PortfolioPosition,
@@ -35,6 +36,8 @@ import {
 import { takeUntilDestroyed } from '@angular/core/rxjs-interop';
 import { MatButtonModule } from '@angular/material/button';
 import { MatCardModule } from '@angular/material/card';
+import { MatCheckboxModule } from '@angular/material/checkbox';
+import { MatSelectModule } from '@angular/material/select';
 import { Router, RouterModule } from '@angular/router';
 import { DeviceDetectorService } from 'ngx-device-detector';
 
@@ -46,6 +49,8 @@ import { DeviceDetectorService } from 'ngx-device-detector';
     GfPortfolioPerformanceComponent,
     MatButtonModule,
     MatCardModule,
+    MatCheckboxModule,
+    MatSelectModule,
     RouterModule
   ],
   selector: 'gf-home-overview',
@@ -55,7 +60,19 @@ import { DeviceDetectorService } from 'ngx-device-detector';
 export class GfHomeOverviewComponent implements OnInit {
   protected readonly errors = signal<AssetProfileIdentifier[]>([]);
   protected readonly hasImpersonationId = signal(false);
-  protected readonly historicalDataItems = signal<LineChartItem[] | null>(null);
+  protected readonly chartMode = signal<'value' | 'performance'>('value');
+  protected readonly includeCash = signal(true);
+  private readonly chartItems = signal<HistoricalDataItem[]>([]);
+  protected readonly historicalDataItems = computed<LineChartItem[]>(() =>
+    this.chartItems().map((item) => ({
+      date: item.date,
+      value:
+        this.chartMode() === 'performance'
+          ? (item.netPerformanceInPercentageWithCurrencyEffect ?? 0) * 100
+          : (item.netWorth ?? item.valueWithCurrencyEffect ?? 0) -
+            (this.includeCash() ? 0 : (item.totalCashInBaseCurrency ?? 0))
+    }))
+  );
   protected readonly holdings = signal<PortfolioPosition[] | undefined>(
     undefined
   );
@@ -92,7 +109,9 @@ export class GfHomeOverviewComponent implements OnInit {
     const user = this.user();
 
     return user
-      ? !user?.settings?.isRestrictedView && user?.settings?.viewMode !== 'ZEN'
+      ? !user?.settings?.isRestrictedView &&
+          user?.settings?.viewMode !== 'ZEN' &&
+          hasScope(user.scopes, scopes.portfolioReadValues)
       : false;
   });
 
@@ -131,6 +150,9 @@ export class GfHomeOverviewComponent implements OnInit {
       .subscribe((state) => {
         if (state?.user) {
           this.user.set(state.user);
+          if (!this.showDetails()) {
+            this.chartMode.set('performance');
+          }
           this.update();
         }
       });
@@ -162,7 +184,7 @@ export class GfHomeOverviewComponent implements OnInit {
   private update() {
     const userSettings = this.user()?.settings;
 
-    this.historicalDataItems.set(null);
+    this.chartItems.set([]);
     this.isLoadingPerformance.set(true);
 
     if (this.showExperimentalHoldings()) {
@@ -198,16 +220,7 @@ export class GfHomeOverviewComponent implements OnInit {
         this.errors.set(errors ?? []);
         this.performance.set(performance);
 
-        this.historicalDataItems.set(
-          chart?.map(
-            ({ date, netPerformanceInPercentageWithCurrencyEffect }) => {
-              return {
-                date,
-                value: (netPerformanceInPercentageWithCurrencyEffect ?? 0) * 100
-              };
-            }
-          ) ?? null
-        );
+        this.chartItems.set(chart ?? []);
 
         this.precision.set(2);
 

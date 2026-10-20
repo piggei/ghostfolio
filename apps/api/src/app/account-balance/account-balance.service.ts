@@ -149,7 +149,8 @@ export class AccountBalanceService {
       filters,
       userCurrency,
       userId,
-      withExcludedAccounts: false // TODO
+      withExcludedAccounts: false,
+      withHiddenCash: false
     });
     const accumulatedBalancesByDate: { [date: string]: HistoricalDataItem } =
       {};
@@ -186,12 +187,14 @@ export class AccountBalanceService {
     filters,
     userCurrency,
     userId,
-    withExcludedAccounts
+    withExcludedAccounts,
+    withHiddenCash = true
   }: {
     filters?: Filter[];
     userCurrency: string;
     userId: string;
     withExcludedAccounts?: boolean;
+    withHiddenCash?: boolean;
   }): Promise<AccountBalancesResponse> {
     const where: Prisma.AccountBalanceWhereInput = { userId };
 
@@ -205,6 +208,22 @@ export class AccountBalanceService {
 
     if (withExcludedAccounts === false) {
       where.account = WHERE_ACCOUNT_NOT_EXCLUDED;
+    }
+
+    if (!withHiddenCash) {
+      where.account = {
+        AND: [
+          ...(withExcludedAccounts === false
+            ? [WHERE_ACCOUNT_NOT_EXCLUDED]
+            : []),
+          {
+            OR: [
+              { cashState: { is: null } },
+              { cashState: { is: { includeCashInPortfolio: true } } }
+            ]
+          }
+        ]
+      };
     }
 
     const balances = await this.prismaService.accountBalance.findMany({

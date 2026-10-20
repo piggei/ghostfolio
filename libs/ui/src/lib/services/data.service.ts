@@ -1087,11 +1087,12 @@ export class DataService {
   public updateCashPreferences(
     accountId: string,
     expectedRevision: number,
-    defaultUpdateCash: boolean
+    defaultUpdateCash?: boolean,
+    includeCashInPortfolio?: boolean
   ) {
     return this.http.put<CashManagementSnapshot>(
       `/api/v1/account/${accountId}/cash/preferences`,
-      { expectedRevision, defaultUpdateCash }
+      { expectedRevision, defaultUpdateCash, includeCashInPortfolio }
     );
   }
 

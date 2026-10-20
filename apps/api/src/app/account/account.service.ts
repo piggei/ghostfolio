@@ -298,6 +298,16 @@ export class AccountService {
       where.AND = [WHERE_ACCOUNT_NOT_EXCLUDED];
     }
 
+    where.AND = [
+      ...(Array.isArray(where.AND) ? where.AND : []),
+      {
+        OR: [
+          { cashState: { is: null } },
+          { cashState: { is: { includeCashInPortfolio: true } } }
+        ]
+      }
+    ];
+
     const { ACCOUNT: filtersByAccount = [] } = groupBy(filters, ({ type }) => {
       return type;
     });

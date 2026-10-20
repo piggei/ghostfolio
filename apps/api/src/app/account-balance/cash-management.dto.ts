@@ -76,5 +76,10 @@ export class CashMutationDto extends CashRevisionDto {
 
 export class CashPreferencesDto extends CashRevisionDto {
   @IsBoolean()
-  defaultUpdateCash: boolean;
+  @IsOptional()
+  defaultUpdateCash?: boolean;
+
+  @IsBoolean()
+  @IsOptional()
+  includeCashInPortfolio?: boolean;
 }

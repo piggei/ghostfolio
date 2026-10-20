@@ -55,10 +55,15 @@ describe('CashManagementService', () => {
   });
 
   describe('account scope and reads', () => {
-    it('returns null for an owned account without cash management', async () => {
+    it('returns an empty zero-based journal without creating an opening balance', async () => {
       const harness = createHarness(null);
 
-      await expect(harness.service.get(scope)).resolves.toBeNull();
+      await expect(harness.service.get(scope)).resolves.toMatchObject({
+        revision: 0,
+        events: [],
+        balances: [],
+        isAutomaticOpening: true
+      });
 
       expectLockedAccount(harness);
       expectScopedStateRead(harness);
@@ -79,6 +84,8 @@ describe('CashManagementService', () => {
         ],
         currency: 'EUR',
         defaultUpdateCash: false,
+        includeCashInPortfolio: true,
+        isAutomaticOpening: false,
         events: [
           {
             amount: '40',
@@ -223,6 +230,8 @@ describe('CashManagementService', () => {
         balances: [{ date: '2026-10-25', value: '500' }],
         currency: 'EUR',
         defaultUpdateCash: false,
+        includeCashInPortfolio: true,
+        isAutomaticOpening: false,
         events: [],
         minimumBalance: {
           date: '2026-10-25',
@@ -577,7 +586,7 @@ describe('CashManagementService', () => {
       });
     });
 
-    it('rejects changing a movement into a checkpoint', async () => {
+    it('changes a movement into an absolute reconciliation without duplicating it', async () => {
       const harness = createHarness(reconciledState());
 
       await expect(
@@ -587,10 +596,17 @@ describe('CashManagementService', () => {
           eventId: 'deposit',
           expectedRevision: 3
         })
-      ).rejects.toBeInstanceOf(BadRequestException);
-
-      expectNoWrites(harness);
-      expect(harness.emit).not.toHaveBeenCalled();
+      ).resolves.toMatchObject({
+        revision: 4,
+        events: expect.arrayContaining([
+          expect.objectContaining({
+            id: 'deposit',
+            type: 'CHECKPOINT',
+            balance: '40'
+          })
+        ])
+      });
+      expect(harness.getState().events).toHaveLength(3);
     });
 
     it.each(['create', 'update'] as const)(
@@ -1093,6 +1109,7 @@ function createHarness(initialState: StoredState | null) {
       .fn()
       .mockResolvedValue([{ currency: 'EUR', id: scope.accountId }]),
     accountBalance: {
+      findMany: jest.fn().mockResolvedValue([]),
       deleteMany: jest.fn().mockResolvedValue({ count: 0 }),
       findFirst: jest.fn().mockResolvedValue(null),
       upsert: jest.fn().mockImplementation(({ create, update }) => {

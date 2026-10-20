@@ -556,4 +556,143 @@ describeDatabase('Cash management with PostgreSQL', () => {
     expect(result.events).toHaveLength(1);
     expect(result.events[0].orderId).toBe(restoredOrder.id);
   });
+  it('starts at zero without a dated row and accepts the first backdated movement', async () => {
+    const empty = await service.get(scope());
+    expect(empty.events).toEqual([]);
+    expect(empty.balances).toEqual([]);
+    expect(await prisma.accountCashState.count({ where: scope() })).toBe(0);
+    const first = await service.createEvent({
+      ...scope(),
+      expectedRevision: 0,
+      event: { type: 'MOVEMENT', amount: '200', date: '2026-10-10' }
+    });
+    expect(first.balances).toEqual([{ date: '2026-10-10', value: '200' }]);
+    const earlier = await service.createEvent({
+      ...scope(),
+      expectedRevision: first.revision,
+      event: { type: 'MOVEMENT', amount: '100', date: '2026-10-01' }
+    });
+    expect(earlier.balances).toEqual([
+      { date: '2026-10-01', value: '100' },
+      { date: '2026-10-10', value: '300' }
+    ]);
+    expect(await prisma.accountBalance.count({ where: scope() })).toBe(2);
+    const removed = await service.deleteEvent({
+      ...scope(),
+      expectedRevision: earlier.revision,
+      eventId: first.events[0].id
+    });
+    expect(removed.balances.at(-1).value).toBe('100');
+    const cleared = await service.deleteEvent({
+      ...scope(),
+      expectedRevision: removed.revision,
+      eventId: removed.events[0].id
+    });
+    expect(cleared.balances).toEqual([]);
+    expect(await prisma.accountBalance.count({ where: scope() })).toBe(0);
+  });
+
+  it('keeps reconciliations absolute after retroactive changes and permits changing operation type', async () => {
+    let state = await service.createEvent({
+      ...scope(),
+      expectedRevision: 0,
+      event: { type: 'MOVEMENT', amount: '1000', date: '2026-10-01' }
+    });
+    state = await service.createEvent({
+      ...scope(),
+      expectedRevision: state.revision,
+      event: { type: 'MOVEMENT', amount: '-300', date: '2026-10-02' }
+    });
+    state = await service.createEvent({
+      ...scope(),
+      expectedRevision: state.revision,
+      event: { type: 'CHECKPOINT', balance: '380', date: '2026-10-10' }
+    });
+    const checkpointId = state.events.at(-1).id;
+    state = await service.createEvent({
+      ...scope(),
+      expectedRevision: state.revision,
+      event: { type: 'MOVEMENT', amount: '50', date: '2026-10-11' }
+    });
+    state = await service.createEvent({
+      ...scope(),
+      expectedRevision: state.revision,
+      event: { type: 'MOVEMENT', amount: '100', date: '2026-10-05' }
+    });
+    expect(state.balances.at(-1).value).toBe('430');
+    state = await service.updateEvent({
+      ...scope(),
+      expectedRevision: state.revision,
+      eventId: checkpointId,
+      event: { type: 'MOVEMENT', amount: '380', date: '2026-10-10' }
+    });
+    expect(state.balances.at(-1).value).toBe('1230');
+  });
+
+  it('adopts legacy snapshots as editable reconciliations without replaying old activities', async () => {
+    await prisma.accountBalance.createMany({
+      data: [
+        { ...scope(), date: day('2026-09-01'), value: 1000 },
+        { ...scope(), date: day('2026-09-10'), value: 400 }
+      ]
+    });
+    const preview = await service.get(scope());
+    expect(preview.events.map((event) => event.type)).toEqual([
+      'CHECKPOINT',
+      'CHECKPOINT'
+    ]);
+    expect(await prisma.accountCashState.count({ where: scope() })).toBe(0);
+    const result = await service.createEvent({
+      ...scope(),
+      expectedRevision: 0,
+      event: { type: 'MOVEMENT', amount: '50', date: '2026-09-05' }
+    });
+    expect(result.balances).toEqual([
+      { date: '2026-09-01', value: '1000' },
+      { date: '2026-09-05', value: '1050' },
+      { date: '2026-09-10', value: '400' }
+    ]);
+    expect(result.events.map((event) => event.id)).toEqual(
+      expect.arrayContaining(preview.events.map((event) => event.id))
+    );
+  });
+
+  it('changes visibility per account without changing cash history or investment defaults', async () => {
+    let state = await service.updatePreferences({
+      ...scope(),
+      expectedRevision: 0,
+      includeCashInPortfolio: false
+    });
+    expect(state.defaultUpdateCash).toBe(false);
+    expect(state.balances).toEqual([]);
+    expect(await prisma.accountBalance.count({ where: scope() })).toBe(0);
+    state = await service.createEvent({
+      ...scope(),
+      expectedRevision: state.revision,
+      event: { type: 'MOVEMENT', amount: '1000', date: '2026-10-01' }
+    });
+    const balances = new AccountBalanceService(
+      emitter,
+      exchangeRate as never,
+      prisma,
+      service
+    );
+    expect(
+      await balances.getAccountBalanceItems({ userCurrency: 'EUR', userId })
+    ).toEqual([]);
+    expect(
+      (await balances.getAccountBalances({ userCurrency: 'EUR', userId }))
+        .balances
+    ).toHaveLength(1);
+    const visible = await service.updatePreferences({
+      ...scope(),
+      expectedRevision: state.revision,
+      includeCashInPortfolio: true
+    });
+    expect(visible.events).toEqual(state.events);
+    expect(visible.balances).toEqual(state.balances);
+    expect(
+      await balances.getAccountBalanceItems({ userCurrency: 'EUR', userId })
+    ).toEqual([{ date: '2026-10-01', value: 1000 }]);
+  });
 });

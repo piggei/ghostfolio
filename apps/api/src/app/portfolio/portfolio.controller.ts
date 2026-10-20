@@ -569,6 +569,7 @@ export class PortfolioController {
         performanceInformation.performance,
         [
           'currentNetWorth',
+          'totalCashInBaseCurrency',
           'currentValueInBaseCurrency',
           'dividendInBaseCurrency',
           'grossPerformance',

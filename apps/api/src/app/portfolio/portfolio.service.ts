@@ -1231,6 +1231,7 @@ export class PortfolioService {
         hasErrors: false,
         performance: {
           currentNetWorth: 0,
+          totalCashInBaseCurrency: 0,
           currentValueInBaseCurrency: 0,
           dividendInBaseCurrency: 0,
           dividendPercentageWithCurrencyEffect: 0,
@@ -1273,6 +1274,7 @@ export class PortfolioService {
       netPerformanceInPercentageWithCurrencyEffect,
       netPerformanceWithCurrencyEffect,
       netWorth,
+      totalCashInBaseCurrency,
       totalInvestment,
       totalInvestmentValueWithCurrencyEffect,
       valueWithCurrencyEffect
@@ -1310,6 +1312,7 @@ export class PortfolioService {
         totalInvestment,
         totalInvestmentValueWithCurrencyEffect,
         currentNetWorth: netWorth,
+        totalCashInBaseCurrency: totalCashInBaseCurrency ?? 0,
         currentValueInBaseCurrency: valueWithCurrencyEffect,
         dividendPercentageWithCurrencyEffect:
           dividendInPercentageWithCurrencyEffect,

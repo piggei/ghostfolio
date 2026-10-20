@@ -144,6 +144,8 @@ export class ExportService {
             version: 1,
             currency: snapshot.currency,
             defaultUpdateCash: snapshot.defaultUpdateCash,
+            includeCashInPortfolio: snapshot.includeCashInPortfolio,
+            isAutomaticOpening: snapshot.isAutomaticOpening,
             openingBalance: snapshot.openingBalance,
             events: snapshot.events
           };

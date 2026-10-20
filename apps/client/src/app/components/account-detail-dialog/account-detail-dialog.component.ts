@@ -17,7 +17,6 @@ import {
 import { hasPermission, permissions } from '@ghostfolio/common/permissions';
 import { hasScope, scopes } from '@ghostfolio/common/scopes';
 import type { Tag } from '@ghostfolio/prisma/browser';
-import { GfAccountBalancesComponent } from '@ghostfolio/ui/account-balances';
 import { GfActivitiesTableComponent } from '@ghostfolio/ui/activities-table';
 import { GfDialogFooterComponent } from '@ghostfolio/ui/dialog-footer';
 import { GfDialogHeaderComponent } from '@ghostfolio/ui/dialog-header';
@@ -68,7 +67,6 @@ import {
   changeDetection: ChangeDetectionStrategy.OnPush,
   host: { class: 'd-flex flex-column h-100' },
   imports: [
-    GfAccountBalancesComponent,
     GfCashManagementComponent,
     GfActivitiesTableComponent,
     GfDialogFooterComponent,
