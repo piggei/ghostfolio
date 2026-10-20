@@ -194,7 +194,8 @@ echo "API PID: ${API_PID}"
 
 echo
 echo "=== Starting Ghostfolio client ==="
-npm run start:client &
+npx nx run client:copy-assets
+npx nx run client:serve --configuration=development-it --hmr -o &
 CLIENT_PID=$!
 
 echo "Client PID: ${CLIENT_PID}"
