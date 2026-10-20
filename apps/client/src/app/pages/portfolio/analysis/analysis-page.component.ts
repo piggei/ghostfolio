@@ -114,7 +114,7 @@ export class GfAnalysisPageComponent implements OnInit {
   protected performanceDataItemsInPercentage: LineChartItem[];
   protected performancePercentagesByYear: InvestmentItem[];
   protected readonly performanceTimelineDataLabel = $localize`Net Performance`;
-  protected readonly portfolioEvolutionDataLabel = $localize`Invested Capital`;
+  protected readonly portfolioEvolutionDataLabel = $localize`Net invested capital`;
   protected precision = 2;
   protected savingsRatePerMonth: number | undefined;
   protected streaks: PortfolioInvestmentsResponse['streaks'];
@@ -388,7 +388,10 @@ export class GfAnalysisPageComponent implements OnInit {
           if (totalInvestmentValueWithCurrencyEffect !== undefined) {
             this.investments.push({
               date,
-              investment: totalInvestmentValueWithCurrencyEffect
+              investment:
+                (netWorth ?? valueWithCurrencyEffect ?? 0) -
+                (totalCashInBaseCurrency ?? 0) -
+                (netPerformanceWithCurrencyEffect ?? 0)
             });
           }
 
