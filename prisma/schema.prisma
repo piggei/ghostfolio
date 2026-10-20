@@ -186,6 +186,7 @@ model AuthDevice {
 }
 
 model CashEvent {
+  fee        Decimal @default(0) @db.Decimal(65, 30)
   accountId  String
   comment    String?
   createdAt  DateTime         @default(now())

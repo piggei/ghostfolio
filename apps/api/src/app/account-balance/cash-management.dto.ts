@@ -45,6 +45,11 @@ export class CashOpeningDto {
 
 export class CashEventDto {
   @IsString()
+  @IsOptional()
+  @MaxLength(100)
+  fee?: string;
+
+  @IsString()
   @MaxLength(100)
   @ValidateIf((event) => event.type === 'MOVEMENT')
   amount?: string;

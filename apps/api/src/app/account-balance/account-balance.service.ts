@@ -139,18 +139,20 @@ export class AccountBalanceService {
   public async getAccountBalanceItems({
     filters,
     userCurrency,
-    userId
+    userId,
+    withHiddenCash = false
   }: {
     filters?: Filter[];
     userCurrency: string;
     userId: string;
+    withHiddenCash?: boolean;
   }): Promise<HistoricalDataItem[]> {
     const { balances } = await this.getAccountBalances({
       filters,
       userCurrency,
       userId,
       withExcludedAccounts: false,
-      withHiddenCash: false
+      withHiddenCash
     });
     const accumulatedBalancesByDate: { [date: string]: HistoricalDataItem } =
       {};

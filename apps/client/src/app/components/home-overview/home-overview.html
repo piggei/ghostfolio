@@ -5,7 +5,8 @@
     !hasImpersonationId() &&
     hasPermissionToCreateActivity() &&
     user()?.activitiesCount === 0 &&
-    (performance()?.currentNetWorth ?? 0) === 0
+    historicalDataItems().length === 0 &&
+    (user()?.accounts?.length ?? 0) <= 1
   ) {
     <div class="justify-content-center row w-100">
       <div class="col introduction">
@@ -119,7 +120,7 @@
         <div class="mt-1">
           <gf-portfolio-performance
             [errors]="errors()"
-            [includeCash]="includeCash()"
+            [includeCash]="chartMode() === 'performance' || includeCash()"
             [isLoading]="isLoadingPerformance()"
             [locale]="locale()"
             [performance]="performance()"
@@ -136,7 +137,7 @@
             class="h-100 holdings position-absolute w-100"
           >
             <mat-card-header>
-              <mat-card-title i18n>Holdings</mat-card-title>
+              <mat-card-title i18n>Investment positions</mat-card-title>
             </mat-card-header>
             <mat-card-content class="overflow-auto">
               <gf-holdings-table

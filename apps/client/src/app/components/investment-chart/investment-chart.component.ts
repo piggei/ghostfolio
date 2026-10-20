@@ -63,6 +63,7 @@ export class GfInvestmentChartComponent implements OnChanges, OnDestroy {
   @Input() public historicalDataItems: LineChartItem[] = [];
   @Input() public isInPercentage?: boolean = false;
   @Input() public isLoading = false;
+  @Input() public isValueStepped = false;
   @Input() public locale?: string = getLocale();
   @Input() public savingsRate?: number = 0;
 
@@ -162,6 +163,7 @@ export class GfInvestmentChartComponent implements OnChanges, OnDestroy {
             };
           }),
           fill: false,
+          stepped: this.isValueStepped,
           label: $localize`Total Amount`,
           pointRadius: 0,
           segment: {

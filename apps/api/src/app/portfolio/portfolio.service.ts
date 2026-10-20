@@ -45,6 +45,7 @@ import {
   getAssetProfileIdentifier,
   getSum,
   isAccountExcluded,
+  isCashPosition,
   isDraftActivity,
   parseDate,
   resetHours,
@@ -499,6 +500,7 @@ export class PortfolioService {
       dateRange,
       userId,
       filters: filtersWithoutSearchQueryFilter,
+      withHiddenCash: true,
       includeAllHoldings: !filterByHoldingType
     });
 
@@ -607,6 +609,7 @@ export class PortfolioService {
     dateRange = DEFAULT_DATE_RANGE,
     filters,
     includeAllHoldings = false,
+    withHiddenCash = false,
     user: userFromCaller,
     userId,
     withExcludedAccounts = false,
@@ -616,6 +619,7 @@ export class PortfolioService {
     dateRange?: DateRange;
     filters?: Filter[];
     includeAllHoldings?: boolean;
+    withHiddenCash?: boolean;
     user?: UserWithSettings;
     userId: string;
     withExcludedAccounts?: boolean;
@@ -638,10 +642,15 @@ export class PortfolioService {
       await this.activitiesService.getActivitiesForPortfolioCalculator({
         userCurrency,
         userId,
-        filters: portfolioSnapshotFilters
+        filters: portfolioSnapshotFilters,
+        withCash: true,
+        withHiddenCash
       });
 
+    // Cash selection differs between analysis and explicit balance views.
+    // The shared snapshot cache does not distinguish those selections.
     const portfolioCalculator = this.calculatorFactory.createCalculator({
+      usePortfolioSnapshotCache: false,
       activities,
       userId,
       calculationType: this.getUserPerformanceCalculationType(user),
@@ -656,6 +665,7 @@ export class PortfolioService {
     const cashDetails = await this.accountService.getCashDetails({
       filters,
       userId,
+      withHiddenCash,
       currency: userCurrency
     });
 
@@ -1215,12 +1225,15 @@ export class PortfolioService {
       this.accountBalanceService.getAccountBalanceItems({
         filters,
         userId,
+        withHiddenCash: true,
         userCurrency
       }),
       this.activitiesService.getActivitiesForPortfolioCalculator({
         filters,
         userCurrency,
-        userId
+        userId,
+        withCash: true,
+        withHiddenCash: true
       })
     ]);
 
@@ -1246,6 +1259,7 @@ export class PortfolioService {
     }
 
     const portfolioCalculator = this.calculatorFactory.createCalculator({
+      usePortfolioSnapshotCache: false,
       accountBalanceItems,
       activities,
       filters,
@@ -1714,6 +1728,7 @@ export class PortfolioService {
     };
 
     for (const position of holdings) {
+      if (isCashPosition(position.assetProfile)) continue;
       const value = position.valueInBaseCurrency;
 
       if (position.assetProfile.countries.length > 0) {
@@ -1742,11 +1757,12 @@ export class PortfolioService {
       }
     }
 
-    const marketsTotalInBaseCurrency = getSum(
-      Object.values(markets).map(({ valueInBaseCurrency }) => {
-        return new Big(valueInBaseCurrency);
-      })
-    ).toNumber();
+    const marketsTotalInBaseCurrency =
+      getSum(
+        Object.values(markets).map(({ valueInBaseCurrency }) => {
+          return new Big(valueInBaseCurrency);
+        })
+      ).toNumber() || 1;
 
     markets.developedMarkets.valueInPercentage =
       markets.developedMarkets.valueInBaseCurrency / marketsTotalInBaseCurrency;
@@ -1759,12 +1775,12 @@ export class PortfolioService {
 
     const marketsAdvancedTotal =
       marketsAdvanced.asiaPacific.valueInBaseCurrency +
-      marketsAdvanced.emergingMarkets.valueInBaseCurrency +
-      marketsAdvanced.europe.valueInBaseCurrency +
-      marketsAdvanced.japan.valueInBaseCurrency +
-      marketsAdvanced.northAmerica.valueInBaseCurrency +
-      marketsAdvanced.otherMarkets.valueInBaseCurrency +
-      marketsAdvanced[UNKNOWN_KEY].valueInBaseCurrency;
+        marketsAdvanced.emergingMarkets.valueInBaseCurrency +
+        marketsAdvanced.europe.valueInBaseCurrency +
+        marketsAdvanced.japan.valueInBaseCurrency +
+        marketsAdvanced.northAmerica.valueInBaseCurrency +
+        marketsAdvanced.otherMarkets.valueInBaseCurrency +
+        marketsAdvanced[UNKNOWN_KEY].valueInBaseCurrency || 1;
 
     marketsAdvanced.asiaPacific.valueInPercentage =
       marketsAdvanced.asiaPacific.valueInBaseCurrency / marketsAdvancedTotal;
@@ -2252,7 +2268,16 @@ export class PortfolioService {
       activityType: 'SELL'
     }).toNumber();
 
+    const recordedCash = await this.accountService.getCashDetails({
+      userId,
+      currency: userCurrency,
+      withHiddenCash: true
+    });
+    const hiddenCash = new Big(recordedCash.balanceInBaseCurrency).minus(
+      balanceInBaseCurrency
+    );
     const cash = new Big(balanceInBaseCurrency)
+      .plus(hiddenCash)
       .minus(totalEmergencyFund)
       .plus(emergencyFundHoldingsValueInBaseCurrency)
       .toNumber();
@@ -2342,7 +2367,7 @@ export class PortfolioService {
       filteredValueInBaseCurrency: filteredValueInBaseCurrency.toNumber(),
       filteredValueInPercentage: netWorth
         ? filteredValueInBaseCurrency.div(netWorth).toNumber()
-        : undefined,
+        : 1,
       fireWealth: {
         today: {
           valueInBaseCurrency: fireWealthInBaseCurrency.gt(0)
@@ -2358,12 +2383,16 @@ export class PortfolioService {
         .toNumber(),
       interestInBaseCurrency: interest.toNumber(),
       liabilitiesInBaseCurrency: liabilities.toNumber(),
-      totalAssetsInBaseCurrency: totalAssetsInBaseCurrency.toNumber(),
-      totalCashInBaseCurrency: totalCashInBaseCurrency.toNumber(),
+      totalAssetsInBaseCurrency: totalAssetsInBaseCurrency
+        .plus(hiddenCash)
+        .toNumber(),
+      totalCashInBaseCurrency: totalCashInBaseCurrency
+        .plus(hiddenCash)
+        .toNumber(),
       totalInvestment: totalInvestment.toNumber(),
       totalInvestmentValueWithCurrencyEffect:
         totalInvestmentWithCurrencyEffect.toNumber(),
-      totalValueInBaseCurrency: netWorth
+      totalValueInBaseCurrency: new Big(netWorth).plus(hiddenCash).toNumber()
     };
   }
 
@@ -2485,16 +2514,23 @@ export class PortfolioService {
       const currentAccountId = account?.id || UNKNOWN_KEY;
       const currentPlatformId = account?.platformId || UNKNOWN_KEY;
 
-      const ordersByAccount = activities.filter(({ accountId }) => {
-        return account ? accountId === account.id : !accountId;
-      });
+      const ordersByAccount = activities.filter(
+        ({ accountId, isCashBalanceProjection }) => {
+          return (
+            !isCashBalanceProjection &&
+            (account ? accountId === account.id : !accountId)
+          );
+        }
+      );
 
       if (account) {
         // The cash balance is not part of a holding or of an asset class other
         // than liquidity and would distort the value and thus the allocation
         // per account and platform
         const balanceInBaseCurrency =
-          filterBySymbol || isFilteredByAssetClassOtherThanLiquidity
+          account.cashManagement?.includeCashInPortfolio === false ||
+          filterBySymbol ||
+          isFilteredByAssetClassOtherThanLiquidity
             ? 0
             : this.exchangeRateDataService.toCurrency(
                 account.balance,
@@ -2506,10 +2542,14 @@ export class PortfolioService {
           balance: account.balance,
           currency: account.currency,
           name: account.name,
+          cashValueInBaseCurrency: balanceInBaseCurrency,
           valueInBaseCurrency: balanceInBaseCurrency
         };
 
         if (platforms[currentPlatformId]) {
+          platforms[currentPlatformId].cashValueInBaseCurrency =
+            (platforms[currentPlatformId].cashValueInBaseCurrency ?? 0) +
+            balanceInBaseCurrency;
           platforms[currentPlatformId].valueInBaseCurrency = new Big(
             platforms[currentPlatformId].valueInBaseCurrency
           )
@@ -2520,6 +2560,7 @@ export class PortfolioService {
             balance: account.balance,
             currency: account.currency,
             name: account.platform?.name,
+            cashValueInBaseCurrency: balanceInBaseCurrency,
             valueInBaseCurrency: balanceInBaseCurrency
           };
         }

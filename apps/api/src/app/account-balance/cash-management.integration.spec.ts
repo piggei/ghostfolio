@@ -695,4 +695,85 @@ describeDatabase('Cash management with PostgreSQL', () => {
       await balances.getAccountBalanceItems({ userCurrency: 'EUR', userId })
     ).toEqual([{ date: '2026-10-01', value: 1000 }]);
   });
+  it('subtracts bank fees once while preserving gross amounts through edit, deletion and restore', async () => {
+    let state = await service.createEvent({
+      ...scope(),
+      expectedRevision: 0,
+      event: { type: 'MOVEMENT', amount: '1000', fee: '5', date: '2026-10-01' }
+    });
+    expect(state.events[0]).toMatchObject({ amount: '1000', fee: '5' });
+    expect(state.balances.at(-1).value).toBe('995');
+    state = await service.createEvent({
+      ...scope(),
+      expectedRevision: state.revision,
+      event: { type: 'MOVEMENT', amount: '-300', fee: '3', date: '2026-10-02' }
+    });
+    expect(state.balances.at(-1).value).toBe('692');
+    const withdrawalId = state.events.at(-1).id;
+    state = await service.updateEvent({
+      ...scope(),
+      eventId: withdrawalId,
+      expectedRevision: state.revision,
+      event: { type: 'MOVEMENT', amount: '-300', fee: '7', date: '2026-10-02' }
+    });
+    expect(state.balances.at(-1).value).toBe('688');
+    const target = await prisma.account.create({
+      data: { userId, currency: 'EUR', name: 'Fee restore' }
+    });
+    await service.restore(
+      { accountId: target.id, userId },
+      { ...state, version: 1 },
+      {}
+    );
+    const restored = await service.get({ accountId: target.id, userId });
+    expect(restored.balances).toEqual(state.balances);
+    expect(restored.events.map((e) => e.fee)).toEqual(['5', '7']);
+    state = await service.deleteEvent({
+      ...scope(),
+      eventId: withdrawalId,
+      expectedRevision: state.revision
+    });
+    expect(state.balances.at(-1).value).toBe('995');
+    state = await service.createEvent({
+      ...scope(),
+      expectedRevision: state.revision,
+      event: {
+        type: 'CHECKPOINT',
+        balance: '380',
+        fee: '0',
+        date: '2026-10-03'
+      }
+    });
+    expect(state.balances.at(-1).value).toBe('380');
+    expect(await prisma.cashEvent.count({ where: scope() })).toBe(2);
+  });
+
+  it('rejects negative fees and fees on reconciliation without creating any state', async () => {
+    await expect(
+      service.createEvent({
+        ...scope(),
+        expectedRevision: 0,
+        event: {
+          type: 'MOVEMENT',
+          amount: '100',
+          fee: '-1',
+          date: '2026-10-01'
+        }
+      })
+    ).rejects.toThrow();
+    await expect(
+      service.createEvent({
+        ...scope(),
+        expectedRevision: 0,
+        event: {
+          type: 'CHECKPOINT',
+          balance: '100',
+          fee: '1',
+          date: '2026-10-01'
+        }
+      })
+    ).rejects.toThrow();
+    expect(await prisma.accountCashState.count({ where: scope() })).toBe(0);
+    expect(await prisma.accountBalance.count({ where: scope() })).toBe(0);
+  });
 });

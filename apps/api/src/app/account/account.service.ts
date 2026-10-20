@@ -49,7 +49,13 @@ export class AccountService {
   }: Prisma.AccountWhereUniqueInput): Promise<AccountWithBalance | null> {
     const account = await this.prismaService.account.findUnique({
       include: {
-        cashState: { select: { defaultUpdateCash: true, openingDate: true } },
+        cashState: {
+          select: {
+            defaultUpdateCash: true,
+            openingDate: true,
+            includeCashInPortfolio: true
+          }
+        },
         balances: {
           orderBy: { date: 'desc' },
           take: 1,
@@ -71,6 +77,7 @@ export class AccountService {
       cashManagement: cashState
         ? {
             defaultUpdateCash: cashState.defaultUpdateCash,
+            includeCashInPortfolio: cashState.includeCashInPortfolio,
             openingDate: cashState.openingDate.toISOString().slice(0, 10)
           }
         : undefined,
@@ -113,7 +120,11 @@ export class AccountService {
     const { include = {}, skip, take, cursor, where, orderBy } = params;
 
     include.cashState = {
-      select: { defaultUpdateCash: true, openingDate: true }
+      select: {
+        defaultUpdateCash: true,
+        openingDate: true,
+        includeCashInPortfolio: true
+      }
     };
     const isBalancesIncluded = !!include.balances;
     const isTagsIncluded = !!include.tags;
@@ -157,6 +168,7 @@ export class AccountService {
         cashManagement: account.cashState
           ? {
               defaultUpdateCash: account.cashState.defaultUpdateCash,
+              includeCashInPortfolio: account.cashState.includeCashInPortfolio,
               openingDate: account.cashState.openingDate
                 .toISOString()
                 .slice(0, 10)
@@ -281,12 +293,14 @@ export class AccountService {
     currency,
     filters = [],
     userId,
-    withExcludedAccounts = false
+    withExcludedAccounts = false,
+    withHiddenCash = false
   }: {
     currency: string;
     filters?: Filter[];
     userId: string;
     withExcludedAccounts?: boolean;
+    withHiddenCash?: boolean;
   }): Promise<CashDetails> {
     let totalCashBalanceInBaseCurrency = new Big(0);
 
@@ -298,15 +312,16 @@ export class AccountService {
       where.AND = [WHERE_ACCOUNT_NOT_EXCLUDED];
     }
 
-    where.AND = [
-      ...(Array.isArray(where.AND) ? where.AND : []),
-      {
-        OR: [
-          { cashState: { is: null } },
-          { cashState: { is: { includeCashInPortfolio: true } } }
-        ]
-      }
-    ];
+    if (!withHiddenCash)
+      where.AND = [
+        ...(Array.isArray(where.AND) ? where.AND : []),
+        {
+          OR: [
+            { cashState: { is: null } },
+            { cashState: { is: { includeCashInPortfolio: true } } }
+          ]
+        }
+      ];
 
     const { ACCOUNT: filtersByAccount = [] } = groupBy(filters, ({ type }) => {
       return type;

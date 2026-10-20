@@ -18,8 +18,8 @@
           [checked]="state.includeCashInPortfolio !== false"
           [disabled]="busy()"
           (change)="preferences({ includeCashInPortfolio: $event.checked })"
-          >Include this account's cash in portfolio totals and value
-          charts</mat-checkbox
+          >Consider this account's cash in analyses and
+          allocations</mat-checkbox
         >
       </div>
       <form class="cash-form" [formGroup]="form" (ngSubmit)="save()">
@@ -42,6 +42,16 @@
             <mat-label i18n>Amount</mat-label>
           }
           <input formControlName="amount" inputmode="decimal" matInput />
+          <span matTextSuffix>{{ currency() }}</span>
+        </mat-form-field>
+        <mat-form-field appearance="outline">
+          <mat-label i18n>Fee</mat-label>
+          <input
+            formControlName="fee"
+            inputmode="decimal"
+            matInput
+            [readonly]="form.controls.operation.value === 'CHECKPOINT'"
+          />
           <span matTextSuffix>{{ currency() }}</span>
         </mat-form-field>
         <mat-form-field appearance="outline">
@@ -88,6 +98,7 @@
             <th i18n>Date</th>
             <th i18n>Operation</th>
             <th class="text-end" i18n>Amount</th>
+            <th class="text-end" i18n>Fee</th>
             <th class="text-end" i18n>Cash Balance</th>
             <th i18n>Note</th>
             <th><span class="visually-hidden" i18n>Actions</span></th>
@@ -100,6 +111,9 @@
               <td>{{ eventLabel(event) }}</td>
               <td class="text-end text-nowrap">
                 {{ eventAmount(event) }} {{ currency() }}
+              </td>
+              <td class="text-end text-nowrap">
+                {{ event.fee ?? 0 }} {{ currency() }}
               </td>
               <td class="text-end text-nowrap">
                 {{ balanceAfter(event) }} {{ currency() }}
@@ -156,7 +170,7 @@
             </tr>
           } @empty {
             <tr>
-              <td colspan="6" i18n>No cash transactions yet.</td>
+              <td colspan="7" i18n>No cash transactions yet.</td>
             </tr>
           }
         </tbody>

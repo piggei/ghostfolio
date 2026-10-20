@@ -18,6 +18,7 @@ import { EventEmitter2 } from '@nestjs/event-emitter';
 import { Account, CashEvent, Order, Prisma } from '@prisma/client';
 import { Big } from 'big.js';
 import { format } from 'date-fns';
+import { omit } from 'lodash-es';
 import { randomUUID } from 'node:crypto';
 
 import {
@@ -703,6 +704,7 @@ export class CashManagementService {
         date: this.toUtcDate(date),
         sequence,
         value: new Prisma.Decimal(value),
+        fee: new Prisma.Decimal(0),
         type: 'MOVEMENT',
         comment: order.comment,
         orderId: order.id,
@@ -842,6 +844,7 @@ export class CashManagementService {
             sequence: this.nextSequence(state),
             type: 'MOVEMENT' as const,
             value: new Prisma.Decimal(this.normalizeValue(value)),
+            fee: new Prisma.Decimal(0),
             comment: 'Cash transfer',
             orderId: null,
             transferId,
@@ -1070,9 +1073,16 @@ export class CashManagementService {
     date: Date;
     type: CashEvent['type'];
     value: string;
+    fee: string;
   } {
     const date = this.toUtcDate(event.date);
     const comment = event.comment ?? null;
+    const fee = this.normalizeValue(event.fee ?? '0');
+    if (new Big(fee).lt(0) || (event.type === 'CHECKPOINT' && fee !== '0')) {
+      throw new BadRequestException(
+        'Fees must be non-negative; reconciliations have no fee'
+      );
+    }
 
     if (comment !== null && typeof comment !== 'string') {
       throw new BadRequestException('Cash event comments must be strings');
@@ -1082,6 +1092,7 @@ export class CashManagementService {
       case 'MOVEMENT':
         return {
           comment,
+          fee,
           date,
           type: event.type,
           value: this.normalizeValue(event.amount)
@@ -1089,6 +1100,7 @@ export class CashManagementService {
       case 'CHECKPOINT':
         return {
           comment,
+          fee,
           date,
           type: event.type,
           value: this.normalizeValue(event.balance)
@@ -1209,9 +1221,7 @@ export class CashManagementService {
           isAutomaticOpening,
           lastSequence: draft.lastSequence,
           events: {
-            create: events.map(
-              ({ accountId: _account, userId: _user, ...event }) => event
-            )
+            create: events.map((event) => omit(event, ['accountId', 'userId']))
           }
         },
         include: { events: true }
@@ -1252,13 +1262,20 @@ export class CashManagementService {
     date,
     sequence,
     type,
-    value
-  }: EventValue): CashBalanceEvent {
+    value,
+    fee
+  }: EventValue & { fee?: { toString(): string } | string }): CashBalanceEvent {
     const position = { date: date.toISOString().slice(0, 10), sequence };
 
     switch (type) {
       case 'MOVEMENT':
-        return { ...position, amount: value.toString(), type };
+        return {
+          ...position,
+          amount: new Big(value.toString())
+            .minus(fee?.toString() ?? 0)
+            .toFixed(),
+          type
+        };
       case 'CHECKPOINT':
         return { ...position, balance: value.toString(), type };
       default:
@@ -1287,6 +1304,7 @@ export class CashManagementService {
       sequence: index + 1,
       type: 'CHECKPOINT',
       value: new Prisma.Decimal(String(balance.value)),
+      fee: new Prisma.Decimal(0),
       comment: null,
       orderId: null,
       transferId: null,
@@ -1325,6 +1343,12 @@ export class CashManagementService {
       .map((event) => {
         return {
           ...this.toCalculatorEvent(event),
+          ...(event.type === 'MOVEMENT'
+            ? { amount: event.value.toString() }
+            : {}),
+          ...(event.fee && !new Big(event.fee.toString()).eq(0)
+            ? { fee: event.fee.toString() }
+            : {}),
           comment: event.comment,
           id: event.id,
           ...(event.orderId ? { orderId: event.orderId } : {}),

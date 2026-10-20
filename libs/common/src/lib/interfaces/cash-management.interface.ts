@@ -1,5 +1,6 @@
 export type CashEventInput = {
   comment?: string | null;
+  fee?: string;
   date: string;
 } & (
   { amount: string; type: 'MOVEMENT' } | { balance: string; type: 'CHECKPOINT' }
@@ -13,6 +14,7 @@ export type ManagedCashEvent = CashEventInput & {
 };
 
 export interface CashManagementSnapshot {
+  exchangeRateToBaseCurrency?: number;
   accountId: string;
   balances: { date: string; value: string }[];
   currency: string;

@@ -141,7 +141,7 @@ export const internalRoutes = {
       holdings: {
         path: 'holdings',
         routerLink: ['/home', 'holdings'],
-        title: $localize`Holdings`
+        title: $localize`Portfolio composition`
       },
       markets: {
         path: 'markets',
@@ -240,7 +240,7 @@ export const internalRoutes = {
       holdings: {
         path: 'holdings',
         routerLink: ['/zen', 'holdings'],
-        title: $localize`Holdings`
+        title: $localize`Portfolio composition`
       }
     },
     title: $localize`Overview`

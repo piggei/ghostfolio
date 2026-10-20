@@ -596,6 +596,7 @@ export class ActivitiesService {
         }
 
         const syntheticActivityTemplate: Activity = {
+          isCashBalanceProjection: true,
           userId,
           accountId: account.id,
           accountUserId: account.userId,
@@ -715,7 +716,10 @@ export class ActivitiesService {
     ];
 
     if (sortColumn) {
-      orderBy = [{ [sortColumn]: sortDirection }];
+      orderBy = [
+        { [sortColumn]: sortDirection },
+        ...(sortColumn === 'id' ? [] : [{ id: sortDirection }])
+      ];
     }
 
     const where = this.getWhereClause({
@@ -858,6 +862,7 @@ export class ActivitiesService {
     userCurrency,
     userId,
     withCash = false,
+    withHiddenCash = false,
     withExcludedAccountsAndActivities = false
   }: {
     /** Optional filters to apply to the activities. */
@@ -868,6 +873,7 @@ export class ActivitiesService {
     userId: string;
     /** Whether to include cash activities in the result. */
     withCash?: boolean;
+    withHiddenCash?: boolean;
     /** Whether to include activities that are excluded from analysis. */
     withExcludedAccountsAndActivities?: boolean;
   }) {
@@ -896,7 +902,8 @@ export class ActivitiesService {
       const cashDetails = await this.accountService.getCashDetails({
         filters,
         userId,
-        currency: userCurrency
+        currency: userCurrency,
+        withHiddenCash
       });
 
       const cashActivities = await this.getCashActivities({
@@ -910,6 +917,79 @@ export class ActivitiesService {
       activities.count += cashActivities.count;
     }
 
+    if (
+      this.cashManagementService &&
+      !this.areCashActivitiesExcludedByFilters(filters)
+    ) {
+      const accountIds = (filters ?? [])
+        .filter(({ type }) => type === 'ACCOUNT')
+        .map(({ id }) => id);
+      const events = await this.prismaService.cashEvent.findMany({
+        where: {
+          userId,
+          fee: { gt: 0 },
+          orderId: null,
+          transferId: null,
+          ...(accountIds.length ? { accountId: { in: accountIds } } : {}),
+          ...(!withExcludedAccountsAndActivities
+            ? { state: { account: WHERE_ACCOUNT_NOT_EXCLUDED } }
+            : {})
+        },
+        include: { state: { include: { account: true } } }
+      });
+      for (const event of events) {
+        const currency = event.state.currency;
+        const fee = Number(event.fee);
+        const feeInBaseCurrency =
+          await this.exchangeRateDataService.toCurrencyAtDate(
+            fee,
+            currency,
+            userCurrency,
+            event.date
+          );
+        const syntheticFee = {
+          id: `cash-fee:${event.id}`,
+          userId,
+          accountId: event.accountId,
+          accountUserId: userId,
+          account: event.state.account,
+          comment: event.comment,
+          date: event.date,
+          createdAt: event.createdAt,
+          updatedAt: event.updatedAt,
+          currency,
+          fee,
+          feeInAssetProfileCurrency: fee,
+          feeInBaseCurrency,
+          quantity: 0,
+          unitPrice: 0,
+          unitPriceInAssetProfileCurrency: 0,
+          value: 0,
+          valueInBaseCurrency: 0,
+          type: ActivityType.FEE,
+          symbolProfileId: `cash-fee:${currency}`,
+          assetProfile: {
+            id: `cash-fee:${currency}`,
+            symbol: `cash-fee:${currency}`,
+            name: 'Cash transaction fee',
+            currency,
+            dataSource: DataSource.MANUAL,
+            userId,
+            assetClass: null,
+            assetSubClass: null,
+            countries: [],
+            sectors: [],
+            holdings: [],
+            isActive: true,
+            activitiesCount: 0,
+            createdAt: event.createdAt,
+            updatedAt: event.updatedAt
+          }
+        } as Activity;
+        activities.activities.push(syntheticFee);
+        activities.count++;
+      }
+    }
     return activities;
   }
 

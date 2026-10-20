@@ -2,6 +2,7 @@ import { HasPermission } from '@ghostfolio/api/decorators/has-permission.decorat
 import { Impersonation } from '@ghostfolio/api/decorators/impersonation.decorator';
 import { RequiresScope } from '@ghostfolio/api/decorators/requires-scope.decorator';
 import { RedactValuesInResponseInterceptor } from '@ghostfolio/api/interceptors/redact-values-in-response/redact-values-in-response.interceptor';
+import { ExchangeRateDataService } from '@ghostfolio/api/services/exchange-rate-data/exchange-rate-data.service';
 import { CashEventInput } from '@ghostfolio/common/interfaces';
 import { permissions } from '@ghostfolio/common/permissions';
 import { scopes } from '@ghostfolio/common/scopes';
@@ -30,16 +31,28 @@ import { CashManagementService } from './cash-management.service';
 @UseInterceptors(RedactValuesInResponseInterceptor)
 export class CashManagementController {
   public constructor(
-    private readonly cashManagementService: CashManagementService
+    private readonly cashManagementService: CashManagementService,
+    private readonly exchangeRateDataService: ExchangeRateDataService
   ) {}
 
   @Get()
   @RequiresScope(scopes.accountRead, scopes.portfolioReadValues)
-  public get(
+  public async get(
     @Param('accountId') accountId: string,
-    @Impersonation() { userId }: ImpersonationContext
+    @Impersonation() { userId, userSettings }: ImpersonationContext
   ) {
-    return this.cashManagementService.get({ accountId, userId });
+    const snapshot = await this.cashManagementService.get({
+      accountId,
+      userId
+    });
+    return {
+      ...snapshot,
+      exchangeRateToBaseCurrency: this.exchangeRateDataService.toCurrency(
+        1,
+        snapshot.currency,
+        userSettings.baseCurrency
+      )
+    };
   }
 
   @Post('open')

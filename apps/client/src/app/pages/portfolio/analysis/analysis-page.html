@@ -94,7 +94,7 @@
             >Portfolio value including cash</gf-value
           >
           <div class="d-flex justify-content-between small mt-2">
-            <span i18n>Investments</span>
+            <span i18n>Investment positions</span>
             <gf-value
               [isCurrency]="true"
               [locale]="user?.settings?.locale"
@@ -216,7 +216,7 @@
             <div
               class="align-items-center d-flex flex-grow-1 me-2 text-truncate"
             >
-              <span i18n>Absolute Currency Performance</span>
+              <span i18n>Currency effect on performance</span>
               @if (user?.subscription?.type === 'Basic') {
                 <gf-premium-indicator class="ms-1" />
               }
@@ -507,8 +507,14 @@
       <div class="chart-container">
         <gf-investment-chart
           class="h-100"
-          [benchmarkDataItems]="investments"
-          [benchmarkDataLabel]="portfolioEvolutionDataLabel"
+          [benchmarkDataItems]="
+            includeCashInValueChart() ? adjustedCapitalDataItems : investments
+          "
+          [benchmarkDataLabel]="
+            includeCashInValueChart()
+              ? adjustedCapitalLabel
+              : portfolioEvolutionDataLabel
+          "
           [colorScheme]="user?.settings?.colorScheme"
           [currency]="user?.settings?.baseCurrency"
           [historicalDataItems]="
@@ -520,6 +526,7 @@
           "
           [isInPercentage]="showValuesInPercentage()"
           [isLoading]="isLoadingInvestmentChart"
+          [isValueStepped]="true"
           [locale]="user?.settings?.locale"
         />
       </div>

@@ -86,6 +86,8 @@ export class GfAnalysisPageComponent implements OnInit {
   protected readonly includeCashInValueChart = signal(true);
   protected portfolioValueDataItems: LineChartItem[] = [];
   protected investmentsOnlyDataItems: LineChartItem[] = [];
+  protected adjustedCapitalDataItems: InvestmentItem[] = [];
+  protected readonly adjustedCapitalLabel = $localize`Adjusted capital reference`;
   protected readonly benchmarks: Partial<SymbolProfile>[];
   protected bottom3: PortfolioPosition[];
   protected dividendsByGroup: InvestmentItem[];
@@ -367,6 +369,7 @@ export class GfAnalysisPageComponent implements OnInit {
         this.investments = [];
         this.performance = performance;
         this.performanceDataItems = [];
+        this.adjustedCapitalDataItems = [];
         this.portfolioValueDataItems = [];
         this.investmentsOnlyDataItems = [];
         this.performanceDataItemsInPercentage = [];
@@ -377,6 +380,7 @@ export class GfAnalysisPageComponent implements OnInit {
           netPerformanceInPercentageWithCurrencyEffect,
           totalInvestmentValueWithCurrencyEffect,
           netWorth,
+          netPerformanceWithCurrencyEffect,
           totalCashInBaseCurrency,
           valueInPercentage,
           valueWithCurrencyEffect
@@ -394,6 +398,10 @@ export class GfAnalysisPageComponent implements OnInit {
 
           if (isNumber(netWorth)) {
             this.portfolioValueDataItems.push({ date, value: netWorth });
+            this.adjustedCapitalDataItems.push({
+              date,
+              investment: netWorth - (netPerformanceWithCurrencyEffect ?? 0)
+            });
             this.investmentsOnlyDataItems.push({
               date,
               value: netWorth - (totalCashInBaseCurrency ?? 0)

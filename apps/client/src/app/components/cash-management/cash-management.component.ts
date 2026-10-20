@@ -60,6 +60,7 @@ import { finalize, Observable } from 'rxjs';
 export class GfCashManagementComponent {
   public readonly accountId = input.required<string>();
   public readonly currentBalance = input<number>(0);
+  public readonly eventId = input<string>();
   public readonly currency = input<string | null>();
   public readonly canWrite = input(false);
   public readonly changed = output<void>();
@@ -84,6 +85,10 @@ export class GfCashManagementComponent {
       nonNullable: true,
       validators: [Validators.required, Validators.pattern(/^-?\d+(\.\d+)?$/)]
     }),
+    fee: new FormControl('0', {
+      nonNullable: true,
+      validators: [Validators.required, Validators.pattern(/^\d+(\.\d+)?$/)]
+    }),
     comment: new FormControl('', { nonNullable: true })
   });
   private readonly dataService = inject(DataService);
@@ -93,13 +98,24 @@ export class GfCashManagementComponent {
 
   public constructor() {
     addIcons({ ellipsisVertical });
+    this.form.controls.operation.valueChanges
+      .pipe(takeUntilDestroyed(this.destroyRef))
+      .subscribe((operation) => {
+        if (operation === 'CHECKPOINT') this.form.controls.fee.setValue('0');
+      });
     effect(() => {
       const accountId = this.accountId();
       this.dataService
         .fetchCashManagement(accountId)
         .pipe(takeUntilDestroyed(this.destroyRef))
         .subscribe({
-          next: (snapshot) => this.snapshot.set(snapshot),
+          next: (snapshot) => {
+            this.snapshot.set(snapshot);
+            const event = snapshot?.events.find(
+              ({ id }) => id === this.eventId()
+            );
+            if (event && !event.orderId && !event.transferId) this.edit(event);
+          },
           error: () =>
             this.error.set($localize`Unable to load cash transactions.`)
         });
@@ -111,7 +127,7 @@ export class GfCashManagementComponent {
     if (!state || this.form.invalid || this.busy()) {
       return;
     }
-    const { operation, amount, date, comment } = this.form.getRawValue();
+    const { operation, amount, date, comment, fee } = this.form.getRawValue();
     const value = new Big(amount);
     if (operation !== 'CHECKPOINT' && !value.gt(0)) {
       this.error.set($localize`Enter a positive amount.`);
@@ -119,9 +135,16 @@ export class GfCashManagementComponent {
     }
     const event: CashEventInput =
       operation === 'CHECKPOINT'
-        ? { type: 'CHECKPOINT', balance: value.toString(), date, comment }
+        ? {
+            type: 'CHECKPOINT',
+            balance: value.toString(),
+            date,
+            comment,
+            fee: '0'
+          }
         : {
             type: 'MOVEMENT',
+            fee,
             amount: (operation === 'WITHDRAWAL'
               ? value.neg()
               : value
@@ -154,6 +177,7 @@ export class GfCashManagementComponent {
             : 'DEPOSIT',
       date: event.date,
       amount: (event.type === 'CHECKPOINT' ? value : value.abs()).toFixed(),
+      fee: event.fee ?? '0',
       comment: event.comment ?? ''
     });
   }
@@ -164,6 +188,7 @@ export class GfCashManagementComponent {
       operation: 'DEPOSIT',
       date: this.today,
       amount: '',
+      fee: '0',
       comment: ''
     });
   }
@@ -234,7 +259,7 @@ export class GfCashManagementComponent {
       balance =
         item.type === 'CHECKPOINT'
           ? new Big(item.balance)
-          : balance.plus(item.amount);
+          : balance.plus(item.amount).minus(item.fee ?? 0);
       if (item.id === event.id) {
         return balance.toFixed();
       }
