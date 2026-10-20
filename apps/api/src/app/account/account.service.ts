@@ -1,4 +1,5 @@
 import { AccountBalanceService } from '@ghostfolio/api/app/account-balance/account-balance.service';
+import { CashManagementService } from '@ghostfolio/api/app/account-balance/cash-management.service';
 import { PortfolioChangedEvent } from '@ghostfolio/api/events/portfolio-changed.event';
 import {
   getWhereAccountBalanceNotInFuture,
@@ -15,7 +16,7 @@ import {
 import { Filter } from '@ghostfolio/common/interfaces';
 import { AccountWithBalance } from '@ghostfolio/common/types';
 
-import { Injectable } from '@nestjs/common';
+import { ConflictException, Injectable } from '@nestjs/common';
 import { EventEmitter2 } from '@nestjs/event-emitter';
 import {
   Account,
@@ -28,7 +29,7 @@ import {
 } from '@prisma/client';
 import { Big } from 'big.js';
 import { format } from 'date-fns';
-import { groupBy, isNil } from 'lodash-es';
+import { groupBy, isNil, omit } from 'lodash-es';
 
 import { CashDetails } from './interfaces/cash-details.interface';
 
@@ -39,7 +40,8 @@ export class AccountService {
     private readonly eventEmitter: EventEmitter2,
     private readonly exchangeRateDataService: ExchangeRateDataService,
     private readonly prismaService: PrismaService,
-    private readonly tagService: TagService
+    private readonly tagService: TagService,
+    private readonly cashManagementService?: CashManagementService
   ) {}
 
   public async account({
@@ -47,6 +49,7 @@ export class AccountService {
   }: Prisma.AccountWhereUniqueInput): Promise<AccountWithBalance | null> {
     const account = await this.prismaService.account.findUnique({
       include: {
+        cashState: { select: { defaultUpdateCash: true, openingDate: true } },
         balances: {
           orderBy: { date: 'desc' },
           take: 1,
@@ -61,10 +64,16 @@ export class AccountService {
       return null;
     }
 
-    const { balances, ...accountData } = account;
+    const { balances, cashState, ...accountData } = account;
 
     return {
       ...accountData,
+      cashManagement: cashState
+        ? {
+            defaultUpdateCash: cashState.defaultUpdateCash,
+            openingDate: cashState.openingDate.toISOString().slice(0, 10)
+          }
+        : undefined,
       balance: balances[0]?.value ?? 0
     };
   }
@@ -103,6 +112,9 @@ export class AccountService {
   > {
     const { include = {}, skip, take, cursor, where, orderBy } = params;
 
+    include.cashState = {
+      select: { defaultUpdateCash: true, openingDate: true }
+    };
     const isBalancesIncluded = !!include.balances;
     const isTagsIncluded = !!include.tags;
 
@@ -141,7 +153,15 @@ export class AccountService {
 
     return accounts.map((account) => {
       const result = {
-        ...account,
+        ...omit(account, ['cashState']),
+        cashManagement: account.cashState
+          ? {
+              defaultUpdateCash: account.cashState.defaultUpdateCash,
+              openingDate: account.cashState.openingDate
+                .toISOString()
+                .slice(0, 10)
+            }
+          : undefined,
         balance:
           // The balances are ordered by date descending, hence the first account
           // balance which is not in the future reflects the current balance
@@ -323,31 +343,67 @@ export class AccountService {
   }): Promise<Account> {
     await this.tagService.validateTagIdsWithoutDraftTag({ tagIds, userId });
 
-    const account = await this.prismaService.account.update({
-      data: {
-        ...data,
-        tags: tagIds
-          ? {
-              create: tagIds.map((tagId) => {
-                return {
-                  tag: { connect: { id: tagId } }
-                };
-              }),
-              deleteMany: {}
-            }
-          : undefined
-      },
-      where
-    });
-
-    if (!isNil(balance)) {
-      await this.accountBalanceService.createOrUpdateAccountBalance({
-        balance,
-        userId,
-        accountId: account.id,
-        date: format(new Date(), DATE_FORMAT)
+    const write = async (transaction: Prisma.TransactionClient) => {
+      const id = where.id_userId?.id;
+      const state = this.cashManagementService
+        ? await transaction.accountCashState.findUnique({
+            where: { accountId_userId: { accountId: id, userId } }
+          })
+        : null;
+      if (state && data.currency && data.currency !== state.currency) {
+        throw new ConflictException(
+          'The currency of a managed cash account cannot be changed'
+        );
+      }
+      if (state && !isNil(balance)) {
+        const latest = await transaction.accountBalance.findFirst({
+          where: {
+            accountId: id,
+            userId,
+            ...getWhereAccountBalanceNotInFuture()
+          },
+          orderBy: { date: 'desc' }
+        });
+        if (balance !== (latest?.value ?? 0)) {
+          throw new ConflictException(
+            'Use a cash reconciliation to change the balance'
+          );
+        }
+      }
+      const account = await transaction.account.update({
+        data: {
+          ...data,
+          tags: tagIds
+            ? {
+                create: tagIds.map((tagId) => {
+                  return {
+                    tag: { connect: { id: tagId } }
+                  };
+                }),
+                deleteMany: {}
+              }
+            : undefined
+        },
+        where
       });
-    }
+      if (!isNil(balance) && !state) {
+        const date = new Date(
+          `${format(new Date(), DATE_FORMAT)}T00:00:00.000Z`
+        );
+        await transaction.accountBalance.upsert({
+          where: { accountId_date: { accountId: account.id, date }, userId },
+          create: { accountId: account.id, userId, date, value: balance },
+          update: { value: balance }
+        });
+      }
+      return account;
+    };
+    const account = this.cashManagementService
+      ? await this.cashManagementService.runInAccounts(
+          { accountIds: [where.id_userId.id], userId },
+          write
+        )
+      : await write(this.prismaService);
 
     this.eventEmitter.emit(
       PortfolioChangedEvent.getName(),

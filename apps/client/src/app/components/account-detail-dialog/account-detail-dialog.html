@@ -177,6 +177,15 @@
           <ion-icon name="cash-outline" />
           <div class="d-none d-sm-block ms-2" i18n>Cash Balances</div>
         </ng-template>
+        @if (!showValuesInPercentage()) {
+          <gf-cash-management
+            [accountId]="data.accountId"
+            [canWrite]="canManageCash && !data.impersonationId"
+            [currency]="currency"
+            [currentBalance]="balance"
+            (changed)="onCashChanged()"
+          />
+        }
         <gf-account-balances
           [accountBalances]="accountBalances"
           [accountCurrency]="currency"
@@ -185,6 +194,7 @@
           [locale]="user?.settings?.locale"
           [showActions]="
             hasPermissionToDeleteAccountBalance &&
+            !isCashManaged &&
             !data.impersonationId &&
             !user.settings.isRestrictedView
           "

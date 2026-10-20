@@ -1,5 +1,7 @@
+import { CashManagementService } from '@ghostfolio/api/app/account-balance/cash-management.service';
 import { AccountService } from '@ghostfolio/api/app/account/account.service';
 import { ActivitiesService } from '@ghostfolio/api/app/activities/activities.service';
+import { PlatformService } from '@ghostfolio/api/app/platform/platform.service';
 import { PortfolioService } from '@ghostfolio/api/app/portfolio/portfolio.service';
 import { ApiService } from '@ghostfolio/api/services/api/api.service';
 import { ConfigurationService } from '@ghostfolio/api/services/configuration/configuration.service';
@@ -11,10 +13,12 @@ import { SymbolProfileService } from '@ghostfolio/api/services/symbol-profile/sy
 import { TagService } from '@ghostfolio/api/services/tag/tag.service';
 import { NON_INVESTMENT_ACTIVITY_TYPES } from '@ghostfolio/common/config';
 import {
+  CreateAccountWithBalancesDto,
   CreateAssetProfileWithMarketDataDto,
   CreateOrderDto
 } from '@ghostfolio/common/dtos';
 import { getAssetProfileIdentifier } from '@ghostfolio/common/helper';
+import { CashManagementExport } from '@ghostfolio/common/interfaces';
 import {
   Activity,
   AssetProfileIdentifier
@@ -31,10 +35,13 @@ const CUSTOM_ASSET_PROFILE_SYMBOL = '1ad7d4a2-6b2d-4e0f-9b1f-2c0f8d3e5a7b';
 
 describe('ImportService', () => {
   let addSymbolProfile: jest.Mock;
+  let createAccount: jest.Mock;
+  let accounts: jest.Mock;
   let createActivity: jest.Mock;
   let gatherSymbols: jest.Mock;
   let importService: ImportService;
   let updateManyMarketData: jest.Mock;
+  let cashManagement: { validateRestore: jest.Mock; restore: jest.Mock };
 
   beforeEach(() => {
     const configuration = {
@@ -44,9 +51,12 @@ describe('ImportService', () => {
     };
 
     addSymbolProfile = jest.fn();
+    createAccount = jest.fn().mockResolvedValue({ id: 'account-id' });
+    accounts = jest.fn().mockResolvedValue([]);
     createActivity = jest.fn();
     gatherSymbols = jest.fn();
     updateManyMarketData = jest.fn();
+    cashManagement = { validateRestore: jest.fn(), restore: jest.fn() };
 
     const validateActivities = jest.fn(
       ({ activitiesDto }: { activitiesDto: CreateOrderDto[] }) => {
@@ -69,7 +79,8 @@ describe('ImportService', () => {
 
     importService = new ImportService(
       {
-        accounts: jest.fn().mockResolvedValue([])
+        createAccount,
+        accounts
       } as unknown as AccountService,
       {
         createActivity,
@@ -90,7 +101,9 @@ describe('ImportService', () => {
         toCurrencyAtDate: jest.fn().mockResolvedValue(0)
       } as unknown as ExchangeRateDataService,
       { updateMany: updateManyMarketData } as unknown as MarketDataService,
-      null,
+      {
+        getPlatforms: jest.fn().mockResolvedValue([])
+      } as unknown as PlatformService,
       null,
       {
         add: addSymbolProfile,
@@ -99,7 +112,8 @@ describe('ImportService', () => {
       } as unknown as SymbolProfileService,
       {
         getTagsForUser: jest.fn().mockResolvedValue([])
-      } as unknown as TagService
+      } as unknown as TagService,
+      cashManagement as unknown as CashManagementService
     );
   });
 
@@ -154,6 +168,145 @@ describe('ImportService', () => {
   });
 
   describe('import', () => {
+    it('keeps exported activity ids through the preview and restores their new persisted ids', async () => {
+      accounts.mockImplementation(({ where }) =>
+        Promise.resolve(
+          where.userId === 'user-id' && createAccount.mock.calls.length
+            ? [{ id: 'account-id', name: 'Imported account', platform: null }]
+            : []
+        )
+      );
+      const dto = {
+        ...createActivityDto({
+          dataSource: DataSource.YAHOO,
+          date: '2024-01-02',
+          symbol: 'AAPL',
+          type: 'BUY'
+        }),
+        id: 'exported-order',
+        accountId: 'account-id'
+      };
+      const cash: CashManagementExport = {
+        version: 1,
+        currency: 'USD',
+        defaultUpdateCash: true,
+        openingBalance: { date: '2024-01-01', sequence: 0, balance: '500' },
+        events: [
+          {
+            id: 'old-event',
+            orderId: dto.id,
+            sequence: 1,
+            date: '2024-01-02',
+            type: 'MOVEMENT',
+            amount: '-100'
+          }
+        ]
+      };
+      const accountsWithBalancesDto = [
+        {
+          id: 'account-id',
+          name: 'Imported account',
+          currency: 'USD',
+          platformId: null,
+          cashManagement: cash
+        }
+      ];
+      const preview = await importActivities({
+        accountsWithBalancesDto,
+        activitiesDto: [dto],
+        isDryRun: true
+      });
+      expect(preview[0].id).toBe(dto.id);
+      expect(cashManagement.restore).not.toHaveBeenCalled();
+      createActivity.mockImplementationOnce(
+        ({ date, type, SymbolProfile }) => ({
+          id: 'persisted-order',
+          date,
+          type,
+          SymbolProfile: SymbolProfile.connectOrCreate.create
+        })
+      );
+      await importActivities({ accountsWithBalancesDto, activitiesDto: [dto] });
+      expect(cashManagement.restore).toHaveBeenCalledWith(
+        { accountId: 'account-id', userId: 'user-id' },
+        cash,
+        { 'exported-order': 'persisted-order' }
+      );
+      expect(createAccount.mock.calls[0][0].data).not.toHaveProperty(
+        'cashManagement'
+      );
+    });
+
+    it('rejects a partial cash restore before creating an account or an activity', async () => {
+      await expect(
+        importActivities({
+          accountsWithBalancesDto: [
+            {
+              id: 'account-id',
+              currency: 'USD',
+              name: 'Account',
+              platformId: null,
+              cashManagement: {
+                version: 1,
+                currency: 'USD',
+                defaultUpdateCash: false,
+                openingBalance: {
+                  date: '2024-01-01',
+                  sequence: 0,
+                  balance: '0'
+                },
+                events: [
+                  {
+                    id: 'event',
+                    orderId: 'missing-order',
+                    sequence: 1,
+                    type: 'MOVEMENT',
+                    date: '2024-01-02',
+                    amount: '-100'
+                  }
+                ]
+              }
+            }
+          ],
+          activitiesDto: []
+        })
+      ).rejects.toThrow('Select all activities');
+      expect(createAccount).not.toHaveBeenCalled();
+      expect(createActivity).not.toHaveBeenCalled();
+    });
+
+    it('imports balances without accepting projection flags', async () => {
+      const balances = [
+        {
+          date: '2024-01-01T00:00:00.000Z',
+          isCashManagementProjection: true,
+          value: 1234.56
+        },
+        { date: '2024-02-01T00:00:00.000Z', value: 0 }
+      ];
+
+      await importActivities({
+        accountsWithBalancesDto: [
+          {
+            balances,
+            currency: 'USD',
+            id: 'account-id',
+            name: 'Imported account',
+            platformId: null
+          }
+        ],
+        activitiesDto: []
+      });
+
+      expect(createAccount).toHaveBeenCalledTimes(1);
+      expect(createAccount.mock.calls[0][0].data.balances.create).toStrictEqual(
+        [
+          { date: '2024-01-01T00:00:00.000Z', value: 1234.56 },
+          { date: '2024-02-01T00:00:00.000Z', value: 0 }
+        ]
+      );
+    });
+
     it('keeps the asset profile of an investment activity after a non-investment activity', async () => {
       mockCreatedAssetProfiles([
         { dataSource: DataSource.MANUAL, symbol: CUSTOM_ASSET_PROFILE_SYMBOL },
@@ -511,19 +664,21 @@ describe('ImportService', () => {
   });
 
   function importActivities({
+    accountsWithBalancesDto = [],
     activitiesDto,
     assetProfilesWithMarketDataDto = [],
     isDryRun
   }: {
+    accountsWithBalancesDto?: CreateAccountWithBalancesDto[];
     activitiesDto: CreateOrderDto[];
     assetProfilesWithMarketDataDto?: CreateAssetProfileWithMarketDataDto[];
     isDryRun?: boolean;
   }) {
     return importService.import({
+      accountsWithBalancesDto,
       activitiesDto,
       assetProfilesWithMarketDataDto,
       isDryRun,
-      accountsWithBalancesDto: [],
       platformsDto: [],
       tagsDto: [],
       user: {

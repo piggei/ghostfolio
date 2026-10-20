@@ -1,10 +1,13 @@
 import { AccountBalance } from '@ghostfolio/common/interfaces';
 
-import { IsArray, IsBoolean, IsOptional } from 'class-validator';
+import { IsArray, IsBoolean, IsObject, IsOptional } from 'class-validator';
 
 import { CreateAccountDto } from './create-account.dto';
 
 export class CreateAccountWithBalancesDto extends CreateAccountDto {
+  @IsObject()
+  @IsOptional()
+  cashManagement?: import('@ghostfolio/common/interfaces').CashManagementExport;
   @IsArray()
   @IsOptional()
   balances?: AccountBalance[];

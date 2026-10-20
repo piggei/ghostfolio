@@ -1,3 +1,4 @@
+import { CashManagementModule } from '@ghostfolio/api/app/account-balance/cash-management.module';
 import { AccountModule } from '@ghostfolio/api/app/account/account.module';
 import { ActivitiesModule } from '@ghostfolio/api/app/activities/activities.module';
 import { CacheModule } from '@ghostfolio/api/app/cache/cache.module';
@@ -25,6 +26,7 @@ import { ImportService } from './import.service';
   controllers: [ImportController],
   exports: [ImportService],
   imports: [
+    CashManagementModule,
     AccountModule,
     ActivitiesModule,
     ApiModule,

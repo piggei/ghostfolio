@@ -1,4 +1,5 @@
 import { AccountBalanceService } from '@ghostfolio/api/app/account-balance/account-balance.service';
+import { CashManagementModule } from '@ghostfolio/api/app/account-balance/cash-management.module';
 import { AccountService } from '@ghostfolio/api/app/account/account.service';
 import { CacheModule } from '@ghostfolio/api/app/cache/cache.module';
 import { RedisCacheModule } from '@ghostfolio/api/app/redis-cache/redis-cache.module';
@@ -26,6 +27,7 @@ import { ActivitiesService } from './activities.service';
   controllers: [ActivitiesController],
   exports: [ActivitiesService],
   imports: [
+    CashManagementModule,
     ApiModule,
     AssetProfileSplitModule,
     BenchmarkModule,

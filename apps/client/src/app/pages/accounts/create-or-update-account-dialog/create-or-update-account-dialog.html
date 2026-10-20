@@ -32,6 +32,12 @@
     <div>
       <mat-form-field appearance="outline" class="w-100">
         <mat-label i18n>Cash Balance</mat-label>
+        @if (data.account.cashManagement) {
+          <mat-hint i18n
+            >Use Cash Transactions in the account details to reconcile this
+            balance.</mat-hint
+          >
+        }
         <input
           formControlName="balance"
           matInput

@@ -126,7 +126,10 @@ export class UserService {
         where: { granteeUserId: id }
       }),
       this.prismaService.account.findMany({
-        include: { platform: true },
+        include: {
+          platform: true,
+          cashState: { select: { defaultUpdateCash: true, openingDate: true } }
+        },
         orderBy: {
           name: 'asc'
         },
@@ -221,9 +224,19 @@ export class UserService {
           scopes: getScopesOfAccess(accessItem)
         };
       }),
-      accounts: accounts.sort((a, b) => {
-        return a.name.toLowerCase().localeCompare(b.name.toLowerCase());
-      }),
+      accounts: accounts
+        .map(({ cashState, ...account }) => ({
+          ...account,
+          cashManagement: cashState
+            ? {
+                defaultUpdateCash: cashState.defaultUpdateCash,
+                openingDate: cashState.openingDate.toISOString().slice(0, 10)
+              }
+            : undefined
+        }))
+        .sort((a, b) => {
+          return a.name.toLowerCase().localeCompare(b.name.toLowerCase());
+        }),
       settings: {
         ...resolvedUserSettings,
         baseCurrency: resolvedUserSettings.baseCurrency ?? DEFAULT_CURRENCY,

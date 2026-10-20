@@ -24,12 +24,15 @@ import { Big } from 'big.js';
 import { endOfToday, format, min, parseISO } from 'date-fns';
 import { groupBy } from 'lodash-es';
 
+import { CashManagementService } from './cash-management.service';
+
 @Injectable()
 export class AccountBalanceService {
   public constructor(
     private readonly eventEmitter: EventEmitter2,
     private readonly exchangeRateDataService: ExchangeRateDataService,
-    private readonly prismaService: PrismaService
+    private readonly prismaService: PrismaService,
+    private readonly cashManagementService?: CashManagementService
   ) {}
 
   public async accountBalance(
@@ -51,30 +54,43 @@ export class AccountBalanceService {
   }: CreateAccountBalanceDto & {
     userId: string;
   }): Promise<AccountBalance> {
-    const accountBalance = await this.prismaService.accountBalance.upsert({
-      create: {
-        account: {
-          connect: {
-            id_userId: {
-              userId,
-              id: accountId
+    const write = async (transaction: Prisma.TransactionClient) => {
+      await this.cashManagementService?.assertLegacyBalanceWrite(
+        transaction,
+        { accountId, userId },
+        resetHours(parseISO(date))
+      );
+      return transaction.accountBalance.upsert({
+        create: {
+          account: {
+            connect: {
+              id_userId: {
+                userId,
+                id: accountId
+              }
             }
-          }
+          },
+          date: resetHours(parseISO(date)),
+          value: balance
         },
-        date: resetHours(parseISO(date)),
-        value: balance
-      },
-      update: {
-        value: balance
-      },
-      where: {
-        userId,
-        accountId_date: {
-          accountId,
-          date: resetHours(parseISO(date))
+        update: {
+          value: balance
+        },
+        where: {
+          userId,
+          accountId_date: {
+            accountId,
+            date: resetHours(parseISO(date))
+          }
         }
-      }
-    });
+      });
+    };
+    const accountBalance = this.cashManagementService
+      ? await this.cashManagementService.runInAccounts(
+          { accountIds: [accountId], userId },
+          write
+        )
+      : await write(this.prismaService);
 
     this.eventEmitter.emit(
       PortfolioChangedEvent.getName(),
@@ -89,9 +105,26 @@ export class AccountBalanceService {
   public async deleteAccountBalance(
     where: Prisma.AccountBalanceWhereUniqueInput
   ): Promise<AccountBalance> {
-    const accountBalance = await this.prismaService.accountBalance.delete({
+    const original = await this.prismaService.accountBalance.findUnique({
       where
     });
+    const write = async (transaction: Prisma.TransactionClient) => {
+      if (original) {
+        await this.cashManagementService?.assertLegacyBalanceWrite(
+          transaction,
+          { accountId: original.accountId, userId: original.userId },
+          original.date
+        );
+      }
+      return transaction.accountBalance.delete({ where });
+    };
+    const accountBalance =
+      this.cashManagementService && original
+        ? await this.cashManagementService.runInAccounts(
+            { accountIds: [original.accountId], userId: original.userId },
+            write
+          )
+        : await write(this.prismaService);
 
     this.eventEmitter.emit(
       PortfolioChangedEvent.getName(),

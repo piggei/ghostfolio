@@ -202,3 +202,5 @@ export {
   WatchlistResponse,
   XRayRulesSettings
 };
+
+export * from './cash-management.interface';

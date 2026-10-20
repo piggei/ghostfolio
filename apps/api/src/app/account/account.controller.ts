@@ -1,4 +1,5 @@
 import { AccountBalanceService } from '@ghostfolio/api/app/account-balance/account-balance.service';
+import { CashManagementService } from '@ghostfolio/api/app/account-balance/cash-management.service';
 import { PortfolioService } from '@ghostfolio/api/app/portfolio/portfolio.service';
 import { HasPermission } from '@ghostfolio/api/decorators/has-permission.decorator';
 import { Impersonation } from '@ghostfolio/api/decorators/impersonation.decorator';
@@ -44,7 +45,8 @@ export class AccountController {
     private readonly accountBalanceService: AccountBalanceService,
     private readonly accountService: AccountService,
     private readonly apiService: ApiService,
-    private readonly portfolioService: PortfolioService
+    private readonly portfolioService: PortfolioService,
+    private readonly cashManagementService?: CashManagementService
   ) {}
 
   @Delete(':id')
@@ -186,7 +188,13 @@ export class AccountController {
   @Post('transfer-balance')
   @RequiresScope(scopes.accountUpdate)
   public async transferAccountBalance(
-    @Body() { accountIdFrom, accountIdTo, balance }: TransferBalanceDto,
+    @Body()
+    {
+      accountIdFrom,
+      accountIdTo,
+      balance,
+      ...confirmation
+    }: TransferBalanceDto,
     @Impersonation() { userId }: ImpersonationContext
   ) {
     const accountsOfUser = await this.accountService.getAccounts(userId);
@@ -213,11 +221,21 @@ export class AccountController {
       );
     }
 
-    if (accountFrom.balance < balance) {
+    if (accountFrom.balance < balance && !accountFrom.cashManagement) {
       throw new HttpException(
         getReasonPhrase(StatusCodes.BAD_REQUEST),
         StatusCodes.BAD_REQUEST
       );
+    }
+
+    if (this.cashManagementService) {
+      return this.cashManagementService.transfer({
+        accountIdFrom,
+        accountIdTo,
+        balance,
+        userId,
+        ...confirmation
+      });
     }
 
     await this.accountService.updateAccountBalance({

@@ -1,3 +1,4 @@
+import { CashManagementService } from '@ghostfolio/api/app/account-balance/cash-management.service';
 import { AccountService } from '@ghostfolio/api/app/account/account.service';
 import { ActivitiesService } from '@ghostfolio/api/app/activities/activities.service';
 import { PlatformService } from '@ghostfolio/api/app/platform/platform.service';
@@ -70,7 +71,8 @@ export class ImportService {
     private readonly platformService: PlatformService,
     private readonly portfolioService: PortfolioService,
     private readonly symbolProfileService: SymbolProfileService,
-    private readonly tagService: TagService
+    private readonly tagService: TagService,
+    private readonly cashManagementService?: CashManagementService
   ) {}
 
   public async getDividends({
@@ -218,6 +220,25 @@ export class ImportService {
     tagsDto: ImportDataDto['tags'];
     user: UserWithSettings;
   }): Promise<Activity[]> {
+    const importedOrderIds: Record<string, string> = {};
+    for (const account of accountsWithBalancesDto ?? []) {
+      if (account.cashManagement) {
+        this.cashManagementService.validateRestore(
+          account.cashManagement,
+          account.currency
+        );
+        const ids = new Set(activitiesDto.map(({ id }) => id));
+        if (
+          account.cashManagement.events.some(
+            ({ orderId }) => orderId && !ids.has(orderId)
+          )
+        ) {
+          throw new ImportValidationError(
+            'Select all activities linked to the cash ledger when restoring cash management'
+          );
+        }
+      }
+    }
     const accountIdMapping: { [oldAccountId: string]: string } = {};
     const assetProfileSymbolMapping: { [oldSymbol: string]: string } = {};
     const ghostfolioDataSources = this.configurationService.get(
@@ -519,6 +540,7 @@ export class ImportService {
         const account = omit(accountWithBalances, [
           'balance',
           'balances',
+          'cashManagement',
           'isExcluded',
           'tags'
         ]);
@@ -555,7 +577,11 @@ export class ImportService {
         let accountObject: Prisma.AccountCreateInput = {
           ...account,
           balances: {
-            create: accountWithBalances.balances ?? []
+            create: (accountWithBalances.balances ?? []).map(
+              ({ date, value }) => {
+                return { date, value };
+              }
+            )
           },
           user: { connect: { id: user.id } }
         };
@@ -859,7 +885,10 @@ export class ImportService {
       [assetProfileIdentifier: string]: string;
     } = {};
 
-    for (const activity of activitiesExtendedWithErrors) {
+    for (const [
+      activityIndex,
+      activity
+    ] of activitiesExtendedWithErrors.entries()) {
       const accountId = activity.accountId;
       const comment = activity.comment;
       const currency = activity.currency;
@@ -916,7 +945,7 @@ export class ImportService {
           accountId: validatedAccount?.id,
           accountUserId: undefined,
           createdAt: new Date(),
-          id: randomUUID(),
+          id: activitiesDto[activityIndex].id ?? randomUUID(),
           symbolProfileId: undefined,
           tags: previewTags,
           updatedAt: new Date(),
@@ -924,6 +953,10 @@ export class ImportService {
         };
       } else {
         if (error) {
+          const oldId = activitiesDto[activityIndex].id;
+          if (oldId && activity.id) {
+            importedOrderIds[oldId] = activity.id;
+          }
           continue;
         }
 
@@ -982,6 +1015,10 @@ export class ImportService {
         }
 
         order = createdActivity;
+        const oldId = activitiesDto[activityIndex].id;
+        if (oldId) {
+          importedOrderIds[oldId] = createdActivity.id;
+        }
       }
 
       const value = new Big(quantity).mul(unitPrice).toNumber();
@@ -1029,6 +1066,20 @@ export class ImportService {
       });
     }
 
+    if (!isDryRun && this.cashManagementService) {
+      for (const account of accountsWithBalancesDto ?? []) {
+        if (account.cashManagement) {
+          await this.cashManagementService.restore(
+            {
+              accountId: accountIdMapping[account.id] ?? account.id,
+              userId: user.id
+            },
+            account.cashManagement,
+            importedOrderIds
+          );
+        }
+      }
+    }
     return activities;
   }
 
@@ -1065,8 +1116,9 @@ export class ImportService {
       }) => {
         const date = parseISO(dateString);
 
-        const isDuplicate = existingActivities.some((activity) => {
+        const duplicate = existingActivities.find((activity) => {
           return (
+            activity.accountId === accountId &&
             (activity.comment || null) === (comment || null) &&
             (activity.currency === currency ||
               activity.assetProfile.currency === currency) &&
@@ -1080,11 +1132,12 @@ export class ImportService {
           );
         });
 
-        const error: ActivityError = isDuplicate
+        const error: ActivityError = duplicate
           ? { code: 'IS_DUPLICATE' }
           : undefined;
 
         return {
+          id: duplicate?.id,
           accountId,
           comment,
           currency,
