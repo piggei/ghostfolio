@@ -595,7 +595,7 @@ export class GfCreateOrUpdateActivityDialogComponent {
     )?.cashManagement;
     const isManagedDate =
       !!cashManagement &&
-      date &&
+      !!date &&
       format(date, 'yyyy-MM-dd') >= cashManagement.openingDate &&
       date <= new Date();
     const isEligible =

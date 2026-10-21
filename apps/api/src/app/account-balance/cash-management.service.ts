@@ -610,7 +610,9 @@ export class CashManagementService {
     const state = order.accountId
       ? await this.readState(transaction, scope)
       : null;
-    const date = order.date.toISOString().slice(0, 10);
+    // Match the civil date used by PortfolioCalculator for this activity.
+    // UTC serialization can move local-midnight orders to the previous day.
+    const date = format(order.date, 'yyyy-MM-dd');
     const eligible =
       !['LIABILITY', 'VALUABLE'].includes(order.type) &&
       order.date <= new Date();

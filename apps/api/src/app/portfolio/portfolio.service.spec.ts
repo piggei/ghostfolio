@@ -1878,18 +1878,16 @@ describe('PortfolioService', () => {
     });
 
     it('omits only cash from platform allocation when the account disables cash analysis', async () => {
-      jest
-        .spyOn(accountService, 'getAccounts')
-        .mockResolvedValue([
-          {
-            ...account,
-            cashManagement: {
-              defaultUpdateCash: false,
-              openingDate: '0001-01-01',
-              includeCashInPortfolio: false
-            }
+      jest.spyOn(accountService, 'getAccounts').mockResolvedValue([
+        {
+          ...account,
+          cashManagement: {
+            defaultUpdateCash: false,
+            openingDate: '0001-01-01',
+            includeCashInPortfolio: false
           }
-        ] as unknown as AccountWithBalance[]);
+        }
+      ] as unknown as AccountWithBalance[]);
       const { accounts, platforms } = await getValueOfAccountsAndPlatforms({
         activities: [
           {

@@ -5,6 +5,7 @@ import { CashManagementExport } from '@ghostfolio/common/interfaces';
 import { ConflictException } from '@nestjs/common';
 import { ConfigService } from '@nestjs/config';
 import { EventEmitter2 } from '@nestjs/event-emitter';
+import { format, parseISO } from 'date-fns';
 import { randomUUID } from 'node:crypto';
 
 import { AccountBalanceService } from './account-balance.service';
@@ -394,6 +395,94 @@ describeDatabase('Cash management with PostgreSQL', () => {
       }
     );
     expect((await service.get(scope())).balances.at(-1).value).toBe('1000');
+  });
+
+  it('persists order-linked cash and projections on the order civil date', async () => {
+    await service.open({ ...scope(), date: '2026-01-01', balance: '5000' });
+    const profile = await prisma.symbolProfile.create({
+      data: {
+        currency: 'EUR',
+        dataSource: 'MANUAL',
+        symbol: randomUUID(),
+        userId
+      }
+    });
+    const cases = [
+      {
+        date: '2026-02-02',
+        type: 'BUY',
+        quantity: 500,
+        unitPrice: 5.98,
+        fee: 1.5
+      },
+      {
+        date: '2026-04-21',
+        type: 'DIVIDEND',
+        quantity: 500,
+        unitPrice: 0.72,
+        fee: 0
+      },
+      {
+        date: '2026-09-01',
+        type: 'SELL',
+        quantity: 500,
+        unitPrice: 6.668,
+        fee: 1
+      }
+    ] as const;
+
+    for (const item of cases) {
+      await service.runInAccounts(
+        { accountIds: [accountId], userId },
+        async (transaction) => {
+          const order = await transaction.order.create({
+            data: {
+              account: { connect: { id_userId: { id: accountId, userId } } },
+              user: { connect: { id: userId } },
+              SymbolProfile: { connect: { id: profile.id } },
+              date: parseISO(item.date),
+              type: item.type,
+              quantity: item.quantity,
+              unitPrice: item.unitPrice,
+              fee: item.fee,
+              currency: 'EUR'
+            },
+            include: { SymbolProfile: true }
+          });
+          expect(format(order.date, 'yyyy-MM-dd')).toBe(item.date);
+          await service.synchronizeOrder(transaction, order, { enabled: true });
+        }
+      );
+    }
+
+    const stored = await prisma.cashEvent.findMany({
+      where: scope(),
+      orderBy: { date: 'asc' }
+    });
+    expect(stored.map(({ date }) => date.toISOString().slice(0, 10))).toEqual(
+      cases.map(({ date }) => date)
+    );
+    expect(stored.map(({ value }) => value.toString())).toEqual([
+      '-2991.5',
+      '360',
+      '3333'
+    ]);
+
+    const projected = await prisma.accountBalance.findMany({
+      where: { ...scope(), isCashManagementProjection: true },
+      orderBy: { date: 'asc' }
+    });
+    expect(
+      projected.map(({ date, value }) => [
+        date.toISOString().slice(0, 10),
+        value
+      ])
+    ).toEqual([
+      ['2026-01-01', 5000],
+      ['2026-02-02', 2008.5],
+      ['2026-04-21', 2368.5],
+      ['2026-09-01', 5701.5]
+    ]);
   });
 
   it('rolls back both the order and the event when the projection fails', async () => {

@@ -8,7 +8,8 @@ import {
   NotFoundException
 } from '@nestjs/common';
 import { EventEmitter2 } from '@nestjs/event-emitter';
-import { Prisma } from '@prisma/client';
+import { Order, Prisma } from '@prisma/client';
+import { format, parseISO } from 'date-fns';
 
 import { CashManagementService } from './cash-management.service';
 
@@ -31,6 +32,8 @@ interface StoredEvent {
   createdAt: Date;
   date: Date;
   id: string;
+  orderId?: string | null;
+  fee?: Prisma.Decimal;
   sequence: number;
   type: 'MOVEMENT' | 'CHECKPOINT';
   updatedAt: Date;
@@ -52,6 +55,147 @@ interface StoredState {
 describe('CashManagementService', () => {
   afterEach(() => {
     jest.restoreAllMocks();
+  });
+
+  describe('activity dates and daily cash projections', () => {
+    it('keeps BUY, DIVIDEND and SELL cash effects on the same civil dates as the orders', async () => {
+      const harness = createHarness(
+        makeState({
+          openingDate: utcDate('2026-01-01'),
+          openingBalance: new Prisma.Decimal('5000')
+        })
+      );
+      const cases = [
+        {
+          date: '2026-02-02',
+          type: 'BUY',
+          quantity: 500,
+          unitPrice: 5.98,
+          fee: 1.5,
+          amount: '-2991.5'
+        },
+        {
+          date: '2026-04-21',
+          type: 'DIVIDEND',
+          quantity: 500,
+          unitPrice: 0.72,
+          fee: 0,
+          amount: '360'
+        },
+        {
+          date: '2026-09-01',
+          type: 'SELL',
+          quantity: 500,
+          unitPrice: 6.668,
+          fee: 1,
+          amount: '3333'
+        }
+      ] as const;
+
+      for (const [index, item] of cases.entries()) {
+        // The activity controller uses parseISO on dates without a time.
+        const order = {
+          ...scope,
+          id: `order-${index}`,
+          date: parseISO(item.date),
+          type: item.type,
+          quantity: item.quantity,
+          unitPrice: item.unitPrice,
+          fee: item.fee,
+          currency: 'EUR',
+          comment: null,
+          SymbolProfile: { currency: 'EUR' }
+        } as unknown as Order & { SymbolProfile: { currency: string } };
+
+        expect(format(order.date, 'yyyy-MM-dd')).toBe(item.date);
+        await harness.service.synchronizeOrder(harness.tx as never, order, {
+          enabled: true
+        });
+
+        const { create } = harness.tx.cashEvent.upsert.mock.calls.at(-1)[0];
+        expect(create.date.toISOString().slice(0, 10)).toBe(item.date);
+        expect(create.value.toString()).toBe(item.amount);
+      }
+
+      const snapshot = await harness.service.get(scope);
+      expect(snapshot.events.map(({ date }) => date)).toEqual(
+        cases.map(({ date }) => date)
+      );
+      expect(snapshot.balances).toEqual([
+        { date: '2026-01-01', value: '5000' },
+        { date: '2026-02-02', value: '2008.5' },
+        { date: '2026-04-21', value: '2368.5' },
+        { date: '2026-09-01', value: '5701.5' }
+      ]);
+
+      const projectedDates = harness.tx.accountBalance.upsert.mock.calls.map(
+        ([{ create }]) => create.date.toISOString().slice(0, 10)
+      );
+      for (const { date } of cases) {
+        expect(projectedDates).toContain(date);
+      }
+      expect(projectedDates).not.toContain('2026-02-01');
+      expect(projectedDates).not.toContain('2026-08-31');
+    });
+
+    it('moves a previously misdated linked cash event when the order is resynchronized', async () => {
+      const oldEvent = {
+        ...storedEvent({
+          date: '2026-02-01',
+          id: 'linked-buy',
+          sequence: 1,
+          type: 'MOVEMENT',
+          value: '-2991.5'
+        }),
+        orderId: 'buy-order'
+      };
+      const harness = createHarness(
+        makeState({
+          openingDate: utcDate('2026-01-01'),
+          openingBalance: new Prisma.Decimal('5000'),
+          events: [oldEvent],
+          lastSequence: 1
+        })
+      );
+      const order = {
+        ...scope,
+        id: 'buy-order',
+        date: parseISO('2026-02-02'),
+        type: 'BUY',
+        quantity: 500,
+        unitPrice: 5.98,
+        fee: 1.5,
+        currency: 'EUR',
+        comment: null,
+        SymbolProfile: { currency: 'EUR' }
+      } as unknown as Order & { SymbolProfile: { currency: string } };
+
+      await harness.service.synchronizeOrder(harness.tx as never, order, {
+        enabled: true,
+        original: order
+      });
+
+      const snapshot = await harness.service.get(scope);
+      expect(snapshot.events).toHaveLength(1);
+      expect(snapshot.events[0]).toMatchObject({
+        id: 'linked-buy',
+        orderId: 'buy-order',
+        date: '2026-02-02',
+        amount: '-2991.5'
+      });
+      expect(snapshot.balances).toEqual([
+        { date: '2026-01-01', value: '5000' },
+        { date: '2026-02-02', value: '2008.5' }
+      ]);
+      expect(harness.tx.accountBalance.deleteMany).toHaveBeenCalledWith({
+        where: expect.objectContaining({
+          isCashManagementProjection: true,
+          date: expect.objectContaining({
+            notIn: [utcDate('2026-01-01'), utcDate('2026-02-02')]
+          })
+        })
+      });
+    });
   });
 
   describe('account scope and reads', () => {
@@ -1144,6 +1288,24 @@ function createHarness(initialState: StoredState | null) {
       })
     },
     cashEvent: {
+      findUnique: jest.fn().mockImplementation(({ where }) => {
+        return Promise.resolve(
+          state?.events.find(({ orderId }) => orderId === where.orderId) ?? null
+        );
+      }),
+      upsert: jest.fn().mockImplementation(({ create, update, where }) => {
+        const existing = state.events.find(({ id }) => id === where.id);
+        const event = {
+          ...(existing ?? {}),
+          ...(existing ? update : create),
+          id: where.id,
+          value: new Prisma.Decimal((existing ? update : create).value),
+          fee: new Prisma.Decimal((existing ? update : create).fee ?? 0)
+        };
+        state.events = state.events.filter(({ id }) => id !== where.id);
+        state.events.push(event);
+        return Promise.resolve({ ...event });
+      }),
       create: jest.fn().mockImplementation(({ data }) => {
         const event = {
           ...storedEvent({
