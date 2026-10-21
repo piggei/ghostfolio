@@ -3,6 +3,7 @@ import { ExchangeRateDataService } from '@ghostfolio/api/services/exchange-rate-
 import { PrismaService } from '@ghostfolio/api/services/prisma/prisma.service';
 import {
   CashConfirmation,
+  CashCsvPreview,
   CashEventInput,
   CashManagementSnapshot
 } from '@ghostfolio/common/interfaces';
@@ -19,7 +20,7 @@ import { Account, CashEvent, Order, Prisma } from '@prisma/client';
 import { Big } from 'big.js';
 import { format } from 'date-fns';
 import { omit } from 'lodash-es';
-import { randomUUID } from 'node:crypto';
+import { createHash, randomUUID } from 'node:crypto';
 
 import {
   CashBalanceCalculation,
@@ -28,6 +29,13 @@ import {
   calculateCashBalances
 } from './cash-balance-calculator';
 import { findNewCashDeficit } from './cash-balance-warning';
+import {
+  CashCsvRow,
+  csvDate,
+  decimal,
+  readCashCsv,
+  writeCashCsv
+} from './cash-ledger-csv';
 
 export type {
   CashEventInput,
@@ -66,6 +74,693 @@ export class CashManagementService {
     private readonly prismaService: PrismaService,
     private readonly exchangeRateDataService?: ExchangeRateDataService
   ) {}
+
+  public async exportCsv(scope: CashAccountScope) {
+    return this.inAccountTransaction(scope, async (transaction, account) => {
+      const state =
+        (await this.readState(transaction, scope)) ??
+        (await this.draftState(transaction, scope, account.currency));
+      this.checkCurrency(account, state);
+      const owner = await transaction.account.findFirst({
+        where: { id: scope.accountId, userId: scope.userId },
+        select: { name: true }
+      });
+      const orders = await transaction.order.findMany({
+        where: scope,
+        include: { SymbolProfile: true }
+      });
+      const byId = new Map(orders.map((order) => [order.id, order]));
+      const base = {
+        Version: '1',
+        Currency: state.currency,
+        SourceAccount: scope.accountId,
+        SourceAccountName: owner?.name ?? ''
+      };
+      const rows: Partial<CashCsvRow>[] = [
+        {
+          ...base,
+          Record: 'META',
+          Date: this.toOpeningBalance(state).date,
+          Sequence: '0',
+          Amount: new Big(state.openingBalance.toString()).toFixed(),
+          AutomaticOpening: String(state.isAutomaticOpening ?? false)
+        }
+      ];
+      for (const event of state.events) {
+        const order = event.orderId ? byId.get(event.orderId) : undefined;
+        rows.push({
+          ...base,
+          Record: 'EVENT',
+          Reference: event.importReference ?? `ledger:${event.id}`,
+          Date: event.date.toISOString().slice(0, 10),
+          Sequence: String(event.sequence),
+          Operation: event.orderId
+            ? 'ACTIVITY'
+            : event.transferId
+              ? 'TRANSFER'
+              : event.type === 'CHECKPOINT'
+                ? 'RECONCILIATION'
+                : new Big(event.value.toString()).lt(0)
+                  ? 'WITHDRAWAL'
+                  : 'DEPOSIT',
+          Amount:
+            event.orderId || event.transferId || event.type === 'CHECKPOINT'
+              ? new Big(event.value.toString()).toFixed()
+              : new Big(event.value.toString()).abs().toFixed(),
+          Fee: new Big(event.fee.toString()).toFixed(),
+          Note: event.comment ?? '',
+          TransferReference: event.transferId ?? '',
+          ...(order
+            ? {
+                ActivityId: order.id,
+                ActivityName: order.SymbolProfile.name ?? '',
+                ActivityType: order.type,
+                ActivityDate: format(order.date, 'yyyy-MM-dd'),
+                DataSource: order.SymbolProfile.dataSource,
+                Symbol: order.SymbolProfile.symbol,
+                ActivityCurrency:
+                  order.currency ?? order.SymbolProfile.currency,
+                Quantity: new Big(order.quantity).toFixed(),
+                UnitPrice: new Big(order.unitPrice).toFixed(),
+                ActivityFee: new Big(order.fee).toFixed()
+              }
+            : {})
+        });
+      }
+      const csv = writeCashCsv(rows);
+      if (rows.length > 5000 || Buffer.byteLength(csv, 'utf8') > 2_000_000)
+        throw new BadRequestException(
+          'This cash history exceeds the supported CSV size. Use the full JSON backup.'
+        );
+      return { csv };
+    });
+  }
+
+  public async previewCsv(
+    scope: CashAccountScope,
+    csv: string,
+    activityLinks: Record<string, string> = {}
+  ): Promise<CashCsvPreview> {
+    return this.inAccountTransaction(scope, async (transaction, account) => {
+      const state =
+        (await this.readState(transaction, scope)) ??
+        (await this.draftState(transaction, scope, account.currency));
+      this.checkCurrency(account, state);
+      return (await this.prepareCsv(transaction, state, csv, activityLinks))
+        .preview;
+    });
+  }
+
+  public async importCsv(
+    scope: CashAccountScope,
+    data: {
+      csv: string;
+      activityLinks?: Record<string, string>;
+      expectedRevision: number;
+      digest: string;
+      confirmNegativeBalance?: boolean;
+    }
+  ) {
+    const result = await this.inAccountTransaction(
+      scope,
+      (transaction, account) =>
+        this.importCsvInTransaction(scope, data, transaction, account)
+    );
+    this.publishChange(scope.userId);
+    return result;
+  }
+
+  private async importCsvInTransaction(
+    scope: CashAccountScope,
+    data: {
+      csv: string;
+      activityLinks?: Record<string, string>;
+      expectedRevision: number;
+      digest: string;
+      confirmNegativeBalance?: boolean;
+    },
+    transaction: Prisma.TransactionClient,
+    account: Pick<Account, 'currency'>
+  ) {
+    let state =
+      (await this.readState(transaction, scope)) ??
+      (await this.draftState(transaction, scope, account.currency));
+    this.checkCurrency(account, state);
+    const plan = await this.prepareCsv(
+      transaction,
+      state,
+      data.csv,
+      data.activityLinks
+    );
+    if (
+      state.revision !== data.expectedRevision ||
+      plan.preview.digest !== data.digest
+    )
+      throw new ConflictException(
+        'The cash history or linked activities changed. Preview the file again.'
+      );
+    if (plan.preview.errors.length)
+      throw new BadRequestException(plan.preview.errors.join('\n'));
+    if (!plan.additions.length && !plan.openingChanged)
+      return this.toSnapshot(state, this.calculateState(state));
+    if (plan.deficitDate && !data.confirmNegativeBalance)
+      this.requireNegativeConfirmation(
+        scope.accountId,
+        state.revision,
+        plan.deficitDate
+      );
+    state = await this.requireState({
+      transaction,
+      scope,
+      account,
+      expectedRevision: data.expectedRevision
+    });
+    await this.checkProjectionOwnership({
+      transaction,
+      scope,
+      openingDate: state.openingDate
+    });
+    const nextState: CashState = {
+      ...state,
+      ...plan.opening,
+      revision: state.revision + 1,
+      lastSequence: Math.max(
+        state.lastSequence,
+        ...plan.additions.map((event) => event.sequence)
+      ),
+      events: [...state.events, ...plan.additions]
+    };
+    if (nextState.revision > MAX_DATABASE_INTEGER)
+      throw new ConflictException('Cash revision limit reached');
+    if (plan.additions.length)
+      await transaction.cashEvent.createMany({
+        data: plan.additions.map((event) => ({ ...event }))
+      });
+    await transaction.accountCashState.update({
+      where: { accountId_userId: scope },
+      data: {
+        revision: nextState.revision,
+        lastSequence: nextState.lastSequence,
+        openingDate: nextState.openingDate,
+        openingBalance: nextState.openingBalance,
+        isAutomaticOpening: nextState.isAutomaticOpening
+      }
+    });
+    await this.writeProjection(transaction, nextState, plan.calculation);
+    return this.toSnapshot(nextState, plan.calculation);
+  }
+
+  public inspectAccountCsv(csv: string) {
+    const rows = readCashCsv(csv);
+    const currencies = new Set(rows.map((row) => row.Currency).filter(Boolean));
+    const sources = new Set(
+      rows.map((row) => row.SourceAccount).filter(Boolean)
+    );
+    const names = new Set(
+      rows.map((row) => row.SourceAccountName).filter(Boolean)
+    );
+    if (currencies.size !== 1 || sources.size > 1 || names.size > 1) {
+      throw new BadRequestException(
+        'The CSV must describe one account and one currency.'
+      );
+    }
+    return { name: [...names][0] ?? '', currency: [...currencies][0] };
+  }
+
+  /** Preview never creates an account; confirmation saves account and journal together. */
+  public async newAccountFromCsv(
+    userId: string,
+    data: {
+      accountId: string;
+      name: string;
+      currency: string;
+      csv: string;
+      digest?: string;
+      confirmNegativeBalance?: boolean;
+    },
+    previewOnly: boolean
+  ) {
+    if (!data.name.trim())
+      throw new BadRequestException('An account name is required.');
+    const result = await this.prismaService.$transaction(
+      async (transaction) => {
+        await transaction.$queryRaw`SELECT "id" FROM "User" WHERE "id" = ${userId} FOR UPDATE`;
+        if (
+          await transaction.account.findFirst({ where: { id: data.accountId } })
+        ) {
+          throw new ConflictException(
+            'This account was already created. Select it as an existing destination and preview again.'
+          );
+        }
+        const source = this.inspectAccountCsv(data.csv);
+        if (source.currency !== data.currency)
+          throw new BadRequestException('Currency must match the CSV.');
+        const scope = { accountId: data.accountId, userId };
+        const state = await this.draftState(transaction, scope, data.currency);
+        const plan = await this.prepareCsv(transaction, state, data.csv, {});
+        const digest = createHash('sha256')
+          .update(
+            JSON.stringify({
+              userId,
+              accountId: data.accountId,
+              name: data.name,
+              currency: data.currency,
+              csvDigest: plan.preview.digest
+            })
+          )
+          .digest('hex');
+        if (
+          !plan.preview.newCount &&
+          !plan.openingChanged &&
+          !plan.preview.errors.length
+        ) {
+          plan.preview.errors.push(
+            'The CSV has no movements or opening balance to import.'
+          );
+        }
+        if (previewOnly) return { ...plan.preview, digest };
+        if (digest !== data.digest)
+          throw new ConflictException(
+            'The account details changed. Preview the CSV again.'
+          );
+        if (plan.preview.errors.length)
+          throw new BadRequestException(plan.preview.errors.join('\n'));
+        if (!plan.preview.newCount && !plan.openingChanged)
+          throw new BadRequestException(
+            'The CSV has no movements or opening balance to import.'
+          );
+        await transaction.account.create({
+          data: {
+            id: data.accountId,
+            userId,
+            name: data.name.trim(),
+            currency: data.currency
+          }
+        });
+        return this.importCsvInTransaction(
+          scope,
+          { ...data, expectedRevision: 0, digest: plan.preview.digest },
+          transaction,
+          { currency: data.currency }
+        );
+      },
+      {
+        isolationLevel: Prisma.TransactionIsolationLevel.Serializable,
+        maxWait: 5000,
+        timeout: 15000
+      }
+    );
+    if (!previewOnly) this.publishChange(userId);
+    return result;
+  }
+
+  private async prepareCsv(
+    transaction: Prisma.TransactionClient,
+    state: CashState,
+    csv: string,
+    activityLinks: Record<string, string> = {}
+  ) {
+    activityLinks ??= {};
+    const rows = readCashCsv(csv);
+    if (
+      Object.entries(activityLinks).some(
+        ([line, id]) =>
+          !/^\d+$/.test(line) ||
+          Number(line) < 2 ||
+          Number(line) > rows.length + 1 ||
+          typeof id !== 'string' ||
+          !id.length ||
+          id.length > 128 ||
+          rows[Number(line) - 2]?.Operation !== 'ACTIVITY'
+      )
+    )
+      throw new BadRequestException('Invalid activity association.');
+    const preview: CashCsvPreview = {
+      accountId: state.accountId,
+      currency: state.currency,
+      revision: state.revision,
+      digest: '',
+      rows: [],
+      errors: [],
+      warnings: [],
+      newCount: 0,
+      existingCount: 0,
+      finalBalance: '',
+      minimumBalance: ''
+    };
+    const orders = await transaction.order.findMany({
+      where: { accountId: state.accountId, userId: state.userId },
+      include: { SymbolProfile: true }
+    });
+    const additions: CashEvent[] = [];
+    let opening = {
+      openingDate: state.openingDate,
+      openingBalance: state.openingBalance,
+      isAutomaticOpening: state.isAutomaticOpening
+    };
+    let openingChanged = false;
+    const metadata = rows.filter((row) => row.Record === 'META');
+    try {
+      if (metadata.length > 1)
+        throw new BadRequestException('Only one META row is allowed.');
+      if (rows.some((row) => row.Currency !== state.currency))
+        throw new BadRequestException(
+          'The file currency must match the destination account. No automatic conversion is performed.'
+        );
+      if (metadata.length) {
+        const meta = metadata[0];
+        const value = decimal(meta.Amount);
+        const date = csvDate(meta.Date, true);
+        if (!['true', 'false'].includes(meta.AutomaticOpening))
+          throw new BadRequestException(
+            'META requires AutomaticOpening true or false.'
+          );
+        if (
+          meta.AutomaticOpening === 'true' &&
+          (date !== IMPLICIT_OPENING_DATE || value !== '0')
+        )
+          throw new BadRequestException(
+            'An automatic opening must be zero at the internal opening date.'
+          );
+        openingChanged =
+          date !== this.toOpeningBalance(state).date ||
+          !new Big(value).eq(state.openingBalance.toString()) ||
+          (meta.AutomaticOpening === 'true') !== state.isAutomaticOpening;
+        if (
+          openingChanged &&
+          (state.events.length ||
+            !state.isAutomaticOpening ||
+            !state.openingBalance.isZero())
+        )
+          throw new BadRequestException(
+            'The file opening conflicts with the existing account. Existing history is never replaced.'
+          );
+        opening = {
+          openingDate: this.toUtcDate(date),
+          openingBalance: new Prisma.Decimal(value),
+          isAutomaticOpening: meta.AutomaticOpening === 'true'
+        };
+      }
+      if (
+        rows.some(
+          (row) => row.SourceAccount && row.SourceAccount !== state.accountId
+        )
+      )
+        preview.warnings.push(
+          'The CSV refers to a different source account. Movements will be imported into the selected destination account.'
+        );
+    } catch (error) {
+      preview.errors.push((error as Error).message);
+    }
+    const references = new Set<string>();
+    const positions = new Set(
+      state.events.map(
+        (event) => `${event.date.toISOString().slice(0, 10)}/${event.sequence}`
+      )
+    );
+    let lastSequence = state.lastSequence;
+    for (const [index, row] of rows.entries()) {
+      if (row.Record === 'META') continue;
+      const item: CashCsvPreview['rows'][number] = {
+        line: index + 2,
+        date: row.Date,
+        operation: row.Operation,
+        amount: row.Amount,
+        status: 'NEW',
+        message: ''
+      };
+      preview.rows.push(item);
+      try {
+        const date = csvDate(row.Date);
+        if (date > format(new Date(), 'yyyy-MM-dd'))
+          throw new BadRequestException('Future cash dates are not supported.');
+        if (
+          row.Note.length > 1000 ||
+          row.Reference.length > 200 ||
+          row.ActivityId.length > 128
+        )
+          throw new BadRequestException(
+            'Note or reference exceeds the supported length.'
+          );
+        if (row.Reference && references.has(row.Reference))
+          throw new BadRequestException(
+            'Duplicate Reference inside this file.'
+          );
+        if (row.Reference) references.add(row.Reference);
+        const amount = decimal(row.Amount);
+        const fee = decimal(row.Fee || '0');
+        if (new Big(fee).lt(0))
+          throw new BadRequestException('Fee must not be negative.');
+        const linked = row.Operation === 'ACTIVITY';
+        const transfer = row.Operation === 'TRANSFER';
+        const checkpoint = row.Operation === 'RECONCILIATION';
+        if (
+          ![
+            'DEPOSIT',
+            'WITHDRAWAL',
+            'RECONCILIATION',
+            'ACTIVITY',
+            'TRANSFER'
+          ].includes(row.Operation)
+        )
+          throw new BadRequestException(
+            'Unsupported operation. Use DEPOSIT, WITHDRAWAL, RECONCILIATION, ACTIVITY or TRANSFER.'
+          );
+        if (
+          (row.Operation === 'DEPOSIT' || row.Operation === 'WITHDRAWAL') &&
+          !new Big(amount).gt(0)
+        )
+          throw new BadRequestException(
+            'Deposits and withdrawals require a positive Amount.'
+          );
+        if ((checkpoint || linked || transfer) && fee !== '0')
+          throw new BadRequestException(
+            'Reconciliations and linked operations require Fee 0; linked Amount already includes activity costs.'
+          );
+        if (!linked && row.ActivityId)
+          throw new BadRequestException(
+            'ActivityId is only valid for ACTIVITY rows.'
+          );
+        if (!transfer && row.TransferReference)
+          throw new BadRequestException(
+            'TransferReference is only valid for TRANSFER rows.'
+          );
+        const value =
+          row.Operation === 'WITHDRAWAL'
+            ? new Big(amount).neg().toFixed()
+            : amount;
+        let orderId: string | null = null;
+        if (linked) {
+          const matches = orders.filter((order) => {
+            try {
+              return (
+                order.type === row.ActivityType &&
+                format(order.date, 'yyyy-MM-dd') === row.ActivityDate &&
+                order.SymbolProfile.dataSource === row.DataSource &&
+                (order.SymbolProfile.symbol === row.Symbol ||
+                  (row.DataSource === 'MANUAL' &&
+                    row.ActivityName &&
+                    order.SymbolProfile.name === row.ActivityName)) &&
+                (order.currency ?? order.SymbolProfile.currency) ===
+                  row.ActivityCurrency &&
+                new Big(order.quantity).eq(decimal(row.Quantity)) &&
+                new Big(order.unitPrice).eq(decimal(row.UnitPrice)) &&
+                new Big(order.fee).eq(decimal(row.ActivityFee))
+              );
+            } catch {
+              return false;
+            }
+          });
+          const selectedId = activityLinks[String(index + 2)];
+          const exact = matches.find(
+            (order) => order.id === (selectedId ?? row.ActivityId)
+          );
+          if (selectedId && !exact)
+            throw new BadRequestException(
+              'The selected activity no longer matches this cash movement.'
+            );
+          if (!exact && matches.length > 1)
+            item.candidates = matches.map((order) => ({
+              id: order.id,
+              label: `${format(order.date, 'yyyy-MM-dd')} · ${order.type} · ${order.SymbolProfile.name ?? order.SymbolProfile.symbol} · ${order.quantity} × ${order.unitPrice} · ${order.comment ?? ''}`
+            }));
+          const order =
+            exact ?? (matches.length === 1 ? matches[0] : undefined);
+          if (!order)
+            throw new BadRequestException(
+              matches.length
+                ? 'Ambiguous activity. Select the matching activity in the preview.'
+                : 'Linked activity not found. Import the financial activities first.'
+            );
+          orderId = order.id;
+          if (date !== format(order.date, 'yyyy-MM-dd'))
+            throw new BadRequestException(
+              'Cash date must match the linked activity date.'
+            );
+          const expected = await this.orderAmount(order, state.currency);
+          if (new Big(value).minus(expected).abs().gt('0.00000001'))
+            throw new BadRequestException(
+              'Amount differs from the linked activity cash effect.'
+            );
+        }
+        const existing = row.Reference
+          ? state.events.find(
+              (event) =>
+                (event.importReference ?? `ledger:${event.id}`) ===
+                  row.Reference || `ledger:${event.id}` === row.Reference
+            )
+          : undefined;
+        const linkedExisting = orderId
+          ? [...state.events, ...additions].find(
+              (event) => event.orderId === orderId
+            )
+          : undefined;
+        const previous = existing ?? linkedExisting;
+        const same = (event: CashEvent) =>
+          event.date.toISOString().slice(0, 10) === date &&
+          event.type === (checkpoint ? 'CHECKPOINT' : 'MOVEMENT') &&
+          new Big(event.value.toString()).eq(value) &&
+          new Big(event.fee.toString()).eq(fee) &&
+          event.orderId === orderId &&
+          (event.comment ?? '') === row.Note &&
+          (event.transferId ?? '') === row.TransferReference;
+        if (previous) {
+          if (
+            !same(previous) ||
+            (existing &&
+              row.Sequence &&
+              Number(row.Sequence) !== existing.sequence)
+          )
+            throw new BadRequestException(
+              'The reference or linked activity already exists with different content. No overwrite is performed.'
+            );
+          item.status = 'EXISTING';
+          item.message = 'Already present; no duplicate movement.';
+          preview.existingCount++;
+          continue;
+        }
+        if (transfer)
+          throw new BadRequestException(
+            'A transfer cannot be restored from one account alone. Both account entries must be resolved together.'
+          );
+        if (!row.Reference && [...state.events, ...additions].some(same))
+          throw new BadRequestException(
+            'Possible duplicate without Reference. Supply a unique reference to confirm a distinct movement.'
+          );
+        if (
+          !row.Sequence &&
+          [...state.events, ...additions].some(
+            (event) =>
+              event.date.toISOString().slice(0, 10) === date &&
+              (checkpoint || event.type === 'CHECKPOINT')
+          )
+        )
+          throw new BadRequestException(
+            'Specify Sequence to place this row relative to the same-day reconciliation.'
+          );
+        if (row.Sequence && !/^\d+$/.test(row.Sequence))
+          throw new BadRequestException('Sequence must be a positive integer.');
+        const sequence = row.Sequence ? Number(row.Sequence) : lastSequence + 1;
+        if (
+          !Number.isSafeInteger(sequence) ||
+          sequence < 1 ||
+          sequence > MAX_DATABASE_INTEGER ||
+          positions.has(`${date}/${sequence}`)
+        )
+          throw new BadRequestException(
+            'Sequence is invalid or already used on this date.'
+          );
+        positions.add(`${date}/${sequence}`);
+        lastSequence = Math.max(lastSequence, sequence);
+        additions.push({
+          accountId: state.accountId,
+          userId: state.userId,
+          id: randomUUID(),
+          importReference: row.Reference || null,
+          date: this.toUtcDate(date),
+          sequence,
+          type: checkpoint ? 'CHECKPOINT' : 'MOVEMENT',
+          value: new Prisma.Decimal(value),
+          fee: new Prisma.Decimal(fee),
+          comment: row.Note || null,
+          orderId,
+          transferId: null,
+          createdAt: new Date(),
+          updatedAt: new Date()
+        });
+        preview.newCount++;
+      } catch (error) {
+        item.status = 'ERROR';
+        item.message = (error as Error).message;
+        preview.errors.push(`Row ${item.line}: ${item.message}`);
+      }
+    }
+    let calculation = this.calculateState(state);
+    try {
+      calculation = this.calculateState({
+        ...state,
+        ...opening,
+        events: [...state.events, ...additions]
+      });
+    } catch (error) {
+      preview.errors.push((error as Error).message);
+    }
+    preview.finalBalance =
+      calculation.balances[calculation.balances.length - 1].value.toFixed();
+    preview.minimumBalance = calculation.minimumBalance.value.toFixed();
+    preview.firstAffectedDate = additions
+      .map((event) => event.date.toISOString().slice(0, 10))
+      .sort()[0];
+    preview.digest = createHash('sha256')
+      .update(
+        JSON.stringify({
+          csv,
+          activityLinks: Object.entries(activityLinks).sort(),
+          currency: state.currency,
+          revision: state.revision,
+          orders: orders
+            .map((order) => [
+              order.id,
+              order.updatedAt.toISOString(),
+              order.date.toISOString(),
+              order.type,
+              order.quantity,
+              order.unitPrice,
+              order.fee,
+              order.currency,
+              order.SymbolProfile.symbol,
+              order.SymbolProfile.dataSource,
+              order.SymbolProfile.name,
+              order.SymbolProfile.currency
+            ])
+            .sort()
+        })
+      )
+      .digest('hex');
+    const deficit = openingChanged
+      ? calculation.minimumBalance.value.lt(0)
+        ? calculation.minimumBalance
+        : null
+      : preview.errors.length
+        ? null
+        : findNewCashDeficit({
+            openingBalance: this.toOpeningBalance(state),
+            previousEvents: state.events.map((event) =>
+              this.toCalculatorEvent(event)
+            ),
+            events: [...state.events, ...additions].map((event) =>
+              this.toCalculatorEvent(event)
+            )
+          });
+    return {
+      preview,
+      additions,
+      opening,
+      openingChanged,
+      calculation,
+      deficitDate: deficit?.date
+    };
+  }
 
   public async open({
     accountId,
@@ -429,6 +1124,13 @@ export class CashManagementService {
       ) {
         throw new BadRequestException('Invalid cash ledger event');
       }
+      if (
+        event.importReference !== undefined &&
+        (typeof event.importReference !== 'string' ||
+          !event.importReference.length ||
+          event.importReference.length > 200)
+      )
+        throw new BadRequestException('Invalid cash import reference');
       const normalized = this.normalizeEvent(event);
       if (
         !Number.isInteger(event.sequence) ||
@@ -458,83 +1160,95 @@ export class CashManagementService {
     snapshot: import('@ghostfolio/common/interfaces').CashManagementExport,
     orderIds: Record<string, string>
   ) {
-    await this.inAccountTransaction(scope, async (transaction, account) => {
-      this.validateRestore(snapshot, account.currency);
-      if (await this.readState(transaction, scope)) {
-        return;
-      }
-      const calculation = this.validateRestore(snapshot, account.currency);
-      const openingDate = this.toUtcDate(snapshot.openingBalance.date);
-      const balances = await transaction.accountBalance.findMany({
-        where: { ...scope, date: { gte: openingDate } }
-      });
-      // Only identical imported snapshots may be adopted; unrelated broker history is protected.
-      for (const balance of balances) {
-        const expected = calculation.balances.find(
-          ({ date }) => date === balance.date.toISOString().slice(0, 10)
-        );
-        if (
-          !expected ||
-          balance.date.getUTCHours() !== 0 ||
-          balance.date.getUTCMinutes() !== 0 ||
-          balance.date.getUTCSeconds() !== 0 ||
-          balance.date.getUTCMilliseconds() !== 0 ||
-          expected.value.toNumber() !== balance.value
-        ) {
-          throw new ConflictException(
-            'The imported cash transactions conflict with existing balances'
-          );
-        }
-      }
-      const data: Prisma.CashEventUncheckedCreateWithoutStateInput[] = [];
-      for (const event of snapshot.events) {
-        const orderId = event.orderId ? orderIds[event.orderId] : undefined;
-        if (event.orderId && !orderId) {
-          throw new ConflictException(
-            'An activity linked to the imported cash ledger is missing'
-          );
-        }
-        if (
-          orderId &&
-          !(await transaction.order.findFirst({
-            where: {
-              id: orderId,
-              userId: scope.userId,
-              accountId: scope.accountId
-            }
-          }))
-        ) {
-          throw new ConflictException(
-            'An imported cash event belongs to a different account'
-          );
-        }
-        data.push({
-          ...this.normalizeEvent(event),
-          sequence: event.sequence,
-          orderId,
-          transferId: event.transferId
-        });
-      }
-      const state = await transaction.accountCashState.create({
-        data: {
-          ...scope,
-          currency: account.currency,
-          defaultUpdateCash: snapshot.defaultUpdateCash,
-          includeCashInPortfolio: snapshot.includeCashInPortfolio ?? true,
-          isAutomaticOpening: snapshot.isAutomaticOpening ?? false,
-          openingDate,
-          openingBalance: this.normalizeValue(snapshot.openingBalance.balance),
-          lastSequence: Math.max(
-            0,
-            ...snapshot.events.map(({ sequence }) => sequence)
-          ),
-          events: { create: data }
-        },
-        include: { events: true }
-      });
-      await this.writeProjection(transaction, state, calculation);
-    });
+    await this.inAccountTransaction(scope, (transaction, account) =>
+      this.restoreInTransaction(scope, snapshot, orderIds, transaction, account)
+    );
     this.publishChange(scope.userId);
+  }
+
+  /** Shares the caller's transaction so a portfolio restore cannot leave half a ledger. */
+  public async restoreInTransaction(
+    scope: CashAccountScope,
+    snapshot: import('@ghostfolio/common/interfaces').CashManagementExport,
+    orderIds: Record<string, string>,
+    transaction: Prisma.TransactionClient,
+    account: Pick<Account, 'currency'>
+  ) {
+    this.validateRestore(snapshot, account.currency);
+    if (await this.readState(transaction, scope)) {
+      return;
+    }
+    const calculation = this.validateRestore(snapshot, account.currency);
+    const openingDate = this.toUtcDate(snapshot.openingBalance.date);
+    const balances = await transaction.accountBalance.findMany({
+      where: { ...scope, date: { gte: openingDate } }
+    });
+    // Only identical imported snapshots may be adopted; unrelated broker history is protected.
+    for (const balance of balances) {
+      const expected = calculation.balances.find(
+        ({ date }) => date === balance.date.toISOString().slice(0, 10)
+      );
+      if (
+        !expected ||
+        balance.date.getUTCHours() !== 0 ||
+        balance.date.getUTCMinutes() !== 0 ||
+        balance.date.getUTCSeconds() !== 0 ||
+        balance.date.getUTCMilliseconds() !== 0 ||
+        expected.value.toNumber() !== balance.value
+      ) {
+        throw new ConflictException(
+          'The imported cash transactions conflict with existing balances'
+        );
+      }
+    }
+    const data: Prisma.CashEventUncheckedCreateWithoutStateInput[] = [];
+    for (const event of snapshot.events) {
+      const orderId = event.orderId ? orderIds[event.orderId] : undefined;
+      if (event.orderId && !orderId) {
+        throw new ConflictException(
+          'An activity linked to the imported cash ledger is missing'
+        );
+      }
+      if (
+        orderId &&
+        !(await transaction.order.findFirst({
+          where: {
+            id: orderId,
+            userId: scope.userId,
+            accountId: scope.accountId
+          }
+        }))
+      ) {
+        throw new ConflictException(
+          'An imported cash event belongs to a different account'
+        );
+      }
+      data.push({
+        ...this.normalizeEvent(event),
+        importReference: event.importReference ?? null,
+        sequence: event.sequence,
+        orderId,
+        transferId: event.transferId
+      });
+    }
+    const state = await transaction.accountCashState.create({
+      data: {
+        ...scope,
+        currency: account.currency,
+        defaultUpdateCash: snapshot.defaultUpdateCash,
+        includeCashInPortfolio: snapshot.includeCashInPortfolio ?? true,
+        isAutomaticOpening: snapshot.isAutomaticOpening ?? false,
+        openingDate,
+        openingBalance: this.normalizeValue(snapshot.openingBalance.balance),
+        lastSequence: Math.max(
+          0,
+          ...snapshot.events.map(({ sequence }) => sequence)
+        ),
+        events: { create: data }
+      },
+      include: { events: true }
+    });
+    await this.writeProjection(transaction, state, calculation);
   }
 
   public async updatePreferences(
@@ -707,6 +1421,7 @@ export class CashManagementService {
         sequence,
         value: new Prisma.Decimal(value),
         fee: new Prisma.Decimal(0),
+        importReference: sameAccountEvent?.importReference ?? null,
         type: 'MOVEMENT',
         comment: order.comment,
         orderId: order.id,
@@ -844,6 +1559,7 @@ export class CashManagementService {
             id: randomUUID(),
             date: this.toUtcDate(date),
             sequence: this.nextSequence(state),
+            importReference: null,
             type: 'MOVEMENT' as const,
             value: new Prisma.Decimal(this.normalizeValue(value)),
             fee: new Prisma.Decimal(0),
@@ -1306,6 +2022,7 @@ export class CashManagementService {
       sequence: index + 1,
       type: 'CHECKPOINT',
       value: new Prisma.Decimal(String(balance.value)),
+      importReference: null,
       fee: new Prisma.Decimal(0),
       comment: null,
       orderId: null,
@@ -1352,6 +2069,9 @@ export class CashManagementService {
             ? { fee: event.fee.toString() }
             : {}),
           comment: event.comment,
+          ...(event.importReference
+            ? { importReference: event.importReference }
+            : {}),
           id: event.id,
           ...(event.orderId ? { orderId: event.orderId } : {}),
           ...(event.transferId ? { transferId: event.transferId } : {})

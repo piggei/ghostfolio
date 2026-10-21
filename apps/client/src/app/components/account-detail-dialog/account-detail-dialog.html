@@ -180,6 +180,7 @@
         @if (!showValuesInPercentage()) {
           <gf-cash-management
             [accountId]="data.accountId"
+            [accountName]="name"
             [canWrite]="canManageCash && !data.impersonationId"
             [currency]="currency"
             [currentBalance]="balance"

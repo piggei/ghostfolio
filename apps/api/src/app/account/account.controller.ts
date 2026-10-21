@@ -36,6 +36,10 @@ import {
 import { Account as AccountModel } from '@prisma/client';
 import { StatusCodes, getReasonPhrase } from 'http-status-codes';
 
+import {
+  CashCsvPreviewDto,
+  NewAccountCashCsvDto
+} from '../account-balance/cash-management.dto';
 import { AccountService } from './account.service';
 import { GetAllAccountsDto } from './get-all-accounts.dto';
 
@@ -48,6 +52,33 @@ export class AccountController {
     private readonly portfolioService: PortfolioService,
     private readonly cashManagementService?: CashManagementService
   ) {}
+
+  @Post('cash-csv/inspect')
+  @HasPermission(permissions.createAccount)
+  @RequiresScope(scopes.accountCreate, scopes.portfolioReadValues)
+  public inspectCashCsv(@Body() data: CashCsvPreviewDto) {
+    return this.cashManagementService.inspectAccountCsv(data.csv);
+  }
+
+  @Post('cash-csv/new/preview')
+  @HasPermission(permissions.createAccount)
+  @RequiresScope(scopes.accountCreate, scopes.portfolioReadValues)
+  public previewNewCashCsv(
+    @Body() data: NewAccountCashCsvDto,
+    @Impersonation() { userId }: ImpersonationContext
+  ) {
+    return this.cashManagementService.newAccountFromCsv(userId, data, true);
+  }
+
+  @Post('cash-csv/new/import')
+  @HasPermission(permissions.createAccount)
+  @RequiresScope(scopes.accountCreate, scopes.portfolioReadValues)
+  public importNewCashCsv(
+    @Body() data: NewAccountCashCsvDto,
+    @Impersonation() { userId }: ImpersonationContext
+  ) {
+    return this.cashManagementService.newAccountFromCsv(userId, data, false);
+  }
 
   @Delete(':id')
   @HasPermission(permissions.deleteAccount)

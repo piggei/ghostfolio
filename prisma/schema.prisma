@@ -186,6 +186,7 @@ model AuthDevice {
 }
 
 model CashEvent {
+  importReference String?
   fee        Decimal @default(0) @db.Decimal(65, 30)
   accountId  String
   comment    String?
@@ -202,6 +203,7 @@ model CashEvent {
   userId     String
   value      Decimal          @db.Decimal(65, 30)
 
+  @@unique([accountId, userId, importReference])
   @@unique([accountId, userId, date, sequence])
 }
 

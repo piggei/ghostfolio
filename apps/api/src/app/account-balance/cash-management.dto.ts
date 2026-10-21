@@ -1,5 +1,6 @@
 import { COMMENT_MAXIMUM_LENGTH } from '@ghostfolio/common/config';
 import { IsValidAccountBalanceDateConstraint } from '@ghostfolio/common/validator-constraints/is-valid-account-balance-date';
+import { IsCurrencyCode } from '@ghostfolio/common/validators/is-currency-code';
 
 import { Type } from 'class-transformer';
 import {
@@ -8,7 +9,10 @@ import {
   IsIn,
   IsInt,
   IsOptional,
+  IsObject,
   IsString,
+  IsUUID,
+  IsNotEmpty,
   Matches,
   Max,
   MaxLength,
@@ -87,4 +91,44 @@ export class CashPreferencesDto extends CashRevisionDto {
   @IsBoolean()
   @IsOptional()
   includeCashInPortfolio?: boolean;
+}
+
+export class CashCsvPreviewDto {
+  @IsObject()
+  @IsOptional()
+  activityLinks?: Record<string, string>;
+
+  @IsString()
+  @MaxLength(2000000)
+  csv: string;
+}
+
+export class CashCsvImportDto extends CashRevisionDto {
+  @IsObject()
+  @IsOptional()
+  activityLinks?: Record<string, string>;
+
+  @IsString()
+  @MaxLength(2000000)
+  csv: string;
+
+  @Matches(/^[a-f0-9]{64}$/)
+  digest: string;
+}
+
+export class NewAccountCashCsvDto extends CashCsvPreviewDto {
+  @IsUUID()
+  accountId: string;
+  @IsString()
+  @IsNotEmpty()
+  @MaxLength(200)
+  name: string;
+  @IsCurrencyCode()
+  currency: string;
+  @IsOptional()
+  @IsString()
+  digest?: string;
+  @IsOptional()
+  @IsBoolean()
+  confirmNegativeBalance?: boolean;
 }

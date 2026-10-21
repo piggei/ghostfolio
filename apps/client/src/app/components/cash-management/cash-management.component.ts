@@ -1,11 +1,12 @@
 import { COMMENT_MAXIMUM_LENGTH } from '@ghostfolio/common/config';
 import { DATE_FORMAT } from '@ghostfolio/common/helper';
 import {
+  CashCsvPreview,
   CashEventInput,
   CashManagementSnapshot,
   ManagedCashEvent
 } from '@ghostfolio/common/interfaces';
-import { internalRoutes } from '@ghostfolio/common/routes/routes';
+import { internalRoutes, publicRoutes } from '@ghostfolio/common/routes/routes';
 import { DataService } from '@ghostfolio/ui/services';
 
 import {
@@ -33,7 +34,7 @@ import { MatFormFieldModule } from '@angular/material/form-field';
 import { MatInputModule } from '@angular/material/input';
 import { MatMenuModule } from '@angular/material/menu';
 import { MatSelectModule } from '@angular/material/select';
-import { Router } from '@angular/router';
+import { Router, RouterModule } from '@angular/router';
 import { IonIcon } from '@ionic/angular/standalone';
 import { Big } from 'big.js';
 import { format } from 'date-fns';
@@ -46,6 +47,7 @@ import { finalize, Observable } from 'rxjs';
   changeDetection: ChangeDetectionStrategy.OnPush,
   imports: [
     ReactiveFormsModule,
+    RouterModule,
     MatButtonModule,
     MatCheckboxModule,
     MatFormFieldModule,
@@ -59,6 +61,7 @@ import { finalize, Observable } from 'rxjs';
 })
 export class GfCashManagementComponent {
   public readonly accountId = input.required<string>();
+  public readonly accountName = input<string | null>();
   public readonly currentBalance = input<number>(0);
   public readonly eventId = input<string>();
   public readonly currency = input<string | null>();
@@ -66,12 +69,18 @@ export class GfCashManagementComponent {
   public readonly changed = output<void>();
 
   protected readonly COMMENT_MAXIMUM_LENGTH = COMMENT_MAXIMUM_LENGTH;
+  protected readonly cashGuideLink =
+    publicRoutes.resources.subRoutes.guides.routerLink;
   protected readonly today = format(new Date(), DATE_FORMAT);
   protected readonly snapshot = signal<
     CashManagementSnapshot | null | undefined
   >(undefined);
   protected readonly busy = signal(false);
   protected readonly error = signal('');
+  protected readonly csvPage = signal(0);
+  protected readonly unnamedAccount = $localize`Selected account`;
+  protected readonly csvPreview = signal<CashCsvPreview | null>(null);
+  protected readonly selectedFile = signal('');
   protected readonly editing = signal<string | undefined>(undefined);
   protected readonly orderedEvents = () =>
     [...(this.snapshot()?.events ?? [])].reverse();
@@ -95,6 +104,8 @@ export class GfCashManagementComponent {
   private readonly destroyRef = inject(DestroyRef);
   private readonly formDirective = viewChild(FormGroupDirective);
   private readonly router = inject(Router);
+  private csvContent = '';
+  private csvActivityLinks: Record<string, string> = {};
 
   public constructor() {
     addIcons({ ellipsisVertical });
@@ -273,6 +284,133 @@ export class GfCashManagementComponent {
     ).toFixed();
   }
 
+  protected csvStatus(status: string) {
+    return status === 'NEW'
+      ? $localize`New`
+      : status === 'EXISTING'
+        ? $localize`Already present`
+        : $localize`Error`;
+  }
+
+  protected exportCsv() {
+    if (this.busy()) return;
+    this.busy.set(true);
+    this.error.set('');
+    this.dataService
+      .exportCashCsv(this.accountId())
+      .pipe(
+        takeUntilDestroyed(this.destroyRef),
+        finalize(() => this.busy.set(false))
+      )
+      .subscribe({
+        next: ({ csv }) => {
+          const url = URL.createObjectURL(
+            new Blob([csv], { type: 'text/csv;charset=utf-8' })
+          );
+          const anchor = document.createElement('a');
+          anchor.href = url;
+          anchor.download = `ghostfolio-cash-${this.accountId()}-${this.today}.csv`;
+          anchor.click();
+          setTimeout(() => URL.revokeObjectURL(url), 0);
+        },
+        error: (error) => this.showCsvError(error)
+      });
+  }
+
+  protected async previewFile(event: Event) {
+    const fileInput = event.target as HTMLInputElement;
+    const file = fileInput.files?.[0];
+    fileInput.value = '';
+    this.csvPreview.set(null);
+    this.csvActivityLinks = {};
+    this.csvPage.set(0);
+    if (!file || this.busy() || !this.canWrite()) return;
+    if (file.size > 2000000) {
+      this.error.set($localize`Cash CSV exceeds the 2 MB limit.`);
+      return;
+    }
+    this.busy.set(true);
+    this.error.set('');
+    this.selectedFile.set(file.name);
+    try {
+      this.csvContent = await file.text();
+      this.dataService
+        .previewCashCsv(
+          this.accountId(),
+          this.csvContent,
+          this.csvActivityLinks
+        )
+        .pipe(
+          takeUntilDestroyed(this.destroyRef),
+          finalize(() => this.busy.set(false))
+        )
+        .subscribe({
+          next: (preview) => this.csvPreview.set(preview),
+          error: (error) => this.showCsvError(error)
+        });
+    } catch (error) {
+      this.busy.set(false);
+      this.showCsvError(error);
+    }
+  }
+
+  protected resolveCsvActivity(line: number, activityId: string) {
+    if (this.busy()) return;
+    this.csvActivityLinks = { ...this.csvActivityLinks, [line]: activityId };
+    this.busy.set(true);
+    this.error.set('');
+    this.dataService
+      .previewCashCsv(this.accountId(), this.csvContent, this.csvActivityLinks)
+      .pipe(
+        takeUntilDestroyed(this.destroyRef),
+        finalize(() => this.busy.set(false))
+      )
+      .subscribe({
+        next: (preview) => this.csvPreview.set(preview),
+        error: (error) => this.showCsvError(error)
+      });
+  }
+
+  protected confirmCsvImport() {
+    const preview = this.csvPreview();
+    if (!this.canWrite() || this.busy() || !preview || preview.errors.length)
+      return;
+    this.run(
+      this.dataService.importCashCsv(
+        this.accountId(),
+        this.csvContent,
+        preview,
+        this.csvActivityLinks
+      )
+    );
+  }
+
+  protected cancelCsvImport() {
+    this.csvPreview.set(null);
+    this.csvContent = '';
+    this.csvActivityLinks = {};
+    this.selectedFile.set('');
+  }
+
+  private showCsvError(error: unknown) {
+    const payload =
+      error && typeof error === 'object' && 'error' in error
+        ? error.error
+        : undefined;
+    const message =
+      payload && typeof payload === 'object' && 'message' in payload
+        ? payload.message
+        : undefined;
+    this.error.set(
+      Array.isArray(message) &&
+        message.every((item) => typeof item === 'string')
+        ? message.join('; ')
+        : typeof message === 'string'
+          ? message
+          : $localize`Unable to process the cash CSV.`
+    );
+  }
+
   private run(request: Observable<CashManagementSnapshot>) {
     this.busy.set(true);
     this.error.set('');
@@ -284,6 +422,7 @@ export class GfCashManagementComponent {
       .subscribe({
         next: (state) => {
           this.snapshot.set(state);
+          this.cancelCsvImport();
           this.cancelEdit();
           this.changed.emit();
         },

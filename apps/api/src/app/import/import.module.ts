@@ -11,6 +11,7 @@ import { ApiModule } from '@ghostfolio/api/services/api/api.module';
 import { ConfigurationModule } from '@ghostfolio/api/services/configuration/configuration.module';
 import { DataProviderModule } from '@ghostfolio/api/services/data-provider/data-provider.module';
 import { ExchangeRateDataModule } from '@ghostfolio/api/services/exchange-rate-data/exchange-rate-data.module';
+import { ImpersonationModule } from '@ghostfolio/api/services/impersonation/impersonation.module';
 import { MarketDataModule } from '@ghostfolio/api/services/market-data/market-data.module';
 import { PrismaModule } from '@ghostfolio/api/services/prisma/prisma.module';
 import { DataGatheringQueueModule } from '@ghostfolio/api/services/queues/data-gathering/data-gathering.module';
@@ -21,11 +22,14 @@ import { Module } from '@nestjs/common';
 
 import { ImportController } from './import.controller';
 import { ImportService } from './import.service';
+import { PortfolioRestoreController } from './portfolio-restore.controller';
+import { PortfolioRestoreService } from './portfolio-restore.service';
 
 @Module({
-  controllers: [ImportController],
+  controllers: [ImportController, PortfolioRestoreController],
   exports: [ImportService],
   imports: [
+    ImpersonationModule,
     CashManagementModule,
     AccountModule,
     ActivitiesModule,
@@ -45,6 +49,6 @@ import { ImportService } from './import.service';
     TransformDataSourceInRequestModule,
     TransformDataSourceInResponseModule
   ],
-  providers: [ImportService]
+  providers: [ImportService, PortfolioRestoreService]
 })
 export class ImportModule {}

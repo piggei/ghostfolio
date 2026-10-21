@@ -20,6 +20,8 @@ import {
 } from '@nestjs/common';
 
 import {
+  CashCsvImportDto,
+  CashCsvPreviewDto,
   CashMutationDto,
   CashOpeningDto,
   CashPreferencesDto,
@@ -53,6 +55,41 @@ export class CashManagementController {
         userSettings.baseCurrency
       )
     };
+  }
+
+  @Get('export')
+  @RequiresScope(scopes.accountRead, scopes.portfolioReadValues)
+  public exportCsv(
+    @Param('accountId') accountId: string,
+    @Impersonation() { userId }: ImpersonationContext
+  ) {
+    return this.cashManagementService.exportCsv({ accountId, userId });
+  }
+
+  @Post('import/preview')
+  @HasPermission(permissions.updateAccount)
+  @RequiresScope(scopes.accountUpdate, scopes.portfolioReadValues)
+  public previewCsv(
+    @Param('accountId') accountId: string,
+    @Impersonation() { userId }: ImpersonationContext,
+    @Body() data: CashCsvPreviewDto
+  ) {
+    return this.cashManagementService.previewCsv(
+      { accountId, userId },
+      data.csv,
+      data.activityLinks
+    );
+  }
+
+  @Post('import')
+  @HasPermission(permissions.updateAccount)
+  @RequiresScope(scopes.accountUpdate, scopes.portfolioReadValues)
+  public importCsv(
+    @Param('accountId') accountId: string,
+    @Impersonation() { userId }: ImpersonationContext,
+    @Body() data: CashCsvImportDto
+  ) {
+    return this.cashManagementService.importCsv({ accountId, userId }, data);
   }
 
   @Post('open')

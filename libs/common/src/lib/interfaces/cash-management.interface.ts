@@ -8,6 +8,7 @@ export type CashEventInput = {
 
 export type ManagedCashEvent = CashEventInput & {
   id: string;
+  importReference?: string;
   sequence: number;
   orderId?: string;
   transferId?: string;

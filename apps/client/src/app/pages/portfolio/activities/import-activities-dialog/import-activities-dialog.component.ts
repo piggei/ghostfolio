@@ -1,3 +1,4 @@
+import { GfPortfolioRestoreDialogComponent } from '@ghostfolio/client/components/portfolio-restore-dialog/portfolio-restore-dialog.component';
 import { GfFileDropDirective } from '@ghostfolio/client/directives/file-drop/file-drop.directive';
 import { ImportActivitiesService } from '@ghostfolio/client/services/import-activities.service';
 import {
@@ -51,6 +52,7 @@ import {
 } from '@angular/material/checkbox';
 import {
   MAT_DIALOG_DATA,
+  MatDialog,
   MatDialogModule,
   MatDialogRef
 } from '@angular/material/dialog';
@@ -165,6 +167,7 @@ export class GfImportActivitiesDialogComponent {
     inject<MatDialogRef<GfImportActivitiesDialogComponent>>(MatDialogRef);
   private readonly importActivitiesService = inject(ImportActivitiesService);
   private readonly snackBar = inject(MatSnackBar);
+  private readonly restoreDialog = inject(MatDialog);
 
   public constructor() {
     addIcons({ cloudUploadOutline, informationCircleOutline, warningOutline });
@@ -438,6 +441,18 @@ export class GfImportActivitiesDialogComponent {
       try {
         if (fileExtension === 'json') {
           const content = JSON.parse(fileContent);
+          if (content.accounts?.some((account) => account.cashManagement)) {
+            // A cash-enabled JSON is a portfolio restore, not a selectable list
+            // of independent activities: preserve its links and atomicity.
+            this.restoreDialog.open(GfPortfolioRestoreDialogComponent, {
+              data: { backup: content, fileName: file.name },
+              width: '52rem',
+              maxWidth: '96vw',
+              disableClose: true
+            });
+            this.dialogRef.close();
+            return;
+          }
 
           this.accounts = content.accounts;
           this.assetProfiles = content.assetProfiles;
@@ -460,13 +475,8 @@ export class GfImportActivitiesDialogComponent {
             }
           }
 
-          content.activities = content.activities.map((activity) => {
-            if (activity.id) {
-              delete activity.id;
-            }
-
-            return activity;
-          });
+          // Source IDs are needed to remap exported cash links. The API always
+          // creates fresh order IDs and checks destination ownership.
 
           try {
             const { activities } =

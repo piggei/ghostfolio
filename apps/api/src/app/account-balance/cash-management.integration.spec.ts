@@ -1,6 +1,9 @@
 import { ActivitiesService } from '@ghostfolio/api/app/activities/activities.service';
 import { PrismaService } from '@ghostfolio/api/services/prisma/prisma.service';
-import { CashManagementExport } from '@ghostfolio/common/interfaces';
+import {
+  CashCsvPreview,
+  CashManagementExport
+} from '@ghostfolio/common/interfaces';
 
 import { ConflictException } from '@nestjs/common';
 import { ConfigService } from '@nestjs/config';
@@ -864,5 +867,473 @@ describeDatabase('Cash management with PostgreSQL', () => {
     ).rejects.toThrow();
     expect(await prisma.accountCashState.count({ where: scope() })).toBe(0);
     expect(await prisma.accountBalance.count({ where: scope() })).toBe(0);
+  });
+  describe('cash CSV import and export', () => {
+    const csv = (lines: string[]) =>
+      [
+        'Date,Operation,Amount,Fee,Currency,Reference,Sequence,Note',
+        ...lines
+      ].join('\n');
+    async function commit(text: string) {
+      const preview = await service.previewCsv(scope(), text);
+      expect(preview.errors).toEqual([]);
+      return service.importCsv(scope(), {
+        csv: text,
+        digest: preview.digest,
+        expectedRevision: preview.revision
+      });
+    }
+    it('previews without writes, then imports all rows and fees exactly once', async () => {
+      const text = csv([
+        '2026-10-01,DEPOSIT,100,1,EUR,dep,1,bank',
+        '2026-10-02,WITHDRAWAL,10,2,EUR,withdraw,2,cash'
+      ]);
+      const preview = await service.previewCsv(scope(), text);
+      expect(preview.finalBalance).toBe('87');
+      expect(await prisma.accountCashState.count({ where: scope() })).toBe(0);
+      const state = await commit(text);
+      expect(state.balances.at(-1).value).toBe('87');
+      const exported = (await service.exportCsv(scope())).csv;
+      const repeated = await service.previewCsv(scope(), exported);
+      expect(repeated.newCount).toBe(0);
+      expect(repeated.existingCount).toBe(2);
+      const same = await commit(exported);
+      expect(same.revision).toBe(state.revision);
+      expect(await prisma.cashEvent.count({ where: scope() })).toBe(2);
+    });
+    it('rolls back a file with an invalid row instead of inserting its valid prefix', async () => {
+      const text = csv([
+        '2026-10-01,DEPOSIT,100,0,EUR,dep,1,',
+        '2026-10-02,WITHDRAWAL,-10,0,EUR,bad,2,'
+      ]);
+      const preview = await service.previewCsv(scope(), text);
+      expect(preview.errors.length).toBeGreaterThan(0);
+      await expect(
+        service.importCsv(scope(), {
+          csv: text,
+          digest: preview.digest,
+          expectedRevision: 0
+        })
+      ).rejects.toThrow();
+      expect(await prisma.cashEvent.count({ where: scope() })).toBe(0);
+      expect(await prisma.accountCashState.count({ where: scope() })).toBe(0);
+    });
+    it('keeps reconciliation order and accepts a zero balance in the single Amount column', async () => {
+      const state = await commit(
+        csv([
+          '2026-10-01,DEPOSIT,100,0,EUR,dep,1,',
+          '2026-10-01,RECONCILIATION,0,0,EUR,rec,2,',
+          '2026-10-01,DEPOSIT,20,0,EUR,dep2,3,'
+        ])
+      );
+      expect(state.balances.at(-1).value).toBe('20');
+      expect(state.events[1]).toMatchObject({
+        type: 'CHECKPOINT',
+        balance: '0'
+      });
+    });
+    it('blocks stale previews and modified references without overwriting history', async () => {
+      const text = csv(['2026-10-01,DEPOSIT,100,0,EUR,dep,1,']);
+      const preview = await service.previewCsv(scope(), text);
+      await service.createEvent({
+        ...scope(),
+        expectedRevision: 0,
+        event: { date: '2026-10-02', type: 'MOVEMENT', amount: '50' }
+      });
+      await expect(
+        service.importCsv(scope(), {
+          csv: text,
+          digest: preview.digest,
+          expectedRevision: 0
+        })
+      ).rejects.toThrow(ConflictException);
+      await commit(text);
+      const conflict = await service.previewCsv(
+        scope(),
+        text.replace(',100,', ',200,')
+      );
+      expect(conflict.errors.join(' ')).toContain('different content');
+      expect((await service.get(scope())).balances.at(-1).value).toBe('150');
+    });
+    it('blocks possible duplicates without references, currency mismatch, and partial transfers', async () => {
+      await commit(csv(['2026-10-01,DEPOSIT,100,0,EUR,dep,1,']));
+      expect(
+        (
+          await service.previewCsv(
+            scope(),
+            csv(['2026-10-01,DEPOSIT,100,0,EUR,,,'])
+          )
+        ).errors.join(' ')
+      ).toContain('Possible duplicate');
+      expect(
+        (
+          await service.previewCsv(
+            scope(),
+            csv(['2026-10-02,DEPOSIT,100,0,USD,new,2,'])
+          )
+        ).errors.join(' ')
+      ).toContain('currency');
+      expect(
+        (
+          await service.previewCsv(
+            scope(),
+            csv(['2026-10-02,TRANSFER,100,0,EUR,transfer,2,'])
+          )
+        ).errors.join(' ')
+      ).toContain('Both account');
+    });
+    it('requires sequence where a reconciliation already exists on that day', async () => {
+      await commit(csv(['2026-10-01,RECONCILIATION,100,0,EUR,rec,1,']));
+      const preview = await service.previewCsv(
+        scope(),
+        csv(['2026-10-01,DEPOSIT,20,0,EUR,new,,'])
+      );
+      expect(preview.errors.join(' ')).toContain('Sequence');
+    });
+    it('restores a linked BUY into another account and keeps edit/delete synchronization', async () => {
+      await open('1000');
+      const original = await orderEffect(300);
+      const text = (await service.exportCsv(scope())).csv;
+      const destination = await prisma.account.create({
+        data: { name: 'Restored', currency: 'EUR', userId }
+      });
+      accountId = destination.id;
+      const copy = await prisma.order.create({
+        data: {
+          accountId,
+          accountUserId: userId,
+          userId,
+          date: original.date,
+          type: original.type,
+          quantity: original.quantity,
+          unitPrice: original.unitPrice,
+          fee: original.fee,
+          currency: original.currency,
+          symbolProfileId: original.symbolProfileId
+        }
+      });
+      const restored = await commit(text);
+      expect(restored.balances.at(-1).value).toBe('700');
+      expect(restored.events[0].orderId).toBe(copy.id);
+      await service.runInAccounts(
+        { accountIds: [accountId], userId },
+        async (transaction) => {
+          const updated = await transaction.order.update({
+            where: { id: copy.id },
+            data: { unitPrice: 250 },
+            include: { SymbolProfile: true }
+          });
+          await service.synchronizeOrder(transaction, updated, {
+            original: copy
+          });
+        }
+      );
+      expect((await service.get(scope())).balances.at(-1).value).toBe('750');
+      await activityService().deleteActivity({ id: copy.id, userId });
+      expect((await service.get(scope())).balances.at(-1).value).toBe('1000');
+    });
+    it('does not guess a missing or ambiguous financial activity', async () => {
+      await open('1000');
+      const order = await orderEffect(300);
+      const text = (await service.exportCsv(scope())).csv;
+      const destination = await prisma.account.create({
+        data: { name: 'Ambiguous', currency: 'EUR', userId }
+      });
+      accountId = destination.id;
+      expect(
+        (await service.previewCsv(scope(), text)).errors.join(' ')
+      ).toContain('not found');
+      for (let i = 0; i < 2; i++)
+        await prisma.order.create({
+          data: {
+            accountId,
+            accountUserId: userId,
+            userId,
+            date: order.date,
+            type: order.type,
+            quantity: order.quantity,
+            unitPrice: order.unitPrice,
+            fee: order.fee,
+            currency: order.currency,
+            symbolProfileId: order.symbolProfileId
+          }
+        });
+      expect(
+        (await service.previewCsv(scope(), text)).errors.join(' ')
+      ).toContain('Ambiguous');
+      const ambiguous = await service.previewCsv(scope(), text);
+      const row = ambiguous.rows.find((item) => item.candidates?.length);
+      const activityLinks = { [row.line]: row.candidates[0].id };
+      const resolved = await service.previewCsv(scope(), text, activityLinks);
+      expect(resolved.errors).toEqual([]);
+      const restored = await service.importCsv(scope(), {
+        csv: text,
+        digest: resolved.digest,
+        expectedRevision: resolved.revision,
+        activityLinks
+      });
+      expect(restored.events[0].orderId).toBe(row.candidates[0].id);
+    });
+    it('requires explicit confirmation before creating a negative cash balance', async () => {
+      const text = csv(['2026-10-01,RECONCILIATION,-5,0,EUR,rec,1,']);
+      const preview = await service.previewCsv(scope(), text);
+      expect(preview.minimumBalance).toBe('-5');
+      await expect(
+        service.importCsv(scope(), {
+          csv: text,
+          digest: preview.digest,
+          expectedRevision: 0
+        })
+      ).rejects.toThrow(ConflictException);
+      expect(await prisma.cashEvent.count({ where: scope() })).toBe(0);
+      await service.importCsv(scope(), {
+        csv: text,
+        digest: preview.digest,
+        expectedRevision: 0,
+        confirmNegativeBalance: true
+      });
+      expect((await service.get(scope())).balances.at(-1).value).toBe('-5');
+    });
+  });
+  it('preserves tiny decimal amounts in a cash CSV without scientific notation', async () => {
+    await service.createEvent({
+      ...scope(),
+      expectedRevision: 0,
+      event: { date: '2026-10-01', type: 'MOVEMENT', amount: '0.0000000001' }
+    });
+    const csv = (await service.exportCsv(scope())).csv;
+    expect(csv).toContain('0.0000000001');
+    const preview = await service.previewCsv(scope(), csv);
+    expect(preview.errors).toEqual([]);
+    expect(preview.existingCount).toBe(1);
+  });
+  it('rolls back ledger rows and revision when projection fails during a CSV commit', async () => {
+    await service.createEvent({
+      ...scope(),
+      expectedRevision: 0,
+      event: { date: '2026-10-01', type: 'MOVEMENT', amount: '100' }
+    });
+    const csv =
+      'Date,Operation,Amount,Currency,Reference\n2026-10-02,DEPOSIT,20,EUR,new';
+    const preview = await service.previewCsv(scope(), csv);
+    const projection = jest
+      .spyOn(
+        service as unknown as { writeProjection: () => Promise<void> },
+        'writeProjection'
+      )
+      .mockRejectedValueOnce(new Error('Simulated projection failure'));
+    try {
+      await expect(
+        service.importCsv(scope(), {
+          csv,
+          digest: preview.digest,
+          expectedRevision: preview.revision
+        })
+      ).rejects.toThrow('Simulated projection failure');
+    } finally {
+      projection.mockRestore();
+    }
+    const state = await service.get(scope());
+    expect(state.revision).toBe(preview.revision);
+    expect(state.events).toHaveLength(1);
+    expect(state.balances.at(-1).value).toBe('100');
+  });
+
+  it('cannot preview or export cash belonging to another user', async () => {
+    await service.createEvent({
+      ...scope(),
+      expectedRevision: 0,
+      event: { date: '2026-10-01', type: 'MOVEMENT', amount: '100' }
+    });
+    const stranger = randomUUID();
+    await expect(
+      service.exportCsv({ accountId, userId: stranger })
+    ).rejects.toThrow('Account not found');
+    await expect(
+      service.previewCsv(
+        { accountId, userId: stranger },
+        'Date,Operation,Amount,Currency\n2026-10-02,DEPOSIT,1,EUR'
+      )
+    ).rejects.toThrow('Account not found');
+  });
+  describe('CSV account creation from Accounts', () => {
+    const manualCsv =
+      'Date,Operation,Amount,Fee,Currency,Reference,SourceAccount,SourceAccountName\n2026-10-01,DEPOSIT,1000,0,EUR,deposit,source,Fineco\n2026-10-02,WITHDRAWAL,100,0,EUR,withdrawal,source,Fineco';
+    const request = (csv = manualCsv) => ({
+      accountId: randomUUID(),
+      name: 'Fineco',
+      currency: 'EUR',
+      csv
+    });
+
+    it('reads account metadata and rejects a file describing multiple accounts', () => {
+      expect(service.inspectAccountCsv(manualCsv)).toEqual({
+        name: 'Fineco',
+        currency: 'EUR'
+      });
+      expect(() =>
+        service.inspectAccountCsv(
+          manualCsv.replace(
+            'withdrawal,source,Fineco',
+            'withdrawal,other,Fineco'
+          )
+        )
+      ).toThrow('one account');
+    });
+
+    it('previews without creating an account, then creates account and movements together', async () => {
+      const input = request();
+      const preview = (await service.newAccountFromCsv(
+        userId,
+        input,
+        true
+      )) as CashCsvPreview;
+      expect(preview.errors).toEqual([]);
+      expect(preview.finalBalance).toBe('900');
+      expect(
+        await prisma.account.findFirst({
+          where: { id: input.accountId, userId }
+        })
+      ).toBeNull();
+      await service.newAccountFromCsv(
+        userId,
+        { ...input, digest: preview.digest },
+        false
+      );
+      const account = await prisma.account.findFirst({
+        where: { id: input.accountId, userId }
+      });
+      expect(account.name).toBe('Fineco');
+      expect(account.currency).toBe('EUR');
+      expect(
+        (await service.get({ accountId: input.accountId, userId })).balances.at(
+          -1
+        ).value
+      ).toBe('900');
+      await expect(
+        service.newAccountFromCsv(
+          userId,
+          { ...input, digest: preview.digest },
+          false
+        )
+      ).rejects.toThrow('already created');
+    });
+
+    it('blocks missing financial activities and leaves no newly created account', async () => {
+      const input = request(
+        'Date,Operation,Amount,Currency,ActivityId,ActivityType,ActivityDate,DataSource,Symbol,ActivityCurrency,Quantity,UnitPrice,ActivityFee\n2026-10-02,ACTIVITY,-100,EUR,missing,BUY,2026-10-02,YAHOO,VWCE.MI,EUR,1,100,0'
+      );
+      const preview = (await service.newAccountFromCsv(
+        userId,
+        input,
+        true
+      )) as CashCsvPreview;
+      expect(preview.errors.join()).toContain('activity');
+      await expect(
+        service.newAccountFromCsv(
+          userId,
+          { ...input, digest: preview.digest },
+          false
+        )
+      ).rejects.toThrow();
+      expect(
+        await prisma.account.findFirst({
+          where: { id: input.accountId, userId }
+        })
+      ).toBeNull();
+    });
+
+    it('binds confirmation to the previewed account details', async () => {
+      const input = request();
+      const preview = (await service.newAccountFromCsv(
+        userId,
+        input,
+        true
+      )) as CashCsvPreview;
+      await expect(
+        service.newAccountFromCsv(
+          userId,
+          { ...input, name: 'Changed', digest: preview.digest },
+          false
+        )
+      ).rejects.toThrow('Preview');
+      expect(
+        await prisma.account.findFirst({
+          where: { id: input.accountId, userId }
+        })
+      ).toBeNull();
+    });
+
+    it('rolls back the new account if a ledger projection fails', async () => {
+      const input = request();
+      const preview = (await service.newAccountFromCsv(
+        userId,
+        input,
+        true
+      )) as CashCsvPreview;
+      const projection = jest
+        .spyOn(
+          service as unknown as { writeProjection: () => Promise<void> },
+          'writeProjection'
+        )
+        .mockRejectedValueOnce(
+          Error('Simulated new-account projection failure')
+        );
+      try {
+        await expect(
+          service.newAccountFromCsv(
+            userId,
+            { ...input, digest: preview.digest },
+            false
+          )
+        ).rejects.toThrow('projection failure');
+      } finally {
+        projection.mockRestore();
+      }
+      expect(
+        await prisma.account.findFirst({
+          where: { id: input.accountId, userId }
+        })
+      ).toBeNull();
+      expect(
+        await prisma.cashEvent.count({
+          where: { accountId: input.accountId, userId }
+        })
+      ).toBe(0);
+    });
+
+    it('requires explicit confirmation for a negative balance and rolls back until confirmed', async () => {
+      const input = request(
+        'Date,Operation,Amount,Currency\n2026-10-01,WITHDRAWAL,100,EUR'
+      );
+      const preview = (await service.newAccountFromCsv(
+        userId,
+        input,
+        true
+      )) as CashCsvPreview;
+      expect(preview.minimumBalance).toBe('-100');
+      await expect(
+        service.newAccountFromCsv(
+          userId,
+          { ...input, digest: preview.digest },
+          false
+        )
+      ).rejects.toThrow();
+      expect(
+        await prisma.account.findFirst({
+          where: { id: input.accountId, userId }
+        })
+      ).toBeNull();
+      await service.newAccountFromCsv(
+        userId,
+        { ...input, digest: preview.digest, confirmNegativeBalance: true },
+        false
+      );
+      expect(
+        (await service.get({ accountId: input.accountId, userId })).balances.at(
+          -1
+        ).value
+      ).toBe('-100');
+    });
   });
 });

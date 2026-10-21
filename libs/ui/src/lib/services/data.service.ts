@@ -21,6 +21,7 @@ import { ConfirmationDialogType } from '@ghostfolio/common/enums';
 import { DATE_FORMAT } from '@ghostfolio/common/helper';
 import {
   CashConfirmation,
+  CashCsvPreview,
   CashEventInput,
   CashManagementSnapshot
 } from '@ghostfolio/common/interfaces';
@@ -520,7 +521,11 @@ export class DataService {
       })
       .pipe(
         map((exportResponse) => {
-          if (!withActivityIds) {
+          // Cash ledger links must survive every unfiltered JSON export.
+          const hasCashLinks = exportResponse.accounts?.some((account) =>
+            account.cashManagement?.events?.some((event) => !!event.orderId)
+          );
+          if (!withActivityIds && !hasCashLinks) {
             for (const activity of exportResponse.activities) {
               delete (activity as Omit<typeof activity, 'id'> & { id?: string })
                 .id;
@@ -1033,6 +1038,43 @@ export class DataService {
       (window as any).info = info;
     });
   }
+  public exportCashCsv(accountId: string) {
+    return this.http.get<{ csv: string }>(
+      `/api/v1/account/${accountId}/cash/export`
+    );
+  }
+
+  public previewCashCsv(
+    accountId: string,
+    csv: string,
+    activityLinks: Record<string, string> = {}
+  ) {
+    return this.http.post<CashCsvPreview>(
+      `/api/v1/account/${accountId}/cash/import/preview`,
+      { csv, activityLinks }
+    );
+  }
+
+  public importCashCsv(
+    accountId: string,
+    csv: string,
+    preview: CashCsvPreview,
+    activityLinks: Record<string, string> = {}
+  ) {
+    return this.withCashConfirmation(({ confirmNegativeBalance }) =>
+      this.http.post<CashManagementSnapshot>(
+        `/api/v1/account/${accountId}/cash/import`,
+        {
+          csv,
+          activityLinks,
+          digest: preview.digest,
+          expectedRevision: preview.revision,
+          confirmNegativeBalance
+        }
+      )
+    );
+  }
+
   public fetchCashManagement(accountId: string) {
     return this.http.get<CashManagementSnapshot | null>(
       `/api/v1/account/${accountId}/cash`
