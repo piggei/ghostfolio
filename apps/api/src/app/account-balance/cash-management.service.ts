@@ -526,9 +526,17 @@ export class CashManagementService {
           throw new BadRequestException(
             'Unsupported operation. Use DEPOSIT, WITHDRAWAL, RECONCILIATION, ACTIVITY or TRANSFER.'
           );
+        // Existing journals can contain zero-value movements, including fee-only
+        // debits. Preserve those in versioned exports without changing manual CSV rules.
+        const exportedZero =
+          amount === '0' &&
+          row.Version === '1' &&
+          row.Record === 'EVENT' &&
+          !!row.Reference;
         if (
           (row.Operation === 'DEPOSIT' || row.Operation === 'WITHDRAWAL') &&
-          !new Big(amount).gt(0)
+          !new Big(amount).gt(0) &&
+          !exportedZero
         )
           throw new BadRequestException(
             'Deposits and withdrawals require a positive Amount.'
@@ -659,11 +667,14 @@ export class CashManagementService {
             'Specify Sequence to place this row relative to the same-day reconciliation.'
           );
         if (row.Sequence && !/^\d+$/.test(row.Sequence))
-          throw new BadRequestException('Sequence must be a positive integer.');
+          throw new BadRequestException(
+            'Sequence must be a non-negative integer.'
+          );
         const sequence = row.Sequence ? Number(row.Sequence) : lastSequence + 1;
         if (
           !Number.isSafeInteger(sequence) ||
-          sequence < 1 ||
+          sequence < 0 ||
+          (sequence === 0 && !(checkpoint && opening.isAutomaticOpening)) ||
           sequence > MAX_DATABASE_INTEGER ||
           positions.has(`${date}/${sequence}`)
         )
@@ -828,6 +839,18 @@ export class CashManagementService {
     this.publishChange(userId);
 
     return result;
+  }
+
+  /** Backups must preserve whether cash management was actually activated. */
+  public async getPersisted(
+    scope: CashAccountScope
+  ): Promise<CashManagementSnapshot | null> {
+    return this.inAccountTransaction(scope, async (transaction, account) => {
+      const state = await this.readState(transaction, scope);
+      if (!state) return null;
+      this.checkCurrency(account, state);
+      return this.toSnapshot(state, this.calculateState(state));
+    });
   }
 
   public async get(

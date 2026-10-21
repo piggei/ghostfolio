@@ -1,4 +1,3 @@
-import { CashManagementService } from '@ghostfolio/api/app/account-balance/cash-management.service';
 import { AccountService } from '@ghostfolio/api/app/account/account.service';
 import { ActivitiesService } from '@ghostfolio/api/app/activities/activities.service';
 import { PlatformService } from '@ghostfolio/api/app/platform/platform.service';
@@ -18,7 +17,6 @@ import {
   CreateOrderDto
 } from '@ghostfolio/common/dtos';
 import { getAssetProfileIdentifier } from '@ghostfolio/common/helper';
-import { CashManagementExport } from '@ghostfolio/common/interfaces';
 import {
   Activity,
   AssetProfileIdentifier
@@ -41,7 +39,6 @@ describe('ImportService', () => {
   let gatherSymbols: jest.Mock;
   let importService: ImportService;
   let updateManyMarketData: jest.Mock;
-  let cashManagement: { validateRestore: jest.Mock; restore: jest.Mock };
 
   beforeEach(() => {
     const configuration = {
@@ -56,7 +53,6 @@ describe('ImportService', () => {
     createActivity = jest.fn();
     gatherSymbols = jest.fn();
     updateManyMarketData = jest.fn();
-    cashManagement = { validateRestore: jest.fn(), restore: jest.fn() };
 
     const validateActivities = jest.fn(
       ({ activitiesDto }: { activitiesDto: CreateOrderDto[] }) => {
@@ -112,8 +108,7 @@ describe('ImportService', () => {
       } as unknown as SymbolProfileService,
       {
         getTagsForUser: jest.fn().mockResolvedValue([])
-      } as unknown as TagService,
-      cashManagement as unknown as CashManagementService
+      } as unknown as TagService
     );
   });
 
@@ -168,74 +163,41 @@ describe('ImportService', () => {
   });
 
   describe('import', () => {
-    it('keeps exported activity ids through the preview and restores their new persisted ids', async () => {
-      accounts.mockImplementation(({ where }) =>
-        Promise.resolve(
-          where.userId === 'user-id' && createAccount.mock.calls.length
-            ? [{ id: 'account-id', name: 'Imported account', platform: null }]
-            : []
-        )
-      );
-      const dto = {
-        ...createActivityDto({
-          dataSource: DataSource.YAHOO,
-          date: '2024-01-02',
-          symbol: 'AAPL',
-          type: 'BUY'
-        }),
-        id: 'exported-order',
-        accountId: 'account-id'
-      };
-      const cash: CashManagementExport = {
-        version: 1,
-        currency: 'USD',
-        defaultUpdateCash: true,
-        openingBalance: { date: '2024-01-01', sequence: 0, balance: '500' },
-        events: [
-          {
-            id: 'old-event',
-            orderId: dto.id,
-            sequence: 1,
-            date: '2024-01-02',
-            type: 'MOVEMENT',
-            amount: '-100'
-          }
-        ]
-      };
-      const accountsWithBalancesDto = [
-        {
-          id: 'account-id',
-          name: 'Imported account',
-          currency: 'USD',
-          platformId: null,
-          cashManagement: cash
-        }
-      ];
-      const preview = await importActivities({
-        accountsWithBalancesDto,
-        activitiesDto: [dto],
-        isDryRun: true
-      });
-      expect(preview[0].id).toBe(dto.id);
-      expect(cashManagement.restore).not.toHaveBeenCalled();
-      createActivity.mockImplementationOnce(
-        ({ date, type, SymbolProfile }) => ({
-          id: 'persisted-order',
-          date,
-          type,
-          SymbolProfile: SymbolProfile.connectOrCreate.create
-        })
-      );
-      await importActivities({ accountsWithBalancesDto, activitiesDto: [dto] });
-      expect(cashManagement.restore).toHaveBeenCalledWith(
-        { accountId: 'account-id', userId: 'user-id' },
-        cash,
-        { 'exported-order': 'persisted-order' }
-      );
-      expect(createAccount.mock.calls[0][0].data).not.toHaveProperty(
-        'cashManagement'
-      );
-    });
+    it.each([false, true])(
+      'rejects any cash backup before writes (dry run: %s)',
+      async (isDryRun) => {
+        await expect(
+          importActivities({
+            isDryRun,
+            activitiesDto: [],
+            accountsWithBalancesDto: [
+              {
+                id: 'account-id',
+                name: 'Account',
+                currency: 'USD',
+                platformId: null,
+                cashManagement: {
+                  version: 1,
+                  currency: 'USD',
+                  defaultUpdateCash: false,
+                  openingBalance: {
+                    date: '2024-01-01',
+                    sequence: 0,
+                    balance: '0'
+                  },
+                  events: []
+                }
+              }
+            ]
+          })
+        ).rejects.toThrow('POST /api/v1/import/restore');
+        expect(createAccount).not.toHaveBeenCalled();
+        expect(createActivity).not.toHaveBeenCalled();
+        expect(addSymbolProfile).not.toHaveBeenCalled();
+        expect(updateManyMarketData).not.toHaveBeenCalled();
+        expect(gatherSymbols).not.toHaveBeenCalled();
+      }
+    );
 
     it('rejects a partial cash restore before creating an account or an activity', async () => {
       await expect(
@@ -270,7 +232,7 @@ describe('ImportService', () => {
           ],
           activitiesDto: []
         })
-      ).rejects.toThrow('Select all activities');
+      ).rejects.toThrow('POST /api/v1/import/restore');
       expect(createAccount).not.toHaveBeenCalled();
       expect(createActivity).not.toHaveBeenCalled();
     });

@@ -10,6 +10,8 @@ import { ConfigService } from '@nestjs/config';
 import { EventEmitter2 } from '@nestjs/event-emitter';
 import { format, parseISO } from 'date-fns';
 import { randomUUID } from 'node:crypto';
+import { readFileSync } from 'node:fs';
+import { join } from 'node:path';
 
 import { AccountBalanceService } from './account-balance.service';
 import { CashManagementService } from './cash-management.service';
@@ -1335,5 +1337,175 @@ describeDatabase('Cash management with PostgreSQL', () => {
         ).value
       ).toBe('-100');
     });
+  });
+  it.each(['0', '1'])(
+    'round-trips an exported zero movement with fee %s',
+    async (fee) => {
+      await service.createEvent({
+        ...scope(),
+        expectedRevision: 0,
+        event: { date: '2026-10-01', type: 'MOVEMENT', amount: '0', fee },
+        confirmNegativeBalance: true
+      });
+      const csv = (await service.exportCsv(scope())).csv;
+      const input = {
+        accountId: randomUUID(),
+        name: 'Zero movement copy',
+        currency: 'EUR',
+        csv
+      };
+      const preview = (await service.newAccountFromCsv(
+        userId,
+        input,
+        true
+      )) as CashCsvPreview;
+      expect(preview.errors).toEqual([]);
+      expect(preview.finalBalance).toBe(fee === '0' ? '0' : '-1');
+      await service.newAccountFromCsv(
+        userId,
+        { ...input, digest: preview.digest, confirmNegativeBalance: true },
+        false
+      );
+      const copied = await service.get({ accountId: input.accountId, userId });
+      expect(copied.events).toHaveLength(1);
+      expect(copied.events[0]).toMatchObject({ type: 'MOVEMENT', amount: '0' });
+      expect(copied.events[0].fee ?? '0').toBe(fee);
+      const again = await service.previewCsv(
+        { accountId: input.accountId, userId },
+        csv
+      );
+      expect(again.errors).toEqual([]);
+      expect(again.existingCount).toBe(1);
+    }
+  );
+
+  it('retains the positive amount rule for hand-written deposit and withdrawal rows', async () => {
+    for (const operation of ['DEPOSIT', 'WITHDRAWAL']) {
+      const preview = await service.previewCsv(
+        scope(),
+        `Date,Operation,Amount,Currency\n2026-10-01,${operation},0,EUR`
+      );
+      expect(preview.errors.join()).toContain('positive Amount');
+    }
+  });
+
+  it('round-trips pre-1970 cash history without permitting a zero sequence on a movement', async () => {
+    await service.createEvent({
+      ...scope(),
+      expectedRevision: 0,
+      event: { date: '1969-12-31', type: 'MOVEMENT', amount: '100' }
+    });
+    const csv = (await service.exportCsv(scope())).csv;
+    const input = {
+      accountId: randomUUID(),
+      name: 'Historical cash',
+      currency: 'EUR',
+      csv
+    };
+    const preview = (await service.newAccountFromCsv(
+      userId,
+      input,
+      true
+    )) as CashCsvPreview;
+    expect(preview.errors).toEqual([]);
+    await service.newAccountFromCsv(
+      userId,
+      { ...input, digest: preview.digest },
+      false
+    );
+    expect(
+      (await service.get({ accountId: input.accountId, userId })).events[0].date
+    ).toBe('1969-12-31');
+    const invalid = await service.previewCsv(
+      scope(),
+      'Date,Operation,Amount,Currency,Sequence,Reference\n1969-12-30,DEPOSIT,10,EUR,0,invalid-zero'
+    );
+    expect(invalid.errors.join()).toContain('Sequence');
+  });
+
+  it('restores a sequence-zero checkpoint produced by the actual unification migration', async () => {
+    // Temporary tables shadow public ones only for this transaction. The migration
+    // is executed verbatim without changing any shared database schema or history.
+    const migrated = await prisma.$transaction(async (tx) => {
+      await tx.$executeRawUnsafe(
+        'CREATE TEMP TABLE "AccountCashState" ("accountId" TEXT,"userId" TEXT,"currency" TEXT,"defaultUpdateCash" BOOLEAN,"openingDate" DATE,"openingBalance" NUMERIC,"lastSequence" INTEGER,"revision" INTEGER) ON COMMIT DROP'
+      );
+      await tx.$executeRawUnsafe(
+        'CREATE TEMP TABLE "CashEvent" ("id" TEXT,"accountId" TEXT,"userId" TEXT,"date" DATE,"sequence" INTEGER CONSTRAINT "CashEvent_sequence_check" CHECK ("sequence">0),"type" TEXT,"value" NUMERIC,"createdAt" TIMESTAMP,"updatedAt" TIMESTAMP) ON COMMIT DROP'
+      );
+      await tx.$executeRawUnsafe(
+        'CREATE TEMP TABLE "AccountBalance" ("id" TEXT,"accountId" TEXT,"userId" TEXT,"date" DATE,"value" NUMERIC,"createdAt" TIMESTAMP DEFAULT NOW(),"updatedAt" TIMESTAMP DEFAULT NOW(),"isCashManagementProjection" BOOLEAN DEFAULT false) ON COMMIT DROP'
+      );
+      await tx.$executeRaw`INSERT INTO "AccountCashState" VALUES (${accountId},${userId},'EUR',false,DATE '1970-01-01',1000,0,0)`;
+      await tx.$executeRaw`INSERT INTO "AccountBalance" ("id","accountId","userId","date","value") VALUES (${randomUUID()},${accountId},${userId},DATE '1969-12-31',800)`;
+      const sql = readFileSync(
+        join(
+          __dirname,
+          '../../../../../prisma/migrations/20261021000000_unified_cash_ledger/migration.sql'
+        ),
+        'utf8'
+      );
+      for (const statement of sql.split(';').filter((s) => s.trim()))
+        await tx.$executeRawUnsafe(statement);
+      const [state] = await tx.$queryRaw<
+        [
+          {
+            openingDate: Date;
+            openingBalance: { toString(): string };
+            lastSequence: number;
+            revision: number;
+            isAutomaticOpening: boolean;
+          }
+        ]
+      >`SELECT * FROM "AccountCashState"`;
+      const events = await tx.$queryRaw<
+        { date: Date; sequence: number; value: { toString(): string } }[]
+      >`SELECT * FROM "CashEvent" ORDER BY "date", "sequence"`;
+      return { state, events };
+    });
+    expect(migrated.events.some((e) => e.sequence === 0)).toBe(true);
+    await prisma.accountCashState.create({
+      data: {
+        accountId,
+        userId,
+        currency: 'EUR',
+        openingDate: migrated.state.openingDate,
+        openingBalance: migrated.state.openingBalance.toString(),
+        isAutomaticOpening: migrated.state.isAutomaticOpening,
+        lastSequence: migrated.state.lastSequence,
+        events: {
+          create: migrated.events.map((e) => ({
+            date: e.date,
+            sequence: e.sequence,
+            type: 'CHECKPOINT',
+            value: e.value.toString()
+          }))
+        }
+      }
+    });
+    const csv = (await service.exportCsv(scope())).csv;
+    const input = {
+      accountId: randomUUID(),
+      name: 'Migrated cash',
+      currency: 'EUR',
+      csv
+    };
+    const preview = (await service.newAccountFromCsv(
+      userId,
+      input,
+      true
+    )) as CashCsvPreview;
+    expect(preview.errors).toEqual([]);
+    expect(preview.finalBalance).toBe('1000');
+    await service.newAccountFromCsv(
+      userId,
+      { ...input, digest: preview.digest },
+      false
+    );
+    const restored = await service.get({ accountId: input.accountId, userId });
+    expect(
+      restored.events.some((e) => e.sequence === 0 && e.type === 'CHECKPOINT')
+    ).toBe(true);
+    expect(restored.balances.at(-1).value).toBe('1000');
   });
 });

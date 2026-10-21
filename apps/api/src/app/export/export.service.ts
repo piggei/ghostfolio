@@ -135,7 +135,7 @@ export class ExportService {
 
     if (this.cashManagementService && !isFilteredExport) {
       for (const account of accounts) {
-        const snapshot = await this.cashManagementService.get({
+        const snapshot = await this.cashManagementService.getPersisted({
           accountId: account.id,
           userId
         });

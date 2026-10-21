@@ -1,6 +1,9 @@
+import { AccountBalanceService } from '@ghostfolio/api/app/account-balance/account-balance.service';
 import { CashManagementService } from '@ghostfolio/api/app/account-balance/cash-management.service';
+import { ExportService } from '@ghostfolio/api/app/export/export.service';
 import { PrismaService } from '@ghostfolio/api/services/prisma/prisma.service';
 
+import { ValidationPipe } from '@nestjs/common';
 import { ConfigService } from '@nestjs/config';
 import { EventEmitter2 } from '@nestjs/event-emitter';
 import { randomUUID } from 'node:crypto';
@@ -418,5 +421,126 @@ describeDb('Portfolio JSON restore with PostgreSQL', () => {
     expect(
       (await cash.get({ accountId: target.id, userId })).balances.at(-1).value
     ).toBe('4699');
+  });
+  it.each([
+    { currency: 'EUR', withBalance: false },
+    { currency: 'EUR', withBalance: true },
+    { currency: null, withBalance: false },
+    { currency: null, withBalance: true }
+  ])(
+    'preserves legacy mode through actual JSON export and restore: %j',
+    async ({ currency, withBalance }) => {
+      const source = await prisma.account.create({
+        data: { userId, name: 'Legacy account', currency }
+      });
+      if (withBalance)
+        await prisma.accountBalance.create({
+          data: {
+            accountId: source.id,
+            userId,
+            date: new Date('2026-01-01T00:00:00Z'),
+            value: 100
+          }
+        });
+      const exporter = new ExportService(
+        {
+          accounts: ({ where }) =>
+            prisma.account.findMany({
+              where,
+              include: { balances: true, tags: true, platform: true }
+            })
+        } as never,
+        { getActivities: async () => ({ activities: [] }) } as never,
+        null,
+        { getTagsForUser: async () => [] } as never,
+        cash
+      );
+      const backup = await exporter.export({
+        userId,
+        userSettings: { baseCurrency: 'EUR' } as never
+      });
+      expect(backup.accounts).toHaveLength(1);
+      expect(backup.accounts[0]).not.toHaveProperty('cashManagement');
+      expect(backup.accounts[0].currency).toBe(currency);
+      expect(backup.accounts[0].balances).toHaveLength(withBalance ? 1 : 0);
+      expect(await prisma.accountCashState.count({ where: { userId } })).toBe(
+        0
+      );
+      const destinationId = randomUUID();
+      users.push(destinationId);
+      await prisma.user.create({ data: { id: destinationId } });
+      const input = (await new ValidationPipe({
+        transform: true,
+        whitelist: true,
+        forbidNonWhitelisted: true
+      }).transform(
+        { backup, choices: [{ sourceId: source.id, targetId: 'NEW' }] },
+        { metatype: PortfolioRestoreDto, type: 'body' }
+      )) as PortfolioRestoreDto;
+      const preview = await service.run(input, destinationId, true);
+      expect(preview.errors).toEqual([]);
+      await service.run(
+        { ...input, digest: preview.digest },
+        destinationId,
+        false
+      );
+      const target = await prisma.account.findFirst({
+        where: { userId: destinationId },
+        include: { balances: true, cashState: true }
+      });
+      expect(target.currency).toBe(currency);
+      expect(target.cashState).toBeNull();
+      expect(target.balances).toHaveLength(withBalance ? 1 : 0);
+      const writer = new AccountBalanceService(emitter, null, prisma, cash);
+      const written = await writer.createOrUpdateAccountBalance({
+        accountId: target.id,
+        userId: destinationId,
+        date: '2026-01-02',
+        balance: 250
+      });
+      expect(written.value).toBe(250);
+      expect(
+        await cash.getPersisted({ accountId: target.id, userId: destinationId })
+      ).toBeNull();
+    }
+  );
+
+  it('exports a persisted cash ledger but keeps a legacy account unactivated in the same backup', async () => {
+    const active = await prisma.account.create({
+      data: { userId, name: 'Active', currency: 'EUR' }
+    });
+    const legacy = await prisma.account.create({
+      data: { userId, name: 'Legacy', currency: null }
+    });
+    await cash.createEvent({
+      accountId: active.id,
+      userId,
+      expectedRevision: 0,
+      event: { date: '2026-01-01', type: 'MOVEMENT', amount: '100' }
+    });
+    const exporter = new ExportService(
+      {
+        accounts: ({ where }) =>
+          prisma.account.findMany({
+            where,
+            include: { balances: true, tags: true, platform: true }
+          })
+      } as never,
+      { getActivities: async () => ({ activities: [] }) } as never,
+      null,
+      { getTagsForUser: async () => [] } as never,
+      cash
+    );
+    const backup = await exporter.export({
+      userId,
+      userSettings: { baseCurrency: 'EUR' } as never
+    });
+    expect(
+      backup.accounts.find((a) => a.id === active.id).cashManagement.events
+    ).toHaveLength(1);
+    expect(backup.accounts.find((a) => a.id === legacy.id)).not.toHaveProperty(
+      'cashManagement'
+    );
+    expect(await prisma.accountCashState.count({ where: { userId } })).toBe(1);
   });
 });

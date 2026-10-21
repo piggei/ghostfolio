@@ -18,6 +18,16 @@ unmatched activities or conflicting balances block cash restoration.
 Source activity IDs are retained in JSON exports when cash links require them,
 and remapped to fresh destination IDs. Old JSON files without cash ledgers remain
 supported. Files with cash links but no source activity IDs must be exported again.
+JSON exports include cashManagement only for a persisted AccountCashState.
+Legacy accounts retain balances and remain unmanaged after restoration. A null
+legacy account currency is preserved when no cash ledger is present; choose a
+currency explicitly before enabling cash management. No historical accounts are
+converted merely by exporting or restoring a backup. Already-produced backups
+cannot reveal whether their embedded ledger was virtual: export again from the
+updated source to preserve the original management mode.
+POST /api/v1/import rejects backups containing cashManagement before any write,
+including dry runs. Such files must use POST /api/v1/import/restore/preview and
+POST /api/v1/import/restore. Legacy activity-only import remains available.
 Partial CSV import/export below remains separate. Do not load a cash CSV again
 after a full JSON restore; its movements are already present.
 
@@ -34,13 +44,20 @@ Optional columns: Fee,Sequence,Note,Reference.
 Italian aliases: Data,Operazione,Importo,Valuta,Commissione,Sequenza,Nota,Riferimento.
 Operation aliases: DEPOSITO,PRELIEVO,RICONCILIAZIONE.
 
-Use YYYY-MM-DD civil dates, a decimal point, and no thousands separators.
-DEPOSIT and WITHDRAWAL require positive Amount. Fee reduces cash in both cases.
+Use YYYY-MM-DD civil dates, a decimal point, and no thousands separators. Cash
+dates support years 0001 through 9999, including historical dates before 1970;
+year zero and future event dates are rejected. Financial activity date rules are
+unchanged.
+Manual DEPOSIT and WITHDRAWAL rows require positive Amount. Version 1 exported
+EVENT rows with a Reference may restore zero Amount, preserving fee-only and
+zero-effect historical movements. Fee reduces cash in both cases.
 RECONCILIATION uses Amount as the actual balance, which can be zero or negative;
 its Fee must be zero. It replaces the computed balance, not adds to it.
 Negative cash balances require an explicit confirmation.
 
-Sequence orders events on the same date. It is required when inserting next to
+Sequence orders events on the same date. Sequence zero is reserved for a
+RECONCILIATION when the journal uses the automatic opening, including migrated
+opening checkpoints. Other events require a strictly positive sequence. It is required when inserting next to
 a reconciliation; an occupied position is an error. Export retains the sequence.
 Reference identifies the source event, scoped to the destination account. An
 identical existing reference is ignored; changed content is a conflict. Without

@@ -53,7 +53,8 @@ export function csvDate(value: string, allowOpening = false): string {
   if (
     !Number.isFinite(date.getTime()) ||
     date.toISOString().slice(0, 10) !== value ||
-    (!allowOpening && value < '1970-01-01')
+    (!allowOpening && value < '0001-01-01') ||
+    value.startsWith('0000-')
   ) {
     throw new BadRequestException('Invalid cash date.');
   }

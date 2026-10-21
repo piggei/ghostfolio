@@ -98,7 +98,10 @@ interface RestorePreview {
             class="w-100"
             floatLabel="always"
           >
-            <mat-label>{{ account.name }} · {{ account.currency }}</mat-label>
+            <mat-label
+              >{{ account.name }} ·
+              {{ account.currency || unspecifiedCurrency }}</mat-label
+            >
             <mat-select
               [disabled]="busy()"
               [ngModel]="choices[account.id!]"
@@ -108,7 +111,8 @@ interface RestorePreview {
               <mat-option i18n value="SKIP">Exclude this account</mat-option>
               @for (target of destinations(); track target.id) {
                 <mat-option [value]="target.id"
-                  >{{ target.name }} · {{ target.currency }}</mat-option
+                  >{{ target.name }} ·
+                  {{ target.currency || unspecifiedCurrency }}</mat-option
                 >
               }
             </mat-select>
@@ -145,7 +149,8 @@ interface RestorePreview {
           <h3 i18n>Import summary</h3>
           @for (account of plan.accounts; track account.sourceId) {
             <p>
-              {{ account.name }} · {{ account.currency }} —
+              {{ account.name }} ·
+              {{ account.currency || unspecifiedCurrency }} —
               @if (account.action === 'NEW') {
                 <span i18n>New account</span>
               } @else {
@@ -157,7 +162,8 @@ interface RestorePreview {
             @if (account.cashBalance !== null) {
               <p>
                 {{ account.name }} — <span i18n>Cash balance:</span>
-                {{ account.cashBalance }} {{ account.currency }}
+                {{ account.cashBalance }}
+                {{ account.currency || unspecifiedCurrency }}
               </p>
             }
           }
@@ -208,6 +214,7 @@ export class GfPortfolioRestoreDialogComponent {
   protected readonly fileName = signal('');
   protected choices: Record<string, string> = {};
   protected restoreSettings = true;
+  protected readonly unspecifiedCurrency = $localize`Currency not set`;
   private readonly initial = inject<{ backup?: Backup; fileName?: string }>(
     MAT_DIALOG_DATA,
     { optional: true }

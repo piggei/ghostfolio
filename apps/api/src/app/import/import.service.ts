@@ -1,4 +1,3 @@
-import { CashManagementService } from '@ghostfolio/api/app/account-balance/cash-management.service';
 import { AccountService } from '@ghostfolio/api/app/account/account.service';
 import { ActivitiesService } from '@ghostfolio/api/app/activities/activities.service';
 import { PlatformService } from '@ghostfolio/api/app/platform/platform.service';
@@ -71,8 +70,7 @@ export class ImportService {
     private readonly platformService: PlatformService,
     private readonly portfolioService: PortfolioService,
     private readonly symbolProfileService: SymbolProfileService,
-    private readonly tagService: TagService,
-    private readonly cashManagementService?: CashManagementService
+    private readonly tagService: TagService
   ) {}
 
   public async getDividends({
@@ -220,24 +218,12 @@ export class ImportService {
     tagsDto: ImportDataDto['tags'];
     user: UserWithSettings;
   }): Promise<Activity[]> {
-    const importedOrderIds: Record<string, string> = {};
-    for (const account of accountsWithBalancesDto ?? []) {
-      if (account.cashManagement) {
-        this.cashManagementService.validateRestore(
-          account.cashManagement,
-          account.currency
-        );
-        const ids = new Set(activitiesDto.map(({ id }) => id));
-        if (
-          account.cashManagement.events.some(
-            ({ orderId }) => orderId && !ids.has(orderId)
-          )
-        ) {
-          throw new ImportValidationError(
-            'Select all activities linked to the cash ledger when restoring cash management'
-          );
-        }
-      }
+    if (
+      (accountsWithBalancesDto ?? []).some((account) => account.cashManagement)
+    ) {
+      throw new ImportValidationError(
+        'Cash ledger backups require POST /api/v1/import/restore. Use Import Data or Import JSON for an atomic restore.'
+      );
     }
     const accountIdMapping: { [oldAccountId: string]: string } = {};
     const assetProfileSymbolMapping: { [oldSymbol: string]: string } = {};
@@ -953,10 +939,6 @@ export class ImportService {
         };
       } else {
         if (error) {
-          const oldId = activitiesDto[activityIndex].id;
-          if (oldId && activity.id) {
-            importedOrderIds[oldId] = activity.id;
-          }
           continue;
         }
 
@@ -1015,10 +997,6 @@ export class ImportService {
         }
 
         order = createdActivity;
-        const oldId = activitiesDto[activityIndex].id;
-        if (oldId) {
-          importedOrderIds[oldId] = createdActivity.id;
-        }
       }
 
       const value = new Big(quantity).mul(unitPrice).toNumber();
@@ -1066,20 +1044,6 @@ export class ImportService {
       });
     }
 
-    if (!isDryRun && this.cashManagementService) {
-      for (const account of accountsWithBalancesDto ?? []) {
-        if (account.cashManagement) {
-          await this.cashManagementService.restore(
-            {
-              accountId: accountIdMapping[account.id] ?? account.id,
-              userId: user.id
-            },
-            account.cashManagement,
-            importedOrderIds
-          );
-        }
-      }
-    }
     return activities;
   }
 

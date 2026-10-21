@@ -53,6 +53,9 @@ describe('Cash CSV format', () => {
   });
   it('validates civil dates without rolling invalid days forward', () => {
     expect(csvDate('2026-10-25')).toBe('2026-10-25');
+    expect(csvDate('1969-12-31')).toBe('1969-12-31');
+    expect(csvDate('0001-01-01', true)).toBe('0001-01-01');
+    expect(() => csvDate('0000-12-31', true)).toThrow();
     expect(() => csvDate('2026-02-30')).toThrow();
     expect(() => csvDate('2026-10-01T00:00:00Z')).toThrow();
   });

@@ -50,6 +50,13 @@
           import its cash CSV again.
         </p>
       </section>
+      <p i18n>
+        Exporting and restoring does not activate cash management on historical
+        accounts that only have legacy balance snapshots. Their original
+        balances and any unset currency are preserved. Choose a currency before
+        enabling cash management. To preserve this distinction, create a fresh
+        export from the updated source instance.
+      </p>
       <section class="mb-5" id="cash-management">
         <h2 class="h4" i18n>Managing account cash</h2>
         <p i18n>
@@ -158,6 +165,14 @@ Date;Operation;Amount;Fee;Currency;Sequence;Note;Reference
           when entries share a date with a reconciliation: setting a balance
           before or after a withdrawal gives different results. Existing
           sequence conflicts must be resolved before importing.
+        </p>
+        <p i18n>
+          Versioned exports may include zero-amount historical movements,
+          including movements whose only effect is a fee. Those rows are
+          restored without losing their fees. Sequence zero is reserved for
+          reconciliations with an automatic opening, including migrated opening
+          balances. Historical cash dates before 1970 are supported; financial
+          activity date rules are unchanged.
         </p>
         <h3 class="h5" i18n>Checking the preview</h3>
         <p i18n>
