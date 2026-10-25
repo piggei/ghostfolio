@@ -38,6 +38,9 @@ import { takeUntilDestroyed } from '@angular/core/rxjs-interop';
 import { MatButtonModule } from '@angular/material/button';
 import { MatCardModule } from '@angular/material/card';
 import { Router, RouterModule } from '@angular/router';
+import { IonIcon } from '@ionic/angular/standalone';
+import { addIcons } from 'ionicons';
+import { arrowForwardOutline } from 'ionicons/icons';
 import { DeviceDetectorService } from 'ngx-device-detector';
 
 @Component({
@@ -47,6 +50,7 @@ import { DeviceDetectorService } from 'ngx-device-detector';
     GfLineChartComponent,
     GfPortfolioPnlCalendarComponent,
     GfPortfolioPerformanceComponent,
+    IonIcon,
     MatButtonModule,
     MatCardModule,
     RouterModule
@@ -81,9 +85,15 @@ export class GfHomeOverviewComponent implements OnInit {
   protected readonly user = signal<User | null>(null);
 
   protected readonly routerLinkAccounts = internalRoutes.accounts.routerLink;
+
+  protected readonly routerLinkHomeHoldings =
+    internalRoutes.home.subRoutes.holdings.routerLink;
+
   protected readonly routerLinkPortfolio = internalRoutes.portfolio.routerLink;
+
   protected readonly routerLinkPortfolioActivities =
     internalRoutes.portfolio.subRoutes.activities.routerLink;
+
   protected readonly routerLinkPortfolioActivitiesCreate =
     internalRoutes.portfolio.subRoutes.activities.subRoutes.create.routerLink;
 
@@ -144,6 +154,8 @@ export class GfHomeOverviewComponent implements OnInit {
           this.update();
         }
       });
+
+    addIcons({ arrowForwardOutline });
   }
 
   public ngOnInit() {

@@ -1,12 +1,12 @@
-import { ImportValidationError } from '@ghostfolio/api/app/import/errors/import-validation.error';
-import { ImportDataDto } from '@ghostfolio/api/app/import/import-data.dto';
-import { RedisCacheService } from '@ghostfolio/api/app/redis-cache/redis-cache.service';
 import { getMaskedGhostfolioDataSource } from '@ghostfolio/api/helper/data-source.helper';
 import { ConfigurationService } from '@ghostfolio/api/services/configuration/configuration.service';
 import { DataProviderInterface } from '@ghostfolio/api/services/data-provider/interfaces/data-provider.interface';
+import { ImportValidationError } from '@ghostfolio/api/services/import/errors/import-validation.error';
+import { ImportDataDto } from '@ghostfolio/api/services/import/import-data.dto';
 import { MarketDataService } from '@ghostfolio/api/services/market-data/market-data.service';
 import { PrismaService } from '@ghostfolio/api/services/prisma/prisma.service';
 import { PropertyService } from '@ghostfolio/api/services/property/property.service';
+import { RedisCacheService } from '@ghostfolio/api/services/redis-cache/redis-cache.service';
 import {
   DEFAULT_CURRENCY,
   DERIVED_CURRENCIES,
@@ -222,7 +222,8 @@ export class DataProviderService implements OnModuleInit {
     activitiesDto,
     assetProfilesWithMarketDataDto,
     maxActivitiesToImport,
-    subscription
+    subscription,
+    userId
   }: {
     activitiesDto: Pick<
       Partial<CreateOrderDto>,
@@ -231,6 +232,7 @@ export class DataProviderService implements OnModuleInit {
     assetProfilesWithMarketDataDto?: ImportDataDto['assetProfiles'];
     maxActivitiesToImport: number;
     subscription: UserWithSettings['subscription'];
+    userId: string;
   }) {
     if (activitiesDto?.length > maxActivitiesToImport) {
       throw new ImportValidationError(
@@ -273,16 +275,30 @@ export class DataProviderService implements OnModuleInit {
         );
       }
 
-      if (this.isPremiumRequired({ dataSource, subscription })) {
-        throw new ImportValidationError(
-          `${activityPath}.dataSource ("${maskedDataSource}") requires Ghostfolio Premium`
-        );
-      }
-
       const assetProfileIdentifier = getAssetProfileIdentifier({
         dataSource,
         symbol
       });
+
+      if (this.isPremiumRequired({ dataSource, subscription })) {
+        // The user can add activities to an asset profile of a premium data
+        // provider which the user already has, for example after the Premium
+        // subscription has expired. The stored asset profile is taken, so
+        // that the validation sends no request to the data provider.
+        const assetProfileOfUser =
+          assetProfiles[assetProfileIdentifier] ??
+          (await this.getAssetProfileOfUser({ dataSource, symbol, userId }));
+
+        if (!assetProfileOfUser) {
+          throw new ImportValidationError(
+            `${activityPath}.dataSource ("${maskedDataSource}") requires Ghostfolio Premium`
+          );
+        }
+
+        assetProfiles[assetProfileIdentifier] = assetProfileOfUser;
+
+        continue;
+      }
 
       if (!assetProfiles[assetProfileIdentifier]) {
         const assetProfileInImport = assetProfilesWithMarketDataDto?.find(
@@ -946,6 +962,35 @@ export class DataProviderService implements OnModuleInit {
     return {
       items: filteredItems
     };
+  }
+
+  /**
+   * Gives the stored asset profile if the user has an activity with it, with
+   * the fields which a data provider gives
+   */
+  private async getAssetProfileOfUser({
+    dataSource,
+    symbol,
+    userId
+  }: AssetProfileIdentifier & { userId: string }): Promise<
+    Partial<SymbolProfile>
+  > {
+    return this.prismaService.symbolProfile.findFirst({
+      select: {
+        assetClass: true,
+        assetSubClass: true,
+        currency: true,
+        dataSource: true,
+        isin: true,
+        name: true,
+        symbol: true
+      },
+      where: {
+        dataSource,
+        symbol,
+        activities: { some: { userId } }
+      }
+    });
   }
 
   private hasCurrency({
