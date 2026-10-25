@@ -14,7 +14,16 @@ export interface ActivitiesTableItem
       | 'valueInBaseCurrency'
     >,
     Partial<
-      Pick<Activity, 'account' | 'comment' | 'error' | 'id' | 'tags' | 'tax'>
+      Pick<
+        Activity,
+        | 'account'
+        | 'cashTransaction'
+        | 'comment'
+        | 'error'
+        | 'id'
+        | 'tags'
+        | 'tax'
+      >
     > {
   assetProfile: Pick<
     EnhancedAssetProfile,

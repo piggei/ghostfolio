@@ -210,6 +210,7 @@ export class ImportActivitiesService {
   }
 
   private convertToCreateOrderDto({
+    id,
     accountId,
     assetProfile,
     comment,
@@ -224,6 +225,7 @@ export class ImportActivitiesService {
     updateAccountBalance
   }: Activity): CreateOrderDto {
     return {
+      id,
       fee,
       quantity,
       tax,

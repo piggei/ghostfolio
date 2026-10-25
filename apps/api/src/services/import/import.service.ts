@@ -221,6 +221,13 @@ export class ImportService {
     tagsDto: ImportDataDto['tags'];
     user: UserWithSettings;
   }): Promise<Activity[]> {
+    if (
+      (accountsWithBalancesDto ?? []).some((account) => account.cashManagement)
+    ) {
+      throw new ImportValidationError(
+        'Cash ledger backups require POST /api/v1/import/restore. Use Import Data or Import JSON for an atomic restore.'
+      );
+    }
     const accountIdMapping: { [oldAccountId: string]: string } = {};
     const assetProfileSymbolMapping: { [oldSymbol: string]: string } = {};
     const ghostfolioDataSources = this.configurationService.get(
@@ -522,6 +529,7 @@ export class ImportService {
         const account = omit(accountWithBalances, [
           'balance',
           'balances',
+          'cashManagement',
           'isExcluded',
           'tags'
         ]);
@@ -558,7 +566,11 @@ export class ImportService {
         let accountObject: Prisma.AccountCreateInput = {
           ...account,
           balances: {
-            create: accountWithBalances.balances ?? []
+            create: (accountWithBalances.balances ?? []).map(
+              ({ date, value }) => {
+                return { date, value };
+              }
+            )
           },
           user: { connect: { id: user.id } }
         };
@@ -863,7 +875,10 @@ export class ImportService {
       [assetProfileIdentifier: string]: string;
     } = {};
 
-    for (const activity of activitiesExtendedWithErrors) {
+    for (const [
+      activityIndex,
+      activity
+    ] of activitiesExtendedWithErrors.entries()) {
       const accountId = activity.accountId;
       const comment = activity.comment;
       const currency = activity.currency;
@@ -922,7 +937,7 @@ export class ImportService {
           accountId: validatedAccount?.id,
           accountUserId: undefined,
           createdAt: new Date(),
-          id: randomUUID(),
+          id: activitiesDto[activityIndex].id ?? randomUUID(),
           symbolProfileId: undefined,
           tags: previewTags,
           updatedAt: new Date(),
@@ -1074,8 +1089,9 @@ export class ImportService {
         const date = parseISO(dateString);
         const tax = taxInput ?? 0;
 
-        const isDuplicate = existingActivities.some((activity) => {
+        const duplicate = existingActivities.find((activity) => {
           return (
+            activity.accountId === accountId &&
             (activity.comment || null) === (comment || null) &&
             (activity.currency === currency ||
               activity.assetProfile.currency === currency) &&
@@ -1090,11 +1106,12 @@ export class ImportService {
           );
         });
 
-        const error: ActivityError = isDuplicate
+        const error: ActivityError = duplicate
           ? { code: 'IS_DUPLICATE' }
           : undefined;
 
         return {
+          id: duplicate?.id,
           accountId,
           comment,
           currency,

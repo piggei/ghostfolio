@@ -113,6 +113,7 @@ export abstract class PortfolioCalculator {
   private startDate: Date;
   private subscriptionType?: SubscriptionType;
   private usePortfolioSnapshotCache: boolean;
+  private withHiddenCash: boolean;
   private userId: string;
 
   public constructor({
@@ -126,6 +127,7 @@ export abstract class PortfolioCalculator {
     portfolioSnapshotService,
     redisCacheService,
     usePortfolioSnapshotCache = true,
+    withHiddenCash = false,
     subscriptionType,
     userId
   }: {
@@ -139,6 +141,7 @@ export abstract class PortfolioCalculator {
     portfolioSnapshotService: PortfolioSnapshotService;
     redisCacheService: RedisCacheService;
     usePortfolioSnapshotCache?: boolean;
+    withHiddenCash?: boolean;
     subscriptionType?: SubscriptionType;
     userId: string;
   }) {
@@ -207,6 +210,7 @@ export abstract class PortfolioCalculator {
     this.portfolioSnapshotService = portfolioSnapshotService;
     this.redisCacheService = redisCacheService;
     this.usePortfolioSnapshotCache = usePortfolioSnapshotCache;
+    this.withHiddenCash = withHiddenCash;
     this.subscriptionType = subscriptionType;
     this.userId = userId;
 
@@ -2382,7 +2386,8 @@ export abstract class PortfolioCalculator {
       {
         calculationType,
         filters: this.filters,
-        userId: this.userId
+        userId: this.userId,
+        withHiddenCash: this.withHiddenCash
       }
     );
 
@@ -2422,7 +2427,8 @@ export abstract class PortfolioCalculator {
             calculationType,
             filters: this.filters,
             userCurrency: this.currency,
-            userId: this.userId
+            userId: this.userId,
+            withHiddenCash: this.withHiddenCash
           },
           name: PORTFOLIO_SNAPSHOT_PROCESS_JOB_NAME,
           opts: {
@@ -2445,7 +2451,8 @@ export abstract class PortfolioCalculator {
           calculationType,
           filters: this.filters,
           userCurrency: this.currency,
-          userId: this.userId
+          userId: this.userId,
+          withHiddenCash: this.withHiddenCash
         },
         name: PORTFOLIO_SNAPSHOT_PROCESS_JOB_NAME,
         opts: {

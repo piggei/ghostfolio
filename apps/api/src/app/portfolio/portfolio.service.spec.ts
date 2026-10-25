@@ -340,7 +340,10 @@ describe('PortfolioService', () => {
               string,
               { valueInBaseCurrency: number; valueInPercentage: number }
             >;
-            marketsAdvanced: Record<string, { valueInBaseCurrency: number }>;
+            marketsAdvanced: Record<
+              string,
+              { valueInBaseCurrency: number; valueInPercentage: number }
+            >;
           };
         }
       ).getAggregatedMarkets(holdings);
@@ -390,6 +393,23 @@ describe('PortfolioService', () => {
 
       expect(marketsAdvanced.northAmerica.valueInBaseCurrency).toBe(1000);
       expect(marketsAdvanced[UNKNOWN_KEY].valueInBaseCurrency).toBe(500);
+    });
+    it('does not assign cash to a market and keeps empty market percentages finite', () => {
+      const cash = {
+        assetProfile: {
+          assetClass: 'LIQUIDITY',
+          assetSubClass: 'CASH',
+          countries: []
+        },
+        valueInBaseCurrency: 6000
+      };
+      const result = getAggregatedMarkets([cash]);
+      for (const group of [result.markets, result.marketsAdvanced]) {
+        for (const value of Object.values(group)) {
+          expect(value.valueInBaseCurrency).toBe(0);
+          expect(value.valueInPercentage).toBe(0);
+        }
+      }
     });
   });
 
@@ -585,6 +605,7 @@ describe('PortfolioService', () => {
       const { holdings } = await portfolioService.getDetails({
         filters: [],
         includeAllHoldings: true,
+        withHiddenCash: true,
         userId: userDummyData.id
       });
 
@@ -631,7 +652,9 @@ describe('PortfolioService', () => {
       ).toHaveBeenCalledWith({
         filters: [{ id: AssetClass.EQUITY, type: 'ASSET_CLASS' }],
         userCurrency: 'CHF',
-        userId: userDummyData.id
+        userId: userDummyData.id,
+        withCash: true,
+        withHiddenCash: false
       });
     });
   });
@@ -672,6 +695,7 @@ describe('PortfolioService', () => {
         dateRange: 'max',
         filters: undefined,
         includeAllHoldings: true,
+        withHiddenCash: true,
         userId: userDummyData.id
       });
     });
@@ -699,6 +723,7 @@ describe('PortfolioService', () => {
           dateRange: 'max',
           filters: [{ id: holdingType, type: 'HOLDING_TYPE' }],
           includeAllHoldings: false,
+          withHiddenCash: true,
           userId: userDummyData.id
         });
       }
@@ -1308,11 +1333,34 @@ describe('PortfolioService', () => {
       expect(summary.totalValueInBaseCurrency).toBe(3000);
     });
 
-    it('should value the open holdings of excluded accounts at the current market price', async () => {
-      jest.spyOn(accountService, 'getCashDetails').mockResolvedValue({
-        accounts: [],
-        balanceInBaseCurrency: 1500
+    it('shows recorded cash explicitly without adding it to the allocation reference when excluded from analysis', async () => {
+      jest
+        .spyOn(accountService, 'getCashDetails')
+        .mockImplementation(async ({ withHiddenCash }) => ({
+          accounts: [],
+          balanceInBaseCurrency: withHiddenCash ? 2000 : 1000
+        }));
+      const summary = await getSummary({
+        portfolioCalculator: createPortfolioCalculator(),
+        balanceInBaseCurrency: 1000,
+        emergencyFundHoldingsValueInBaseCurrency: 0,
+        filteredValueInBaseCurrency: new Big(3000),
+        userCurrency: 'CHF',
+        userId: userDummyData.id
       });
+      expect(summary.cash).toBe(2000);
+      expect(summary.totalAssetsInBaseCurrency).toBe(4000);
+      expect(summary.totalValueInBaseCurrency).toBe(4000);
+      expect(summary.filteredValueInPercentage).toBe(1);
+    });
+
+    it('should value the open holdings of excluded accounts at the current market price', async () => {
+      jest
+        .spyOn(accountService, 'getCashDetails')
+        .mockImplementation(async ({ withExcludedAccounts }) => ({
+          accounts: [],
+          balanceInBaseCurrency: withExcludedAccounts ? 1500 : 1000
+        }));
 
       jest
         .spyOn(activitiesService, 'getActivitiesForPortfolioCalculator')
@@ -1802,6 +1850,64 @@ describe('PortfolioService', () => {
       // 100 (balance) + 1 * 10 (activity)
       expect(accounts[account.id].valueInBaseCurrency).toBe(110);
       expect(platforms[account.platformId].valueInBaseCurrency).toBe(110);
+    });
+
+    it('counts each account cash balance once when cash projection activities are also available', async () => {
+      const { accounts, platforms } = await getValueOfAccountsAndPlatforms({
+        activities: [
+          {
+            accountId: account.id,
+            isCashBalanceProjection: true,
+            assetProfile: { dataSource: 'YAHOO', symbol: 'USD' },
+            quantity: 100,
+            type: 'BUY'
+          },
+          {
+            accountId: account.id,
+            assetProfile: { dataSource: 'YAHOO', symbol: 'AAPL' },
+            quantity: 1,
+            type: 'BUY'
+          }
+        ],
+        filters: [],
+        portfolioItemsNow: {
+          'YAHOO-USD': { marketPriceInBaseCurrency: 1 },
+          'YAHOO-AAPL': { marketPriceInBaseCurrency: 10 }
+        },
+        userCurrency: 'USD',
+        userId: userDummyData.id
+      });
+      expect(accounts[account.id].valueInBaseCurrency).toBe(110);
+      expect(platforms[account.platformId].valueInBaseCurrency).toBe(110);
+    });
+
+    it('omits only cash from platform allocation when the account disables cash analysis', async () => {
+      jest.spyOn(accountService, 'getAccounts').mockResolvedValue([
+        {
+          ...account,
+          cashManagement: {
+            defaultUpdateCash: false,
+            openingDate: '0001-01-01',
+            includeCashInPortfolio: false
+          }
+        }
+      ] as unknown as AccountWithBalance[]);
+      const { accounts, platforms } = await getValueOfAccountsAndPlatforms({
+        activities: [
+          {
+            accountId: account.id,
+            assetProfile: { dataSource: 'YAHOO', symbol: 'AAPL' },
+            quantity: 1,
+            type: 'BUY'
+          }
+        ],
+        filters: [],
+        portfolioItemsNow: { 'YAHOO-AAPL': { marketPriceInBaseCurrency: 10 } },
+        userCurrency: 'USD',
+        userId: userDummyData.id
+      });
+      expect(accounts[account.id].balance).toBe(100);
+      expect(platforms[account.platformId].valueInBaseCurrency).toBe(10);
     });
 
     it('should not accumulate rounding errors of the balances of accounts sharing a platform', async () => {
