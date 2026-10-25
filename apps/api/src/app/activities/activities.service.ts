@@ -1097,6 +1097,12 @@ export class ActivitiesService {
     userId: string;
     where: Prisma.OrderWhereUniqueInput;
   }): Promise<Order> {
+    const requestedFeeName = data.type === 'FEE' ? data.symbol : undefined;
+    const requestedAssetClass = data.assetClass;
+    const requestedAssetSubClass = data.assetSubClass;
+    const shouldProcessFeeProfile =
+      data.type === 'FEE' && requestedFeeName !== undefined;
+
     const enabled = data.updateAccountBalance;
     const confirmation = {
       confirmNegativeBalance: data.confirmNegativeBalance,
@@ -1141,7 +1147,9 @@ export class ActivitiesService {
         where
       });
 
-      if (activityToUpdate?.SymbolProfile.userId === userId) {
+      if (shouldProcessFeeProfile) {
+        delete data.SymbolProfile;
+      } else if (activityToUpdate?.SymbolProfile.userId === userId) {
         data.SymbolProfile.update = {
           data: {
             assetClass: data.assetClass,
@@ -1223,11 +1231,92 @@ export class ActivitiesService {
           throw new ConflictException('The activity changed; reload it');
         }
       }
+      let symbolProfileUpdate: Prisma.OrderUpdateInput['SymbolProfile'];
+
+      if (shouldProcessFeeProfile) {
+        const current = await transaction.order.findUnique({
+          select: {
+            symbolProfileId: true,
+            SymbolProfile: {
+              select: {
+                assetClass: true,
+                assetSubClass: true,
+                currency: true,
+                dataSource: true,
+                name: true,
+                userId: true
+              }
+            }
+          },
+          where: { ...where, userId }
+        });
+
+        if (!current) {
+          throw new ConflictException(
+            'The activity no longer exists; reload it'
+          );
+        }
+
+        const profile = current.SymbolProfile;
+        const ownsProfile = profile.userId === userId;
+
+        if (
+          profile.dataSource !== DataSource.MANUAL ||
+          profile.name === requestedFeeName
+        ) {
+          symbolProfileUpdate = ownsProfile
+            ? {
+                update: {
+                  data: {
+                    assetClass: requestedAssetClass,
+                    assetSubClass: requestedAssetSubClass
+                  },
+                  where: { userId }
+                }
+              }
+            : undefined;
+        } else {
+          const activitiesCount = ownsProfile
+            ? await transaction.order.count({
+                where: { symbolProfileId: current.symbolProfileId }
+              })
+            : 0;
+
+          symbolProfileUpdate =
+            ownsProfile && activitiesCount === 1
+              ? {
+                  update: {
+                    data: {
+                      assetClass: requestedAssetClass,
+                      assetSubClass: requestedAssetSubClass,
+                      name: requestedFeeName
+                    },
+                    where: { userId }
+                  }
+                }
+              : {
+                  create: {
+                    assetClass: requestedAssetClass ?? profile.assetClass,
+                    assetSubClass:
+                      requestedAssetSubClass ?? profile.assetSubClass,
+                    currency: profile.currency,
+                    dataSource: DataSource.MANUAL,
+                    name: requestedFeeName,
+                    symbol: randomUUID(),
+                    userId
+                  }
+                };
+        }
+      }
+
       const updated = await transaction.order.update({
         where: { ...where, userId },
         include: { SymbolProfile: { select: { currency: true } } },
         data: {
           ...data,
+          ...(symbolProfileUpdate !== undefined
+            ? { SymbolProfile: symbolProfileUpdate }
+            : {}),
           tags: tagsToUpdate
         }
       });
@@ -1238,6 +1327,29 @@ export class ActivitiesService {
       });
       return updated;
     };
+    const updateRenamedFeeWithoutCash = async (): Promise<Order> => {
+      for (let attempt = 0; attempt < 3; attempt++) {
+        try {
+          return await this.prismaService.$transaction(
+            (transaction) => write(transaction),
+            {
+              isolationLevel: Prisma.TransactionIsolationLevel.Serializable
+            }
+          );
+        } catch (error) {
+          if (
+            !(error instanceof Prisma.PrismaClientKnownRequestError) ||
+            error.code !== 'P2034' ||
+            attempt >= 2
+          ) {
+            throw error;
+          }
+        }
+      }
+
+      throw new Error('Fee rename transaction retries exhausted');
+    };
+
     const activity = this.cashManagementService
       ? await this.cashManagementService.runInAccounts(
           {
@@ -1247,9 +1359,14 @@ export class ActivitiesService {
             ],
             userId
           },
-          write
+          write,
+          shouldProcessFeeProfile
+            ? Prisma.TransactionIsolationLevel.Serializable
+            : Prisma.TransactionIsolationLevel.ReadCommitted
         )
-      : await write(this.prismaService);
+      : shouldProcessFeeProfile
+        ? await updateRenamedFeeWithoutCash()
+        : await write(this.prismaService);
 
     this.eventEmitter.emit(
       PortfolioChangedEvent.getName(),

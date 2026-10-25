@@ -208,6 +208,136 @@ describeDatabase('Cash management with PostgreSQL', () => {
     expect((await service.get(scope())).balances.at(-1).value).toBe('990');
   });
 
+  it('renames a shared fee atomically with cash management and rolls back on failure', async () => {
+    await open('1000');
+
+    const profile = await prisma.symbolProfile.create({
+      data: {
+        currency: 'EUR',
+        dataSource: 'MANUAL',
+        name: 'Original fee',
+        symbol: randomUUID(),
+        userId
+      }
+    });
+
+    const base = {
+      currency: 'EUR',
+      date: day('2026-10-02'),
+      fee: 0,
+      tax: 2.5,
+      quantity: 1,
+      type: 'FEE' as const,
+      unitPrice: 10,
+      userId,
+      accountId,
+      accountUserId: userId,
+      symbolProfileId: profile.id
+    };
+
+    const first = await prisma.order.create({ data: base });
+    const second = await prisma.order.create({ data: base });
+
+    await service.runInAccounts(
+      { accountIds: [accountId], userId },
+      async (transaction) => {
+        const tracked = await transaction.order.findUniqueOrThrow({
+          where: { id: first.id },
+          include: { SymbolProfile: true }
+        });
+
+        await service.synchronizeOrder(transaction, tracked, {
+          enabled: true
+        });
+      }
+    );
+
+    const activities = activityService();
+
+    const rename = (name: string) =>
+      activities.updateActivity({
+        userId,
+        originalDate: first.date,
+        where: { id: first.id },
+        data: {
+          type: 'FEE',
+          symbol: name,
+          date: first.date,
+          currency: 'EUR',
+          fee: 0,
+          tax: 2.5,
+          quantity: 1,
+          unitPrice: 10,
+          SymbolProfile: {
+            connect: {
+              dataSource_symbol: {
+                dataSource: 'MANUAL',
+                symbol: profile.symbol
+              }
+            }
+          }
+        }
+      });
+
+    const balanceBefore = (await service.get(scope())).balances.at(-1).value;
+
+    await rename('Renamed fee');
+
+    const renamed = await prisma.order.findUniqueOrThrow({
+      where: { id: first.id },
+      include: { SymbolProfile: true }
+    });
+
+    const untouched = await prisma.order.findUniqueOrThrow({
+      where: { id: second.id },
+      include: { SymbolProfile: true }
+    });
+
+    expect(renamed.SymbolProfile.name).toBe('Renamed fee');
+    expect(renamed.symbolProfileId).not.toBe(profile.id);
+    expect(untouched.symbolProfileId).toBe(profile.id);
+    expect(untouched.SymbolProfile.name).toBe('Original fee');
+    expect(renamed.unitPrice).toBe(10);
+    expect(renamed.tax).toBe(2.5);
+    expect((await service.get(scope())).balances.at(-1).value).toBe(
+      balanceBefore
+    );
+
+    const stateBeforeFailure = await service.get(scope());
+    const profileCountBefore = await prisma.symbolProfile.count({
+      where: { userId }
+    });
+
+    const synchronization = jest
+      .spyOn(service, 'synchronizeOrder')
+      .mockRejectedValueOnce(new Error('Simulated synchronization failure'));
+
+    try {
+      await expect(rename('Must roll back')).rejects.toThrow(
+        'Simulated synchronization failure'
+      );
+    } finally {
+      synchronization.mockRestore();
+    }
+
+    const afterFailure = await prisma.order.findUniqueOrThrow({
+      where: { id: first.id },
+      include: { SymbolProfile: true }
+    });
+
+    const stateAfterFailure = await service.get(scope());
+
+    expect(afterFailure.SymbolProfile.name).toBe('Renamed fee');
+    expect(afterFailure.symbolProfileId).toBe(renamed.symbolProfileId);
+    expect(afterFailure.tax).toBe(2.5);
+    expect(afterFailure.unitPrice).toBe(10);
+    expect(await prisma.symbolProfile.count({ where: { userId } })).toBe(
+      profileCountBefore
+    );
+    expect(stateAfterFailure.revision).toBe(stateBeforeFailure.revision);
+    expect(stateAfterFailure.balances).toEqual(stateBeforeFailure.balances);
+  });
+
   it('edits, moves and deletes a tracked activity through the real activity service', async () => {
     await open();
     const destination = await prisma.account.create({

@@ -1080,7 +1080,9 @@ export class CashManagementService {
     operation: (
       transaction: Prisma.TransactionClient,
       accounts: Pick<Account, 'id' | 'currency'>[]
-    ) => Promise<T>
+    ) => Promise<T>,
+    isolationLevel: Prisma.TransactionIsolationLevel = Prisma
+      .TransactionIsolationLevel.ReadCommitted
   ): Promise<T> {
     for (let attempt = 0; ; attempt++) {
       try {
@@ -1104,7 +1106,7 @@ export class CashManagementService {
             return operation(transaction, accounts);
           },
           {
-            isolationLevel: Prisma.TransactionIsolationLevel.ReadCommitted,
+            isolationLevel,
             maxWait: 5000,
             timeout: 15000
           }
