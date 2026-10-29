@@ -140,14 +140,14 @@ jobs:
           node --test scripts/integration-release.test.mjs
           node scripts/integration-release.mjs
           cd release-assets
-          sha256sum *.tar.gz docker-compose.yml .env.example > SHA256SUMS
+          sha256sum *.tar.gz docker-compose.yml ghostfolio.env.example > SHA256SUMS
       - name: Check startup with disposable PostgreSQL and Redis
         id: smoke
         run: |
           node --input-type=module <<'JS'
           import { readFileSync, writeFileSync } from 'node:fs';
           import { randomBytes } from 'node:crypto';
-          const env = readFileSync('release-assets/.env.example', 'utf8')
+          const env = readFileSync('release-assets/ghostfolio.env.example', 'utf8')
             .replace(/<INSERT_[A-Z_]+>/g, () => randomBytes(32).toString('hex'));
           writeFileSync('release-assets/.env', env, { mode: 0o600 });
           JS
@@ -165,7 +165,7 @@ jobs:
       - name: Publish release
         run: |
           gh release create "$TAG" release-assets/*.tar.gz \
-            release-assets/docker-compose.yml release-assets/.env.example release-assets/SHA256SUMS \
+            release-assets/docker-compose.yml release-assets/ghostfolio.env.example release-assets/SHA256SUMS \
             --repo "$GITHUB_REPOSITORY" --target "$GITHUB_SHA" \
             --title "Ghostfolio $TAG" --notes-file release-assets/notes.md --prerelease
       - name: Advance integration channel after successful release

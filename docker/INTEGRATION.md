@@ -11,15 +11,15 @@ the `ghcr.io/piggei/ghostfolio:integration` channel. A failed build does not adv
 that channel. These are integration builds with the fork's custom features.
 
 Each release has a unique `integration-UPSTREAM_VERSION-RUN.ATTEMPT` tag, Docker
-archives for both architectures, a standalone `docker-compose.yml`, `.env.example`
+archives for both architectures, a standalone `docker-compose.yml`, `ghostfolio.env.example`
 and SHA256 checksums. The registry also provides a `sha-FULL_COMMIT` tag. Prefer the
 release tag for reproducible installations; the `integration` tag follows the most
 recent successfully published build.
 
 ## Install
 
-Download `docker-compose.yml` and `.env.example` from the same release, put them in
-a new directory, copy `.env.example` to `.env` and fill in passwords and random
+Download `docker-compose.yml` and `ghostfolio.env.example` from the same release, put them in
+a new directory, copy `ghostfolio.env.example` to `.env` and fill in passwords and random
 secrets. From that directory:
 
 ```sh
