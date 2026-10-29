@@ -1,8 +1,9 @@
 # Docker releases of the integration branch
 
 Every push to `integration/ghostfolio-all-pr` in `piggei/ghostfolio` runs
-`.github/workflows/integration-release.yml`. The workflow can also be started
-manually from the Actions page, selecting that branch.
+`.github/workflows/integration-release.yml`. The workflow also declares a manual
+trigger. GitHub shows that trigger once the workflow is present on the default
+branch; automatic publication from the integration branch does not require this.
 
 After the tests pass, native AMD64 and ARM64 runners build the application. Only
 when both builds succeed does the workflow publish a GitHub prerelease and advance
