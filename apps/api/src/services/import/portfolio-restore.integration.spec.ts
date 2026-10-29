@@ -1,6 +1,6 @@
-import { AccountBalanceService } from '@ghostfolio/api/app/account-balance/account-balance.service';
 import { CashManagementService } from '@ghostfolio/api/app/account-balance/cash-management.service';
 import { ExportService } from '@ghostfolio/api/app/endpoints/export/export.service';
+import { AccountBalanceService } from '@ghostfolio/api/services/account-balance/account-balance.service';
 import { PrismaService } from '@ghostfolio/api/services/prisma/prisma.service';
 
 import { ValidationPipe } from '@nestjs/common';

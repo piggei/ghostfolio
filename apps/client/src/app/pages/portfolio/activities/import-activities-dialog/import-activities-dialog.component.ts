@@ -27,6 +27,7 @@ import {
   FileFormat,
   GfFileDropAreaComponent
 } from '@ghostfolio/ui/file-drop-area';
+import { GfPremiumIndicatorComponent } from '@ghostfolio/ui/premium-indicator';
 import { DataService } from '@ghostfolio/ui/services';
 
 import {
@@ -40,7 +41,8 @@ import {
   ChangeDetectorRef,
   Component,
   DestroyRef,
-  inject
+  inject,
+  signal
 } from '@angular/core';
 import { takeUntilDestroyed } from '@angular/core/rxjs-interop';
 import {
@@ -92,6 +94,7 @@ import {
     GfDialogFooterComponent,
     GfDialogHeaderComponent,
     GfFileDropAreaComponent,
+    GfPremiumIndicatorComponent,
     IonIcon,
     MatButtonModule,
     MatCheckboxModule,
@@ -181,6 +184,7 @@ export class GfImportActivitiesDialogComponent {
 
   protected isLoading = false;
   protected isMaxActivitiesOfGhostfolioAiReached = false;
+  protected readonly isSubmitting = signal(false);
   protected readonly language = document.documentElement.lang;
   protected readonly maxActivitiesOfGhostfolioAi = AI_MAX_ACTIVITIES;
   protected mode: 'DIVIDEND';
@@ -283,6 +287,8 @@ export class GfImportActivitiesDialogComponent {
   }
 
   protected async onImportActivities() {
+    this.isSubmitting.set(true);
+
     try {
       this.snackBar.open('⏳ ' + $localize`Importing data...`);
 

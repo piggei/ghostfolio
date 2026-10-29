@@ -1,3 +1,4 @@
+import { CashManagementService } from '@ghostfolio/api/app/account-balance/cash-management.service';
 import { PortfolioChangedEvent } from '@ghostfolio/api/events/portfolio-changed.event';
 import { WHERE_ACCOUNT_NOT_EXCLUDED } from '@ghostfolio/api/helper/account.helper';
 import { LogPerformance } from '@ghostfolio/api/interceptors/performance-logging/performance-logging.interceptor';
@@ -23,8 +24,6 @@ import { AccountBalance, Prisma } from '@prisma/client';
 import { Big } from 'big.js';
 import { endOfToday, format, min, parseISO } from 'date-fns';
 import { groupBy } from 'lodash-es';
-
-import { CashManagementService } from './cash-management.service';
 
 @Injectable()
 export class AccountBalanceService {
@@ -52,6 +51,7 @@ export class AccountBalanceService {
     date,
     userId
   }: CreateAccountBalanceDto & {
+    accountId: string;
     userId: string;
   }): Promise<AccountBalance> {
     const write = async (transaction: Prisma.TransactionClient) => {

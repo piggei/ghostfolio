@@ -1,5 +1,6 @@
-import { ActivitiesService } from '@ghostfolio/api/app/activities/activities.service';
 import { UserService } from '@ghostfolio/api/app/user/user.service';
+import { AccountBalanceService } from '@ghostfolio/api/services/account-balance/account-balance.service';
+import { ActivitiesService } from '@ghostfolio/api/services/activities/activities.service';
 import { PrismaService } from '@ghostfolio/api/services/prisma/prisma.service';
 import {
   CashCsvPreview,
@@ -14,7 +15,6 @@ import { randomUUID } from 'node:crypto';
 import { readFileSync } from 'node:fs';
 import { join } from 'node:path';
 
-import { AccountBalanceService } from './account-balance.service';
 import { CashManagementService } from './cash-management.service';
 
 const databaseUrl = process.env.CASH_TEST_DATABASE_URL;
