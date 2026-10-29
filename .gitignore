@@ -41,6 +41,7 @@ npm-debug.log
 /.sass-cache
 /connect.lock
 /coverage
+/release-assets
 /dist
 /libpeerconnection.log
 testem.log

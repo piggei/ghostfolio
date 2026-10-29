@@ -1,0 +1,152 @@
+name: Publish integration Docker release
+
+on:
+  push:
+    branches: [integration/ghostfolio-all-pr]
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+concurrency:
+  group: integration-release
+  cancel-in-progress: false
+
+jobs:
+  prepare:
+    if: github.repository == 'piggei/ghostfolio' && github.ref == 'refs/heads/integration/ghostfolio-all-pr'
+    runs-on: ubuntu-latest
+    outputs:
+      image: ${{ steps.version.outputs.image }}
+      tag: ${{ steps.version.outputs.tag }}
+      sha_tag: ${{ steps.version.outputs.sha_tag }}
+    steps:
+      - uses: actions/checkout@v4
+      - id: version
+        shell: bash
+        run: |
+          version=$(node -p "require('./package.json').version")
+          echo "image=ghcr.io/${GITHUB_REPOSITORY,,}" >> "$GITHUB_OUTPUT"
+          echo "tag=integration-${version}-${GITHUB_RUN_NUMBER}.${GITHUB_RUN_ATTEMPT}" >> "$GITHUB_OUTPUT"
+          echo "sha_tag=sha-${GITHUB_SHA}" >> "$GITHUB_OUTPUT"
+
+  verify:
+    needs: prepare
+    runs-on: ubuntu-latest
+    timeout-minutes: 30
+    env:
+      NX_DAEMON: 'false'
+      HUSKY: '0'
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 22.23.4
+          cache: npm
+      - run: npm ci
+      - run: node --test scripts/integration-release.test.mjs
+      - run: npm test
+
+  build:
+    needs: [prepare, verify]
+    permissions:
+      contents: read
+      packages: write
+    strategy:
+      fail-fast: false
+      matrix:
+        include:
+          - arch: amd64
+            runner: ubuntu-latest
+          - arch: arm64
+            runner: ubuntu-24.04-arm
+    runs-on: ${{ matrix.runner }}
+    timeout-minutes: 60
+    steps:
+      - uses: actions/checkout@v4
+      - uses: docker/setup-buildx-action@v3
+      - uses: docker/login-action@v3
+        with:
+          registry: ghcr.io
+          username: ${{ github.actor }}
+          password: ${{ secrets.GITHUB_TOKEN }}
+      - name: Build and publish architecture image
+        id: build
+        uses: docker/build-push-action@v6
+        with:
+          context: .
+          platforms: linux/${{ matrix.arch }}
+          push: true
+          tags: ${{ needs.prepare.outputs.image }}:${{ needs.prepare.outputs.tag }}-${{ matrix.arch }}
+          labels: |
+            org.opencontainers.image.source=https://github.com/${{ github.repository }}
+            org.opencontainers.image.revision=${{ github.sha }}
+            org.opencontainers.image.version=${{ needs.prepare.outputs.tag }}
+          cache-from: type=gha,scope=integration-${{ matrix.arch }}
+          cache-to: type=gha,mode=max,scope=integration-${{ matrix.arch }}
+      - name: Export downloadable image
+        env:
+          IMAGE: ${{ needs.prepare.outputs.image }}
+          TAG: ${{ needs.prepare.outputs.tag }}
+          ARCH: ${{ matrix.arch }}
+          DIGEST: ${{ steps.build.outputs.digest }}
+        run: |
+          mkdir -p release-assets
+          docker pull --platform "linux/$ARCH" "$IMAGE@$DIGEST"
+          docker tag "$IMAGE@$DIGEST" "$IMAGE:$TAG"
+          docker save "$IMAGE:$TAG" | gzip -1 > "release-assets/ghostfolio-$TAG-linux-$ARCH.tar.gz"
+      - uses: actions/upload-artifact@v4
+        with:
+          name: docker-${{ matrix.arch }}
+          path: release-assets/*.tar.gz
+          compression-level: 0
+          retention-days: 3
+
+  release:
+    needs: [prepare, build]
+    runs-on: ubuntu-latest
+    permissions:
+      contents: write
+      packages: write
+    env:
+      GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+      IMAGE: ${{ needs.prepare.outputs.image }}
+      TAG: ${{ needs.prepare.outputs.tag }}
+      SHA_TAG: ${{ needs.prepare.outputs.sha_tag }}
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+      - uses: docker/setup-buildx-action@v3
+      - uses: docker/login-action@v3
+        with:
+          registry: ghcr.io
+          username: ${{ github.actor }}
+          password: ${{ secrets.GITHUB_TOKEN }}
+      - name: Publish multi-platform version
+        run: |
+          docker buildx imagetools create \
+            --tag "$IMAGE:$TAG" \
+            --tag "$IMAGE:$SHA_TAG" \
+            "$IMAGE:$TAG-amd64" "$IMAGE:$TAG-arm64"
+          docker buildx imagetools inspect "$IMAGE:$TAG"
+      - uses: actions/download-artifact@v4
+        with:
+          pattern: docker-*
+          path: release-assets
+          merge-multiple: true
+      - name: Prepare release notes and installation files
+        run: |
+          node --test scripts/integration-release.test.mjs
+          node scripts/integration-release.mjs
+          cd release-assets
+          sha256sum *.tar.gz docker-compose.yml .env.example > SHA256SUMS
+      - name: Publish release
+        run: |
+          gh release create "$TAG" release-assets/*.tar.gz \
+            release-assets/docker-compose.yml release-assets/.env.example release-assets/SHA256SUMS \
+            --repo "$GITHUB_REPOSITORY" --target "$GITHUB_SHA" \
+            --title "Ghostfolio $TAG" --notes-file release-assets/notes.md --prerelease
+      - name: Advance integration channel after successful release
+        run: |
+          docker buildx imagetools create --tag "$IMAGE:integration" "$IMAGE:$TAG"
