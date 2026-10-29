@@ -27,6 +27,52 @@ export function includedReleases(sections, current, previous) {
   );
 }
 
+export function integratedPullRequestsMarkdown(manifest) {
+  if (!manifest || !Array.isArray(manifest.pullRequests)) {
+    throw new Error('Invalid integrated PR manifest');
+  }
+
+  const categories = new Map();
+  const numbers = new Set();
+
+  for (const pr of manifest.pullRequests) {
+    if (
+      !Number.isSafeInteger(pr.number) ||
+      pr.number <= 0 ||
+      typeof pr.title !== 'string' ||
+      !pr.title.trim() ||
+      typeof pr.category !== 'string' ||
+      !pr.category.trim()
+    ) {
+      throw new Error('Invalid integrated PR entry');
+    }
+
+    if (numbers.has(pr.number)) {
+      throw new Error(`Duplicate integrated PR #${pr.number}`);
+    }
+
+    numbers.add(pr.number);
+
+    if (!categories.has(pr.category)) {
+      categories.set(pr.category, []);
+    }
+
+    categories
+      .get(pr.category)
+      .push(
+        `- [#${pr.number} — ${pr.title}](https://github.com/ghostfolio/ghostfolio/pull/${pr.number})`
+      );
+  }
+
+  if (categories.size === 0) {
+    return 'No additional upstream Pull Requests are currently listed.';
+  }
+
+  return [...categories]
+    .map(([category, entries]) => `### ${category}\n\n${entries.join('\n')}`)
+    .join('\n\n');
+}
+
 function git(...args) {
   return execFileSync('git', args, { encoding: 'utf8' }).trim();
 }
@@ -91,36 +137,61 @@ export function generateRelease() {
         `${previousTag}..${sha}`
       )
     : git('log', '--first-parent', '-12', '--format=- %s (%h)', sha);
+  const manifest = JSON.parse(
+    readFileSync('docker/integrated-prs.json', 'utf8')
+  );
+  const integratedPrs = integratedPullRequestsMarkdown(manifest);
+
   const notes =
-    `# Ghostfolio integration\n\n` +
-    `Build del branch \`integration/ghostfolio-all-pr\`, basata su Ghostfolio **${version}**. ` +
-    `Include le personalizzazioni del fork e i commit upstream integrati dopo la release ufficiale.\n\n` +
-    `- Commit: [${sha.slice(0, 9)}](https://github.com/${repository}/commit/${sha})\n` +
-    `- Immagine: \`${image}:${tag}\`\n` +
-    `- Versione immutabile per commit: \`${image}:sha-${sha}\`\n` +
-    `- Architetture: Linux AMD64 e ARM64.\n\n` +
-    `## Installazione\n\n` +
-    `Scarica \`docker-compose.yml\` e \`.env.example\` dagli allegati, copia quest'ultimo in \`.env\` ` +
-    `e configura password e chiavi casuali. Dalla stessa cartella esegui:\n\n` +
+    `# Ghostfolio Integration — ${tag}\n\n` +
+    `This release is built from the \`integration/ghostfolio-all-pr\` branch, ` +
+    `based on Ghostfolio **${version}**. It combines upstream updates with ` +
+    `custom features and independently proposed contributions.\n\n` +
+    `## Release information\n\n` +
+    `- Source commit: [${sha.slice(0, 9)}](https://github.com/${repository}/commit/${sha})\n` +
+    `- Docker image: \`${image}:${tag}\`\n` +
+    `- Rolling integration channel: \`${image}:integration\`\n` +
+    `- Immutable commit tag: \`${image}:sha-${sha}\`\n` +
+    `- Supported architectures: Linux AMD64 and ARM64\n\n` +
+    `## Integrated Pull Requests\n\n` +
+    `The following contributions are maintained in the integration branch ` +
+    `while undergoing independent upstream review. Inclusion does not imply ` +
+    `acceptance or merger into the official Ghostfolio project.\n\n` +
+    `${integratedPrs}\n\n` +
+    `## Installation\n\n` +
+    `Download \`docker-compose.yml\` and \`ghostfolio.env.example\` from this ` +
+    `release. Copy \`ghostfolio.env.example\` to \`.env\` and configure the ` +
+    `required passwords and randomly generated secrets.\n\n` +
     '```sh\ndocker compose pull\ndocker compose up -d\n```\n\n' +
-    `L'applicazione è disponibile sulla porta 3333. PostgreSQL e Redis sono inclusi nel Compose; ` +
-    `i dati sono conservati nel volume PostgreSQL. Per un'installazione esistente, conserva configurazione e volumi ` +
-    `e salva un backup del database prima di aggiornare: all'avvio vengono applicate le migrazioni.\n\n` +
-    `Se il pacchetto GHCR richiede autenticazione, il proprietario può renderlo pubblico nelle ` +
-    `[impostazioni del pacchetto](https://github.com/users/${repository.split('/')[0]}/packages/container/${repository.split('/')[1]}/settings). ` +
-    `In alternativa scarica l'archivio della tua architettura e importalo senza accedere al registry:\n\n` +
-    `\`\`\`sh\ndocker load -i ghostfolio-${tag}-linux-amd64.tar.gz\ndocker compose up -d --pull never\n\`\`\`\n\n` +
-    `Per ARM64 usa il file con suffisso \`linux-arm64.tar.gz\`. Gli archivi contengono solo l'applicazione; ` +
-    `PostgreSQL e Redis devono essere disponibili o scaricabili. Verifica gli allegati con \`sha256sum -c SHA256SUMS\`.\n\n` +
-    `Per seguire gli aggiornamenti automatici, sostituisci il tag dell'immagine nel Compose con \`integration\` ` +
-    `e ripeti \`docker compose pull && docker compose up -d\`. Il server si aggiorna quando esegui questi comandi.\n\n` +
-    `## Aggiornamenti ufficiali di Ghostfolio\n\n` +
+    `Ghostfolio is available on port 3333. The Compose configuration includes ` +
+    `PostgreSQL and Redis, with persistent PostgreSQL storage.\n\n` +
+    `Database migrations and seeding run during application startup. ` +
+    `Back up the database and preserve existing volumes and configuration ` +
+    `before upgrading.\n\n` +
+    `## Offline installation\n\n` +
+    `Download the archive matching your architecture and load it using:\n\n` +
+    `\`\`\`sh\ndocker load -i ghostfolio-${tag}-linux-amd64.tar.gz\n` +
+    `docker compose up -d --pull never\n\`\`\`\n\n` +
+    `For ARM64, use the archive ending in \`linux-arm64.tar.gz\`. ` +
+    `PostgreSQL and Redis images must also be available locally or downloadable. ` +
+    `Verify the release assets with \`sha256sum -c SHA256SUMS\`.\n\n` +
+    `## Updating the integration channel\n\n` +
+    `To follow the latest successfully published integration build, set ` +
+    `the Ghostfolio image in Docker Compose to \`${image}:integration\`.\n\n` +
+    '```sh\ndocker compose pull\ndocker compose up -d\n```\n\n' +
+    `For reproducible deployments, prefer a version-specific or commit-based tag.\n\n` +
+    `## Official Ghostfolio updates\n\n` +
     (official.join('\n\n') ||
-      `Nessuna nuova versione ufficiale rispetto alla release precedente (Ghostfolio ${version}).`) +
+      `No new official Ghostfolio release since the previous integration build (${version}).`) +
     (unreleased?.body
-      ? `\n\n### Ulteriori aggiornamenti integrati\n\n${unreleased.body.replace(/^### /gm, '#### ')}`
+      ? `\n\n### Additional upstream changes\n\n${unreleased.body.replace(/^### /gm, '#### ')}`
       : '') +
-    `\n\n## Modifiche del branch di integrazione\n\n${changes}\n`;
+    `\n\n## Integration-specific changes\n\n${changes}\n\n` +
+    `## Project status\n\n` +
+    `This is an unofficial integration release maintained independently of ` +
+    `the Ghostfolio upstream project.\n\n` +
+    `Official project: https://github.com/ghostfolio/ghostfolio\n\n` +
+    `Integration fork: https://github.com/${repository}\n`;
   mkdirSync('release-assets', { recursive: true });
   writeFileSync('release-assets/notes.md', notes);
   // A standalone copy uses the versioned image and an environment file beside the compose file.
@@ -128,7 +199,10 @@ export function generateRelease() {
     .replace('docker.io/ghostfolio/ghostfolio:latest', `${image}:${tag}`)
     .replaceAll('../.env', '.env');
   writeFileSync('release-assets/docker-compose.yml', compose);
-  writeFileSync('release-assets/.env.example', readFileSync('.env.example'));
+  writeFileSync(
+    'release-assets/ghostfolio.env.example',
+    readFileSync('.env.example')
+  );
 }
 
 if (process.argv[1] && import.meta.url === pathToFileURL(process.argv[1]).href)

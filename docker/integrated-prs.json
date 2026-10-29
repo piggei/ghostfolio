@@ -1,0 +1,49 @@
+{
+  "pullRequests": [
+    {
+      "number": 8211,
+      "title": "Use remaining cost basis for realized performance",
+      "category": "Portfolio calculations"
+    },
+    {
+      "number": 8220,
+      "title": "Fix ROI invested capital for same-day transactions",
+      "category": "Portfolio calculations"
+    },
+    {
+      "number": 8221,
+      "title": "Implement time-weighted return calculation",
+      "category": "Portfolio calculations"
+    },
+    {
+      "number": 8233,
+      "title": "Implement money-weighted return calculation",
+      "category": "Portfolio calculations"
+    },
+    {
+      "number": 8288,
+      "title": "Use calendar days for ROAI weighting",
+      "category": "Portfolio calculations"
+    },
+    {
+      "number": 8158,
+      "title": "Add PnL calendar to home overview",
+      "category": "Portfolio features"
+    },
+    {
+      "number": 8252,
+      "title": "Add taxes to activities",
+      "category": "Portfolio features"
+    },
+    {
+      "number": 8305,
+      "title": "Introduce unified account cash ledger and portfolio restore",
+      "category": "Portfolio features"
+    },
+    {
+      "number": 8315,
+      "title": "Allow renaming fee activities",
+      "category": "Activity management"
+    }
+  ]
+}
