@@ -141,6 +141,27 @@ jobs:
           node scripts/integration-release.mjs
           cd release-assets
           sha256sum *.tar.gz docker-compose.yml .env.example > SHA256SUMS
+      - name: Check startup with disposable PostgreSQL and Redis
+        id: smoke
+        run: |
+          node --input-type=module <<'JS'
+          import { readFileSync, writeFileSync } from 'node:fs';
+          import { randomBytes } from 'node:crypto';
+          const env = readFileSync('release-assets/.env.example', 'utf8')
+            .replace(/<INSERT_[A-Z_]+>/g, () => randomBytes(32).toString('hex'));
+          writeFileSync('release-assets/.env', env, { mode: 0o600 });
+          JS
+          docker compose -f release-assets/docker-compose.yml up -d --wait --wait-timeout 240
+          curl --fail --retry 3 http://localhost:3333/api/v1/health
+      - name: Show startup diagnostics on failure
+        if: failure() && steps.smoke.outcome == 'failure'
+        run: docker compose -f release-assets/docker-compose.yml logs --tail 100
+      - name: Remove disposable startup test
+        if: always() && steps.smoke.outcome != 'skipped'
+        run: |
+          if test -f release-assets/.env; then
+            docker compose -f release-assets/docker-compose.yml down --volumes
+          fi
       - name: Publish release
         run: |
           gh release create "$TAG" release-assets/*.tar.gz \
