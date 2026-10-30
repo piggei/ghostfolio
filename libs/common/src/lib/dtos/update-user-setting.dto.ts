@@ -11,6 +11,7 @@ import { IsCurrencyCode } from '@ghostfolio/common/validators/is-currency-code';
 import {
   IsArray,
   IsBoolean,
+  IsEnum,
   IsISO8601,
   IsIn,
   IsNumber,
@@ -101,7 +102,7 @@ export class UpdateUserSettingDto {
   @IsOptional()
   locale?: string;
 
-  @IsIn([PerformanceCalculationType.ROAI, PerformanceCalculationType.ROI])
+  @IsEnum(PerformanceCalculationType)
   @IsOptional()
   performanceCalculationType?: PerformanceCalculationType;
 
