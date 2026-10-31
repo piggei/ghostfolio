@@ -44,6 +44,21 @@
       "number": 8315,
       "title": "Allow renaming fee activities",
       "category": "Activity management"
+    },
+    {
+      "number": 8366,
+      "title": "Handle background snapshot refresh rejection",
+      "category": "Portfolio calculations"
+    }
+  ],
+  "localPatches": [
+    {
+      "id": "fx-cache-context",
+      "title": "Preserve FX context in cached portfolio snapshots",
+      "category": "Portfolio calculations",
+      "source": "fix/portfolio-cached-fx-context",
+      "manifest": "docker/patches/fx-cache-context.json",
+      "integrationCommit": "c9bd747985fcedbbf7a0ac01110510ac9a973746"
     }
   ]
 }

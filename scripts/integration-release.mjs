@@ -73,6 +73,71 @@ export function integratedPullRequestsMarkdown(manifest) {
     .join('\n\n');
 }
 
+export function localPatchesMarkdown(manifest) {
+  if (!manifest || !Array.isArray(manifest.pullRequests)) {
+    throw new Error('Invalid integrated PR manifest');
+  }
+
+  if (manifest.localPatches === undefined) {
+    return 'No local patches are currently listed.';
+  }
+
+  if (!Array.isArray(manifest.localPatches)) {
+    throw new Error('Invalid local patches manifest');
+  }
+
+  const categories = new Map();
+  const ids = new Set();
+
+  for (const patch of manifest.localPatches) {
+    if (
+      !patch ||
+      typeof patch.id !== 'string' ||
+      !/^[a-z0-9]+(?:-[a-z0-9]+)*$/.test(patch.id) ||
+      typeof patch.title !== 'string' ||
+      !patch.title.trim() ||
+      typeof patch.category !== 'string' ||
+      !patch.category.trim() ||
+      typeof patch.source !== 'string' ||
+      !patch.source.trim() ||
+      typeof patch.integrationCommit !== 'string' ||
+      !/^[0-9a-f]{40}$/.test(patch.integrationCommit) ||
+      typeof patch.manifest !== 'string' ||
+      !patch.manifest.startsWith('docker/patches/') ||
+      !patch.manifest.endsWith('.json') ||
+      patch.manifest !== `docker/patches/${patch.id}.json`
+    ) {
+      throw new Error('Invalid local patch entry');
+    }
+
+    if (ids.has(patch.id)) {
+      throw new Error(`Duplicate local patch: ${patch.id}`);
+    }
+
+    ids.add(patch.id);
+
+    if (!categories.has(patch.category)) {
+      categories.set(patch.category, []);
+    }
+
+    categories
+      .get(patch.category)
+      .push(
+        `- **${patch.title}** (local patch: \`${patch.id}\`) — ` +
+          `source: \`${patch.source}\`; ` +
+          `[provenance](https://github.com/piggei/ghostfolio/blob/${patch.integrationCommit}/${patch.manifest})`
+      );
+  }
+
+  if (categories.size === 0) {
+    return 'No local patches are currently listed.';
+  }
+
+  return [...categories]
+    .map(([category, entries]) => `### ${category}\n\n${entries.join('\n')}`)
+    .join('\n\n');
+}
+
 function git(...args) {
   return execFileSync('git', args, { encoding: 'utf8' }).trim();
 }
@@ -141,6 +206,7 @@ export function generateRelease() {
     readFileSync('docker/integrated-prs.json', 'utf8')
   );
   const integratedPrs = integratedPullRequestsMarkdown(manifest);
+  const localPatches = localPatchesMarkdown(manifest);
 
   const notes =
     `# Ghostfolio Integration — ${tag}\n\n` +
@@ -158,6 +224,9 @@ export function generateRelease() {
     `while undergoing independent upstream review. Inclusion does not imply ` +
     `acceptance or merger into the official Ghostfolio project.\n\n` +
     `${integratedPrs}\n\n` +
+    `## Local Patches\n\n` +
+    `These changes are maintained locally and do not currently have an upstream Pull Request.\n\n` +
+    `${localPatches}\n\n` +
     `## Installation\n\n` +
     `Download \`docker-compose.yml\` and \`ghostfolio.env.example\` from this ` +
     `release. Copy \`ghostfolio.env.example\` to \`.env\` and configure the ` +

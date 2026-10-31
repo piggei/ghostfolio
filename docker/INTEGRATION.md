@@ -63,6 +63,30 @@ changelog if the release API is unavailable. The first publication uses 3.92.0 a
 its baseline, so it includes the 3.93.0 and 3.94.0 release notes. The notes also
 include the checked-in Unreleased section and the integration branch's commits.
 
+### Integrated contributions and local patches
+
+The release notes maintain a persistent inventory in
+`docker/integrated-prs.json`, independently of the commits included in each
+individual release.
+
+The inventory distinguishes:
+
+- `pullRequests`: contributions proposed to the official Ghostfolio repository.
+  Their inclusion in All-PR does not imply upstream acceptance or merge.
+- `localPatches`: locally maintained corrections without an upstream Pull
+  Request. Each patch has a stable identifier, source reference and provenance
+  manifest under `docker/patches/`.
+
+The release generator validates both collections and renders separate
+**Integrated Pull Requests** and **Local Patches** sections.
+
+Integration-specific changes are listed separately from the Git commit history.
+Official Ghostfolio release notes remain unchanged.
+
+When adding a local patch, update its provenance manifest and the persistent
+inventory. The `localPatches` field is optional for compatibility with older
+manifests.
+
 The upstream Docker Hub workflow only publishes in the upstream repository or
 when `DOCKER_REPOSITORY` has explicitly been configured, avoiding accidental
 publication to the upstream image name from this fork.

@@ -4,7 +4,8 @@ import { test } from 'node:test';
 import {
   changelogSections,
   includedReleases,
-  integratedPullRequestsMarkdown
+  integratedPullRequestsMarkdown,
+  localPatchesMarkdown
 } from './integration-release.mjs';
 
 const changelog = `# Changelog
@@ -134,4 +135,92 @@ test('renders integrated PRs on separate Markdown lines', () => {
   assert.equal(lines.filter((line) => line.startsWith('- [#')).length, 2);
   assert.ok(lines.includes('### Calculations'));
   assert.ok(!markdown.includes('\\\\n'));
+});
+
+const localPatch = {
+  id: 'fx-cache-context',
+  title: 'Preserve FX context in cached portfolio snapshots',
+  category: 'Portfolio calculations',
+  source: 'fix/portfolio-cached-fx-context',
+  manifest: 'docker/patches/fx-cache-context.json',
+  integrationCommit: 'c9bd747985fcedbbf7a0ac01110510ac9a973746'
+};
+
+test('renders local patches grouped by category', () => {
+  const markdown = localPatchesMarkdown({
+    pullRequests: [],
+    localPatches: [localPatch]
+  });
+
+  assert.match(markdown, /### Portfolio calculations/);
+  assert.match(markdown, /Preserve FX context/);
+  assert.match(markdown, /fx-cache-context/);
+  assert.match(markdown, /fix\/portfolio-cached-fx-context/);
+  assert.match(markdown, /docker\/patches\/fx-cache-context\.json/);
+});
+
+test('supports legacy manifests without local patches', () => {
+  assert.match(localPatchesMarkdown({ pullRequests: [] }), /No local patches/);
+});
+
+test('supports an empty local patch list', () => {
+  assert.match(
+    localPatchesMarkdown({ pullRequests: [], localPatches: [] }),
+    /No local patches/
+  );
+});
+
+test('rejects duplicate local patch identifiers', () => {
+  assert.throws(
+    () =>
+      localPatchesMarkdown({
+        pullRequests: [],
+        localPatches: [localPatch, { ...localPatch }]
+      }),
+    /Duplicate local patch/
+  );
+});
+
+test('rejects malformed local patch entries', () => {
+  const invalid = [
+    { ...localPatch, id: '../invalid' },
+    { ...localPatch, title: '' },
+    { ...localPatch, source: '' },
+    { ...localPatch, manifest: '../invalid.json' },
+    { ...localPatch, manifest: 'docker/patches/other.json' }
+  ];
+
+  for (const patch of invalid) {
+    assert.throws(
+      () =>
+        localPatchesMarkdown({
+          pullRequests: [],
+          localPatches: [patch]
+        }),
+      /Invalid local patch entry/
+    );
+  }
+});
+
+test('rejects invalid integration commit hashes', () => {
+  for (const integrationCommit of ['', 'abc123', 'z'.repeat(40)]) {
+    assert.throws(
+      () =>
+        localPatchesMarkdown({
+          pullRequests: [],
+          localPatches: [{ ...localPatch, integrationCommit }]
+        }),
+      /Invalid local patch entry/
+    );
+  }
+});
+
+test('does not assign upstream PR numbers to local patches', () => {
+  const markdown = localPatchesMarkdown({
+    pullRequests: [],
+    localPatches: [localPatch]
+  });
+
+  assert.ok(!markdown.includes('github.com/ghostfolio/ghostfolio/pull/'));
+  assert.ok(!markdown.includes('PR #'));
 });
