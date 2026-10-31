@@ -12,6 +12,7 @@ import { MethodIndependentHoldingPerformance } from '@ghostfolio/api/app/portfol
 import { PortfolioCalculatorActivityItem } from '@ghostfolio/api/app/portfolio/interfaces/portfolio-calculator-activity-item.interface';
 import { PortfolioCalculatorActivity } from '@ghostfolio/api/app/portfolio/interfaces/portfolio-calculator-activity.interface';
 import { PortfolioCalculatorHolding } from '@ghostfolio/api/app/portfolio/interfaces/portfolio-calculator-holding.interface';
+import { PortfolioSnapshotCalculationContext } from '@ghostfolio/api/app/portfolio/interfaces/snapshot-calculation-context.interface';
 import { PortfolioSnapshotValue } from '@ghostfolio/api/app/portfolio/interfaces/snapshot-value.interface';
 import { PerformancePercentages } from '@ghostfolio/api/app/portfolio/types/performance-percentages.type';
 import { getFactor } from '@ghostfolio/api/helper/portfolio.helper';
@@ -920,6 +921,16 @@ export abstract class PortfolioCalculator {
 
       return sortIndex.getTime();
     });
+  }
+
+  // Persist this with the completed snapshot, rather than reloading newer FX
+  // rates when the snapshot is read from the cache.
+  public getCalculationContext(): PortfolioSnapshotCalculationContext {
+    return {
+      currency: this.currency,
+      exchangeRatesByCurrency: this.exchangeRatesByCurrency,
+      version: 1
+    };
   }
 
   public getDataProviderInfos() {
@@ -2373,11 +2384,38 @@ export abstract class PortfolioCalculator {
     });
   }
 
+  private isCalculationContextCompatible(
+    context: unknown
+  ): context is PortfolioSnapshotCalculationContext {
+    const isRecord = (value: unknown): value is Record<string, unknown> => {
+      return (
+        typeof value === 'object' && value !== null && !Array.isArray(value)
+      );
+    };
+
+    return (
+      isRecord(context) &&
+      context.version === 1 &&
+      context.currency === this.currency &&
+      isRecord(context.exchangeRatesByCurrency) &&
+      Object.values(context.exchangeRatesByCurrency).every((rates) => {
+        return (
+          isRecord(rates) &&
+          Object.values(rates).every((rate) => {
+            return typeof rate === 'number' && Number.isFinite(rate);
+          })
+        );
+      })
+    );
+  }
+
   @LogPerformance
   private async initialize(attempt = 1) {
     const startTimeTotal = performance.now();
 
     let cachedPortfolioSnapshot: PortfolioSnapshot | undefined;
+    let cachedCalculationContext:
+      PortfolioSnapshotCalculationContext | undefined;
     let isCachedPortfolioSnapshotExpired = false;
 
     const calculationType = this.getPerformanceCalculationType();
@@ -2397,13 +2435,32 @@ export abstract class PortfolioCalculator {
       const cachedPortfolioSnapshotValue =
         await this.redisCacheService.get(portfolioSnapshotKey);
 
-      const { expiration, portfolioSnapshot }: PortfolioSnapshotValue =
-        JSON.parse(cachedPortfolioSnapshotValue);
+      const {
+        calculationContext,
+        expiration,
+        portfolioSnapshot
+      }: PortfolioSnapshotValue = JSON.parse(cachedPortfolioSnapshotValue);
+
+      if (calculationContext !== undefined) {
+        if (!this.isCalculationContextCompatible(calculationContext)) {
+          throw new Error(
+            'Incompatible portfolio snapshot calculation context'
+          );
+        }
+      } else if (
+        calculationType === PerformanceCalculationType.TWR ||
+        calculationType === PerformanceCalculationType.MWR
+      ) {
+        // Legacy snapshots cannot safely calculate these methods' date ranges
+        // without the FX rates used to value the cached portfolio.
+        throw new Error('Missing portfolio snapshot calculation context');
+      }
 
       cachedPortfolioSnapshot = plainToClass(
         PortfolioSnapshot,
         portfolioSnapshot
       );
+      cachedCalculationContext = calculationContext;
 
       if (isPast(new Date(expiration))) {
         isCachedPortfolioSnapshotExpired = true;
@@ -2412,6 +2469,10 @@ export abstract class PortfolioCalculator {
 
     if (cachedPortfolioSnapshot) {
       this.snapshot = cachedPortfolioSnapshot;
+      if (cachedCalculationContext) {
+        this.exchangeRatesByCurrency =
+          cachedCalculationContext.exchangeRatesByCurrency;
+      }
 
       this.logger.debug(
         `Fetched portfolio snapshot from cache in ${(

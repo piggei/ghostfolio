@@ -72,7 +72,12 @@ describe('Cash snapshot cache isolation', () => {
       };
       const factory = {
         createCalculator: jest.fn().mockReturnValue({
-          computeSnapshot: jest.fn().mockResolvedValue({ positions: [] })
+          getSnapshot: jest.fn().mockResolvedValue({ positions: [] }),
+          getCalculationContext: jest.fn().mockReturnValue({
+            version: 1,
+            currency: 'EUR',
+            exchangeRatesByCurrency: {}
+          })
         })
       };
       const processor = new PortfolioSnapshotProcessor(

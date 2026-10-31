@@ -63,6 +63,11 @@ describe('Portfolio snapshot background refresh', () => {
     redis = {
       get: jest.fn().mockResolvedValue(
         JSON.stringify({
+          calculationContext: {
+            version: 1,
+            currency: 'EUR',
+            exchangeRatesByCurrency: {}
+          },
           expiration: Date.now() - 1,
           portfolioSnapshot: snapshot
         })
@@ -162,6 +167,11 @@ describe('Portfolio snapshot background refresh', () => {
   it('does not enqueue a fresh snapshot', async () => {
     redis.get.mockResolvedValue(
       JSON.stringify({
+        calculationContext: {
+          version: 1,
+          currency: 'EUR',
+          exchangeRatesByCurrency: {}
+        },
         expiration: Date.now() + 60000,
         portfolioSnapshot: snapshot
       })
