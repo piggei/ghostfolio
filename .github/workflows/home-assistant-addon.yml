@@ -1,0 +1,200 @@
+name: Publish Ghostfolio Home Assistant Add-on
+
+on:
+  workflow_dispatch:
+    inputs:
+      ghostfolio_tag:
+        description: Ghostfolio All-PR release tag
+        required: true
+        type: string
+        default: integration-3.94.0-7.1
+
+permissions:
+  contents: read
+
+concurrency:
+  group: ghostfolio-home-assistant-release
+  cancel-in-progress: false
+
+jobs:
+  prepare:
+    runs-on: ubuntu-latest
+    permissions:
+      contents: read
+      packages: read
+    outputs:
+      version: ${{ steps.metadata.outputs.version }}
+      source: ${{ steps.source.outputs.image }}
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: docker/setup-buildx-action@v3
+
+      - uses: docker/login-action@v3
+        with:
+          registry: ghcr.io
+          username: ${{ github.actor }}
+          password: ${{ secrets.GITHUB_TOKEN }}
+
+      - name: Read add-on version
+        id: metadata
+        shell: bash
+        run: |
+          set -euo pipefail
+
+          version=$(sed -n 's/^version: *"\([^"]*\)"/\1/p' home-assistant-addon/config.yaml)
+
+          if [[ ! "$version" =~ ^[0-9]+\.[0-9]+\.[0-9]+$ ]]; then
+            echo "::error::Invalid add-on version"
+            exit 1
+          fi
+
+          echo "version=$version" >> "$GITHUB_OUTPUT"
+
+      - name: Validate source image
+        id: source
+        shell: bash
+        env:
+          TAG: ${{ inputs.ghostfolio_tag }}
+        run: |
+          set -euo pipefail
+
+          image="ghcr.io/piggei/ghostfolio:$TAG"
+
+          docker buildx imagetools inspect "$image" --raw > manifest.json
+
+          for arch in amd64 arm64; do
+            jq -e --arg arch "$arch" '
+              any(.manifests[]?;
+                .platform.os == "linux" and
+                .platform.architecture == $arch
+              )
+            ' manifest.json >/dev/null
+          done
+
+          digest=$(docker buildx imagetools inspect "$image" |
+            awk '/^Digest:/ {print $2}')
+
+          [[ "$digest" =~ ^sha256:[a-f0-9]{64}$ ]]
+
+          echo "image=ghcr.io/piggei/ghostfolio@$digest" >> "$GITHUB_OUTPUT"
+
+      - name: Check destination tags
+        shell: bash
+        env:
+          VERSION: ${{ steps.metadata.outputs.version }}
+        run: |
+          set -euo pipefail
+
+          for arch in amd64 aarch64; do
+            image="ghcr.io/piggei/ghostfolio-ha-all-pr-${arch}:${VERSION}"
+
+            if docker buildx imagetools inspect "$image" >/dev/null 2>inspect-error.log; then
+              echo "::error::Destination already exists: $image"
+              exit 1
+            fi
+
+            if ! grep -Eqi '404|not found|manifest unknown|name unknown' inspect-error.log; then
+              echo "::error::Unable to verify destination: $image"
+              cat inspect-error.log
+              exit 1
+            fi
+          done
+
+  build:
+    needs: prepare
+    runs-on: ${{ matrix.runner }}
+    permissions:
+      contents: read
+      packages: write
+
+    strategy:
+      fail-fast: false
+      matrix:
+        include:
+          - arch: amd64
+            platform: linux/amd64
+            runner: ubuntu-latest
+          - arch: aarch64
+            platform: linux/arm64
+            runner: ubuntu-24.04-arm
+
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: docker/setup-buildx-action@v3
+
+      - uses: docker/login-action@v3
+        with:
+          registry: ghcr.io
+          username: ${{ github.actor }}
+          password: ${{ secrets.GITHUB_TOKEN }}
+
+      - name: Build and publish candidate
+        uses: docker/build-push-action@v6
+        with:
+          context: ./home-assistant-addon
+          platforms: ${{ matrix.platform }}
+          push: true
+          build-args: |
+            BUILD_ARCH=${{ matrix.arch }}
+            GHOSTFOLIO_IMAGE=${{ needs.prepare.outputs.source }}
+          tags: |
+            ghcr.io/piggei/ghostfolio-ha-all-pr-${{ matrix.arch }}:candidate-${{ github.run_id }}-${{ github.run_attempt }}
+          labels: |
+            org.opencontainers.image.source=https://github.com/piggei/ghostfolio
+            org.opencontainers.image.version=${{ needs.prepare.outputs.version }}
+
+  publish:
+    needs: [prepare, build]
+    runs-on: ubuntu-latest
+    permissions:
+      contents: read
+      packages: write
+
+    steps:
+      - uses: docker/setup-buildx-action@v3
+
+      - uses: docker/login-action@v3
+        with:
+          registry: ghcr.io
+          username: ${{ github.actor }}
+          password: ${{ secrets.GITHUB_TOKEN }}
+
+      - name: Promote verified candidates
+        shell: bash
+        env:
+          VERSION: ${{ needs.prepare.outputs.version }}
+        run: |
+          set -euo pipefail
+
+          for arch in amd64 aarch64; do
+            repository="ghcr.io/piggei/ghostfolio-ha-all-pr-${arch}"
+            candidate="${repository}:candidate-${GITHUB_RUN_ID}-${GITHUB_RUN_ATTEMPT}"
+            final="${repository}:${VERSION}"
+
+            docker buildx imagetools inspect "$candidate"
+
+            if docker buildx imagetools inspect "$final" >/dev/null 2>inspect-error.log; then
+              echo "::error::Destination already exists: $final"
+              exit 1
+            fi
+
+            if ! grep -Eqi '404|not found|manifest unknown|name unknown' inspect-error.log; then
+              echo "::error::Unable to verify destination: $final"
+              cat inspect-error.log
+              exit 1
+            fi
+          done
+
+          for arch in amd64 aarch64; do
+            repository="ghcr.io/piggei/ghostfolio-ha-all-pr-${arch}"
+            candidate="${repository}:candidate-${GITHUB_RUN_ID}-${GITHUB_RUN_ATTEMPT}"
+            final="${repository}:${VERSION}"
+
+            docker buildx imagetools create \
+              --tag "$final" \
+              "$candidate"
+
+            docker buildx imagetools inspect "$final"
+          done

@@ -1,0 +1,40 @@
+#!/bin/sh
+set -eu
+
+umask 077
+
+SECRETS_FILE="/data/secrets/ghostfolio.env"
+REDIS_DIR="/data/redis"
+REDIS_CONFIG="/data/redis/redis.conf"
+
+if [ ! -r "$SECRETS_FILE" ]; then
+  echo "ERROR: Redis secrets file is unavailable"
+  exit 1
+fi
+
+REDIS_PASSWORD=$(sed -n 's/^REDIS_PASSWORD=//p' "$SECRETS_FILE")
+
+if ! printf '%s' "$REDIS_PASSWORD" | grep -Eq '^[0-9a-f]{64}$'; then
+  echo "ERROR: Invalid Redis password"
+  exit 1
+fi
+
+mkdir -p "$REDIS_DIR"
+
+{
+  printf 'bind 127.0.0.1\n'
+  printf 'port 6379\n'
+  printf 'protected-mode yes\n'
+  printf 'dir %s\n' "$REDIS_DIR"
+  printf 'appendonly yes\n'
+  printf 'appendfsync everysec\n'
+  printf 'save 60 1000\n'
+  printf 'loglevel notice\n'
+  printf 'requirepass %s\n' "$REDIS_PASSWORD"
+} > "$REDIS_CONFIG"
+
+chmod 600 "$REDIS_CONFIG"
+
+unset REDIS_PASSWORD
+
+exec redis-server "$REDIS_CONFIG"

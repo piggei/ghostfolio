@@ -1,0 +1,29 @@
+name: Ghostfolio All-PR
+version: "0.1.0"
+slug: ghostfolio_all_pr
+description: Ghostfolio All-PR integration for Home Assistant
+url: https://github.com/piggei/ghostfolio
+arch:
+  - amd64
+  - aarch64
+init: false
+ingress: true
+ingress_port: 8099
+panel_icon: mdi:chart-line
+ports:
+  3333/tcp: null
+ports_description:
+  3333/tcp: Ghostfolio web interface (optional)
+options:
+  database_host: ""
+  database_port: 5432
+  database_name: ghostfolio
+  database_user: ""
+  database_pass: ""
+schema:
+  database_host: str
+  database_port: int
+  database_name: str
+  database_user: str
+  database_pass: password
+image: ghcr.io/piggei/ghostfolio-ha-all-pr-{arch}

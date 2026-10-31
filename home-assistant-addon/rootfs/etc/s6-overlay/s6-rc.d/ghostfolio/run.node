@@ -1,0 +1,82 @@
+#!/bin/sh
+set -eu
+
+OPTIONS_FILE="/data/options.json"
+SECRETS_FILE="/data/secrets/ghostfolio.env"
+
+if [ ! -r "$OPTIONS_FILE" ]; then
+  echo "ERROR: Home Assistant options are unavailable"
+  exit 1
+fi
+
+if [ ! -r "$SECRETS_FILE" ]; then
+  echo "ERROR: Ghostfolio secrets are unavailable"
+  exit 1
+fi
+
+# Validate persistent secrets before loading them.
+for name in REDIS_PASSWORD ACCESS_TOKEN_SALT JWT_SECRET_KEY; do
+  value=$(sed -n "s/^${name}=//p" "$SECRETS_FILE")
+
+  if ! printf '%s' "$value" | grep -Eq '^[0-9a-f]{64}$'; then
+    echo "ERROR: Invalid persistent secret: $name"
+    exit 1
+  fi
+done
+
+# Read only the validated secrets, without executing the file.
+REDIS_PASSWORD=$(sed -n 's/^REDIS_PASSWORD=//p' "$SECRETS_FILE")
+ACCESS_TOKEN_SALT=$(sed -n 's/^ACCESS_TOKEN_SALT=//p' "$SECRETS_FILE")
+JWT_SECRET_KEY=$(sed -n 's/^JWT_SECRET_KEY=//p' "$SECRETS_FILE")
+
+export REDIS_PASSWORD ACCESS_TOKEN_SALT JWT_SECRET_KEY
+
+DATABASE_HOST=$(jq -er '.database_host | select(type == "string" and length > 0)' "$OPTIONS_FILE")
+DATABASE_PORT=$(jq -er '.database_port | select(type == "number" and . >= 1 and . <= 65535)' "$OPTIONS_FILE")
+DATABASE_NAME=$(jq -er '.database_name | select(type == "string" and length > 0)' "$OPTIONS_FILE")
+DATABASE_USER=$(jq -er '.database_user | select(type == "string" and length > 0)' "$OPTIONS_FILE")
+DATABASE_PASS=$(jq -er '.database_pass | select(type == "string" and length > 0)' "$OPTIONS_FILE")
+
+# Encode URI components to support special characters.
+DB_USER_ENCODED=$(printf '%s' "$DATABASE_USER" | jq -sRr @uri)
+DB_PASS_ENCODED=$(printf '%s' "$DATABASE_PASS" | jq -sRr @uri)
+DB_NAME_ENCODED=$(printf '%s' "$DATABASE_NAME" | jq -sRr @uri)
+
+export DATABASE_URL="postgresql://${DB_USER_ENCODED}:${DB_PASS_ENCODED}@${DATABASE_HOST}:${DATABASE_PORT}/${DB_NAME_ENCODED}?connect_timeout=300"
+
+export POSTGRES_HOST="$DATABASE_HOST"
+export POSTGRES_PORT="$DATABASE_PORT"
+export POSTGRES_DB="$DATABASE_NAME"
+export POSTGRES_USER="$DATABASE_USER"
+export POSTGRES_PASSWORD="$DATABASE_PASS"
+
+export REDIS_HOST=127.0.0.1
+export REDIS_PORT=6379
+export NODE_ENV=production
+export TZ=UTC
+
+unset DATABASE_PASS DB_USER_ENCODED DB_PASS_ENCODED DB_NAME_ENCODED
+
+echo "Waiting for authenticated Redis..."
+
+attempt=0
+
+until REDISCLI_AUTH="$REDIS_PASSWORD" \
+  redis-cli -h 127.0.0.1 -p 6379 ping 2>/dev/null \
+  | grep -qx PONG; do
+
+  attempt=$((attempt + 1))
+
+  if [ "$attempt" -ge 60 ]; then
+    echo "ERROR: Redis did not become ready"
+    exit 1
+  fi
+
+  sleep 2
+done
+
+echo "Redis is ready"
+echo "Starting Ghostfolio..."
+
+cd /ghostfolio/apps/api
+exec /ghostfolio/entrypoint.sh
