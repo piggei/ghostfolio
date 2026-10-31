@@ -1,0 +1,188 @@
+name: Test Ghostfolio Home Assistant Add-on
+
+on:
+  push:
+    branches:
+      - feat/home-assistant-addon
+    paths:
+      - '.github/workflows/home-assistant-addon-test.yml'
+      - 'home-assistant-addon/**'
+  workflow_dispatch:
+
+permissions:
+  contents: read
+  packages: read
+
+concurrency:
+  group: ghostfolio-home-assistant-test-${{ github.ref }}
+  cancel-in-progress: false
+
+jobs:
+  test-arm64:
+    name: ARM64 application smoke test
+    runs-on: ubuntu-24.04-arm
+    timeout-minutes: 45
+    env:
+      CI_NETWORK: ghostfolio-ha-ci-net
+      CI_PG_VOLUME: ghostfolio-ha-ci-postgres
+      CI_DATA_VOLUME: ghostfolio-ha-ci-data
+      CI_POSTGRES: ghostfolio-ha-ci-postgres
+      CI_APP: ghostfolio-ha-ci-app
+      CI_IMAGE: ghostfolio-ha-all-pr:arm64-test
+      SOURCE_IMAGE: ghcr.io/piggei/ghostfolio@sha256:9a843a475b25cc0633db98a1eb6669cf8f5c31e4b96876414b1eae961e078116
+
+    steps:
+      - name: Checkout source
+        uses: actions/checkout@v4
+
+      - name: Set up Docker Buildx
+        uses: docker/setup-buildx-action@v3
+
+      - name: Log in to GHCR
+        uses: docker/login-action@v3
+        with:
+          registry: ghcr.io
+          username: ${{ github.actor }}
+          password: ${{ secrets.GITHUB_TOKEN }}
+
+      - name: Verify native ARM64 runner
+        shell: bash
+        run: |
+          set -euo pipefail
+          test "$(uname -m)" = 'aarch64'
+          docker info --format 'Docker architecture={{.Architecture}}'
+
+      - name: Build ARM64 image locally
+        uses: docker/build-push-action@v6
+        with:
+          context: ./home-assistant-addon
+          platforms: linux/arm64
+          push: false
+          load: true
+          tags: ghostfolio-ha-all-pr:arm64-test
+          build-args: |
+            BUILD_ARCH=aarch64
+            GHOSTFOLIO_IMAGE=ghcr.io/piggei/ghostfolio@sha256:9a843a475b25cc0633db98a1eb6669cf8f5c31e4b96876414b1eae961e078116
+
+      - name: Check image architecture and Nginx configuration
+        shell: bash
+        run: |
+          set -euo pipefail
+          arch=$(docker image inspect "$CI_IMAGE" --format '{{.Architecture}}')
+          test "$arch" = 'arm64'
+          docker run --rm --network none --user node \
+            --entrypoint /usr/sbin/nginx "$CI_IMAGE" -t
+
+      - name: Prepare isolated PostgreSQL and add-on options
+        shell: bash
+        run: |
+          set -euo pipefail
+          docker network create --internal "$CI_NETWORK"
+          docker volume create "$CI_PG_VOLUME"
+          docker volume create "$CI_DATA_VOLUME"
+
+          password=$(openssl rand -hex 32)
+          echo "::add-mask::$password"
+
+          docker run -d \
+            --name "$CI_POSTGRES" \
+            --network "$CI_NETWORK" \
+            --mount "type=volume,source=$CI_PG_VOLUME,target=/var/lib/postgresql/data" \
+            -e POSTGRES_DB=ghostfolio_test \
+            -e POSTGRES_USER=ghostfolio_test \
+            -e "POSTGRES_PASSWORD=$password" \
+            --health-cmd='pg_isready -U ghostfolio_test -d ghostfolio_test' \
+            --health-interval=3s \
+            --health-retries=30 \
+            postgres:15-alpine
+
+          ready=false
+          for attempt in $(seq 1 40); do
+            health=$(docker inspect "$CI_POSTGRES" --format '{{.State.Health.Status}}')
+            if [ "$health" = 'healthy' ]; then
+              ready=true
+              break
+            fi
+            sleep 3
+          done
+          if [ "$ready" != 'true' ]; then
+            echo 'ERROR: PostgreSQL did not become healthy'
+            false
+          fi
+
+          # Generate JSON without printing credentials or exposing them as command arguments.
+          printf '%s\n' "$password" | docker run --rm -i \
+            --network none \
+            --user root \
+            --mount "type=volume,source=$CI_DATA_VOLUME,target=/data" \
+            --entrypoint /bin/sh "$CI_IMAGE" \
+            -c 'set -eu; umask 077; IFS= read -r db_password; jq -n --arg pass "$db_password" '\''{database_host:"ghostfolio-ha-ci-postgres",database_port:5432,database_name:"ghostfolio_test",database_user:"ghostfolio_test",database_pass:$pass}'\'' > /data/options.json; chown node:node /data/options.json; chmod 600 /data/options.json'
+
+      - name: Start Ghostfolio ARM64
+        shell: bash
+        run: |
+          set -euo pipefail
+          docker run -d \
+            --name "$CI_APP" \
+            --network "$CI_NETWORK" \
+            --mount "type=volume,source=$CI_DATA_VOLUME,target=/data" \
+            -e S6_CMD_WAIT_FOR_SERVICES=0 \
+            "$CI_IMAGE"
+
+          ready=false
+          for attempt in $(seq 1 90); do
+            health=$(docker inspect "$CI_APP" --format '{{if .State.Health}}{{.State.Health.Status}}{{else}}none{{end}}')
+            if [ "$health" = 'healthy' ]; then
+              ready=true
+              break
+            fi
+            running=$(docker inspect "$CI_APP" --format '{{.State.Running}}')
+            if [ "$running" != 'true' ]; then
+              break
+            fi
+            sleep 3
+          done
+          if [ "$ready" != 'true' ]; then
+            echo 'ERROR: Ghostfolio did not become healthy'
+            false
+          fi
+          echo 'ARM64 Ghostfolio container is healthy'
+
+      - name: Verify application, proxy, and simulated Ingress
+        shell: bash
+        run: |
+          set -euo pipefail
+          docker exec "$CI_APP" curl --fail --silent --show-error \
+            http://127.0.0.1:3333/api/v1/health >/dev/null
+          docker exec "$CI_APP" curl --fail --silent --show-error \
+            http://127.0.0.1:8099/api/v1/health >/dev/null
+
+          headers=$(docker exec "$CI_APP" curl --silent --show-error -D - -o /dev/null \
+            -H 'X-Ingress-Path: /api/hassio_ingress/test-token' \
+            -H 'X-Forwarded-Proto: https' \
+            -H 'Host: homeassistant.local:8123' \
+            http://127.0.0.1:8099/)
+          location=$(printf '%s\n' "$headers" | tr -d '\r' | sed -n '/^[Ll]ocation:/s/^[Ll]ocation:[[:space:]]*//p')
+          test "$location" = '/api/hassio_ingress/test-token/en'
+
+          docker exec "$CI_APP" curl --fail --silent --show-error \
+            -H 'X-Ingress-Path: /api/hassio_ingress/test-token' \
+            http://127.0.0.1:8099/it >/dev/null
+          echo 'ARM64 application and Ingress smoke tests passed'
+
+      - name: Show diagnostics on failure
+        if: failure()
+        shell: bash
+        run: |
+          docker ps -a --filter name=ghostfolio-ha-ci- --format 'Name={{.Names}} Status={{.Status}}'
+          # Avoid printing application logs: startup traces may contain connection details.
+          docker inspect "$CI_APP" --format 'App state={{.State.Status}} exit={{.State.ExitCode}}' 2>/dev/null || true
+          docker inspect "$CI_POSTGRES" --format 'Postgres state={{.State.Status}}' 2>/dev/null || true
+
+      - name: Cleanup isolated Docker resources
+        if: always()
+        shell: bash
+        run: |
+          docker rm -f "$CI_APP" "$CI_POSTGRES" 2>/dev/null || true
+          docker network rm "$CI_NETWORK" 2>/dev/null || true
+          docker volume rm "$CI_DATA_VOLUME" "$CI_PG_VOLUME" 2>/dev/null || true
