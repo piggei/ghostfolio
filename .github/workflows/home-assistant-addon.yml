@@ -1,13 +1,9 @@
 name: Publish Ghostfolio Home Assistant Add-on
 
 on:
-  workflow_dispatch:
-    inputs:
-      ghostfolio_tag:
-        description: Ghostfolio All-PR release tag
-        required: true
-        type: string
-        default: integration-3.94.0-7.1
+  push:
+    tags:
+      - 'home-assistant-addon/v*'
 
 permissions:
   contents: read
@@ -27,78 +23,61 @@ jobs:
       source: ${{ steps.source.outputs.image }}
     steps:
       - uses: actions/checkout@v4
-
       - uses: docker/setup-buildx-action@v3
-
       - uses: docker/login-action@v3
         with:
           registry: ghcr.io
           username: ${{ github.actor }}
           password: ${{ secrets.GITHUB_TOKEN }}
 
-      - name: Read add-on version
+      - name: Validate release tag and add-on version
         id: metadata
         shell: bash
+        env:
+          REF_NAME: ${{ github.ref_name }}
         run: |
           set -euo pipefail
-
           version=$(sed -n 's/^version: *"\([^"]*\)"/\1/p' home-assistant-addon/config.yaml)
-
-          if [[ ! "$version" =~ ^[0-9]+\.[0-9]+\.[0-9]+$ ]]; then
-            echo "::error::Invalid add-on version"
-            exit 1
-          fi
-
+          [[ "$version" =~ ^[0-9]+\.[0-9]+\.[0-9]+$ ]] || { echo '::error::Invalid add-on version'; exit 1; }
+          [[ "$REF_NAME" == "home-assistant-addon/v${version}" ]] || { echo '::error::Git tag does not match add-on version'; exit 1; }
           echo "version=$version" >> "$GITHUB_OUTPUT"
 
-      - name: Validate source image
+      - name: Verify immutable Ghostfolio source
         id: source
         shell: bash
-        env:
-          TAG: ${{ inputs.ghostfolio_tag }}
         run: |
           set -euo pipefail
-
-          image="ghcr.io/piggei/ghostfolio:$TAG"
-
-          docker buildx imagetools inspect "$image" --raw > manifest.json
-
+          source='ghcr.io/piggei/ghostfolio@sha256:9a843a475b25cc0633db98a1eb6669cf8f5c31e4b96876414b1eae961e078116'
+          docker buildx imagetools inspect "$source" --raw > "$RUNNER_TEMP/ghostfolio-source-manifest.json"
           for arch in amd64 arm64; do
             jq -e --arg arch "$arch" '
-              any(.manifests[]?;
-                .platform.os == "linux" and
-                .platform.architecture == $arch
-              )
-            ' manifest.json >/dev/null
+              any(.manifests[]?; .platform.os == "linux" and .platform.architecture == $arch)
+            ' "$RUNNER_TEMP/ghostfolio-source-manifest.json" >/dev/null
           done
+          echo "image=$source" >> "$GITHUB_OUTPUT"
 
-          digest=$(docker buildx imagetools inspect "$image" |
-            awk '/^Digest:/ {print $2}')
-
-          [[ "$digest" =~ ^sha256:[a-f0-9]{64}$ ]]
-
-          echo "image=ghcr.io/piggei/ghostfolio@$digest" >> "$GITHUB_OUTPUT"
-
-      - name: Check destination tags
+      - name: Ensure final tags do not exist
         shell: bash
         env:
           VERSION: ${{ steps.metadata.outputs.version }}
         run: |
           set -euo pipefail
-
           for arch in amd64 aarch64; do
             image="ghcr.io/piggei/ghostfolio-ha-all-pr-${arch}:${VERSION}"
-
-            if docker buildx imagetools inspect "$image" >/dev/null 2>inspect-error.log; then
+            if docker buildx imagetools inspect "$image" > /dev/null 2> "$RUNNER_TEMP/inspect-error.log"; then
               echo "::error::Destination already exists: $image"
               exit 1
             fi
-
-            if ! grep -Eqi '404|not found|manifest unknown|name unknown' inspect-error.log; then
-              echo "::error::Unable to verify destination: $image"
-              cat inspect-error.log
+            error=$(cat "$RUNNER_TEMP/inspect-error.log")
+            if printf '%s' "$error" | grep -Eqi '401|403|unauthorized|denied|forbidden|timeout|429|5[0-9][0-9]'; then
+              echo "::error::Registry error while checking $image"
               exit 1
             fi
+            if ! printf '%s' "$error" | grep -Eqi '(^|: )not found$|manifest unknown|name unknown|404'; then
+              echo "::error::Cannot establish absence of $image"
+              exit 1
+            fi
+            echo "Destination available: $image"
           done
 
   build:
@@ -107,7 +86,6 @@ jobs:
     permissions:
       contents: read
       packages: write
-
     strategy:
       fail-fast: false
       matrix:
@@ -118,19 +96,15 @@ jobs:
           - arch: aarch64
             platform: linux/arm64
             runner: ubuntu-24.04-arm
-
     steps:
       - uses: actions/checkout@v4
-
       - uses: docker/setup-buildx-action@v3
-
       - uses: docker/login-action@v3
         with:
           registry: ghcr.io
           username: ${{ github.actor }}
           password: ${{ secrets.GITHUB_TOKEN }}
-
-      - name: Build and publish candidate
+      - name: Build and publish architecture candidate
         uses: docker/build-push-action@v6
         with:
           context: ./home-assistant-addon
@@ -144,6 +118,7 @@ jobs:
           labels: |
             org.opencontainers.image.source=https://github.com/piggei/ghostfolio
             org.opencontainers.image.version=${{ needs.prepare.outputs.version }}
+            org.opencontainers.image.revision=${{ github.sha }}
 
   publish:
     needs: [prepare, build]
@@ -151,50 +126,86 @@ jobs:
     permissions:
       contents: read
       packages: write
-
     steps:
       - uses: docker/setup-buildx-action@v3
-
       - uses: docker/login-action@v3
         with:
           registry: ghcr.io
           username: ${{ github.actor }}
           password: ${{ secrets.GITHUB_TOKEN }}
-
-      - name: Promote verified candidates
+      - name: Verify candidates and destination availability
         shell: bash
         env:
           VERSION: ${{ needs.prepare.outputs.version }}
         run: |
           set -euo pipefail
-
           for arch in amd64 aarch64; do
             repository="ghcr.io/piggei/ghostfolio-ha-all-pr-${arch}"
             candidate="${repository}:candidate-${GITHUB_RUN_ID}-${GITHUB_RUN_ATTEMPT}"
             final="${repository}:${VERSION}"
-
-            docker buildx imagetools inspect "$candidate"
-
-            if docker buildx imagetools inspect "$final" >/dev/null 2>inspect-error.log; then
+            docker buildx imagetools inspect "$candidate" --raw > "$RUNNER_TEMP/candidate-${arch}.json"
+            expected_arch="$arch"
+            if [ "$arch" = aarch64 ]; then expected_arch=arm64; fi
+            jq -e --arg arch "$expected_arch" '
+              if .manifests then
+                any(.manifests[]?; .platform.os == "linux" and .platform.architecture == $arch)
+              else
+                .architecture == $arch and .os == "linux"
+              end
+            ' "$RUNNER_TEMP/candidate-${arch}.json" >/dev/null
+            if docker buildx imagetools inspect "$final" > /dev/null 2> "$RUNNER_TEMP/inspect-error.log"; then
               echo "::error::Destination already exists: $final"
               exit 1
             fi
-
-            if ! grep -Eqi '404|not found|manifest unknown|name unknown' inspect-error.log; then
-              echo "::error::Unable to verify destination: $final"
-              cat inspect-error.log
+            error=$(cat "$RUNNER_TEMP/inspect-error.log")
+            if printf '%s' "$error" | grep -Eqi '401|403|unauthorized|denied|forbidden|timeout|429|5[0-9][0-9]'; then
+              echo "::error::Registry error while checking $final"
+              exit 1
+            fi
+            if ! printf '%s' "$error" | grep -Eqi '(^|: )not found$|manifest unknown|name unknown|404'; then
+              echo "::error::Cannot establish absence of $final"
               exit 1
             fi
           done
 
+      - name: Promote and verify release images
+        shell: bash
+        env:
+          VERSION: ${{ needs.prepare.outputs.version }}
+        run: |
+          set -euo pipefail
           for arch in amd64 aarch64; do
             repository="ghcr.io/piggei/ghostfolio-ha-all-pr-${arch}"
             candidate="${repository}:candidate-${GITHUB_RUN_ID}-${GITHUB_RUN_ATTEMPT}"
             final="${repository}:${VERSION}"
+            candidate_digest=$(docker buildx imagetools inspect "$candidate" |
+              awk '/^Digest:/ {print $2}')
 
-            docker buildx imagetools create \
-              --tag "$final" \
-              "$candidate"
+            if [[ ! "$candidate_digest" =~ ^sha256:[a-f0-9]{64}$ ]]; then
+              echo "::error::Invalid candidate digest: $candidate"
+              exit 1
+            fi
 
-            docker buildx imagetools inspect "$final"
+            docker buildx imagetools create --tag "$final" "$candidate"
+
+            final_digest=$(docker buildx imagetools inspect "$final" |
+              awk '/^Digest:/ {print $2}')
+
+            if [ "$candidate_digest" != "$final_digest" ]; then
+              echo "::error::Digest mismatch after promotion: $final"
+              exit 1
+            fi
+
+            echo "Verified OCI digest: $final_digest"
+            docker buildx imagetools inspect "$final" --raw > "$RUNNER_TEMP/final-${arch}.json"
+            expected_arch="$arch"
+            if [ "$arch" = aarch64 ]; then expected_arch=arm64; fi
+            jq -e --arg arch "$expected_arch" '
+              if .manifests then
+                any(.manifests[]?; .platform.os == "linux" and .platform.architecture == $arch)
+              else
+                .architecture == $arch and .os == "linux"
+              end
+            ' "$RUNNER_TEMP/final-${arch}.json" >/dev/null
+            echo "Published and verified: $final"
           done
