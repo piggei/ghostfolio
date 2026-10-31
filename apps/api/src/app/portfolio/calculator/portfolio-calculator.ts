@@ -2422,21 +2422,28 @@ export abstract class PortfolioCalculator {
 
       if (isCachedPortfolioSnapshotExpired) {
         // Compute in the background
-        this.portfolioSnapshotService.addJobToQueue({
-          data: {
-            calculationType,
-            filters: this.filters,
-            userCurrency: this.currency,
-            userId: this.userId,
-            withHiddenCash: this.withHiddenCash
-          },
-          name: PORTFOLIO_SNAPSHOT_PROCESS_JOB_NAME,
-          opts: {
-            ...PORTFOLIO_SNAPSHOT_PROCESS_JOB_OPTIONS,
-            jobId,
-            priority: PORTFOLIO_SNAPSHOT_COMPUTATION_QUEUE_PRIORITY_LOW
-          }
-        });
+        this.portfolioSnapshotService
+          .addJobToQueue({
+            data: {
+              calculationType,
+              filters: this.filters,
+              userCurrency: this.currency,
+              userId: this.userId,
+              withHiddenCash: this.withHiddenCash
+            },
+            name: PORTFOLIO_SNAPSHOT_PROCESS_JOB_NAME,
+            opts: {
+              ...PORTFOLIO_SNAPSHOT_PROCESS_JOB_OPTIONS,
+              jobId,
+              priority: PORTFOLIO_SNAPSHOT_COMPUTATION_QUEUE_PRIORITY_LOW
+            }
+          })
+          .catch((error: unknown) => {
+            this.logger.error(
+              'Failed to enqueue portfolio snapshot refresh',
+              error
+            );
+          });
       }
     } else {
       if (attempt > PortfolioCalculator.MAX_INITIALIZATION_ATTEMPTS) {
