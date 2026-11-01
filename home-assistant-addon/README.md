@@ -16,7 +16,9 @@ It does not build Ghostfolio from source or include a PostgreSQL server.
 - Integrated Redis with password authentication
 - Persistent Redis storage using append-only files
 - Automatically generated persistent application secrets
-- PostgreSQL connection configuration through add-on options
+- PostgreSQL connection configuration through Home Assistant options
+- Authenticated Supervisor API configuration retrieval using Bashio
+- No dependency on a generated `/data/options.json` file
 - s6-overlay service supervision
 - Application services running as an unprivileged user
 
@@ -30,6 +32,7 @@ The runtime includes:
 - Redis bound to the container loopback interface
 - Nginx reverse proxy for Home Assistant Ingress
 - s6-overlay for initialization and service supervision
+- Bashio for retrieving add-on options from Home Assistant Supervisor
 
 PostgreSQL is an external dependency and must be configured separately.
 
@@ -38,23 +41,22 @@ internally on port 8099.
 
 ## Supported architectures
 
-The add-on is configured for:
+The add-on supports:
 
 - amd64
 - aarch64
 
-The amd64 implementation has been tested locally.
-
-The aarch64 build and runtime still require validation.
+Both architecture builds and native runtime smoke tests have been
+validated. The aarch64 test runs on a native ARM64 GitHub Actions runner.
 
 ## Installation
 
-The intended add-on repository is:
+The add-on repository is:
 
 https://github.com/piggei/ghostfolio#feat/home-assistant-addon
 
-The repository branch and container images must be published before
-installation through Home Assistant Supervisor.
+Installation through Home Assistant Supervisor requires the corresponding
+versioned container images to be published in GHCR.
 
 See [DOCS.md](DOCS.md) for configuration and installation instructions.
 
@@ -62,25 +64,25 @@ See [DOCS.md](DOCS.md) for configuration and installation instructions.
 
 The add-on uses architecture-specific images:
 
-- ghcr.io/piggei/ghostfolio-ha-all-pr-amd64
-- ghcr.io/piggei/ghostfolio-ha-all-pr-aarch64
+- `ghcr.io/piggei/ghostfolio-ha-all-pr-amd64`
+- `ghcr.io/piggei/ghostfolio-ha-all-pr-aarch64`
 
 The add-on version determines the image tag requested by Supervisor.
 
-The initial planned add-on version is 0.1.0.
+The current add-on version is **0.1.1**.
 
-The image build accepts GHOSTFOLIO_IMAGE to select a specific
-Ghostfolio All-PR image.
+Release builds use an immutable Ghostfolio source image digest to ensure
+both architectures are built from the same Ghostfolio release.
 
-Release builds should use an immutable source image digest to
-ensure both architectures use the same Ghostfolio release.
+The GitHub Actions release workflow is triggered by publishing a versioned
+Git tag matching `home-assistant-addon/v*`.
 
 ## Persistent data
 
 The Home Assistant add-on data directory stores:
 
-- /data/secrets/ghostfolio.env
-- /data/redis/
+- `/data/secrets/ghostfolio.env`
+- `/data/redis/`
 
 Application secrets are generated during initial startup and reused
 on subsequent starts.
@@ -90,29 +92,35 @@ data and must be backed up independently.
 
 ## Development and release status
 
-The add-on is under development.
+Version 0.1.1 includes the Supervisor configuration retrieval fix.
 
-The following have been tested locally on amd64:
+The following have been validated locally on amd64 and/or through
+automated native ARM64 GitHub Actions tests:
 
 - Docker image build
 - s6-overlay service initialization
+- Authenticated Supervisor API requests through Bashio
+- Configuration retrieval without `/data/options.json`
 - Persistent secrets initialization and reuse
-- Redis startup and persistence
-- PostgreSQL connectivity
-- Ghostfolio application startup
-- Application health endpoint
+- Redis startup and password authentication
+- PostgreSQL connectivity using credentials containing special characters
+- Ghostfolio application startup and health endpoint
+- Application services running as the unprivileged `node` user
 - Nginx reverse proxy
 - Simulated Home Assistant Ingress redirects and asset requests
 
-The following remain to be validated:
+The native ARM64 workflow also verifies the application database session,
+persistent secrets, Redis authentication, and cleanup of isolated test
+resources.
 
-- Native aarch64 build and runtime
-- Published GHCR images
-- Installation through Home Assistant Supervisor
+The following remain to be validated or improved:
+
+- Installation and startup of version 0.1.1 through a real Home Assistant Supervisor
 - Full browser navigation through real Home Assistant Ingress
-- Automated release workflow execution
+- Integration of Nginx access and error logs into the Home Assistant log stream
+- IPv6 PostgreSQL connection formatting
 
-The GitHub Actions workflow is initially intended for manual releases.
+The published 0.1.0 release remains available independently.
 
 ## License
 

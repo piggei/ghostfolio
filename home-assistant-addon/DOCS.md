@@ -40,8 +40,13 @@ After the add-on branch and images have been published:
 9. Start the add-on.
 10. Review the startup logs.
 
-Installation from the repository and the published images has
-not yet been validated on a real Home Assistant Supervisor.
+The initial 0.1.0 images have been published and installed through
+Home Assistant Supervisor.
+
+Version 0.1.1 has passed local AMD64 tests and automated native
+ARM64 runtime tests. Its versioned images must be published before
+installation. Startup of 0.1.1 through a real Home Assistant
+Supervisor remains to be verified.
 
 ## PostgreSQL configuration
 
@@ -65,12 +70,44 @@ Example configuration:
 
 The example is illustrative and must be adapted to your environment.
 
-The add-on constructs DATABASE_URL from these options.
+The add-on retrieves these options through the authenticated
+Home Assistant Supervisor API using Bashio.
+
+All five configuration options are required. The runtime retrieves
+them directly from Supervisor and does not depend on a generated
+/data/options.json file.
+
+The add-on constructs DATABASE_URL from the retrieved options.
 
 The username, password, and database name are URI-encoded to
 support special characters.
 
-IPv6 database host formatting has not been validated.
+PostgreSQL connectivity and password encoding with special characters
+have been verified. IPv6 database host formatting has not been validated.
+
+## Supervisor configuration
+
+During startup, the Ghostfolio service retrieves its configuration
+from Home Assistant Supervisor through Bashio.
+
+The service receives the Supervisor environment through s6-overlay
+and uses the authenticated Supervisor API.
+
+The following options are required:
+
+- database_host
+- database_port
+- database_name
+- database_user
+- database_pass
+
+Missing required options prevent the application from starting.
+
+Configuration is retrieved at runtime. The add-on does not create
+or read /data/options.json.
+
+Supervisor API authentication and configuration retrieval have been
+verified through an automated mock Supervisor integration test.
 
 ## First startup
 
@@ -80,9 +117,11 @@ During startup, the add-on:
 2. Generates application secrets if they do not already exist.
 3. Starts the authenticated Redis service.
 4. Waits for Redis readiness.
-5. Configures the PostgreSQL connection.
-6. Starts Ghostfolio through its original entrypoint.
-7. Starts the Nginx Ingress proxy.
+5. Retrieves the PostgreSQL options through Bashio and the authenticated
+   Supervisor API.
+6. Constructs DATABASE_URL, including URI encoding of its components.
+7. Starts Ghostfolio through its original entrypoint.
+8. Starts the Nginx Ingress proxy.
 
 The Ghostfolio entrypoint performs database migrations and
 database seeding before starting the application.
@@ -261,8 +300,7 @@ stream remains a development task.
 ## Current limitations
 
 - PostgreSQL must be provided externally.
-- Native aarch64 runtime has not been validated.
-- Real Home Assistant Supervisor installation is not yet tested.
-- The automated GHCR publication workflow has not yet been run.
-- Nginx logging integration is not finalized.
+- Installation and startup of version 0.1.1 through a real Home Assistant Supervisor remain to be verified.
+- Full browser navigation through real Home Assistant Ingress remains to be tested.
+- Nginx access and error log integration into the Home Assistant log stream is not finalized.
 - IPv6 PostgreSQL connection formatting has not been tested.
