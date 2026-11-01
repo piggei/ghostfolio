@@ -349,15 +349,24 @@ jobs:
         run: |
           set -euo pipefail
 
+          INGRESS_PATH='/api/hassio_ingress/test-token'
+          INGRESS_HEADER="X-Ingress-Path: $INGRESS_PATH"
+
+          echo '=== Direct application health ==='
+
           docker exec "$CI_APP" curl --fail --silent --show-error \
             http://127.0.0.1:3333/api/v1/health >/dev/null
+
+          echo '=== Nginx health ==='
 
           docker exec "$CI_APP" curl --fail --silent --show-error \
             http://127.0.0.1:8099/api/v1/health >/dev/null
 
+          echo '=== Ingress redirect ==='
+
           headers=$(docker exec "$CI_APP" \
             curl --silent --show-error -D - -o /dev/null \
-            -H 'X-Ingress-Path: /api/hassio_ingress/test-token' \
+            -H "$INGRESS_HEADER" \
             -H 'X-Forwarded-Proto: https' \
             -H 'Host: homeassistant.local:8123' \
             http://127.0.0.1:8099/)
@@ -366,13 +375,96 @@ jobs:
             tr -d '\r' |
             sed -n '/^[Ll]ocation:/s/^[Ll]ocation:[[:space:]]*//p')
 
-          test "$location" = '/api/hassio_ingress/test-token/en'
+          test "$location" = "$INGRESS_PATH/en"
+
+          echo '=== Angular HTML ==='
+
+          html=$(docker exec "$CI_APP" curl --fail --silent --show-error \
+            -H "$INGRESS_HEADER" \
+            http://127.0.0.1:8099/it/)
+
+          grep -Fq "<base href=\"$INGRESS_PATH/it/\"" <<< "$html"
+
+          main_bundle=$(printf '%s\n' "$html" |
+            grep -oE 'src="[^"]*main-[^"]+\.js"' |
+            head -n 1 |
+            cut -d '"' -f 2)
+
+          test -n "$main_bundle"
+
+          bundle=$(docker exec "$CI_APP" curl --fail --silent --show-error \
+            -H "$INGRESS_HEADER" \
+            "http://127.0.0.1:8099/it/$main_bundle")
+
+          grep -Fq "$INGRESS_PATH/api/v1/info" <<< "$bundle"
+
+          echo 'HTML and main bundle: PASS'
+
+          echo '=== Angular chunk ==='
+
+          chunk=$(docker exec "$CI_APP" curl --fail --silent --show-error \
+            -H "$INGRESS_HEADER" \
+            http://127.0.0.1:8099/it/chunk-MVt106Ts.js)
+
+          rewritten=$(grep -oF "$INGRESS_PATH/api/" <<< "$chunk" | wc -l)
+          test "$rewritten" -eq 99
+
+          echo "Rewritten Angular API references: $rewritten"
+
+          echo '=== PWA manifest with Ingress ==='
+
+          manifest=$(docker exec "$CI_APP" curl --fail --silent --show-error \
+            -H "$INGRESS_HEADER" \
+            http://127.0.0.1:8099/api/assets/it/site.webmanifest)
+
+          printf '%s\n' "$manifest" | jq -e \
+            --arg prefix "$INGRESS_PATH" '
+              .start_url == ($prefix + "/it/") and
+              (.icons | length == 3) and
+              all(.icons[]; .src | startswith($prefix + "/assets/"))
+            ' >/dev/null
+
+          echo 'Ingress PWA manifest: PASS'
+
+          echo '=== PWA icons ==='
+
+          for asset in \
+            android-chrome-192x192.png \
+            android-chrome-512x512.png
+          do
+            docker exec "$CI_APP" curl --fail --silent --show-error \
+              -H "$INGRESS_HEADER" \
+              "http://127.0.0.1:8099/assets/$asset" \
+              -o /dev/null
+          done
+
+          echo 'PWA icons: PASS'
+
+          echo '=== Manifest without Ingress ==='
+
+          direct_manifest=$(docker exec "$CI_APP" curl --fail --silent --show-error \
+            http://127.0.0.1:8099/api/assets/it/site.webmanifest)
+
+          printf '%s\n' "$direct_manifest" | jq -e '
+            .start_url == "/it/" and
+            all(.icons[]; .src | startswith("/assets/"))
+          ' >/dev/null
+
+          echo 'Original PWA manifest preserved: PASS'
+
+          echo '=== Financial API integrity ==='
 
           docker exec "$CI_APP" curl --fail --silent --show-error \
-            -H 'X-Ingress-Path: /api/hassio_ingress/test-token' \
-            http://127.0.0.1:8099/it >/dev/null
+            -H "$INGRESS_HEADER" \
+            http://127.0.0.1:8099/api/v1/info |
+            jq -e 'type == "object"' >/dev/null
 
-          echo 'ARM64 application, proxy and Ingress tests passed'
+          docker exec "$CI_APP" curl --fail --silent --show-error \
+            http://127.0.0.1:3333/api/v1/info |
+            jq -e 'type == "object"' >/dev/null
+
+          echo 'Ingress and direct API JSON: PASS'
+          echo 'Application, proxy, Ingress and PWA tests passed'
 
       - name: Show diagnostics on failure
         if: failure()
