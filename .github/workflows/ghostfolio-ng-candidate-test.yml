@@ -1,0 +1,36 @@
+name: Test Ghostfolio-NG Docker candidate
+
+on:
+  push:
+    branches:
+      - feat/ghostfolio-ng-distribution
+
+permissions:
+  contents: read
+
+concurrency:
+  group: ghostfolio-ng-candidate-${{ github.ref }}
+  cancel-in-progress: false
+
+jobs:
+  build-amd64:
+    if: github.repository == 'piggei/ghostfolio'
+    runs-on: ubuntu-latest
+    timeout-minutes: 90
+
+    steps:
+      - name: Checkout source
+        uses: actions/checkout@v4
+
+      - name: Set up Docker Buildx
+        uses: docker/setup-buildx-action@v3
+
+      - name: Build Ghostfolio-NG AMD64 candidate
+        uses: docker/build-push-action@v6
+        with:
+          context: .
+          platforms: linux/amd64
+          push: false
+          tags: ghostfolio-ng:candidate-amd64
+          cache-from: type=gha,scope=ghostfolio-ng-candidate-amd64
+          cache-to: type=gha,mode=max,scope=ghostfolio-ng-candidate-amd64
