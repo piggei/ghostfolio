@@ -7,6 +7,7 @@ on:
     paths:
       - '.github/workflows/home-assistant-addon-test.yml'
       - 'home-assistant-addon/**'
+      - 'tests/home-assistant-addon/**'
   workflow_dispatch:
 
 permissions:
@@ -22,13 +23,16 @@ jobs:
     name: ARM64 application smoke test
     runs-on: ubuntu-24.04-arm
     timeout-minutes: 45
+
     env:
       CI_NETWORK: ghostfolio-ha-ci-net
       CI_PG_VOLUME: ghostfolio-ha-ci-postgres
       CI_DATA_VOLUME: ghostfolio-ha-ci-data
       CI_POSTGRES: ghostfolio-ha-ci-postgres
+      CI_MOCK: ghostfolio-ha-ci-supervisor
       CI_APP: ghostfolio-ha-ci-app
       CI_IMAGE: ghostfolio-ha-all-pr:arm64-test
+      CI_MOCK_IMAGE: ghostfolio-ha-supervisor-mock:ci
       SOURCE_IMAGE: ghcr.io/piggei/ghostfolio@sha256:9a843a475b25cc0633db98a1eb6669cf8f5c31e4b96876414b1eae961e078116
 
     steps:
@@ -52,7 +56,7 @@ jobs:
           test "$(uname -m)" = 'aarch64'
           docker info --format 'Docker architecture={{.Architecture}}'
 
-      - name: Build ARM64 image locally
+      - name: Build ARM64 Ghostfolio image
         uses: docker/build-push-action@v6
         with:
           context: ./home-assistant-addon
@@ -64,25 +68,49 @@ jobs:
             BUILD_ARCH=aarch64
             GHOSTFOLIO_IMAGE=ghcr.io/piggei/ghostfolio@sha256:9a843a475b25cc0633db98a1eb6669cf8f5c31e4b96876414b1eae961e078116
 
-      - name: Check image architecture and Nginx configuration
+      - name: Build Supervisor mock
         shell: bash
         run: |
           set -euo pipefail
+          docker build \
+            -t "$CI_MOCK_IMAGE" \
+            tests/home-assistant-addon/supervisor-mock
+
+      - name: Verify image architecture and Nginx configuration
+        shell: bash
+        run: |
+          set -euo pipefail
+
           arch=$(docker image inspect "$CI_IMAGE" --format '{{.Architecture}}')
           test "$arch" = 'arm64'
+
           docker run --rm --network none --user node \
             --entrypoint /usr/sbin/nginx "$CI_IMAGE" -t
 
-      - name: Prepare isolated PostgreSQL and add-on options
+      - name: Prepare isolated credentials and network
         shell: bash
         run: |
           set -euo pipefail
+
           docker network create --internal "$CI_NETWORK"
           docker volume create "$CI_PG_VOLUME"
           docker volume create "$CI_DATA_VOLUME"
 
-          password=$(openssl rand -hex 32)
+          token=$(openssl rand -hex 32)
+          password="$(openssl rand -hex 16):Pass@2026/#?&"
+
+          echo "::add-mask::$token"
           echo "::add-mask::$password"
+
+          {
+            printf 'MOCK_TOKEN=%s\n' "$token"
+            printf 'POSTGRES_PASSWORD=%s\n' "$password"
+          } >> "$GITHUB_ENV"
+
+      - name: Start isolated PostgreSQL
+        shell: bash
+        run: |
+          set -euo pipefail
 
           docker run -d \
             --name "$CI_POSTGRES" \
@@ -90,99 +118,292 @@ jobs:
             --mount "type=volume,source=$CI_PG_VOLUME,target=/var/lib/postgresql/data" \
             -e POSTGRES_DB=ghostfolio_test \
             -e POSTGRES_USER=ghostfolio_test \
-            -e "POSTGRES_PASSWORD=$password" \
+            -e "POSTGRES_PASSWORD=$POSTGRES_PASSWORD" \
             --health-cmd='pg_isready -U ghostfolio_test -d ghostfolio_test' \
             --health-interval=3s \
             --health-retries=30 \
             postgres:15-alpine
 
-          ready=false
-          for attempt in $(seq 1 40); do
-            health=$(docker inspect "$CI_POSTGRES" --format '{{.State.Health.Status}}')
-            if [ "$health" = 'healthy' ]; then
-              ready=true
-              break
-            fi
-            sleep 3
-          done
-          if [ "$ready" != 'true' ]; then
-            echo 'ERROR: PostgreSQL did not become healthy'
-            false
-          fi
+      - name: Start authenticated Supervisor mock
+        shell: bash
+        run: |
+          set -euo pipefail
 
-          # Generate JSON without printing credentials or exposing them as command arguments.
-          printf '%s\n' "$password" | docker run --rm -i \
-            --network none \
-            --user root \
-            --mount "type=volume,source=$CI_DATA_VOLUME,target=/data" \
+          docker run -d \
+            --name "$CI_MOCK" \
+            --network "$CI_NETWORK" \
+            --network-alias supervisor \
+            -e "MOCK_TOKEN=$MOCK_TOKEN" \
+            -e "MOCK_DATABASE_HOST=$CI_POSTGRES" \
+            -e MOCK_DATABASE_PORT=5432 \
+            -e MOCK_DATABASE_NAME=ghostfolio_test \
+            -e MOCK_DATABASE_USER=ghostfolio_test \
+            -e "MOCK_DATABASE_PASS=$POSTGRES_PASSWORD" \
+            --health-cmd='python -c "import urllib.request; urllib.request.urlopen(\"http://127.0.0.1/health\", timeout=2)"' \
+            --health-interval=3s \
+            --health-retries=20 \
+            "$CI_MOCK_IMAGE"
+
+      - name: Wait for PostgreSQL and Supervisor mock
+        shell: bash
+        run: |
+          set -euo pipefail
+
+          for container in "$CI_POSTGRES" "$CI_MOCK"; do
+            ready=false
+
+            for attempt in $(seq 1 40); do
+              health=$(docker inspect "$container" \
+                --format '{{.State.Health.Status}}')
+
+              if [ "$health" = 'healthy' ]; then
+                ready=true
+                break
+              fi
+
+              running=$(docker inspect "$container" \
+                --format '{{.State.Running}}')
+
+              if [ "$running" != 'true' ]; then
+                break
+              fi
+
+              sleep 3
+            done
+
+            if [ "$ready" != 'true' ]; then
+              echo "::error::Container did not become healthy: $container"
+              docker inspect "$container" \
+                --format 'Status={{.State.Status}} Exit={{.State.ExitCode}}'
+              false
+            fi
+          done
+
+          echo 'PostgreSQL and Supervisor mock are healthy'
+
+      - name: Verify Supervisor API authentication
+        shell: bash
+        run: |
+          set -euo pipefail
+
+          response=$(docker run --rm \
+            --network "$CI_NETWORK" \
+            -e "MOCK_TOKEN=$MOCK_TOKEN" \
             --entrypoint /bin/sh "$CI_IMAGE" \
-            -c 'set -eu; umask 077; IFS= read -r db_password; jq -n --arg pass "$db_password" '\''{database_host:"ghostfolio-ha-ci-postgres",database_port:5432,database_name:"ghostfolio_test",database_user:"ghostfolio_test",database_pass:$pass}'\'' > /data/options.json; chown node:node /data/options.json; chmod 600 /data/options.json'
+            -c 'curl -fsS \
+              -H "Authorization: Bearer $MOCK_TOKEN" \
+              http://supervisor/addons/self/options/config' \
+            2>/dev/null)
+
+          printf '%s' "$response" | jq -e '
+            .result == "ok" and
+            (.data | keys | sort) ==
+            ["database_host","database_name","database_pass","database_port","database_user"]
+          ' >/dev/null
+
+          echo 'Authenticated Supervisor API response verified'
+
+          status=$(docker run --rm \
+            --network "$CI_NETWORK" \
+            --entrypoint /bin/sh "$CI_IMAGE" \
+            -c 'curl -s -o /dev/null -w "%{http_code}" \
+              -H "Authorization: Bearer invalid-token" \
+              http://supervisor/addons/self/options/config')
+
+          test "$status" = '401'
+          echo 'Invalid Supervisor token correctly rejected'
 
       - name: Start Ghostfolio ARM64
         shell: bash
         run: |
           set -euo pipefail
+
           docker run -d \
             --name "$CI_APP" \
             --network "$CI_NETWORK" \
             --mount "type=volume,source=$CI_DATA_VOLUME,target=/data" \
+            -e "SUPERVISOR_TOKEN=$MOCK_TOKEN" \
+            -e SUPERVISOR_API=http://supervisor \
             -e S6_CMD_WAIT_FOR_SERVICES=0 \
             "$CI_IMAGE"
 
           ready=false
+
           for attempt in $(seq 1 90); do
-            health=$(docker inspect "$CI_APP" --format '{{if .State.Health}}{{.State.Health.Status}}{{else}}none{{end}}')
+            health=$(docker inspect "$CI_APP" \
+              --format '{{if .State.Health}}{{.State.Health.Status}}{{else}}none{{end}}')
+
             if [ "$health" = 'healthy' ]; then
               ready=true
               break
             fi
-            running=$(docker inspect "$CI_APP" --format '{{.State.Running}}')
+
+            running=$(docker inspect "$CI_APP" \
+              --format '{{.State.Running}}')
+
             if [ "$running" != 'true' ]; then
               break
             fi
+
             sleep 3
           done
+
           if [ "$ready" != 'true' ]; then
             echo 'ERROR: Ghostfolio did not become healthy'
             false
           fi
+
           echo 'ARM64 Ghostfolio container is healthy'
 
-      - name: Verify application, proxy, and simulated Ingress
+      - name: Verify runtime user and Supervisor configuration
         shell: bash
         run: |
           set -euo pipefail
+
+          docker exec "$CI_APP" sh -c \
+            'test ! -e /data/options.json'
+
+          node_uid=$(docker exec "$CI_APP" id -u node)
+
+          app_uid=$(docker top "$CI_APP" -eo uid,pid,args |
+            awk '$3 == "node" && $4 == "main" {print $1; exit}')
+
+          test -n "$app_uid"
+          test "$app_uid" = "$node_uid"
+
+          echo "Ghostfolio UID verified: $app_uid"
+          echo 'Supervisor configuration used without options.json'
+
+          requests=$(docker logs "$CI_MOCK" 2>&1 |
+            grep -c 'Authenticated Supervisor options request' || true)
+
+          test "$requests" -ge 1
+          echo "Authenticated Supervisor requests: $requests"
+
+      - name: Verify Redis authentication and persistent secrets
+        shell: bash
+        run: |
+          set -euo pipefail
+
+          docker exec "$CI_APP" sh -c '
+            file=/data/secrets/ghostfolio.env
+
+            test -r "$file"
+
+            mode=$(stat -c "%a" "$file")
+            test "$mode" = "600"
+
+            for name in REDIS_PASSWORD ACCESS_TOKEN_SALT JWT_SECRET_KEY; do
+              value=$(sed -n "s/^${name}=//p" "$file")
+              printf "%s" "$value" | grep -Eq "^[0-9a-f]{64}$"
+            done
+
+            password=$(sed -n "s/^REDIS_PASSWORD=//p" "$file")
+            result=$(REDISCLI_AUTH="$password" redis-cli -h 127.0.0.1 ping)
+
+            test "$result" = "PONG"
+          '
+
+          echo 'Persistent secrets and authenticated Redis verified'
+
+      - name: Verify PostgreSQL application connection
+        shell: bash
+        run: |
+          set -euo pipefail
+
+          docker exec "$CI_APP" \
+            curl --fail --silent --show-error \
+            http://127.0.0.1:3333/api/v1/health >/dev/null
+
+          sessions=0
+
+          for attempt in $(seq 1 30); do
+            sessions=$(docker run --rm \
+              --network "$CI_NETWORK" \
+              -e "PGPASSWORD=$POSTGRES_PASSWORD" \
+              postgres:15-alpine \
+              psql -h "$CI_POSTGRES" \
+                -U ghostfolio_test \
+                -d ghostfolio_test \
+                -Atc "
+                  SELECT count(*)
+                  FROM pg_stat_activity
+                  WHERE datname = 'ghostfolio_test'
+                    AND usename = 'ghostfolio_test'
+                    AND application_name IS DISTINCT FROM 'psql'
+                    AND state IN ('idle', 'active');
+                ")
+
+            if [ "$sessions" -ge 1 ]; then
+              break
+            fi
+
+            sleep 2
+          done
+
+          test "$sessions" -ge 1
+          echo "Ghostfolio PostgreSQL sessions: $sessions"
+
+      - name: Verify application, proxy and simulated Ingress
+        shell: bash
+        run: |
+          set -euo pipefail
+
           docker exec "$CI_APP" curl --fail --silent --show-error \
             http://127.0.0.1:3333/api/v1/health >/dev/null
+
           docker exec "$CI_APP" curl --fail --silent --show-error \
             http://127.0.0.1:8099/api/v1/health >/dev/null
 
-          headers=$(docker exec "$CI_APP" curl --silent --show-error -D - -o /dev/null \
+          headers=$(docker exec "$CI_APP" \
+            curl --silent --show-error -D - -o /dev/null \
             -H 'X-Ingress-Path: /api/hassio_ingress/test-token' \
             -H 'X-Forwarded-Proto: https' \
             -H 'Host: homeassistant.local:8123' \
             http://127.0.0.1:8099/)
-          location=$(printf '%s\n' "$headers" | tr -d '\r' | sed -n '/^[Ll]ocation:/s/^[Ll]ocation:[[:space:]]*//p')
+
+          location=$(printf '%s\n' "$headers" |
+            tr -d '\r' |
+            sed -n '/^[Ll]ocation:/s/^[Ll]ocation:[[:space:]]*//p')
+
           test "$location" = '/api/hassio_ingress/test-token/en'
 
           docker exec "$CI_APP" curl --fail --silent --show-error \
             -H 'X-Ingress-Path: /api/hassio_ingress/test-token' \
             http://127.0.0.1:8099/it >/dev/null
-          echo 'ARM64 application and Ingress smoke tests passed'
+
+          echo 'ARM64 application, proxy and Ingress tests passed'
 
       - name: Show diagnostics on failure
         if: failure()
         shell: bash
         run: |
-          docker ps -a --filter name=ghostfolio-ha-ci- --format 'Name={{.Names}} Status={{.Status}}'
-          # Avoid printing application logs: startup traces may contain connection details.
-          docker inspect "$CI_APP" --format 'App state={{.State.Status}} exit={{.State.ExitCode}}' 2>/dev/null || true
-          docker inspect "$CI_POSTGRES" --format 'Postgres state={{.State.Status}}' 2>/dev/null || true
+          docker ps -a \
+            --filter name=ghostfolio-ha-ci- \
+            --format 'Name={{.Names}} Status={{.Status}}'
+
+          docker inspect "$CI_APP" \
+            --format 'App state={{.State.Status}} exit={{.State.ExitCode}}' \
+            2>/dev/null || true
+
+          docker inspect "$CI_POSTGRES" \
+            --format 'Postgres state={{.State.Status}}' \
+            2>/dev/null || true
+
+          docker inspect "$CI_MOCK" \
+            --format 'Supervisor state={{.State.Status}}' \
+            2>/dev/null || true
+
+          docker logs "$CI_MOCK" 2>/dev/null || true
 
       - name: Cleanup isolated Docker resources
         if: always()
         shell: bash
         run: |
-          docker rm -f "$CI_APP" "$CI_POSTGRES" 2>/dev/null || true
+          docker rm -f "$CI_APP" "$CI_POSTGRES" "$CI_MOCK" \
+            2>/dev/null || true
+
           docker network rm "$CI_NETWORK" 2>/dev/null || true
-          docker volume rm "$CI_DATA_VOLUME" "$CI_PG_VOLUME" 2>/dev/null || true
+
+          docker volume rm "$CI_DATA_VOLUME" "$CI_PG_VOLUME" \
+            2>/dev/null || true

@@ -1,2 +1,4 @@
 #!/bin/sh
-exec /command/s6-setuidgid node /bin/sh -eu /etc/s6-overlay/s6-rc.d/ghostfolio/run.node
+exec /command/with-contenv \
+  /command/s6-setuidgid node \
+  /usr/bin/bashio /etc/s6-overlay/s6-rc.d/ghostfolio/run.node

@@ -1,13 +1,7 @@
-#!/bin/sh
-set -eu
+#!/usr/bin/env bash
+set -euo pipefail
 
-OPTIONS_FILE="/data/options.json"
 SECRETS_FILE="/data/secrets/ghostfolio.env"
-
-if [ ! -r "$OPTIONS_FILE" ]; then
-  echo "ERROR: Home Assistant options are unavailable"
-  exit 1
-fi
 
 if [ ! -r "$SECRETS_FILE" ]; then
   echo "ERROR: Ghostfolio secrets are unavailable"
@@ -31,11 +25,22 @@ JWT_SECRET_KEY=$(sed -n 's/^JWT_SECRET_KEY=//p' "$SECRETS_FILE")
 
 export REDIS_PASSWORD ACCESS_TOKEN_SALT JWT_SECRET_KEY
 
-DATABASE_HOST=$(jq -er '.database_host | select(type == "string" and length > 0)' "$OPTIONS_FILE")
-DATABASE_PORT=$(jq -er '.database_port | select(type == "number" and . >= 1 and . <= 65535)' "$OPTIONS_FILE")
-DATABASE_NAME=$(jq -er '.database_name | select(type == "string" and length > 0)' "$OPTIONS_FILE")
-DATABASE_USER=$(jq -er '.database_user | select(type == "string" and length > 0)' "$OPTIONS_FILE")
-DATABASE_PASS=$(jq -er '.database_pass | select(type == "string" and length > 0)' "$OPTIONS_FILE")
+# Retrieve required settings through the authenticated Supervisor API.
+for name in database_host database_port database_name database_user database_pass; do
+  bashio::config.require "$name"
+done
+
+DATABASE_HOST=$(bashio::config 'database_host')
+DATABASE_PORT=$(bashio::config 'database_port')
+DATABASE_NAME=$(bashio::config 'database_name')
+DATABASE_USER=$(bashio::config 'database_user')
+DATABASE_PASS=$(bashio::config 'database_pass')
+
+if [[ ! "$DATABASE_PORT" =~ ^[0-9]+$ ]] ||
+   (( DATABASE_PORT < 1 || DATABASE_PORT > 65535 )); then
+  echo "ERROR: Invalid PostgreSQL port"
+  exit 1
+fi
 
 # Encode URI components to support special characters.
 DB_USER_ENCODED=$(printf '%s' "$DATABASE_USER" | jq -sRr @uri)
