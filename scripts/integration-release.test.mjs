@@ -3,6 +3,7 @@ import { test } from 'node:test';
 
 import {
   changelogSections,
+  generateReleaseCompose,
   includedReleases,
   integratedPullRequestsMarkdown,
   localPatchesMarkdown
@@ -223,4 +224,44 @@ test('does not assign upstream PR numbers to local patches', () => {
 
   assert.ok(!markdown.includes('github.com/ghostfolio/ghostfolio/pull/'));
   assert.ok(!markdown.includes('PR #'));
+});
+
+test('generates Ghostfolio-NG release Compose with the correct image', () => {
+  const template = [
+    'services:',
+    '  ghostfolio:',
+    '    image: docker.io/ghostfolio/ghostfolio:latest',
+    '    env_file:',
+    '      - ../.env'
+  ].join('\n');
+
+  const compose = generateReleaseCompose(
+    template,
+    'ghcr.io/piggei/ghostfolio-ng',
+    'integration-3.94.0-8.1'
+  );
+
+  assert.ok(
+    compose.includes(
+      'ghcr.io/piggei/ghostfolio-ng:integration-3.94.0-8.1'
+    )
+  );
+  assert.ok(!compose.includes('docker.io/ghostfolio/ghostfolio:latest'));
+  assert.ok(compose.includes('- .env'));
+});
+
+test('rejects missing or duplicated Ghostfolio Compose image', () => {
+  const source = 'docker.io/ghostfolio/ghostfolio:latest';
+  const image = 'ghcr.io/piggei/ghostfolio-ng';
+  const tag = 'integration-3.94.0-8.1';
+
+  assert.throws(
+    () => generateReleaseCompose('services: {}', image, tag),
+    /Expected exactly one/
+  );
+
+  assert.throws(
+    () => generateReleaseCompose(`${source}\n${source}`, image, tag),
+    /Expected exactly one/
+  );
 });

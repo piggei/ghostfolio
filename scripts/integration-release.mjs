@@ -142,6 +142,22 @@ function git(...args) {
   return execFileSync('git', args, { encoding: 'utf8' }).trim();
 }
 
+export function generateReleaseCompose(template, image, tag) {
+  const source = 'docker.io/ghostfolio/ghostfolio:latest';
+
+  if (template.split(source).length !== 2) {
+    throw new Error('Expected exactly one Ghostfolio image in Compose template');
+  }
+
+  if (!image || !tag) {
+    throw new Error('Missing release image or tag');
+  }
+
+  return template
+    .replace(source, `${image}:${tag}`)
+    .replaceAll('../.env', '.env');
+}
+
 export function generateRelease() {
   const {
     IMAGE: image,
@@ -209,7 +225,7 @@ export function generateRelease() {
   const localPatches = localPatchesMarkdown(manifest);
 
   const notes =
-    `# Ghostfolio Integration — ${tag}\n\n` +
+    `# Ghostfolio-NG — ${tag}\n\n` +
     `This release is built from the \`integration/ghostfolio-all-pr\` branch, ` +
     `based on Ghostfolio **${version}**. It combines upstream updates with ` +
     `custom features and independently proposed contributions.\n\n` +
@@ -239,7 +255,7 @@ export function generateRelease() {
     `before upgrading.\n\n` +
     `## Offline installation\n\n` +
     `Download the archive matching your architecture and load it using:\n\n` +
-    `\`\`\`sh\ndocker load -i ghostfolio-${tag}-linux-amd64.tar.gz\n` +
+    `\`\`\`sh\ndocker load -i ghostfolio-ng-${tag}-linux-amd64.tar.gz\n` +
     `docker compose up -d --pull never\n\`\`\`\n\n` +
     `For ARM64, use the archive ending in \`linux-arm64.tar.gz\`. ` +
     `PostgreSQL and Redis images must also be available locally or downloadable. ` +
@@ -264,9 +280,11 @@ export function generateRelease() {
   mkdirSync('release-assets', { recursive: true });
   writeFileSync('release-assets/notes.md', notes);
   // A standalone copy uses the versioned image and an environment file beside the compose file.
-  const compose = readFileSync('docker/docker-compose.yml', 'utf8')
-    .replace('docker.io/ghostfolio/ghostfolio:latest', `${image}:${tag}`)
-    .replaceAll('../.env', '.env');
+  const compose = generateReleaseCompose(
+    readFileSync('docker/docker-compose.yml', 'utf8'),
+    image,
+    tag
+  );
   writeFileSync('release-assets/docker-compose.yml', compose);
   writeFileSync(
     'release-assets/ghostfolio.env.example',

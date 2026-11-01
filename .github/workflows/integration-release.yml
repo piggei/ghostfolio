@@ -26,7 +26,7 @@ jobs:
         shell: bash
         run: |
           version=$(node -p "require('./package.json').version")
-          echo "image=ghcr.io/${GITHUB_REPOSITORY,,}" >> "$GITHUB_OUTPUT"
+          echo "image=ghcr.io/${GITHUB_REPOSITORY_OWNER,,}/ghostfolio-ng" >> "$GITHUB_OUTPUT"
           echo "tag=integration-${version}-${GITHUB_RUN_NUMBER}.${GITHUB_RUN_ATTEMPT}" >> "$GITHUB_OUTPUT"
           echo "sha_tag=sha-${GITHUB_SHA}" >> "$GITHUB_OUTPUT"
 
@@ -94,7 +94,7 @@ jobs:
           mkdir -p release-assets
           docker pull --platform "linux/$ARCH" "$IMAGE@$DIGEST"
           docker tag "$IMAGE@$DIGEST" "$IMAGE:$TAG"
-          docker save "$IMAGE:$TAG" | gzip -1 > "release-assets/ghostfolio-$TAG-linux-$ARCH.tar.gz"
+          docker save "$IMAGE:$TAG" | gzip -1 > "release-assets/ghostfolio-ng-$TAG-linux-$ARCH.tar.gz"
       - uses: actions/upload-artifact@v4
         with:
           name: docker-${{ matrix.arch }}
@@ -167,7 +167,7 @@ jobs:
           gh release create "$TAG" release-assets/*.tar.gz \
             release-assets/docker-compose.yml release-assets/ghostfolio.env.example release-assets/SHA256SUMS \
             --repo "$GITHUB_REPOSITORY" --target "$GITHUB_SHA" \
-            --title "Ghostfolio $TAG" --notes-file release-assets/notes.md --prerelease
+            --title "Ghostfolio-NG $TAG" --notes-file release-assets/notes.md --prerelease
       - name: Advance integration channel after successful release
         run: |
           docker buildx imagetools create --tag "$IMAGE:integration" "$IMAGE:$TAG"

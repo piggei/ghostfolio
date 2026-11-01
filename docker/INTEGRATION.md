@@ -1,4 +1,4 @@
-# Docker releases of the integration branch
+# Ghostfolio-NG Docker releases
 
 Every push to `integration/ghostfolio-all-pr` in `piggei/ghostfolio` runs
 `.github/workflows/integration-release.yml`. The workflow also declares a manual
@@ -7,7 +7,7 @@ branch; automatic publication from the integration branch does not require this.
 
 After the tests pass, native AMD64 and ARM64 runners build the application. Only
 when both builds succeed does the workflow publish a GitHub prerelease and advance
-the `ghcr.io/piggei/ghostfolio:integration` channel. A failed build does not advance
+the `ghcr.io/piggei/ghostfolio-ng:integration` channel. A failed build does not advance
 that channel. These are integration builds with the fork's custom features.
 
 Each release has a unique `integration-UPSTREAM_VERSION-RUN.ATTEMPT` tag, Docker
@@ -33,7 +33,7 @@ installation, keep its environment and volumes and back up the database before
 updating, because the application applies migrations on startup.
 
 To follow the moving integration channel, replace the application image in the
-Compose file with `ghcr.io/piggei/ghostfolio:integration`, then repeat the commands
+Compose file with `ghcr.io/piggei/ghostfolio-ng:integration`, then repeat the commands
 above when you want to update. Publishing a new image does not update running
 servers automatically.
 
@@ -49,7 +49,7 @@ The workflow uses the automatic `GITHUB_TOKEN` with `packages: write` and
 this fork rather than the upstream repository. If GitHub initially creates it as
 private, change its visibility to public at:
 
-<https://github.com/users/piggei/packages/container/ghostfolio/settings>
+<https://github.com/users/piggei/packages/container/ghostfolio-ng/settings>
 
 Public visibility allows anonymous pulls. The release archives provide another
 installation route independent of registry authentication.
