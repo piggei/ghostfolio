@@ -31,6 +31,139 @@ jobs:
           context: .
           platforms: linux/amd64
           push: false
+          load: true
           tags: ghostfolio-ng:candidate-amd64
           cache-from: type=gha,scope=ghostfolio-ng-candidate-amd64
           cache-to: type=gha,mode=max,scope=ghostfolio-ng-candidate-amd64
+
+      - name: Prepare isolated smoke test
+        shell: bash
+        run: |
+          set -euo pipefail
+
+          mkdir -p "$RUNNER_TEMP/ghostfolio-ng-smoke"
+
+          node --input-type=module <<'JS'
+          import { randomBytes } from 'node:crypto';
+          import { readFileSync, writeFileSync } from 'node:fs';
+          import { join } from 'node:path';
+          import { generateReleaseCompose } from './scripts/integration-release.mjs';
+
+          const directory = join(process.env.RUNNER_TEMP, 'ghostfolio-ng-smoke');
+
+          const compose = generateReleaseCompose(
+            readFileSync('docker/docker-compose.yml', 'utf8'),
+            'ghostfolio-ng',
+            'candidate-amd64'
+          );
+
+          writeFileSync(join(directory, 'docker-compose.yml'), compose);
+
+          const environment = readFileSync('.env.example', 'utf8')
+            .replace(/<INSERT_[A-Z_]+>/g, () => randomBytes(32).toString('hex'));
+
+          writeFileSync(join(directory, '.env'), environment, { mode: 0o600 });
+          JS
+
+          cat > "$RUNNER_TEMP/ghostfolio-ng-smoke/override.yml" <<'YAML'
+          services:
+            ghostfolio:
+              container_name: !reset null
+              ports: !reset []
+            postgres:
+              container_name: !reset null
+            redis:
+              container_name: !reset null
+          YAML
+
+      - name: Verify isolated Compose configuration
+        shell: bash
+        run: |
+          set -euo pipefail
+
+          cd "$RUNNER_TEMP/ghostfolio-ng-smoke"
+
+          compose=(
+            docker compose
+            -p ghostfolio-ng-smoke
+            -f docker-compose.yml
+            -f override.yml
+          )
+
+          "${compose[@]}" config --quiet
+
+          "${compose[@]}" config --format json |
+            jq -e '
+              (.services.ghostfolio | has("container_name") | not) and
+              (.services.postgres | has("container_name") | not) and
+              (.services.redis | has("container_name") | not) and
+              ((.services.ghostfolio.ports // []) | length == 0) and
+              (.services.ghostfolio.image == "ghostfolio-ng:candidate-amd64")
+            ' >/dev/null
+
+          echo "Docker Compose isolation: PASS"
+
+      - name: Start Ghostfolio-NG smoke test
+        shell: bash
+        run: |
+          set -euo pipefail
+
+          cd "$RUNNER_TEMP/ghostfolio-ng-smoke"
+
+          compose=(
+            docker compose
+            -p ghostfolio-ng-smoke
+            -f docker-compose.yml
+            -f override.yml
+          )
+
+          "${compose[@]}" up -d --wait --wait-timeout 240
+
+          "${compose[@]}" exec -T ghostfolio             curl --fail --silent --show-error             http://127.0.0.1:3333/api/v1/health
+
+      - name: Show smoke test diagnostics on failure
+        if: failure()
+        shell: bash
+        run: |
+          set -euo pipefail
+
+          directory="$RUNNER_TEMP/ghostfolio-ng-smoke"
+
+          if [ -f "$directory/docker-compose.yml" ] &&
+             [ -f "$directory/override.yml" ]; then
+
+            cd "$directory"
+
+            compose=(
+              docker compose
+              -p ghostfolio-ng-smoke
+              -f docker-compose.yml
+              -f override.yml
+            )
+
+            "${compose[@]}" ps || true
+            "${compose[@]}" logs --tail 100 || true
+          fi
+
+      - name: Cleanup isolated smoke test
+        if: always()
+        shell: bash
+        run: |
+          set -euo pipefail
+
+          directory="$RUNNER_TEMP/ghostfolio-ng-smoke"
+
+          if [ -f "$directory/docker-compose.yml" ] &&
+             [ -f "$directory/override.yml" ]; then
+
+            cd "$directory"
+
+            compose=(
+              docker compose
+              -p ghostfolio-ng-smoke
+              -f docker-compose.yml
+              -f override.yml
+            )
+
+            "${compose[@]}" down --volumes --remove-orphans
+          fi
