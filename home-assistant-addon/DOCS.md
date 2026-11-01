@@ -40,12 +40,11 @@ After the add-on branch and images have been published:
 9. Start the add-on.
 10. Review the startup logs.
 
-The initial 0.1.0 images have been published and installed through
-Home Assistant Supervisor.
+The 0.1.0 and 0.1.1 images have been published.
 
-Version 0.1.1 has passed local AMD64 tests and automated native
+Version 0.1.2 has passed local AMD64 tests and automated native
 ARM64 runtime tests. Its versioned images must be published before
-installation. Startup of 0.1.1 through a real Home Assistant
+installation. Startup of 0.1.2 through a real Home Assistant
 Supervisor remains to be verified.
 
 ## PostgreSQL configuration
@@ -179,21 +178,42 @@ The Nginx proxy listens internally on port 8099.
 
 It forwards requests to Ghostfolio on port 3333.
 
-The proxy supports rewriting selected frontend paths and redirects
-using the Home Assistant Ingress path header.
+The proxy uses the `X-Ingress-Path` header supplied by Home Assistant
+Supervisor to adapt frontend paths to the active Ingress prefix.
 
-Local tests have verified:
+The following resources are rewritten when an Ingress prefix is present:
+
+- Angular HTML `base href`
+- Absolute API paths in JavaScript responses
+- Absolute asset paths in JavaScript responses
+- The PWA manifest `start_url`
+- PWA manifest icon paths
+
+Manifest rewriting is restricted to the dedicated
+`site.webmanifest` endpoint. Other JSON API responses are not
+subjected to the manifest-specific substitutions.
+
+Without an Ingress prefix, the original manifest paths are preserved.
+
+Version 0.1.2 has passed local AMD64 tests and automated native
+ARM64 GitHub Actions tests covering:
 
 - Relative redirects with an Ingress prefix
-- Italian and English frontend pages
-- JavaScript and CSS resources
-- Static assets
+- Italian frontend HTML and Angular bundles
+- JavaScript API path rewriting
+- PWA manifest rewriting with and without Ingress
+- PWA icon requests
+- CSS and static assets
 - The application health API
+- Financial API JSON response integrity
+- Direct access to Ghostfolio
 
-These tests used simulated Ingress headers.
+These tests use simulated Ingress headers. Installation through a
+real Supervisor and full browser navigation remain to be tested.
 
-Real Supervisor Ingress behavior and full browser navigation
-remain to be tested.
+The PWA manifest `url` field still reports the internal container
+address. Standalone PWA installation and launch behavior have not
+yet been validated.
 
 ## Optional direct access
 
@@ -300,7 +320,7 @@ stream remains a development task.
 ## Current limitations
 
 - PostgreSQL must be provided externally.
-- Installation and startup of version 0.1.1 through a real Home Assistant Supervisor remain to be verified.
+- Installation and startup of version 0.1.2 through a real Home Assistant Supervisor remain to be verified.
 - Full browser navigation through real Home Assistant Ingress remains to be tested.
 - Nginx access and error log integration into the Home Assistant log stream is not finalized.
 - IPv6 PostgreSQL connection formatting has not been tested.

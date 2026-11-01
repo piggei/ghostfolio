@@ -69,7 +69,7 @@ The add-on uses architecture-specific images:
 
 The add-on version determines the image tag requested by Supervisor.
 
-The current add-on version is **0.1.1**.
+The current add-on version is **0.1.2**.
 
 Release builds use an immutable Ghostfolio source image digest to ensure
 both architectures are built from the same Ghostfolio release.
@@ -92,12 +92,13 @@ data and must be backed up independently.
 
 ## Development and release status
 
-Version 0.1.1 includes the Supervisor configuration retrieval fix.
+Version 0.1.2 includes the Home Assistant Ingress routing and
+PWA manifest compatibility fixes.
 
-The following have been validated locally on amd64 and/or through
+The following have been validated locally on amd64 and through
 automated native ARM64 GitHub Actions tests:
 
-- Docker image build
+- Docker image build and Nginx configuration
 - s6-overlay service initialization
 - Authenticated Supervisor API requests through Bashio
 - Configuration retrieval without `/data/options.json`
@@ -106,21 +107,30 @@ automated native ARM64 GitHub Actions tests:
 - PostgreSQL connectivity using credentials containing special characters
 - Ghostfolio application startup and health endpoint
 - Application services running as the unprivileged `node` user
-- Nginx reverse proxy
-- Simulated Home Assistant Ingress redirects and asset requests
+- Angular HTML base path rewriting
+- JavaScript API path rewriting, including the tested Angular chunk
+- Home Assistant Ingress API responses
+- PWA manifest rewriting for Ingress
+- PWA icon requests through Ingress
+- Preservation of the original manifest without Ingress
+- Direct Ghostfolio API access
+- Financial API JSON response integrity
+- Nginx reverse proxy and simulated Ingress redirects
 
 The native ARM64 workflow also verifies the application database session,
-persistent secrets, Redis authentication, and cleanup of isolated test
-resources.
+persistent secrets, Redis authentication, Ingress routing, PWA resources,
+and cleanup of isolated test resources.
 
 The following remain to be validated or improved:
 
-- Installation and startup of version 0.1.1 through a real Home Assistant Supervisor
+- Installation and startup of version 0.1.2 through a real Home Assistant Supervisor
 - Full browser navigation through real Home Assistant Ingress
+- PWA standalone installation and launch behavior
+- The PWA manifest `url` field, which still reports the internal container address
 - Integration of Nginx access and error logs into the Home Assistant log stream
 - IPv6 PostgreSQL connection formatting
 
-The published 0.1.0 release remains available independently.
+The published 0.1.0 and 0.1.1 releases remain available independently.
 
 ## License
 
