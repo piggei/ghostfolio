@@ -129,6 +129,161 @@ get_release() {
   jq -c '.[0]' <<< "$matches"
 }
 
+
+get_release_by_id() {
+  local release_id="$1"
+
+  if [[ ! "$release_id" =~ ^[1-9][0-9]*$ ]]; then
+    echo "ERROR: Invalid GitHub Release ID" >&2
+    return 2
+  fi
+
+  gh api "repos/$REPOSITORY/releases/$release_id"
+}
+
+
+get_release_assets() {
+  local release_id="$1"
+
+  if [[ ! "$release_id" =~ ^[1-9][0-9]*$ ]]; then
+    echo "ERROR: Invalid GitHub Release ID" >&2
+    return 2
+  fi
+
+  gh api --paginate \
+    "repos/$REPOSITORY/releases/$release_id/assets?per_page=100" |
+    jq -s 'add // []'
+}
+
+
+validate_release_asset_listing() {
+  local listing="$1"
+
+  printf '%s' "$listing" |
+    jq -e \
+      --argjson expected "$(
+        printf '%s\n' "${EXPECTED_ASSETS[@]}" | jq -R . | jq -s .
+      )" '
+        type == "array" and
+        all(.[];
+          (.id | type == "number" and . > 0 and floor == .) and
+          (.name | type == "string" and IN($expected[])) and
+          (.size | type == "number" and . >= 0 and floor == .) and
+          .state == "uploaded"
+        ) and
+        ([.[].id] | length == (unique | length)) and
+        ([.[].name] | length == (unique | length))
+      ' >/dev/null
+}
+
+
+
+verify_existing_release_asset() {
+  local asset_name="$1"
+  local asset_id="$2"
+  local local_path="$ASSETS_DIR/$asset_name"
+  local remote_path
+
+  if [[ ! "$asset_id" =~ ^[1-9][0-9]*$ ]] ||
+     [[ ! -f "$local_path" || -L "$local_path" ]]; then
+    echo "ERROR: Invalid existing release asset" >&2
+    return 1
+  fi
+
+  remote_path="$(mktemp "$TEMP_DIR/existing-asset.XXXXXXXX")"
+
+  if ! gh api \
+    -H "Accept: application/octet-stream" \
+    "repos/$REPOSITORY/releases/assets/$asset_id" \
+    > "$remote_path"; then
+    echo "ERROR: Cannot retrieve existing release asset: $asset_name" >&2
+    return 1
+  fi
+
+  if ! cmp -s "$local_path" "$remote_path"; then
+    echo "ERROR: Existing release asset differs from local file: $asset_name" >&2
+    return 1
+  fi
+
+  rm -f -- "$remote_path"
+
+  echo "Existing release asset verified: $asset_name"
+}
+
+upload_release_asset() {
+  local release_id="$1"
+  local asset_name="$2"
+  local asset_path="$ASSETS_DIR/$asset_name"
+  local response_file
+  local http_status
+
+  if [[ ! "$release_id" =~ ^[1-9][0-9]*$ ]] ||
+     [[ ! "$asset_name" =~ ^[a-zA-Z0-9_.-]+$ ]] ||
+     [[ ! -f "$asset_path" || -L "$asset_path" ]]; then
+    echo "ERROR: Invalid release asset upload arguments" >&2
+    return 2
+  fi
+
+  if [[ -z "${GH_TOKEN:-}" ]]; then
+    echo "ERROR: GH_TOKEN is required for release asset upload" >&2
+    return 1
+  fi
+
+  if [[ ! "$GH_TOKEN" =~ ^[a-zA-Z0-9_]+$ ]]; then
+    echo "ERROR: GH_TOKEN contains unsupported characters" >&2
+    return 1
+  fi
+
+  response_file="$(mktemp "$TEMP_DIR/upload.XXXXXXXX")"
+
+  if http_status="$(
+    {
+      printf 'header = "Authorization: Bearer %s"\n' "$GH_TOKEN"
+      printf 'header = "Accept: application/vnd.github+json"\n'
+    } |
+    curl --disable \
+      --silent --show-error \
+      --config - \
+      --request POST \
+      --connect-timeout 15 \
+      --max-time 1800 \
+      --header "Content-Type: application/octet-stream" \
+      --data-binary "@$asset_path" \
+      --output "$response_file" \
+      --write-out '%{http_code}' \
+      --url "https://uploads.github.com/repos/$REPOSITORY/releases/$release_id/assets?name=$asset_name"
+  )"; then
+    :
+  else
+    echo "ERROR: GitHub asset upload transport failed" >&2
+    return 1
+  fi
+
+  if [[ "$http_status" != "201" ]]; then
+    echo "ERROR: GitHub asset upload returned HTTP $http_status" >&2
+    return 1
+  fi
+
+  local expected_size
+  expected_size="$(stat -c '%s' "$asset_path")"
+
+  if ! jq -e \
+    --arg name "$asset_name" \
+    --argjson expected_size "$expected_size" \
+    '
+      .name == $name and
+      .state == "uploaded" and
+      (.id | type == "number" and . > 0 and floor == .) and
+      (.size == $expected_size)
+    ' \
+    "$response_file" >/dev/null; then
+    echo "ERROR: Invalid GitHub asset upload response" >&2
+    return 1
+  fi
+
+  echo "Uploaded release asset: $asset_name"
+}
+
 validate_assets() {
   local actual
   local expected
@@ -167,10 +322,24 @@ validate_release() {
   local draft
   local prerelease
   local target
+  local release_tag
+  local release_id
 
   draft="$(jq -r '.draft' <<< "$release")"
   prerelease="$(jq -r '.prerelease' <<< "$release")"
   target="$(jq -r '.target_commitish' <<< "$release")"
+  release_tag="$(jq -r '.tag_name' <<< "$release")"
+  release_id="$(jq -r '.id' <<< "$release")"
+
+  if [[ "$release_tag" != "$TAG" ]]; then
+    echo "ERROR: GitHub Release tag does not match requested tag" >&2
+    return 1
+  fi
+
+  if [[ ! "$release_id" =~ ^[1-9][0-9]*$ ]]; then
+    echo "ERROR: Invalid GitHub Release ID" >&2
+    return 1
+  fi
 
   if [[ "$draft" != "true" && "$draft" != "false" ]]; then
     echo "ERROR: Invalid GitHub Release draft state" >&2
@@ -187,7 +356,7 @@ validate_release() {
     return 1
   fi
 
-  RELEASE_ID="$(jq -r '.id' <<< "$release")"
+  RELEASE_ID="$release_id"
 }
 
 verify_release_assets() {
@@ -211,14 +380,31 @@ verify_release_assets() {
 
   download_dir="$(mktemp -d "$TEMP_DIR/assets.XXXXXXXX")"
 
-  if ! gh release download "$TAG" \
-    --repo "$REPOSITORY" \
-    --dir "$download_dir"; then
+  local asset_name
+  local asset_id
 
-    rm -rf -- "$download_dir"
-    echo "ERROR: Cannot download remote release assets" >&2
-    return 1
-  fi
+  for asset_name in "${EXPECTED_ASSETS[@]}"; do
+    asset_id="$(
+      jq -r --arg name "$asset_name" '
+        [.assets[] | select(.name == $name) | .id] |
+        if length == 1 then .[0] else empty end
+      ' <<< "$release"
+    )"
+
+    if [[ ! "$asset_id" =~ ^[1-9][0-9]*$ ]]; then
+      echo "ERROR: Missing or invalid GitHub asset ID: $asset_name" >&2
+      return 1
+    fi
+
+    if ! gh api \
+      -H "Accept: application/octet-stream" \
+      "repos/$REPOSITORY/releases/assets/$asset_id" \
+      > "$download_dir/$asset_name"; then
+
+      echo "ERROR: Cannot download remote release asset: $asset_name" >&2
+      return 1
+    fi
+  done
 
   actual="$(
     find "$download_dir" -mindepth 1 -maxdepth 1 -type f \
@@ -296,28 +482,75 @@ prepare_release() {
 
     echo "Creating GitHub Draft Release"
 
-    gh release create "$TAG" \
-      --repo "$REPOSITORY" \
-      --target "$COMMIT" \
-      --title "Ghostfolio-NG $TAG" \
-      --notes-file "$ASSETS_DIR/notes.md" \
-      --draft \
-      --prerelease
+    release="$(
+      jq -n \
+        --arg tag "$TAG" \
+        --arg commit "$COMMIT" \
+        --arg title "Ghostfolio-NG $TAG" \
+        --rawfile notes "$ASSETS_DIR/notes.md" \
+        '{
+          tag_name: $tag,
+          target_commitish: $commit,
+          name: $title,
+          body: $notes,
+          draft: true,
+          prerelease: true
+        }' |
+      gh api --method POST \
+        "repos/$REPOSITORY/releases" \
+        --input -
+    )"
 
-    release="$(get_release)"
     validate_release "$release"
   fi
 
   echo
-  echo "=== Upload release assets ==="
+  echo "=== Inspect release assets by ID ==="
+
+  local remote_assets
+  remote_assets="$(get_release_assets "$RELEASE_ID")"
+
+  if ! validate_release_asset_listing "$remote_assets"; then
+    echo "ERROR: Invalid GitHub Release asset listing" >&2
+    return 1
+  fi
+
+  echo
+  echo "=== Verify existing release assets ==="
 
   local asset
+  local asset_id
+
   for asset in "${EXPECTED_ASSETS[@]}"; do
-    gh release upload "$TAG" "$ASSETS_DIR/$asset" \
-      --repo "$REPOSITORY" --clobber
+    asset_id="$(
+      jq -r --arg name "$asset" '
+        [.[] | select(.name == $name) | .id] |
+        if length == 1 then .[0] else empty end
+      ' <<< "$remote_assets"
+    )"
+
+    if [[ -n "$asset_id" ]]; then
+      verify_existing_release_asset "$asset" "$asset_id"
+    fi
   done
 
-  release="$(get_release)"
+  echo
+  echo "=== Upload missing release assets ==="
+
+  for asset in "${EXPECTED_ASSETS[@]}"; do
+    asset_id="$(
+      jq -r --arg name "$asset" '
+        [.[] | select(.name == $name) | .id] |
+        if length == 1 then .[0] else empty end
+      ' <<< "$remote_assets"
+    )"
+
+    if [[ -z "$asset_id" ]]; then
+      upload_release_asset "$RELEASE_ID" "$asset"
+    fi
+  done
+
+  release="$(get_release_by_id "$RELEASE_ID")"
   validate_release "$release"
   verify_release_assets "$release"
 
@@ -357,11 +590,10 @@ publish_release() {
     -F draft=false \
     -F prerelease=true >/dev/null
 
-  release="$(get_release)"
+  release="$(get_release_by_id "$RELEASE_ID")"
+  validate_release "$release" true
 
-  if [[ "$(jq -r '.draft' <<< "$release")" != "false" ]] ||
-     [[ "$(jq -r '.prerelease' <<< "$release")" != "true" ]] ||
-     [[ "$(jq -r '.target_commitish' <<< "$release")" != "$COMMIT" ]]; then
+  if [[ "$(jq -r '.draft' <<< "$release")" != "false" ]]; then
     echo "ERROR: Published release verification failed" >&2
     return 1
   fi
