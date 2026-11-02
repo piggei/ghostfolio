@@ -4,6 +4,7 @@ import { test } from 'node:test';
 import {
   changelogSections,
   generateReleaseCompose,
+  homeAssistantInstallationMarkdown,
   includedReleases,
   integratedPullRequestsMarkdown,
   localPatchesMarkdown,
@@ -225,6 +226,19 @@ test('does not assign upstream PR numbers to local patches', () => {
 
   assert.ok(!markdown.includes('github.com/ghostfolio/ghostfolio/pull/'));
   assert.ok(!markdown.includes('PR #'));
+});
+
+test('renders the Home Assistant installation section once with the official badge and docs', () => {
+  const markdown = homeAssistantInstallationMarkdown();
+  const repositoryUrl =
+    'https%3A%2F%2Fgithub.com%2Fpiggei%2Fghostfolio%23feat%2Fhome-assistant-addon';
+
+  assert.equal(markdown.split('## Home Assistant Add-on').length - 1, 1);
+  assert.ok(markdown.includes('my.home-assistant.io/badges/supervisor_add_addon_repository.svg'));
+  assert.ok(markdown.includes(`repository_url=${repositoryUrl}`));
+  assert.ok(markdown.includes('/home-assistant-addon/README.md'));
+  assert.ok(markdown.includes('/home-assistant-addon/DOCS.md'));
+  assert.match(markdown, /separate PostgreSQL server is required/);
 });
 
 test('generates Ghostfolio-NG release Compose with the correct image', () => {
