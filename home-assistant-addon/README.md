@@ -1,6 +1,6 @@
-# Ghostfolio All-PR Home Assistant Add-on
+# Ghostfolio-NG Home Assistant Add-on
 
-Run Ghostfolio All-PR as a Home Assistant add-on with an integrated
+Run Ghostfolio-NG as a Home Assistant add-on with an integrated
 Redis service, persistent application secrets, and Home Assistant Ingress.
 
 This add-on uses the Ghostfolio integration image published by
@@ -10,7 +10,7 @@ It does not build Ghostfolio from source or include a PostgreSQL server.
 
 ## Features
 
-- Ghostfolio All-PR application
+- Ghostfolio-NG application
 - Home Assistant Ingress support
 - Optional direct access to the Ghostfolio web interface
 - Integrated Redis with password authentication
@@ -24,7 +24,7 @@ It does not build Ghostfolio from source or include a PostgreSQL server.
 
 ## Architecture
 
-The add-on image extends the Ghostfolio All-PR Docker image.
+The add-on image extends the Ghostfolio-NG Docker image.
 
 The runtime includes:
 
@@ -64,12 +64,12 @@ See [DOCS.md](DOCS.md) for configuration and installation instructions.
 
 The add-on uses architecture-specific images:
 
-- `ghcr.io/piggei/ghostfolio-ha-all-pr-amd64`
-- `ghcr.io/piggei/ghostfolio-ha-all-pr-aarch64`
+- `ghcr.io/piggei/ghostfolio-ng-ha-amd64`
+- `ghcr.io/piggei/ghostfolio-ng-ha-aarch64`
 
 The add-on version determines the image tag requested by Supervisor.
 
-The current add-on version is **0.1.3**.
+The current add-on version is **0.2.0**.
 
 Release builds use an immutable Ghostfolio source image digest to ensure
 both architectures are built from the same Ghostfolio release.
@@ -104,8 +104,27 @@ The following checks have passed on local AMD64:
 - Nginx Ingress proxy redirecting to the localized application.
 - Persistent secrets remaining unchanged after container restart.
 
-Native ARM64 qualification and installation through a real Home Assistant
-Supervisor remain pending. Version 0.1.3 images have not yet been published.
+Native ARM64 qualification completed successfully, and version 0.1.3
+images were published and independently verified on GHCR.
+Installation through a real Home Assistant Supervisor remains to be verified.
+
+## Ghostfolio-NG 0.2.0
+
+Version 0.2.0 completes the transition to the Ghostfolio-NG identity.
+
+Changes include:
+
+- Home Assistant add-on name: Ghostfolio-NG.
+- Add-on slug: `ghostfolio_ng`.
+- Architecture-specific images renamed to `ghostfolio-ng-ha-*`.
+- Updated repository metadata and OCI image labels.
+- Continued use of the verified Ghostfolio-NG integration image.
+
+The application runtime, PostgreSQL configuration, Redis persistence,
+Supervisor API integration and Ingress implementation remain unchanged.
+
+Version 0.2.0 requires renewed AMD64 and ARM64 qualification and
+publication of its architecture-specific images before installation.
 
 ## Development and release status
 

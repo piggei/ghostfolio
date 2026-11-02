@@ -55,6 +55,6 @@ HEALTHCHECK \
     CMD curl --fail http://localhost:3333/api/v1/health || exit 1
 
 LABEL \
-    org.opencontainers.image.title="Ghostfolio All-PR Home Assistant Add-on" \
-    org.opencontainers.image.description="Ghostfolio All-PR for Home Assistant" \
+    org.opencontainers.image.title="Ghostfolio-NG Home Assistant Add-on" \
+    org.opencontainers.image.description="Ghostfolio-NG for Home Assistant" \
     org.opencontainers.image.source="https://github.com/piggei/ghostfolio"

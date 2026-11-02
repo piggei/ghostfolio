@@ -31,7 +31,7 @@ jobs:
       CI_POSTGRES: ghostfolio-ha-ci-postgres
       CI_MOCK: ghostfolio-ha-ci-supervisor
       CI_APP: ghostfolio-ha-ci-app
-      CI_IMAGE: ghostfolio-ha-all-pr:arm64-test
+      CI_IMAGE: ghostfolio-ng-ha:arm64-test
       CI_MOCK_IMAGE: ghostfolio-ha-supervisor-mock:ci
       SOURCE_IMAGE: ghcr.io/piggei/ghostfolio-ng@sha256:4b1b3f0663a2f583e7f81b98f76ba22a1c24338f0037ca9fc5a487bf390009f7
 
@@ -63,7 +63,7 @@ jobs:
           platforms: linux/arm64
           push: false
           load: true
-          tags: ghostfolio-ha-all-pr:arm64-test
+          tags: ghostfolio-ng-ha:arm64-test
           build-args: |
             BUILD_ARCH=aarch64
             GHOSTFOLIO_IMAGE=ghcr.io/piggei/ghostfolio-ng@sha256:4b1b3f0663a2f583e7f81b98f76ba22a1c24338f0037ca9fc5a487bf390009f7

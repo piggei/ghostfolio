@@ -1,8 +1,8 @@
-# Ghostfolio All-PR Add-on Documentation
+# Ghostfolio-NG Add-on Documentation
 
 ## Overview
 
-This add-on runs Ghostfolio All-PR inside Home Assistant.
+This add-on runs Ghostfolio-NG inside Home Assistant.
 
 It includes Ghostfolio, Redis, Nginx, and s6-overlay.
 
@@ -35,17 +35,17 @@ After the add-on branch and images have been published:
    https://github.com/piggei/ghostfolio#feat/home-assistant-addon
 
 6. Refresh the add-on store if necessary.
-7. Select Ghostfolio All-PR.
+7. Select Ghostfolio-NG.
 8. Configure the PostgreSQL connection.
 9. Start the add-on.
 10. Review the startup logs.
 
-The 0.1.0 and 0.1.1 images have been published.
+Versions 0.1.0 through 0.1.3 were published under the previous
+add-on identity. Version 0.2.0 introduces the Ghostfolio-NG name,
+slug and image repositories.
 
-Version 0.1.2 has passed local AMD64 tests and automated native
-ARM64 runtime tests. Its versioned images must be published before
-installation. Startup of 0.1.2 through a real Home Assistant
-Supervisor remains to be verified.
+The new images must be published and verified before installation.
+Installation through a real Home Assistant Supervisor remains to be tested.
 
 ## PostgreSQL configuration
 
@@ -261,7 +261,7 @@ The add-on version and Ghostfolio application version are
 independent.
 
 Published add-on images should be built from a specific
-Ghostfolio All-PR release digest.
+Ghostfolio-NG release digest.
 
 Before updating:
 
@@ -320,7 +320,7 @@ stream remains a development task.
 ## Current limitations
 
 - PostgreSQL must be provided externally.
-- Installation and startup of version 0.1.2 through a real Home Assistant Supervisor remain to be verified.
+- Installation and startup of Ghostfolio-NG 0.2.0 through a real Home Assistant Supervisor remain to be verified.
 - Full browser navigation through real Home Assistant Ingress remains to be tested.
 - Nginx access and error log integration into the Home Assistant log stream is not finalized.
 - IPv6 PostgreSQL connection formatting has not been tested.

@@ -63,7 +63,7 @@ jobs:
         run: |
           set -euo pipefail
           for arch in amd64 aarch64; do
-            image="ghcr.io/piggei/ghostfolio-ha-all-pr-${arch}:${VERSION}"
+            image="ghcr.io/piggei/ghostfolio-ng-ha-${arch}:${VERSION}"
             if docker buildx imagetools inspect "$image" > /dev/null 2> "$RUNNER_TEMP/inspect-error.log"; then
               echo "::error::Destination already exists: $image"
               exit 1
@@ -114,7 +114,7 @@ jobs:
             BUILD_ARCH=${{ matrix.arch }}
             GHOSTFOLIO_IMAGE=${{ needs.prepare.outputs.source }}
           tags: |
-            ghcr.io/piggei/ghostfolio-ha-all-pr-${{ matrix.arch }}:candidate-${{ github.run_id }}-${{ github.run_attempt }}
+            ghcr.io/piggei/ghostfolio-ng-ha-${{ matrix.arch }}:candidate-${{ github.run_id }}-${{ github.run_attempt }}
           labels: |
             org.opencontainers.image.source=https://github.com/piggei/ghostfolio
             org.opencontainers.image.version=${{ needs.prepare.outputs.version }}
@@ -140,7 +140,7 @@ jobs:
         run: |
           set -euo pipefail
           for arch in amd64 aarch64; do
-            repository="ghcr.io/piggei/ghostfolio-ha-all-pr-${arch}"
+            repository="ghcr.io/piggei/ghostfolio-ng-ha-${arch}"
             candidate="${repository}:candidate-${GITHUB_RUN_ID}-${GITHUB_RUN_ATTEMPT}"
             final="${repository}:${VERSION}"
             docker buildx imagetools inspect "$candidate" --raw > "$RUNNER_TEMP/candidate-${arch}.json"
@@ -175,7 +175,7 @@ jobs:
         run: |
           set -euo pipefail
           for arch in amd64 aarch64; do
-            repository="ghcr.io/piggei/ghostfolio-ha-all-pr-${arch}"
+            repository="ghcr.io/piggei/ghostfolio-ng-ha-${arch}"
             candidate="${repository}:candidate-${GITHUB_RUN_ID}-${GITHUB_RUN_ATTEMPT}"
             final="${repository}:${VERSION}"
             candidate_digest=$(docker buildx imagetools inspect "$candidate" |
