@@ -24,7 +24,9 @@ verified your backups.
 
 ## Installation
 
-After the add-on branch and images have been published:
+[![Add repository to Home Assistant](https://my.home-assistant.io/badges/supervisor_add_addon_repository.svg)](https://my.home-assistant.io/redirect/supervisor_add_addon_repository/?repository_url=https%3A%2F%2Fgithub.com%2Fpiggei%2Fghostfolio%23feat%2Fhome-assistant-addon)
+
+Alternatively, install the repository manually:
 
 1. Open Home Assistant.
 2. Navigate to Settings > Add-ons.
@@ -44,8 +46,9 @@ Versions 0.1.0 through 0.1.3 were published under the previous
 add-on identity. Version 0.2.0 introduces the Ghostfolio-NG name,
 slug and image repositories.
 
-The new images must be published and verified before installation.
-Installation through a real Home Assistant Supervisor remains to be tested.
+Version 0.2.0 images have been published for AMD64 and ARM64.
+Installation, startup, portfolio import, financial data updates, and persistence
+after restarting the add-on have been verified on a real Home Assistant instance.
 
 ## PostgreSQL configuration
 
