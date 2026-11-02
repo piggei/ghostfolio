@@ -229,7 +229,7 @@ upload_release_asset() {
     return 1
   fi
 
-  if [[ ! "$GH_TOKEN" =~ ^[a-zA-Z0-9_]+$ ]]; then
+  if [[ ! "$GH_TOKEN" =~ ^[a-zA-Z0-9_./+=:-]+$ ]]; then
     echo "ERROR: GH_TOKEN contains unsupported characters" >&2
     return 1
   fi

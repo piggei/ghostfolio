@@ -1109,6 +1109,31 @@ test('rejects a different concurrent asset on retry without further uploads', ()
   );
 });
 
+test('accepts supported GitHub token characters without exposing credentials', () => {
+  const githubToken = 'mock-token.with/special+characters=and:values';
+  const result = runScenario({ githubToken });
+
+  assert.equal(result.status, 0, result.output);
+  assert.equal(result.release.draft, true);
+  assert.deepEqual(
+    result.release.assets.map((asset) => asset.name).sort(),
+    [...assetNames].sort()
+  );
+
+  assert.equal(result.output.includes(githubToken), false);
+  assert.equal(JSON.stringify(result.commands).includes(githubToken), false);
+
+  const uploads = result.commands.filter((command) => command[0] === 'curl');
+
+  assert.equal(uploads.length, assetNames.length);
+
+  for (const command of uploads) {
+    assert.ok(command.includes('--config'));
+    assert.ok(command.includes('--disable'));
+    assert.equal(command.includes(githubToken), false);
+  }
+});
+
 test('rejects unsafe GitHub tokens before invoking curl', () => {
   const invalidTokens = [
     'invalid"token',
