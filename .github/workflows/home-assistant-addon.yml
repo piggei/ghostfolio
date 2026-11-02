@@ -47,7 +47,7 @@ jobs:
         shell: bash
         run: |
           set -euo pipefail
-          source='ghcr.io/piggei/ghostfolio@sha256:9a843a475b25cc0633db98a1eb6669cf8f5c31e4b96876414b1eae961e078116'
+          source='ghcr.io/piggei/ghostfolio-ng@sha256:4b1b3f0663a2f583e7f81b98f76ba22a1c24338f0037ca9fc5a487bf390009f7'
           docker buildx imagetools inspect "$source" --raw > "$RUNNER_TEMP/ghostfolio-source-manifest.json"
           for arch in amd64 arm64; do
             jq -e --arg arch "$arch" '

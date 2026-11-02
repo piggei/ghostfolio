@@ -69,7 +69,7 @@ The add-on uses architecture-specific images:
 
 The add-on version determines the image tag requested by Supervisor.
 
-The current add-on version is **0.1.2**.
+The current add-on version is **0.1.3**.
 
 Release builds use an immutable Ghostfolio source image digest to ensure
 both architectures are built from the same Ghostfolio release.
@@ -89,6 +89,23 @@ on subsequent starts.
 
 The external PostgreSQL database stores the Ghostfolio application
 data and must be backed up independently.
+
+## Ghostfolio-NG 0.1.3 qualification
+
+Version 0.1.3 updates the add-on base image to Ghostfolio-NG
+`integration-3.94.0-11`, pinned to its verified immutable OCI digest.
+
+The following checks have passed on local AMD64:
+
+- Docker image build and Nginx configuration validation.
+- Startup with S6 Overlay, Redis and PostgreSQL.
+- Authenticated Home Assistant Supervisor mock configuration.
+- Ghostfolio health endpoint returning HTTP 200.
+- Nginx Ingress proxy redirecting to the localized application.
+- Persistent secrets remaining unchanged after container restart.
+
+Native ARM64 qualification and installation through a real Home Assistant
+Supervisor remain pending. Version 0.1.3 images have not yet been published.
 
 ## Development and release status
 

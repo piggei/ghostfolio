@@ -1,4 +1,4 @@
-ARG GHOSTFOLIO_IMAGE=ghcr.io/piggei/ghostfolio:integration
+ARG GHOSTFOLIO_IMAGE=ghcr.io/piggei/ghostfolio-ng@sha256:4b1b3f0663a2f583e7f81b98f76ba22a1c24338f0037ca9fc5a487bf390009f7
 FROM ${GHOSTFOLIO_IMAGE}
 
 ARG BUILD_ARCH
