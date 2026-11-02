@@ -158,6 +158,18 @@ export function generateReleaseCompose(template, image, tag) {
     .replaceAll('../.env', '.env');
 }
 
+export function retagReleaseCompose(template, sourceImage, targetImage) {
+  if (!sourceImage || !targetImage || sourceImage === targetImage) {
+    throw new Error('Invalid Compose image replacement');
+  }
+
+  if (template.split(sourceImage).length !== 2) {
+    throw new Error('Expected exactly one source image reference');
+  }
+
+  return template.replace(sourceImage, targetImage);
+}
+
 export function generateRelease() {
   const {
     IMAGE: image,

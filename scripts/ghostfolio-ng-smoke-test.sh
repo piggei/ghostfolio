@@ -5,12 +5,28 @@ set -euo pipefail
 SCRIPT_DIR="$(cd -- "$(dirname -- "${BASH_SOURCE[0]}")" && pwd)"
 REPO_ROOT="$(cd -- "${SCRIPT_DIR}/.." && pwd)"
 
-if [ "$#" -ne 1 ]; then
-  echo "Usage: $0 IMAGE:TAG" >&2
+if [ "$#" -ne 1 ] && [ "$#" -ne 3 ]; then
+  echo "Usage: $0 IMAGE:TAG [COMPOSE_FILE SOURCE_IMAGE]" >&2
   exit 2
 fi
 
 IMAGE_REF="$1"
+COMPOSE_TEMPLATE="${2:-}"
+SOURCE_IMAGE="${3:-}"
+
+if [ -n "$COMPOSE_TEMPLATE" ] && [ ! -f "$COMPOSE_TEMPLATE" ]; then
+  echo "ERROR: Compose template not found" >&2
+  exit 2
+fi
+
+if [ -n "$COMPOSE_TEMPLATE" ]; then
+  COMPOSE_TEMPLATE="$(realpath -- "$COMPOSE_TEMPLATE")"
+fi
+
+if [ -n "$COMPOSE_TEMPLATE" ] && [ -z "$SOURCE_IMAGE" ]; then
+  echo "ERROR: Source image reference is required" >&2
+  exit 2
+fi
 
 if [[ "$IMAGE_REF" != *:* ]] || [[ "$IMAGE_REF" == *@* ]]; then
   echo "ERROR: Expected a tagged Docker image reference" >&2
@@ -93,19 +109,31 @@ cd "$REPO_ROOT"
 SMOKE_DIR="$TEST_DIR" \
 SMOKE_IMAGE="$IMAGE" \
 SMOKE_TAG="$TAG" \
+SMOKE_COMPOSE_TEMPLATE="$COMPOSE_TEMPLATE" \
+SMOKE_SOURCE_IMAGE="$SOURCE_IMAGE" \
 node --input-type=module <<'JS'
 import { randomBytes } from 'node:crypto';
 import { readFileSync, writeFileSync } from 'node:fs';
 import { join } from 'node:path';
-import { generateReleaseCompose } from './scripts/integration-release.mjs';
+import {
+  generateReleaseCompose,
+  retagReleaseCompose
+} from './scripts/integration-release.mjs';
 
 const directory = process.env.SMOKE_DIR;
+const templatePath = process.env.SMOKE_COMPOSE_TEMPLATE;
 
-const compose = generateReleaseCompose(
-  readFileSync('docker/docker-compose.yml', 'utf8'),
-  process.env.SMOKE_IMAGE,
-  process.env.SMOKE_TAG
-);
+const compose = templatePath
+  ? retagReleaseCompose(
+      readFileSync(templatePath, 'utf8'),
+      process.env.SMOKE_SOURCE_IMAGE,
+      `${process.env.SMOKE_IMAGE}:${process.env.SMOKE_TAG}`
+    )
+  : generateReleaseCompose(
+      readFileSync('docker/docker-compose.yml', 'utf8'),
+      process.env.SMOKE_IMAGE,
+      process.env.SMOKE_TAG
+    );
 
 writeFileSync(join(directory, 'docker-compose.yml'), compose);
 
@@ -142,6 +170,11 @@ echo "=== Validate isolated Compose ==="
 echo "=== Pull PostgreSQL and Redis ==="
 
 "${compose[@]}" pull postgres redis
+
+if [ -n "$COMPOSE_TEMPLATE" ]; then
+  echo "=== Pull temporary multiarch Ghostfolio image ==="
+  "${compose[@]}" pull ghostfolio
+fi
 
 echo "=== Start Ghostfolio-NG ==="
 

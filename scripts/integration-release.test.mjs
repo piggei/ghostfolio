@@ -6,7 +6,8 @@ import {
   generateReleaseCompose,
   includedReleases,
   integratedPullRequestsMarkdown,
-  localPatchesMarkdown
+  localPatchesMarkdown,
+  retagReleaseCompose
 } from './integration-release.mjs';
 
 const changelog = `# Changelog
@@ -263,5 +264,53 @@ test('rejects missing or duplicated Ghostfolio Compose image', () => {
   assert.throws(
     () => generateReleaseCompose(`${source}\n${source}`, image, tag),
     /Expected exactly one/
+  );
+});
+
+
+test('retags only the Ghostfolio image in a generated Compose file', () => {
+  const source = 'ghcr.io/piggei/ghostfolio-ng:integration-3.94.0-8.1';
+  const target = 'ghcr.io/piggei/ghostfolio-ng:candidate-123456-1-multiarch';
+
+  const compose = [
+    'services:',
+    '  ghostfolio:',
+    `    image: ${source}`,
+    '    ports:',
+    '      - 3333:3333',
+    '  postgres:',
+    '    image: postgres:15-alpine',
+    '    volumes:',
+    '      - postgres:/var/lib/postgresql/data'
+  ].join('\\n');
+
+  const result = retagReleaseCompose(compose, source, target);
+
+  assert.equal(result.split(source).length - 1, 0);
+  assert.equal(result.split(target).length - 1, 1);
+  assert.ok(result.includes('3333:3333'));
+  assert.ok(result.includes('postgres:15-alpine'));
+  assert.ok(result.includes('postgres:/var/lib/postgresql/data'));
+});
+
+test('rejects missing or duplicated Compose image references', () => {
+  const source = 'ghcr.io/piggei/ghostfolio-ng:integration-test';
+  const target = 'ghcr.io/piggei/ghostfolio-ng:candidate-test';
+
+  assert.throws(
+    () => retagReleaseCompose('services: {}', source, target),
+    /Expected exactly one/
+  );
+
+  assert.throws(
+    () => retagReleaseCompose(`${source}\\n${source}`, source, target),
+    /Expected exactly one/
+  );
+});
+
+test('rejects invalid Compose image replacement', () => {
+  assert.throws(
+    () => retagReleaseCompose('image: test', '', 'target'),
+    /Invalid Compose image replacement/
   );
 });
