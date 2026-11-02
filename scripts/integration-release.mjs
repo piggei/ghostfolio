@@ -170,6 +170,20 @@ export function retagReleaseCompose(template, sourceImage, targetImage) {
   return template.replace(sourceImage, targetImage);
 }
 
+export function homeAssistantInstallationMarkdown() {
+  return [
+    '## Home Assistant Add-on',
+    '',
+    'Ghostfolio-NG is also available as a native **Home Assistant Add-on** for AMD64 and ARM64.',
+    '',
+    '[![Add repository to Home Assistant](https://my.home-assistant.io/badges/supervisor_add_addon_repository.svg)](https://my.home-assistant.io/redirect/supervisor_add_addon_repository/?repository_url=https%3A%2F%2Fgithub.com%2Fpiggei%2Fghostfolio%23feat%2Fhome-assistant-addon)',
+    '',
+    'The Add-on provides Home Assistant Ingress, integrated Redis and persistent configuration. A separate PostgreSQL server is required.',
+    '',
+    'For installation and configuration instructions, see the [Add-on README](https://github.com/piggei/ghostfolio/blob/feat/home-assistant-addon/home-assistant-addon/README.md) and [detailed documentation](https://github.com/piggei/ghostfolio/blob/feat/home-assistant-addon/home-assistant-addon/DOCS.md).'
+  ].join('\n');
+}
+
 export function generateRelease() {
   const {
     IMAGE: image,
@@ -265,6 +279,7 @@ export function generateRelease() {
     `Database migrations and seeding run during application startup. ` +
     `Back up the database and preserve existing volumes and configuration ` +
     `before upgrading.\n\n` +
+    `${homeAssistantInstallationMarkdown()}\n\n` +
     `## Offline installation\n\n` +
     `Download the archive matching your architecture and load it using:\n\n` +
     `\`\`\`sh\ndocker load -i ghostfolio-ng-${tag}-linux-amd64.tar.gz\n` +
