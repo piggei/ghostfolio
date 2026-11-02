@@ -1,4 +1,4 @@
-# Ghostfolio-NG Add-on Documentation
+# Ghostfolio-NG Home Assistant Add-on Documentation
 
 ## Overview
 
