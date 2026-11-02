@@ -86,33 +86,47 @@ cleanup_temp_dir() {
 
 trap cleanup_temp_dir EXIT
 
-api_release() {
-  gh api "repos/$REPOSITORY/releases/tags/$TAG" "$@"
-}
-
 get_release() {
-  local output
+  local matches
   local error_file
   local status
+  local count
 
   error_file="$(mktemp "$TEMP_DIR/gh-api.XXXXXXXX")"
 
-  if output="$(api_release 2>"$error_file")"; then
-    rm -f "$error_file"
-    printf '%s' "$output"
-    return 0
+  # The tag-specific endpoint does not expose unpublished Draft Releases.
+  # Retrieve all release pages and select the exact tag locally.
+  if matches="$(
+    gh api --paginate \
+      "repos/$REPOSITORY/releases?per_page=100" \
+      2>"$error_file" |
+      jq -s --arg tag "$TAG" \
+        '[.[][] | select(.tag_name == $tag)]' \
+        2>>"$error_file"
+  )"; then
+    rm -f -- "$error_file"
   else
     status=$?
+    cat "$error_file" >&2
+    rm -f -- "$error_file"
+    return "$status"
   fi
 
-  if grep -q 'HTTP 404' "$error_file"; then
-    rm -f "$error_file"
+  count="$(jq 'length' <<< "$matches")" || {
+    echo "ERROR: Cannot count matching GitHub Releases" >&2
+    return 1
+  }
+
+  if [[ "$count" -eq 0 ]]; then
     return 10
   fi
 
-  cat "$error_file" >&2
-  rm -f "$error_file"
-  return "$status"
+  if [[ "$count" -ne 1 ]]; then
+    echo "ERROR: Multiple GitHub Releases found for tag $TAG" >&2
+    return 1
+  fi
+
+  jq -c '.[0]' <<< "$matches"
 }
 
 validate_assets() {

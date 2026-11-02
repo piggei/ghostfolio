@@ -59,7 +59,10 @@ function runScenario({
   retryAfterPatchLoss = false,
   remoteAssetTamper = '',
   remoteChecksumTamper = false,
-  missingRemoteAsset = ''
+  missingRemoteAsset = '',
+  apiFailure = false,
+  duplicateRelease = false,
+  releaseOnSecondPage = false
 } = {}) {
   const root = mkdtempSync(join(tmpdir(), 'ghostfolio-ng-publisher-'));
   const bin = join(root, 'bin');
@@ -184,10 +187,38 @@ if (args[0] === 'api') {
     process.exit(0);
   }
 
-  if (!state.release) fail('HTTP 404: Not Found');
+  if (endpoint?.includes('/releases?per_page=100')) {
+    if (process.env.MOCK_API_FAILURE === 'true') {
+      fail('HTTP 500: simulated GitHub API failure');
+    }
 
-  process.stdout.write(JSON.stringify(state.release));
-  process.exit(0);
+    const releases = state.release ? [state.release] : [];
+
+    if (
+      process.env.MOCK_RELEASE_ON_SECOND_PAGE === 'true' &&
+      state.release
+    ) {
+      process.stdout.write(
+        JSON.stringify([{
+          ...state.release,
+          id: state.release.id + 100,
+          tag_name: 'integration-3.93.0-99'
+        }]) + '\\n'
+      );
+    }
+
+    if (process.env.MOCK_DUPLICATE_RELEASE === 'true' && state.release) {
+      releases.push({
+        ...state.release,
+        id: state.release.id + 1
+      });
+    }
+
+    process.stdout.write(JSON.stringify(releases));
+    process.exit(0);
+  }
+
+  fail('Unexpected GitHub API GET endpoint: ' + endpoint);
 }
 
 if (args[0] === 'release' && args[1] === 'create') {
@@ -331,7 +362,10 @@ if (
         MOCK_REMOTE_CHECKSUM_TAMPER: String(remoteChecksumTamper),
         MOCK_PATCH_LOSS: String(failPatchResponse),
         MOCK_DIGEST_MISMATCH: String(digestMismatch),
-        MOCK_SOURCE_DIGEST: digest
+        MOCK_SOURCE_DIGEST: digest,
+        MOCK_API_FAILURE: String(apiFailure),
+        MOCK_DUPLICATE_RELEASE: String(duplicateRelease),
+        MOCK_RELEASE_ON_SECOND_PAGE: String(releaseOnSecondPage)
       }
     });
 
@@ -564,6 +598,65 @@ test('accepts an already published valid release without modifying it', () => {
   assert.equal(patches.length, 0);
 });
 
+
+test('finds the matching Draft Release on a subsequent API page', () => {
+  const result = runScenario({
+    existingRelease: createRelease(),
+    releaseOnSecondPage: true
+  });
+
+  assert.equal(result.status, 0);
+  assert.equal(result.release.id, 123456);
+  assert.equal(result.release.draft, true);
+  assert.match(result.output, /Existing draft recovered/);
+
+  const createCommands = result.commands.filter(
+    (command) => command[1] === 'release' &&
+      command[2] === 'create'
+  );
+
+  assert.equal(createCommands.length, 0);
+});
+
+test('fails closed when the GitHub releases API returns HTTP 500', () => {
+  const result = runScenario({
+    apiFailure: true
+  });
+
+  assert.notEqual(result.status, 0);
+  assert.match(result.output, /Cannot retrieve GitHub Release/);
+  assert.match(result.output, /HTTP 500/);
+
+  const createCommands = result.commands.filter(
+    (command) => command[1] === 'release' &&
+      command[2] === 'create'
+  );
+
+  assert.equal(createCommands.length, 0);
+});
+
+test('rejects multiple GitHub Releases with the same tag', () => {
+  const result = runScenario({
+    existingRelease: createRelease(),
+    duplicateRelease: true
+  });
+
+  assert.notEqual(result.status, 0);
+  assert.match(result.output, /Multiple GitHub Releases found/);
+
+  const uploadCommands = result.commands.filter(
+    (command) => command[1] === 'release' &&
+      command[2] === 'upload'
+  );
+
+  const createCommands = result.commands.filter(
+    (command) => command[1] === 'release' &&
+      command[2] === 'create'
+  );
+
+  assert.equal(uploadCommands.length, 0);
+  assert.equal(createCommands.length, 0);
+});
 
 test('cleans temporary publisher files after success, failure and retry', () => {
   const scenarios = [
