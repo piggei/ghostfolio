@@ -4,6 +4,7 @@ on:
   push:
     branches:
       - feat/ghostfolio-ng-distribution
+      - integration/ghostfolio-3.97-candidate
 
 permissions:
   contents: read
