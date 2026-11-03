@@ -6,6 +6,7 @@ on:
       - feat/home-assistant-addon
     paths:
       - '.github/workflows/home-assistant-addon-test.yml'
+      - '.github/workflows/home-assistant-addon-test-amd64.yml'
       - 'home-assistant-addon/**'
       - 'tests/home-assistant-addon/**'
   workflow_dispatch:
