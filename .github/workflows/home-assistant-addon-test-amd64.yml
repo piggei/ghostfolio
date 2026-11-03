@@ -267,7 +267,7 @@ jobs:
           node_uid=$(docker exec "$CI_APP" id -u node)
 
           app_uid=$(docker top "$CI_APP" -eo uid,pid,args |
-            awk '$3 == "node" && $4 == "main" {print $1; exit}')
+            awk '$3 == "node" && $4 == "main" && !found {print $1; found=1}')
 
           test -n "$app_uid"
           test "$app_uid" = "$node_uid"
