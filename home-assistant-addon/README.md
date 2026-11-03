@@ -71,7 +71,7 @@ The add-on uses architecture-specific images:
 
 The add-on version determines the image tag requested by Supervisor.
 
-The current add-on version is **0.2.0**.
+The current add-on version is **3.97.0**.
 
 Release builds use an immutable Ghostfolio source image digest to ensure
 both architectures are built from the same Ghostfolio release.
@@ -127,6 +127,31 @@ Supervisor API integration and Ingress implementation remain unchanged.
 
 Version 0.2.0 requires renewed AMD64 and ARM64 qualification and
 publication of its architecture-specific images before installation.
+
+## Ghostfolio-NG 3.97.0
+
+Version 3.97.0 aligns the Home Assistant add-on version with the
+underlying Ghostfolio upstream version.
+
+The add-on uses Ghostfolio-NG `integration-3.97.0-12`, based on
+Ghostfolio upstream 3.97.0 with additional integrated features.
+The source image is pinned to its verified immutable OCI digest.
+
+Changes include:
+
+- Updated Ghostfolio-NG application to the 3.97.0 integration release.
+- Continued support for AMD64 and AArch64.
+- Add-on version aligned with the Ghostfolio application version.
+- Unchanged add-on identity, PostgreSQL configuration, Redis,
+  Ingress integration and persistent data locations.
+
+This version changes the add-on versioning convention from 0.2.0
+to 3.97.0. It does not introduce a new add-on identity or slug.
+
+AMD64 and AArch64 add-on qualification and publication are required
+before this version can be considered released. Installation and
+upgrade through a real Home Assistant Supervisor require separate
+verification.
 
 ## Development and release status
 

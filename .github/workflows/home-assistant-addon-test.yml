@@ -33,7 +33,7 @@ jobs:
       CI_APP: ghostfolio-ha-ci-app
       CI_IMAGE: ghostfolio-ng-ha:arm64-test
       CI_MOCK_IMAGE: ghostfolio-ha-supervisor-mock:ci
-      SOURCE_IMAGE: ghcr.io/piggei/ghostfolio-ng@sha256:4b1b3f0663a2f583e7f81b98f76ba22a1c24338f0037ca9fc5a487bf390009f7
+      SOURCE_IMAGE: ghcr.io/piggei/ghostfolio-ng@sha256:f79581ccb8cdc9716bca962dad5e1915b6c6f2d0864ead91f3c1e92327382a94
 
     steps:
       - name: Checkout source
@@ -66,7 +66,7 @@ jobs:
           tags: ghostfolio-ng-ha:arm64-test
           build-args: |
             BUILD_ARCH=aarch64
-            GHOSTFOLIO_IMAGE=ghcr.io/piggei/ghostfolio-ng@sha256:4b1b3f0663a2f583e7f81b98f76ba22a1c24338f0037ca9fc5a487bf390009f7
+            GHOSTFOLIO_IMAGE=ghcr.io/piggei/ghostfolio-ng@sha256:f79581ccb8cdc9716bca962dad5e1915b6c6f2d0864ead91f3c1e92327382a94
 
       - name: Build Supervisor mock
         shell: bash

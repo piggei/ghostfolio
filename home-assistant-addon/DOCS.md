@@ -50,6 +50,12 @@ Version 0.2.0 images have been published for AMD64 and ARM64.
 Installation, startup, portfolio import, financial data updates, and persistence
 after restarting the add-on have been verified on a real Home Assistant instance.
 
+Version 3.97.0 updates the underlying Ghostfolio-NG application to
+`integration-3.97.0-12`, based on Ghostfolio upstream 3.97.0.
+The add-on name, slug and persistent data locations remain unchanged.
+The new version requires renewed qualification and publication before
+installation or upgrade.
+
 ## PostgreSQL configuration
 
 The following add-on options are available:
@@ -260,8 +266,12 @@ Ghostfolio application version.
 
 ## Updates
 
-The add-on version and Ghostfolio application version are
-independent.
+Starting with add-on version 3.97.0, the add-on version follows
+the underlying Ghostfolio upstream version.
+
+Add-on-only maintenance revisions must use a distinct, compatible
+version identifier without changing the referenced Ghostfolio
+application version.
 
 Published add-on images should be built from a specific
 Ghostfolio-NG release digest.
@@ -323,7 +333,7 @@ stream remains a development task.
 ## Current limitations
 
 - PostgreSQL must be provided externally.
-- Installation and startup of Ghostfolio-NG 0.2.0 through a real Home Assistant Supervisor remain to be verified.
+- Installation and upgrade of Ghostfolio-NG 3.97.0 through a real Home Assistant Supervisor remain to be verified.
 - Full browser navigation through real Home Assistant Ingress remains to be tested.
 - Nginx access and error log integration into the Home Assistant log stream is not finalized.
 - IPv6 PostgreSQL connection formatting has not been tested.
