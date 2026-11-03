@@ -142,6 +142,26 @@ function git(...args) {
   return execFileSync('git', args, { encoding: 'utf8' }).trim();
 }
 
+export function homeAssistantReleaseNotes() {
+  return (
+    `## Home Assistant Add-on\n\n` +
+    `Ghostfolio NG is also available as a native **Home Assistant Add-on** ` +
+    `for AMD64 and ARM64.\n\n` +
+    `[![Add repository to Home Assistant]` +
+    `(https://my.home-assistant.io/badges/supervisor_add_addon_repository.svg)]` +
+    `(https://my.home-assistant.io/redirect/supervisor_add_addon_repository/` +
+    `?repository_url=https%3A%2F%2Fgithub.com%2Fpiggei%2Fghostfolio` +
+    `%23feat%2Fhome-assistant-addon)\n\n` +
+    `The Add-on provides Home Assistant Ingress, integrated Redis and ` +
+    `persistent configuration. A separate PostgreSQL server is required.\n\n` +
+    `For installation and configuration instructions, see the ` +
+    `[Add-on README](https://github.com/piggei/ghostfolio/blob/` +
+    `feat/home-assistant-addon/home-assistant-addon/README.md) and ` +
+    `[detailed documentation](https://github.com/piggei/ghostfolio/blob/` +
+    `feat/home-assistant-addon/home-assistant-addon/DOCS.md).\n\n`
+  );
+}
+
 export function generateReleaseCompose(template, image, tag) {
   const source = 'docker.io/ghostfolio/ghostfolio:latest';
 
@@ -280,6 +300,7 @@ export function generateRelease() {
     `the Ghostfolio image in Docker Compose to \`${image}:integration\`.\n\n` +
     '```sh\ndocker compose pull\ndocker compose up -d\n```\n\n' +
     `For reproducible deployments, prefer a version-specific or commit-based tag.\n\n` +
+    homeAssistantReleaseNotes() +
     `## Official Ghostfolio updates\n\n` +
     (official.join('\n\n') ||
       `No new official Ghostfolio release since the previous integration build (${version}).`) +

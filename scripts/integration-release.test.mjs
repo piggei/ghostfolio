@@ -4,6 +4,7 @@ import { test } from 'node:test';
 import {
   changelogSections,
   generateReleaseCompose,
+  homeAssistantReleaseNotes,
   includedReleases,
   integratedPullRequestsMarkdown,
   localPatchesMarkdown,
@@ -309,5 +310,46 @@ test('rejects invalid Compose image replacement', () => {
   assert.throws(
     () => retagReleaseCompose('image: test', '', 'target'),
     /Invalid Compose image replacement/
+  );
+});
+
+test('generates the Home Assistant release section with the correct links', () => {
+  const markdown = [
+    '## Updating the integration channel',
+    homeAssistantReleaseNotes(),
+    '## Official Ghostfolio updates'
+  ].join('\\n\\n');
+
+  const updating = markdown.indexOf('## Updating the integration channel');
+  const homeAssistant = markdown.indexOf('## Home Assistant Add-on');
+  const official = markdown.indexOf('## Official Ghostfolio updates');
+
+  assert.ok(updating < homeAssistant);
+  assert.ok(homeAssistant < official);
+
+  assert.equal(markdown.split('## Home Assistant Add-on').length - 1, 1);
+
+  assert.ok(
+    markdown.includes(
+      'https://my.home-assistant.io/badges/supervisor_add_addon_repository.svg'
+    )
+  );
+
+  assert.ok(
+    markdown.includes(
+      'https://my.home-assistant.io/redirect/supervisor_add_addon_repository/?repository_url=https%3A%2F%2Fgithub.com%2Fpiggei%2Fghostfolio%23feat%2Fhome-assistant-addon'
+    )
+  );
+
+  assert.ok(
+    markdown.includes(
+      'https://github.com/piggei/ghostfolio/blob/feat/home-assistant-addon/home-assistant-addon/README.md'
+    )
+  );
+
+  assert.ok(
+    markdown.includes(
+      'https://github.com/piggei/ghostfolio/blob/feat/home-assistant-addon/home-assistant-addon/DOCS.md'
+    )
   );
 });
