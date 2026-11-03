@@ -400,16 +400,58 @@ jobs:
 
           echo 'HTML and main bundle: PASS'
 
-          echo '=== Angular chunk ==='
+          echo '=== Angular chunks ==='
 
-          chunk=$(docker exec "$CI_APP" curl --fail --silent --show-error \
-            -H "$INGRESS_HEADER" \
-            http://127.0.0.1:8099/it/chunk-MVt106Ts.js)
+          chunk_count=0
+          api_chunk_count=0
 
-          rewritten=$(grep -oF "$INGRESS_PATH/api/" <<< "$chunk" | wc -l)
-          test "$rewritten" -eq 99
+          while IFS= read -r asset; do
+            [ -n "$asset" ] || continue
 
-          echo "Rewritten Angular API references: $rewritten"
+            chunk_count=$((chunk_count + 1))
+
+            direct=$(docker exec "$CI_APP" curl --fail --silent --show-error \
+              "http://127.0.0.1:3333/it/$asset")
+
+            original=$( { grep -oF '/api/' <<< "$direct" || true; } | wc -l)
+
+            if [ "$original" -eq 0 ]; then
+              continue
+            fi
+
+            chunk=$(docker exec "$CI_APP" curl --fail --silent --show-error \
+              -H "$INGRESS_HEADER" \
+              "http://127.0.0.1:8099/it/$asset")
+
+            rewritten=$( { grep -oF "$INGRESS_PATH/api/" <<< "$chunk" || true; } | wc -l)
+
+            remaining=$(sed "s|$INGRESS_PATH/api/||g" <<< "$chunk" |
+              grep -oF '/api/' | wc -l || true)
+
+            if [ "$rewritten" -ne "$original" ]; then
+              echo "::error::Incomplete API path rewriting in $asset"
+              echo "Expected: $original; rewritten: $rewritten"
+              exit 1
+            fi
+
+            if [ "$remaining" -ne 0 ]; then
+              echo "::error::Unrewritten API references in $asset"
+              exit 1
+            fi
+
+            api_chunk_count=$((api_chunk_count + 1))
+
+            echo "PASS: $asset ($rewritten API references)"
+          done < <(
+            grep -oE 'href="chunk-[^"]+\.js"' <<< "$html" |
+              cut -d '"' -f 2
+          )
+
+          test "$chunk_count" -gt 0
+          test "$api_chunk_count" -gt 0
+
+          echo "Angular chunks inspected: $chunk_count"
+          echo "Angular chunks with API references: $api_chunk_count"
 
           echo '=== PWA manifest with Ingress ==='
 
