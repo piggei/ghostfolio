@@ -1,0 +1,57 @@
+name: Validate Ghostfolio-NG 3.97 Docker candidate
+
+on:
+  push:
+    branches:
+      - integration/ghostfolio-3.97-candidate
+
+permissions:
+  contents: read
+
+concurrency:
+  group: ghostfolio-397-validation-${{ github.ref }}
+  cancel-in-progress: false
+
+jobs:
+  build:
+    if: github.repository == 'piggei/ghostfolio'
+    strategy:
+      fail-fast: false
+      matrix:
+        include:
+          - arch: amd64
+            runner: ubuntu-latest
+          - arch: arm64
+            runner: ubuntu-24.04-arm
+    runs-on: ${{ matrix.runner }}
+    timeout-minutes: 90
+
+    steps:
+      - name: Checkout source
+        uses: actions/checkout@v4
+
+      - name: Set up Docker Buildx
+        uses: docker/setup-buildx-action@v3
+
+      - name: Build Ghostfolio-NG ${{ matrix.arch }} candidate
+        uses: docker/build-push-action@v6
+        with:
+          context: .
+          platforms: linux/${{ matrix.arch }}
+          push: false
+          load: true
+          tags: ghostfolio-ng:candidate-${{ matrix.arch }}
+          cache-from: type=gha,scope=ghostfolio-ng-candidate-${{ matrix.arch }}
+          cache-to: type=gha,mode=max,scope=ghostfolio-ng-candidate-${{ matrix.arch }}
+
+      - name: Test shared smoke test implementation
+        run: node --test scripts/ghostfolio-ng-smoke-test.test.mjs
+
+      - name: Run Ghostfolio-NG runtime smoke test
+        shell: bash
+        env:
+          TARGET_ARCH: ${{ matrix.arch }}
+        run: |
+          set -euo pipefail
+
+          bash scripts/ghostfolio-ng-smoke-test.sh "ghostfolio-ng:candidate-${TARGET_ARCH}"
