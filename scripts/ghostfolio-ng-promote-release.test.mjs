@@ -168,22 +168,13 @@ case "$3" in
 esac
 `;
 
-;
-
   writeFileSync(join(bin, 'docker'), mock, { mode: 0o755 });
 
   const destinations = args ?? ['release-version', 'release-sha'];
 
   const result = spawnSync(
     'bash',
-    [
-      script,
-      image,
-      source,
-      amd64,
-      arm64,
-      ...destinations
-    ],
+    [script, image, source, amd64, arm64, ...destinations],
     {
       encoding: 'utf8',
       timeout: 15000,
@@ -211,9 +202,7 @@ esac
 
   const state = destinations.map((tag) => {
     try {
-      return JSON.parse(
-        readFileSync(join(registry, `${tag}.json`), 'utf8')
-      );
+      return JSON.parse(readFileSync(join(registry, `${tag}.json`), 'utf8'));
     } catch {
       return null;
     }
@@ -244,7 +233,9 @@ test('publishes both missing release tags using the pinned digest', () => {
   assert.match(result.output, /promotion: PASS/);
 
   for (const command of creates(result)) {
-    assert.ok(command.includes(`ghcr.io/piggei/ghostfolio-ng@${manifestDigest}`));
+    assert.ok(
+      command.includes(`ghcr.io/piggei/ghostfolio-ng@${manifestDigest}`)
+    );
     assert.ok(!command.includes(`ghcr.io/piggei/ghostfolio-ng:${source}`));
   }
 });
@@ -265,9 +256,7 @@ test('accepts already promoted matching tags', () => {
 
 test('recovers a partially completed promotion', () => {
   const result = runScenario({
-    existing: [
-      { tag: 'release-version', manifest: createManifest() }
-    ]
+    existing: [{ tag: 'release-version', manifest: createManifest() }]
   });
 
   assert.equal(result.status, 0);
@@ -280,18 +269,19 @@ test('rejects an existing tag with different digests', () => {
     existing: [
       {
         tag: 'release-version',
-          manifest: createManifest(arm64, amd64),
-          digest: `sha256:${'d'.repeat(64)}`
+        manifest: createManifest(arm64, amd64),
+        digest: `sha256:${'d'.repeat(64)}`
       }
     ]
   });
 
   assert.notEqual(result.status, 0);
   assert.equal(creates(result).length, 0);
-  assert.match(result.output, /Destination manifest digest differs from qualified source/);
+  assert.match(
+    result.output,
+    /Destination manifest digest differs from qualified source/
+  );
 });
-
-
 
 test('rejects matching platform digests under a different index digest', () => {
   const result = runScenario({
@@ -360,21 +350,13 @@ test('rejects invalid destination tags before registry access', () => {
 test('rejects duplicate architecture digests', () => {
   const result = spawnSync(
     'bash',
-    [
-      script,
-      image,
-      source,
-      amd64,
-      amd64,
-      'release-version'
-    ],
+    [script, image, source, amd64, amd64, 'release-version'],
     { encoding: 'utf8' }
   );
 
   assert.equal(result.status, 2);
   assert.match(result.stderr, /Invalid or duplicate architecture digests/);
 });
-
 
 test('removes temporary registry diagnostics on success and failure', () => {
   const scenarios = [

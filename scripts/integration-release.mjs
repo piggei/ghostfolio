@@ -146,7 +146,9 @@ export function generateReleaseCompose(template, image, tag) {
   const source = 'docker.io/ghostfolio/ghostfolio:latest';
 
   if (template.split(source).length !== 2) {
-    throw new Error('Expected exactly one Ghostfolio image in Compose template');
+    throw new Error(
+      'Expected exactly one Ghostfolio image in Compose template'
+    );
   }
 
   if (!image || !tag) {

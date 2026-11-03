@@ -1,7 +1,7 @@
-import { UserService } from '@ghostfolio/api/services/user/user.service';
 import { AccountBalanceService } from '@ghostfolio/api/services/account-balance/account-balance.service';
 import { ActivitiesService } from '@ghostfolio/api/services/activities/activities.service';
 import { PrismaService } from '@ghostfolio/api/services/prisma/prisma.service';
+import { UserService } from '@ghostfolio/api/services/user/user.service';
 import {
   CashCsvPreview,
   CashManagementExport

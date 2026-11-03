@@ -35,16 +35,10 @@ export function validateManifest(manifest, amd64Digest, arm64Digest) {
   for (const entry of manifest.manifests) {
     const platform = entry?.platform;
 
-    if (
-      platform?.os === 'unknown' &&
-      platform?.architecture === 'unknown'
-    ) {
+    if (platform?.os === 'unknown' && platform?.architecture === 'unknown') {
       const annotations = entry.annotations ?? {};
 
-      if (
-        annotations['vnd.docker.reference.type'] !==
-        'attestation-manifest'
-      ) {
+      if (annotations['vnd.docker.reference.type'] !== 'attestation-manifest') {
         throw new Error('Unexpected unknown-platform manifest');
       }
 
@@ -64,10 +58,7 @@ export function validateManifest(manifest, amd64Digest, arm64Digest) {
       continue;
     }
 
-    if (
-      platform?.os !== 'linux' ||
-      !expected.has(platform.architecture)
-    ) {
+    if (platform?.os !== 'linux' || !expected.has(platform.architecture)) {
       throw new Error('Unexpected executable platform');
     }
 

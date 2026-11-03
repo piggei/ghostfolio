@@ -168,7 +168,6 @@ test('reports cleanup failure without declaring success', () => {
   assert.ok(!result.output.includes('smoke test: PASS'));
 });
 
-
 test('qualifies distributive Compose using the temporary image', () => {
   const result = runScenario('', true);
 

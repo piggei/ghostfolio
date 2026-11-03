@@ -42,10 +42,7 @@ test('release identity remains stable across retries', () => {
     /tag=integration-\$\{version\}-\$\{GITHUB_RUN_NUMBER\}\.\$\{GITHUB_RUN_ATTEMPT\}/
   );
 
-  assert.match(
-    workflow,
-    /sha_tag=sha-\$\{GITHUB_SHA\}/
-  );
+  assert.match(workflow, /sha_tag=sha-\$\{GITHUB_SHA\}/);
 });
 
 test('OCI version label uses the stable package version', () => {
@@ -82,21 +79,14 @@ test('integration channel is protected against older release retries', () => {
 
   assert.ok(
     workflow.includes(advanceCondition),
-    "Integration advancement must depend on the ordering decision"
+    'Integration advancement must depend on the ordering decision'
   );
 });
 
 test('integration ordering checks active runs with read permission', () => {
-  assert.match(
-    workflow,
-    /actions:\s*read/
-  );
+  assert.match(workflow, /actions:\s*read/);
 
-  assert.ok(
-    workflow.includes(
-      '"$GITHUB_REPOSITORY" "$TAG" "$GITHUB_RUN_ID"'
-    )
-  );
+  assert.ok(workflow.includes('"$GITHUB_REPOSITORY" "$TAG" "$GITHUB_RUN_ID"'));
 
   assert.ok(
     workflow.includes('scripts/ghostfolio-ng-check-integration-order.test.mjs')

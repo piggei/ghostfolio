@@ -1,11 +1,6 @@
 import assert from 'node:assert/strict';
 import { spawnSync } from 'node:child_process';
-import {
-  mkdtempSync,
-  readFileSync,
-  rmSync,
-  writeFileSync
-} from 'node:fs';
+import { mkdtempSync, readFileSync, rmSync, writeFileSync } from 'node:fs';
 import { tmpdir } from 'node:os';
 import { join, resolve } from 'node:path';
 import { test } from 'node:test';
@@ -64,31 +59,24 @@ esac
     { mode: 0o755 }
   );
 
-  const result = spawnSync(
-    'bash',
-    [script, 'piggei/ghostfolio', tag, runId],
-    {
-      encoding: 'utf8',
-      timeout: 10000,
-      env: {
-        ...process.env,
-        PATH: `${directory}:${process.env.PATH}`,
-        MOCK_GH_LOG: log,
-        MOCK_API_FAILURE: apiFailure,
-        MOCK_RELEASE_TAGS: tags.join('\n'),
-        MOCK_QUEUED_RUNS: queuedRuns.join('\n'),
-        MOCK_IN_PROGRESS_RUNS: inProgressRuns.join('\n')
-      }
+  const result = spawnSync('bash', [script, 'piggei/ghostfolio', tag, runId], {
+    encoding: 'utf8',
+    timeout: 10000,
+    env: {
+      ...process.env,
+      PATH: `${directory}:${process.env.PATH}`,
+      MOCK_GH_LOG: log,
+      MOCK_API_FAILURE: apiFailure,
+      MOCK_RELEASE_TAGS: tags.join('\n'),
+      MOCK_QUEUED_RUNS: queuedRuns.join('\n'),
+      MOCK_IN_PROGRESS_RUNS: inProgressRuns.join('\n')
     }
-  );
+  });
 
   let commands = [];
 
   try {
-    commands = readFileSync(log, 'utf8')
-      .trim()
-      .split('\n')
-      .filter(Boolean);
+    commands = readFileSync(log, 'utf8').trim().split('\n').filter(Boolean);
   } catch {
     // Invalid arguments must not invoke GitHub CLI.
   }
@@ -114,10 +102,7 @@ test('allows the first integration release', () => {
 
 test('allows a release newer than all published releases', () => {
   const result = runScenario({
-    tags: [
-      'integration-3.93.0-90',
-      'integration-3.94.0-104'
-    ]
+    tags: ['integration-3.93.0-90', 'integration-3.94.0-104']
   });
 
   assert.equal(result.status, 0);
@@ -226,7 +211,10 @@ test('fails closed when active workflow runs API is unavailable', () => {
   });
 
   assert.equal(result.status, 1);
-  assert.match(result.output, /Cannot retrieve workflow runs with status queued/);
+  assert.match(
+    result.output,
+    /Cannot retrieve workflow runs with status queued/
+  );
 });
 
 test('rejects an invalid workflow run ID before API access', () => {

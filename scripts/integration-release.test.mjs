@@ -243,9 +243,7 @@ test('generates Ghostfolio-NG release Compose with the correct image', () => {
   );
 
   assert.ok(
-    compose.includes(
-      'ghcr.io/piggei/ghostfolio-ng:integration-3.94.0-8.1'
-    )
+    compose.includes('ghcr.io/piggei/ghostfolio-ng:integration-3.94.0-8.1')
   );
   assert.ok(!compose.includes('docker.io/ghostfolio/ghostfolio:latest'));
   assert.ok(compose.includes('- .env'));
@@ -266,7 +264,6 @@ test('rejects missing or duplicated Ghostfolio Compose image', () => {
     /Expected exactly one/
   );
 });
-
 
 test('retags only the Ghostfolio image in a generated Compose file', () => {
   const source = 'ghcr.io/piggei/ghostfolio-ng:integration-3.94.0-8.1';

@@ -1,5 +1,6 @@
 import assert from 'node:assert/strict';
 import { test } from 'node:test';
+
 import { validateManifest } from './ghostfolio-ng-validate-manifest.mjs';
 
 const AMD64 = `sha256:${'a'.repeat(64)}`;
@@ -7,8 +8,7 @@ const ARM64 = `sha256:${'b'.repeat(64)}`;
 const OTHER = `sha256:${'c'.repeat(64)}`;
 
 const OCI = 'application/vnd.oci.image.index.v1+json';
-const DOCKER =
-  'application/vnd.docker.distribution.manifest.list.v2+json';
+const DOCKER = 'application/vnd.docker.distribution.manifest.list.v2+json';
 
 function executable(architecture, digest, os = 'linux') {
   return {
@@ -35,10 +35,7 @@ function index(manifests, mediaType = OCI) {
 }
 
 function valid() {
-  return index([
-    executable('amd64', AMD64),
-    executable('arm64', ARM64)
-  ]);
+  return index([executable('amd64', AMD64), executable('arm64', ARM64)]);
 }
 
 function check(manifest, amd64 = AMD64, arm64 = ARM64) {
@@ -154,10 +151,7 @@ test('rejects invalid attestation digest', () => {
 });
 
 test('rejects empty index', () => {
-  assert.throws(
-    () => check(index([])),
-    /Missing required architecture/
-  );
+  assert.throws(() => check(index([])), /Missing required architecture/);
 });
 
 test('rejects attestation referencing an unknown digest', () => {
@@ -167,10 +161,7 @@ test('rejects attestation referencing an unknown digest', () => {
   entry.annotations['vnd.docker.reference.digest'] = OTHER;
   value.manifests.push(entry);
 
-  assert.throws(
-    () => check(value),
-    /Invalid attestation reference/
-  );
+  assert.throws(() => check(value), /Invalid attestation reference/);
 });
 
 test('rejects attestation without reference digest', () => {
@@ -180,10 +171,7 @@ test('rejects attestation without reference digest', () => {
   delete entry.annotations['vnd.docker.reference.digest'];
   value.manifests.push(entry);
 
-  assert.throws(
-    () => check(value),
-    /Invalid attestation reference/
-  );
+  assert.throws(() => check(value), /Invalid attestation reference/);
 });
 
 test('accepts attestation referencing ARM64', () => {

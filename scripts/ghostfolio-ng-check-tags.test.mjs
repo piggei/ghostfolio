@@ -123,10 +123,7 @@ for (const scenario of ['forbidden', 'timeout', 'server', 'misleading']) {
 }
 
 test('rejects an invalid image reference', () => {
-  const result = runScenario('missing', [
-    'docker.io/example/image',
-    tag
-  ]);
+  const result = runScenario('missing', ['docker.io/example/image', tag]);
 
   assert.equal(result.status, 2);
   assert.match(result.output, /Invalid GHCR image reference/);
@@ -134,10 +131,7 @@ test('rejects an invalid image reference', () => {
 });
 
 test('rejects an invalid tag', () => {
-  const result = runScenario('missing', [
-    image,
-    '../invalid'
-  ]);
+  const result = runScenario('missing', [image, '../invalid']);
 
   assert.equal(result.status, 2);
   assert.match(result.output, /Invalid image tag/);
@@ -169,7 +163,6 @@ test('never accepts an unexpected Docker error', () => {
   assert.equal(result.status, 1);
   assert.doesNotMatch(result.output, /Release tag available/);
 });
-
 
 test('removes temporary registry diagnostics after success and failure', () => {
   for (const scenario of ['missing', 'forbidden']) {
