@@ -11215,6 +11215,54 @@
           <context context-type="linenumber">6</context>
         </context-group>
       </trans-unit>
-    </body>
+    <trans-unit id="3153776932989085054" datatype="html">
+        <source>Ghostfolio NG</source>
+        <target state="translated">Ghostfolio NG</target>
+        <context-group purpose="location">
+          <context context-type="sourcefile">apps/client/src/app/pages/about/overview/about-overview-page.html</context>
+          <context context-type="linenumber">182</context>
+        </context-group>
+      </trans-unit>
+<trans-unit id="6012570692642655150" datatype="html">
+        <source>An enhanced version of the open-source Ghostfolio project, featuring additional functionality, improvements and independently developed integrations.</source>
+        <target state="translated">Покращена версія проєкту Ghostfolio з відкритим кодом, що містить додаткові функції, удосконалення та незалежно розроблені інтеграції.</target>
+        <context-group purpose="location">
+          <context context-type="sourcefile">apps/client/src/app/pages/about/overview/about-overview-page.html</context>
+          <context context-type="linenumber">185</context>
+        </context-group>
+      </trans-unit>
+<trans-unit id="3720795905108981664" datatype="html">
+        <source>Ghostfolio NG is an independently maintained distribution and is not an official release of, affiliated with, or endorsed by the original Ghostfolio project or its maintainers.</source>
+        <target state="translated">Ghostfolio NG — це дистрибутив, який підтримується незалежно. Він не є офіційним випуском оригінального проєкту Ghostfolio, не пов'язаний із ним або його супроводжувачами та не схвалений ними.</target>
+        <context-group purpose="location">
+          <context context-type="sourcefile">apps/client/src/app/pages/about/overview/about-overview-page.html</context>
+          <context context-type="linenumber">191</context>
+        </context-group>
+      </trans-unit>
+<trans-unit id="7451307105537371468" datatype="html">
+        <source>The original authors are not responsible for this distribution or its modifications.</source>
+        <target state="translated">Оригінальні автори не несуть відповідальності за цей дистрибутив або його модифікації.</target>
+        <context-group purpose="location">
+          <context context-type="sourcefile">apps/client/src/app/pages/about/overview/about-overview-page.html</context>
+          <context context-type="linenumber">197</context>
+        </context-group>
+      </trans-unit>
+<trans-unit id="7903754262145105716" datatype="html">
+        <source>For information, support and bug reports concerning Ghostfolio NG, please visit our <x id="START_LINK" ctype="x-a" equiv-text="&lt;a href=&quot;https://github.com/piggei/ghostfolio&quot; i18n-title target=&quot;_blank&quot; title=&quot;Ghostfolio NG on GitHub&quot; &gt;"/>GitHub repository<x id="CLOSE_LINK" ctype="x-a" equiv-text="&lt;/a&gt;"/>.</source>
+        <target state="translated">Інформацію, підтримку та можливість повідомити про помилки Ghostfolio NG можна знайти в нашому <x id="START_LINK" ctype="x-a" equiv-text="&lt;a href=&quot;https://github.com/piggei/ghostfolio&quot; i18n-title target=&quot;_blank&quot; title=&quot;Ghostfolio NG on GitHub&quot; &gt;"/>репозиторії GitHub<x id="CLOSE_LINK" ctype="x-a" equiv-text="&lt;/a&gt;"/>.</target>
+        <context-group purpose="location">
+          <context context-type="sourcefile">apps/client/src/app/pages/about/overview/about-overview-page.html</context>
+          <context context-type="linenumber">202</context>
+        </context-group>
+      </trans-unit>
+<trans-unit id="3762111711856278780" datatype="html">
+        <source>Ghostfolio NG on GitHub</source>
+        <target state="translated">Ghostfolio NG на GitHub</target>
+        <context-group purpose="location">
+          <context context-type="sourcefile">apps/client/src/app/pages/about/overview/about-overview-page.html</context>
+          <context context-type="linenumber">208</context>
+        </context-group>
+      </trans-unit>
+      </body>
   </file>
 </xliff>

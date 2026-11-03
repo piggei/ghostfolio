@@ -83,6 +83,7 @@ export class ConfigurationService {
       ENABLE_FEATURE_STATISTICS: bool({ default: false }),
       ENABLE_FEATURE_SUBSCRIPTION: bool({ default: false }),
       ENABLE_FEATURE_SYSTEM_MESSAGE: bool({ default: false }),
+      GHOSTFOLIO_NG: bool({ default: false }),
       GOOGLE_CLIENT_ID: str({ default: 'dummyClientId' }),
       GOOGLE_SECRET: str({ default: 'dummySecret' }),
       GOOGLE_SHEETS_ACCOUNT: str({ default: '' }),

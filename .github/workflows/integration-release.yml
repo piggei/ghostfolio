@@ -80,6 +80,8 @@ jobs:
           push: false
           load: true
           tags: ${{ needs.prepare.outputs.image }}:${{ needs.prepare.outputs.tag }}-${{ matrix.arch }}
+          build-args: |
+            GHOSTFOLIO_NG=true
           labels: |
             org.opencontainers.image.source=https://github.com/${{ github.repository }}
             org.opencontainers.image.revision=${{ github.sha }}

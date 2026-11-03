@@ -127,6 +127,7 @@ export class InfoService {
 
     return {
       ...info,
+      isGhostfolioNg: this.configurationService.get('GHOSTFOLIO_NG'),
       benchmarks,
       demoAuthToken,
       globalPermissions,

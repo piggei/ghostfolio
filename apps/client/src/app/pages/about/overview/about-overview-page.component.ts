@@ -37,6 +37,7 @@ export class GfAboutOverviewPageComponent implements OnInit {
   public hasPermissionForStatistics: boolean;
   public hasPermissionForSubscription: boolean;
   public isLoggedIn: boolean;
+  public isGhostfolioNg: boolean;
   public routerLinkBlog = publicRoutes.blog.routerLink;
   public routerLinkFaq = publicRoutes.faq.routerLink;
   public routerLinkFeatures = publicRoutes.features.routerLink;
@@ -49,7 +50,9 @@ export class GfAboutOverviewPageComponent implements OnInit {
     private destroyRef: DestroyRef,
     private userService: UserService
   ) {
-    const { globalPermissions } = this.dataService.fetchInfo();
+    const { globalPermissions, isGhostfolioNg } = this.dataService.fetchInfo();
+
+    this.isGhostfolioNg = isGhostfolioNg;
 
     this.hasPermissionForStatistics = hasPermission(
       globalPermissions,

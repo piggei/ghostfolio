@@ -11216,6 +11216,54 @@
           <context context-type="linenumber">6</context>
         </context-group>
       </trans-unit>
-    </body>
+    <trans-unit id="3153776932989085054" datatype="html">
+        <source>Ghostfolio NG</source>
+        <target state="translated">Ghostfolio NG</target>
+        <context-group purpose="location">
+          <context context-type="sourcefile">apps/client/src/app/pages/about/overview/about-overview-page.html</context>
+          <context context-type="linenumber">182</context>
+        </context-group>
+      </trans-unit>
+<trans-unit id="6012570692642655150" datatype="html">
+        <source>An enhanced version of the open-source Ghostfolio project, featuring additional functionality, improvements and independently developed integrations.</source>
+        <target state="translated">オープンソースプロジェクト Ghostfolio を改良したバージョンです。追加機能、改善点、および独自に開発された統合機能を備えています。</target>
+        <context-group purpose="location">
+          <context context-type="sourcefile">apps/client/src/app/pages/about/overview/about-overview-page.html</context>
+          <context context-type="linenumber">185</context>
+        </context-group>
+      </trans-unit>
+<trans-unit id="3720795905108981664" datatype="html">
+        <source>Ghostfolio NG is an independently maintained distribution and is not an official release of, affiliated with, or endorsed by the original Ghostfolio project or its maintainers.</source>
+        <target state="translated">Ghostfolio NG は独立して保守されているディストリビューションです。オリジナルの Ghostfolio プロジェクトの公式リリースではなく、同プロジェクトやそのメンテナーとの提携関係はなく、承認も受けていません。</target>
+        <context-group purpose="location">
+          <context context-type="sourcefile">apps/client/src/app/pages/about/overview/about-overview-page.html</context>
+          <context context-type="linenumber">191</context>
+        </context-group>
+      </trans-unit>
+<trans-unit id="7451307105537371468" datatype="html">
+        <source>The original authors are not responsible for this distribution or its modifications.</source>
+        <target state="translated">オリジナルの作者は、このディストリビューションおよびその変更について責任を負いません。</target>
+        <context-group purpose="location">
+          <context context-type="sourcefile">apps/client/src/app/pages/about/overview/about-overview-page.html</context>
+          <context context-type="linenumber">197</context>
+        </context-group>
+      </trans-unit>
+<trans-unit id="7903754262145105716" datatype="html">
+        <source>For information, support and bug reports concerning Ghostfolio NG, please visit our <x id="START_LINK" ctype="x-a" equiv-text="&lt;a href=&quot;https://github.com/piggei/ghostfolio&quot; i18n-title target=&quot;_blank&quot; title=&quot;Ghostfolio NG on GitHub&quot; &gt;"/>GitHub repository<x id="CLOSE_LINK" ctype="x-a" equiv-text="&lt;/a&gt;"/>.</source>
+        <target state="translated">Ghostfolio NG に関する情報、サポート、バグ報告については、<x id="START_LINK" ctype="x-a" equiv-text="&lt;a href=&quot;https://github.com/piggei/ghostfolio&quot; i18n-title target=&quot;_blank&quot; title=&quot;Ghostfolio NG on GitHub&quot; &gt;"/>GitHub リポジトリ<x id="CLOSE_LINK" ctype="x-a" equiv-text="&lt;/a&gt;"/>をご覧ください。</target>
+        <context-group purpose="location">
+          <context context-type="sourcefile">apps/client/src/app/pages/about/overview/about-overview-page.html</context>
+          <context context-type="linenumber">202</context>
+        </context-group>
+      </trans-unit>
+<trans-unit id="3762111711856278780" datatype="html">
+        <source>Ghostfolio NG on GitHub</source>
+        <target state="translated">GitHub 上の Ghostfolio NG</target>
+        <context-group purpose="location">
+          <context context-type="sourcefile">apps/client/src/app/pages/about/overview/about-overview-page.html</context>
+          <context context-type="linenumber">208</context>
+        </context-group>
+      </trans-unit>
+      </body>
   </file>
 </xliff>

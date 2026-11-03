@@ -10122,6 +10122,48 @@
           <context context-type="linenumber">6</context>
         </context-group>
       </trans-unit>
-    </body>
+    <trans-unit id="3153776932989085054" datatype="html">
+        <source>Ghostfolio NG</source>
+        <context-group purpose="location">
+          <context context-type="sourcefile">apps/client/src/app/pages/about/overview/about-overview-page.html</context>
+          <context context-type="linenumber">182</context>
+        </context-group>
+      </trans-unit>
+<trans-unit id="6012570692642655150" datatype="html">
+        <source>An enhanced version of the open-source Ghostfolio project, featuring additional functionality, improvements and independently developed integrations.</source>
+        <context-group purpose="location">
+          <context context-type="sourcefile">apps/client/src/app/pages/about/overview/about-overview-page.html</context>
+          <context context-type="linenumber">185</context>
+        </context-group>
+      </trans-unit>
+<trans-unit id="3720795905108981664" datatype="html">
+        <source>Ghostfolio NG is an independently maintained distribution and is not an official release of, affiliated with, or endorsed by the original Ghostfolio project or its maintainers.</source>
+        <context-group purpose="location">
+          <context context-type="sourcefile">apps/client/src/app/pages/about/overview/about-overview-page.html</context>
+          <context context-type="linenumber">191</context>
+        </context-group>
+      </trans-unit>
+<trans-unit id="7451307105537371468" datatype="html">
+        <source>The original authors are not responsible for this distribution or its modifications.</source>
+        <context-group purpose="location">
+          <context context-type="sourcefile">apps/client/src/app/pages/about/overview/about-overview-page.html</context>
+          <context context-type="linenumber">197</context>
+        </context-group>
+      </trans-unit>
+<trans-unit id="7903754262145105716" datatype="html">
+        <source>For information, support and bug reports concerning Ghostfolio NG, please visit our <x id="START_LINK" ctype="x-a" equiv-text="&lt;a href=&quot;https://github.com/piggei/ghostfolio&quot; i18n-title target=&quot;_blank&quot; title=&quot;Ghostfolio NG on GitHub&quot; &gt;"/>GitHub repository<x id="CLOSE_LINK" ctype="x-a" equiv-text="&lt;/a&gt;"/>.</source>
+        <context-group purpose="location">
+          <context context-type="sourcefile">apps/client/src/app/pages/about/overview/about-overview-page.html</context>
+          <context context-type="linenumber">202</context>
+        </context-group>
+      </trans-unit>
+<trans-unit id="3762111711856278780" datatype="html">
+        <source>Ghostfolio NG on GitHub</source>
+        <context-group purpose="location">
+          <context context-type="sourcefile">apps/client/src/app/pages/about/overview/about-overview-page.html</context>
+          <context context-type="linenumber">208</context>
+        </context-group>
+      </trans-unit>
+      </body>
   </file>
 </xliff>

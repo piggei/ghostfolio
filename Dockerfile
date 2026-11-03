@@ -50,6 +50,8 @@ RUN npm run database:generate-typings
 
 # Image to run, copy everything needed from builder
 FROM node:22-slim
+ARG GHOSTFOLIO_NG=false
+ENV GHOSTFOLIO_NG=${GHOSTFOLIO_NG}
 LABEL org.opencontainers.image.source="https://github.com/ghostfolio/ghostfolio"
 ENV NODE_ENV=production
 

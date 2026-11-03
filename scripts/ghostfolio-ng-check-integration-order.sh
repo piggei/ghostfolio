@@ -58,7 +58,7 @@ echo "=== Check published releases ==="
 if ! RELEASE_TAGS="$(
   gh api --paginate \
     "repos/$REPOSITORY/releases?per_page=100" \
-    --jq '.[] | select(.draft == false and .prerelease == true) | .tag_name'
+    --jq '.[] | select(.draft == false) | .tag_name'
 )"; then
   echo "ERROR: Cannot retrieve published GitHub releases" >&2
   exit 1

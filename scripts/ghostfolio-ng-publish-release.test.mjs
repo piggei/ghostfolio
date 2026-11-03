@@ -34,6 +34,7 @@ const assetNames = [
 
 function createRelease({
   draft = true,
+  prerelease = false,
   commit: target = commit,
   assets = assetNames
 } = {}) {
@@ -42,7 +43,7 @@ function createRelease({
     tag_name: tag,
     target_commitish: target,
     draft,
-    prerelease: true,
+    prerelease,
     assets: assets.map((name, index) => ({
       id: 1000 + index,
       name
@@ -263,7 +264,27 @@ if (args[0] === 'api') {
   if (method === 'PATCH') {
     if (!state.release) fail('HTTP 404');
 
+    const field = (name) => {
+      const prefix = name + '=';
+      const value = args.find(
+        (argument, index) =>
+          args[index - 1] === '-F' && argument.startsWith(prefix)
+      );
+
+      return value?.slice(prefix.length);
+    };
+
+    if (
+      field('draft') !== 'false' ||
+      field('prerelease') !== 'false' ||
+      field('make_latest') !== 'false'
+    ) {
+      fail('Invalid release publication parameters');
+    }
+
     state.release.draft = false;
+    state.release.prerelease = false;
+    state.release.make_latest = false;
     save();
 
     if (process.env.MOCK_PATCH_LOSS === 'true') {
@@ -380,7 +401,7 @@ if (args[0] === 'release' && args[1] === 'create') {
     tag_name: releaseTag,
     target_commitish: target,
     draft: true,
-    prerelease: true,
+    prerelease: false,
     assets: []
   };
 
@@ -718,7 +739,7 @@ test('creates a new Draft Release and uploads five assets', () => {
 
   assert.equal(result.status, 0);
   assert.equal(result.release.draft, true);
-  assert.equal(result.release.prerelease, true);
+  assert.equal(result.release.prerelease, false);
   assert.equal(result.release.target_commitish, commit);
   assert.deepEqual(
     result.release.assets.map((asset) => asset.name).sort(),
@@ -765,6 +786,23 @@ test('recovers an existing Draft Release from the same commit', () => {
 
   assert.equal(result.status, 0);
   assert.equal(result.release.draft, true);
+
+  const createCommands = result.commands.filter(
+    (command) =>
+      command[0] === 'gh' && command[1] === 'release' && command[2] === 'create'
+  );
+
+  assert.equal(createCommands.length, 0);
+});
+
+test('recovers a legacy Draft Release marked as prerelease', () => {
+  const result = runScenario({
+    existingRelease: createRelease({ prerelease: true })
+  });
+
+  assert.equal(result.status, 0);
+  assert.equal(result.release.draft, true);
+  assert.equal(result.release.prerelease, true);
 
   const createCommands = result.commands.filter(
     (command) =>
@@ -1294,7 +1332,7 @@ test('publishes a valid Draft Release', () => {
 
   assert.equal(result.status, 0);
   assert.equal(result.release.draft, false);
-  assert.equal(result.release.prerelease, true);
+  assert.equal(result.release.prerelease, false);
   assert.match(result.output, /release published/);
 });
 

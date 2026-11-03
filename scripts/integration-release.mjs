@@ -239,10 +239,11 @@ export function generateRelease() {
   const localPatches = localPatchesMarkdown(manifest);
 
   const notes =
-    `# Ghostfolio-NG — ${tag}\n\n` +
-    `This release is built from the \`integration/ghostfolio-all-pr\` branch, ` +
-    `based on Ghostfolio **${version}**. It combines upstream updates with ` +
-    `custom features and independently proposed contributions.\n\n` +
+    `Ghostfolio NG is an enhanced distribution of the open-source Ghostfolio ` +
+    `project, combining official upstream updates with additional features, ` +
+    `improvements and independently maintained integrations.\n\n` +
+    `This release is built from the \`integration/ghostfolio-all-pr\` branch ` +
+    `and is based on Ghostfolio **${version}**.\n\n` +
     `## Release information\n\n` +
     `- Source commit: [${sha.slice(0, 9)}](https://github.com/${repository}/commit/${sha})\n` +
     `- Docker image: \`${image}:${tag}\`\n` +

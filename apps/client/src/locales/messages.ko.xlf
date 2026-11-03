@@ -11216,6 +11216,54 @@
           <context context-type="linenumber">6</context>
         </context-group>
       </trans-unit>
-    </body>
+    <trans-unit id="3153776932989085054" datatype="html">
+        <source>Ghostfolio NG</source>
+        <target state="translated">Ghostfolio NG</target>
+        <context-group purpose="location">
+          <context context-type="sourcefile">apps/client/src/app/pages/about/overview/about-overview-page.html</context>
+          <context context-type="linenumber">182</context>
+        </context-group>
+      </trans-unit>
+<trans-unit id="6012570692642655150" datatype="html">
+        <source>An enhanced version of the open-source Ghostfolio project, featuring additional functionality, improvements and independently developed integrations.</source>
+        <target state="translated">오픈 소스 프로젝트 Ghostfolio를 개선한 버전으로, 추가 기능과 개선 사항 및 독립적으로 개발된 통합 기능을 제공합니다.</target>
+        <context-group purpose="location">
+          <context context-type="sourcefile">apps/client/src/app/pages/about/overview/about-overview-page.html</context>
+          <context context-type="linenumber">185</context>
+        </context-group>
+      </trans-unit>
+<trans-unit id="3720795905108981664" datatype="html">
+        <source>Ghostfolio NG is an independently maintained distribution and is not an official release of, affiliated with, or endorsed by the original Ghostfolio project or its maintainers.</source>
+        <target state="translated">Ghostfolio NG는 독립적으로 유지 관리되는 배포판입니다. 원래 Ghostfolio 프로젝트의 공식 릴리스가 아니며, 원래 프로젝트 또는 해당 유지 관리자와 제휴하거나 그들의 승인이나 보증을 받은 제품이 아닙니다.</target>
+        <context-group purpose="location">
+          <context context-type="sourcefile">apps/client/src/app/pages/about/overview/about-overview-page.html</context>
+          <context context-type="linenumber">191</context>
+        </context-group>
+      </trans-unit>
+<trans-unit id="7451307105537371468" datatype="html">
+        <source>The original authors are not responsible for this distribution or its modifications.</source>
+        <target state="translated">원래 작성자는 이 배포판이나 그 수정 사항에 대해 책임을 지지 않습니다.</target>
+        <context-group purpose="location">
+          <context context-type="sourcefile">apps/client/src/app/pages/about/overview/about-overview-page.html</context>
+          <context context-type="linenumber">197</context>
+        </context-group>
+      </trans-unit>
+<trans-unit id="7903754262145105716" datatype="html">
+        <source>For information, support and bug reports concerning Ghostfolio NG, please visit our <x id="START_LINK" ctype="x-a" equiv-text="&lt;a href=&quot;https://github.com/piggei/ghostfolio&quot; i18n-title target=&quot;_blank&quot; title=&quot;Ghostfolio NG on GitHub&quot; &gt;"/>GitHub repository<x id="CLOSE_LINK" ctype="x-a" equiv-text="&lt;/a&gt;"/>.</source>
+        <target state="translated">Ghostfolio NG에 관한 정보, 지원 및 버그 신고는 <x id="START_LINK" ctype="x-a" equiv-text="&lt;a href=&quot;https://github.com/piggei/ghostfolio&quot; i18n-title target=&quot;_blank&quot; title=&quot;Ghostfolio NG on GitHub&quot; &gt;"/>GitHub 저장소<x id="CLOSE_LINK" ctype="x-a" equiv-text="&lt;/a&gt;"/>를 방문해 주세요.</target>
+        <context-group purpose="location">
+          <context context-type="sourcefile">apps/client/src/app/pages/about/overview/about-overview-page.html</context>
+          <context context-type="linenumber">202</context>
+        </context-group>
+      </trans-unit>
+<trans-unit id="3762111711856278780" datatype="html">
+        <source>Ghostfolio NG on GitHub</source>
+        <target state="translated">GitHub의 Ghostfolio NG</target>
+        <context-group purpose="location">
+          <context context-type="sourcefile">apps/client/src/app/pages/about/overview/about-overview-page.html</context>
+          <context context-type="linenumber">208</context>
+        </context-group>
+      </trans-unit>
+      </body>
   </file>
 </xliff>

@@ -351,7 +351,12 @@ validate_release() {
     return 1
   fi
 
-  if [[ "$prerelease" != "true" || "$target" != "$COMMIT" ]]; then
+  if [[ "$prerelease" != "true" && "$prerelease" != "false" ]]; then
+    echo "ERROR: Invalid GitHub Release prerelease state" >&2
+    return 1
+  fi
+
+  if [[ "$target" != "$COMMIT" ]]; then
     echo "ERROR: Existing release belongs to a different release context" >&2
     return 1
   fi
@@ -486,7 +491,7 @@ prepare_release() {
       jq -n \
         --arg tag "$TAG" \
         --arg commit "$COMMIT" \
-        --arg title "Ghostfolio-NG $TAG" \
+        --arg title "Ghostfolio NG $TAG" \
         --rawfile notes "$ASSETS_DIR/notes.md" \
         '{
           tag_name: $tag,
@@ -494,7 +499,7 @@ prepare_release() {
           name: $title,
           body: $notes,
           draft: true,
-          prerelease: true
+          prerelease: false
         }' |
       gh api --method POST \
         "repos/$REPOSITORY/releases" \
@@ -588,12 +593,14 @@ publish_release() {
     --method PATCH \
     "repos/$REPOSITORY/releases/$RELEASE_ID" \
     -F draft=false \
-    -F prerelease=true >/dev/null
+    -F prerelease=false \
+    -F make_latest=false >/dev/null
 
   release="$(get_release_by_id "$RELEASE_ID")"
   validate_release "$release" true
 
-  if [[ "$(jq -r '.draft' <<< "$release")" != "false" ]]; then
+  if [[ "$(jq -r '.draft' <<< "$release")" != "false" ]] ||
+     [[ "$(jq -r '.prerelease' <<< "$release")" != "false" ]]; then
     echo "ERROR: Published release verification failed" >&2
     return 1
   fi

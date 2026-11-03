@@ -100,6 +100,20 @@ test('allows the first integration release', () => {
   assert.equal(result.commands.length, 3);
 });
 
+test('queries all published releases regardless of prerelease status', () => {
+  const result = runScenario();
+
+  assert.equal(result.status, 0);
+
+  const releaseQuery = result.commands.find((command) =>
+    command.includes('releases?per_page=')
+  );
+
+  assert.ok(releaseQuery, 'Expected GitHub releases API request');
+  assert.match(releaseQuery, /\.draft == false/);
+  assert.doesNotMatch(releaseQuery, /\.prerelease/);
+});
+
 test('allows a release newer than all published releases', () => {
   const result = runScenario({
     tags: ['integration-3.93.0-90', 'integration-3.94.0-104']

@@ -11215,6 +11215,54 @@
           <context context-type="linenumber">6</context>
         </context-group>
       </trans-unit>
-    </body>
+    <trans-unit id="3153776932989085054" datatype="html">
+        <source>Ghostfolio NG</source>
+        <target state="translated">Ghostfolio NG</target>
+        <context-group purpose="location">
+          <context context-type="sourcefile">apps/client/src/app/pages/about/overview/about-overview-page.html</context>
+          <context context-type="linenumber">182</context>
+        </context-group>
+      </trans-unit>
+<trans-unit id="6012570692642655150" datatype="html">
+        <source>An enhanced version of the open-source Ghostfolio project, featuring additional functionality, improvements and independently developed integrations.</source>
+        <target state="translated">Açık kaynaklı Ghostfolio projesinin geliştirilmiş bir sürümüdür; ek işlevler, iyileştirmeler ve bağımsız olarak geliştirilen entegrasyonlar içerir.</target>
+        <context-group purpose="location">
+          <context context-type="sourcefile">apps/client/src/app/pages/about/overview/about-overview-page.html</context>
+          <context context-type="linenumber">185</context>
+        </context-group>
+      </trans-unit>
+<trans-unit id="3720795905108981664" datatype="html">
+        <source>Ghostfolio NG is an independently maintained distribution and is not an official release of, affiliated with, or endorsed by the original Ghostfolio project or its maintainers.</source>
+        <target state="translated">Ghostfolio NG, bağımsız olarak sürdürülen bir dağıtımdır. Orijinal Ghostfolio projesinin resmî bir sürümü değildir; orijinal projeyle veya geliştiricileriyle bağlantılı değildir ve onlar tarafından onaylanmamıştır.</target>
+        <context-group purpose="location">
+          <context context-type="sourcefile">apps/client/src/app/pages/about/overview/about-overview-page.html</context>
+          <context context-type="linenumber">191</context>
+        </context-group>
+      </trans-unit>
+<trans-unit id="7451307105537371468" datatype="html">
+        <source>The original authors are not responsible for this distribution or its modifications.</source>
+        <target state="translated">Orijinal yazarlar bu dağıtımdan veya yapılan değişikliklerden sorumlu değildir.</target>
+        <context-group purpose="location">
+          <context context-type="sourcefile">apps/client/src/app/pages/about/overview/about-overview-page.html</context>
+          <context context-type="linenumber">197</context>
+        </context-group>
+      </trans-unit>
+<trans-unit id="7903754262145105716" datatype="html">
+        <source>For information, support and bug reports concerning Ghostfolio NG, please visit our <x id="START_LINK" ctype="x-a" equiv-text="&lt;a href=&quot;https://github.com/piggei/ghostfolio&quot; i18n-title target=&quot;_blank&quot; title=&quot;Ghostfolio NG on GitHub&quot; &gt;"/>GitHub repository<x id="CLOSE_LINK" ctype="x-a" equiv-text="&lt;/a&gt;"/>.</source>
+        <target state="translated">Ghostfolio NG hakkında bilgi, destek ve hata bildirimleri için <x id="START_LINK" ctype="x-a" equiv-text="&lt;a href=&quot;https://github.com/piggei/ghostfolio&quot; i18n-title target=&quot;_blank&quot; title=&quot;Ghostfolio NG on GitHub&quot; &gt;"/>GitHub depomuzu<x id="CLOSE_LINK" ctype="x-a" equiv-text="&lt;/a&gt;"/> ziyaret edin.</target>
+        <context-group purpose="location">
+          <context context-type="sourcefile">apps/client/src/app/pages/about/overview/about-overview-page.html</context>
+          <context context-type="linenumber">202</context>
+        </context-group>
+      </trans-unit>
+<trans-unit id="3762111711856278780" datatype="html">
+        <source>Ghostfolio NG on GitHub</source>
+        <target state="translated">GitHub'da Ghostfolio NG</target>
+        <context-group purpose="location">
+          <context context-type="sourcefile">apps/client/src/app/pages/about/overview/about-overview-page.html</context>
+          <context context-type="linenumber">208</context>
+        </context-group>
+      </trans-unit>
+      </body>
   </file>
 </xliff>
