@@ -1,3 +1,4 @@
+import { CashManagementModule } from '@ghostfolio/api/app/account-balance/cash-management.module';
 import { AccountBalanceModule } from '@ghostfolio/api/services/account-balance/account-balance.module';
 import { AccountModule } from '@ghostfolio/api/services/account/account.module';
 import { AssetProfileSplitModule } from '@ghostfolio/api/services/asset-profile-split/asset-profile-split.module';
@@ -17,6 +18,7 @@ import { ActivitiesService } from './activities.service';
 @Module({
   exports: [ActivitiesService],
   imports: [
+    CashManagementModule,
     AccountBalanceModule,
     AccountModule,
     AssetProfileSplitModule,

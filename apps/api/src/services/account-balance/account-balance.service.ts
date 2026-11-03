@@ -1,3 +1,4 @@
+import { CashManagementService } from '@ghostfolio/api/app/account-balance/cash-management.service';
 import { PortfolioChangedEvent } from '@ghostfolio/api/events/portfolio-changed.event';
 import { WHERE_ACCOUNT_NOT_EXCLUDED } from '@ghostfolio/api/helper/account.helper';
 import { LogPerformance } from '@ghostfolio/api/interceptors/performance-logging/performance-logging.interceptor';
@@ -29,7 +30,8 @@ export class AccountBalanceService {
   public constructor(
     private readonly eventEmitter: EventEmitter2,
     private readonly exchangeRateDataService: ExchangeRateDataService,
-    private readonly prismaService: PrismaService
+    private readonly prismaService: PrismaService,
+    private readonly cashManagementService?: CashManagementService
   ) {}
 
   public async accountBalance(
@@ -52,26 +54,43 @@ export class AccountBalanceService {
     accountId: string;
     userId: string;
   }): Promise<AccountBalance> {
-    const dateOfBalance = resetHours(parseISO(date));
-
-    const accountBalance = await this.prismaService.accountBalance.upsert({
-      create: {
-        accountId,
-        userId,
-        date: dateOfBalance,
-        value: balance
-      },
-      update: {
-        value: balance
-      },
-      where: {
-        accountId_userId_date: {
-          accountId,
-          userId,
-          date: dateOfBalance
+    const write = async (transaction: Prisma.TransactionClient) => {
+      await this.cashManagementService?.assertLegacyBalanceWrite(
+        transaction,
+        { accountId, userId },
+        resetHours(parseISO(date))
+      );
+      return transaction.accountBalance.upsert({
+        create: {
+          account: {
+            connect: {
+              id_userId: {
+                userId,
+                id: accountId
+              }
+            }
+          },
+          date: resetHours(parseISO(date)),
+          value: balance
+        },
+        update: {
+          value: balance
+        },
+        where: {
+          accountId_userId_date: {
+            accountId,
+            userId,
+            date: resetHours(parseISO(date))
+          }
         }
-      }
-    });
+      });
+    };
+    const accountBalance = this.cashManagementService
+      ? await this.cashManagementService.runInAccounts(
+          { accountIds: [accountId], userId },
+          write
+        )
+      : await write(this.prismaService);
 
     this.eventEmitter.emit(
       PortfolioChangedEvent.getName(),
@@ -86,9 +105,26 @@ export class AccountBalanceService {
   public async deleteAccountBalance(
     where: Prisma.AccountBalanceWhereUniqueInput
   ): Promise<AccountBalance> {
-    const accountBalance = await this.prismaService.accountBalance.delete({
+    const original = await this.prismaService.accountBalance.findUnique({
       where
     });
+    const write = async (transaction: Prisma.TransactionClient) => {
+      if (original) {
+        await this.cashManagementService?.assertLegacyBalanceWrite(
+          transaction,
+          { accountId: original.accountId, userId: original.userId },
+          original.date
+        );
+      }
+      return transaction.accountBalance.delete({ where });
+    };
+    const accountBalance =
+      this.cashManagementService && original
+        ? await this.cashManagementService.runInAccounts(
+            { accountIds: [original.accountId], userId: original.userId },
+            write
+          )
+        : await write(this.prismaService);
 
     this.eventEmitter.emit(
       PortfolioChangedEvent.getName(),
@@ -103,17 +139,20 @@ export class AccountBalanceService {
   public async getAccountBalanceItems({
     filters,
     userCurrency,
-    userId
+    userId,
+    withHiddenCash = false
   }: {
     filters?: Filter[];
     userCurrency: string;
     userId: string;
+    withHiddenCash?: boolean;
   }): Promise<HistoricalDataItem[]> {
     const { balances } = await this.getAccountBalances({
       filters,
       userCurrency,
       userId,
-      withExcludedAccounts: false // TODO
+      withExcludedAccounts: false,
+      withHiddenCash
     });
     const accumulatedBalancesByDate: { [date: string]: HistoricalDataItem } =
       {};
@@ -150,12 +189,14 @@ export class AccountBalanceService {
     filters,
     userCurrency,
     userId,
-    withExcludedAccounts
+    withExcludedAccounts,
+    withHiddenCash = true
   }: {
     filters?: Filter[];
     userCurrency: string;
     userId: string;
     withExcludedAccounts?: boolean;
+    withHiddenCash?: boolean;
   }): Promise<AccountBalancesResponse> {
     const where: Prisma.AccountBalanceWhereInput = { userId };
 
@@ -169,6 +210,22 @@ export class AccountBalanceService {
 
     if (withExcludedAccounts === false) {
       where.account = WHERE_ACCOUNT_NOT_EXCLUDED;
+    }
+
+    if (!withHiddenCash) {
+      where.account = {
+        AND: [
+          ...(withExcludedAccounts === false
+            ? [WHERE_ACCOUNT_NOT_EXCLUDED]
+            : []),
+          {
+            OR: [
+              { cashState: { is: null } },
+              { cashState: { is: { includeCashInPortfolio: true } } }
+            ]
+          }
+        ]
+      };
     }
 
     const balances = await this.prismaService.accountBalance.findMany({

@@ -1,3 +1,4 @@
+import { CashManagementModule } from '@ghostfolio/api/app/account-balance/cash-management.module';
 import { PerformanceLoggingModule } from '@ghostfolio/api/interceptors/performance-logging/performance-logging.module';
 import { RedactValuesInResponseModule } from '@ghostfolio/api/interceptors/redact-values-in-response/redact-values-in-response.module';
 import { TransformDataSourceInRequestModule } from '@ghostfolio/api/interceptors/transform-data-source-in-request/transform-data-source-in-request.module';
@@ -32,6 +33,7 @@ import { RulesService } from './rules.service';
   controllers: [PortfolioController],
   exports: [PortfolioService],
   imports: [
+    CashManagementModule,
     AccessModule,
     AccountBalanceModule,
     AccountModule,

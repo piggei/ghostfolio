@@ -128,6 +128,7 @@ export class GfActivityDialogHostComponent implements OnDestroy, OnInit {
             date: new Date(),
             fee: 0,
             id: null,
+            tax: 0,
             type: activity?.type ?? 'BUY',
             unitPrice: null
           },
@@ -206,11 +207,18 @@ export class GfActivityDialogHostComponent implements OnDestroy, OnInit {
           ? this.dataService.putActivity(result as UpdateOrderDto)
           : this.dataService.postActivity(result as CreateOrderDto);
 
+        let saved = false;
         request$.pipe(takeUntilDestroyed(this.destroyRef)).subscribe({
+          complete: () => {
+            if (!saved) {
+              this.navigateBack();
+            }
+          },
           error: () => {
             this.navigateBack();
           },
           next: () => {
+            saved = true;
             // Deliberately not bound to the destroy reference: navigating back
             // destroys this component and the refreshed user is what makes the
             // activities page reload its data

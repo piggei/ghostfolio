@@ -1,3 +1,4 @@
+import { CashManagementModule } from '@ghostfolio/api/app/account-balance/cash-management.module';
 import { TransformDataSourceInRequestModule } from '@ghostfolio/api/interceptors/transform-data-source-in-request/transform-data-source-in-request.module';
 import { AccountModule } from '@ghostfolio/api/services/account/account.module';
 import { ActivitiesModule } from '@ghostfolio/api/services/activities/activities.module';
@@ -13,6 +14,7 @@ import { ExportService } from './export.service';
 @Module({
   controllers: [ExportController],
   imports: [
+    CashManagementModule,
     AccountModule,
     ActivitiesModule,
     ApiModule,

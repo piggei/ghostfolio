@@ -136,14 +136,15 @@ export class AiService {
 
   /**
    * Matches the rows of a file to the asset profiles with the agent model, the
-   * tool search-asset-profiles and the holdings of the user, and to the
-   * accounts of the user. Each account name of the rows, also a missing one,
-   * gives an account hint with the broker of the file, as a file often shows
-   * the broker only, for example as a logo. A row which does not give a valid
-   * activity, for example because its asset has no match, is a row without a
-   * match. An account id which is not the id of an account of the user is
-   * ignored. The fee, the quantity and the unit price are taken as absolute
-   * values, as a broker can give a sell or a fee as a negative number.
+   * tool search-asset-profiles and the holdings of the tool get-portfolio, and
+   * to the accounts of the user. Each account name of the rows, also a missing
+   * one, gives an account hint with the broker of the file, as a file often
+   * shows the broker only, for example as a logo. A row which does not give a
+   * valid activity, for example because its asset has no match, is a row
+   * without a match. An account id which is not the id of an account of the
+   * user is ignored. The fee, the tax, the quantity and the unit price are
+   * taken as absolute values, as a broker can give a sell, a fee or a tax as
+   * a negative number.
    */
   public async getActivitiesFromRows({
     abortSignal,
@@ -227,6 +228,7 @@ export class AiService {
 
       const fee = Math.abs(row.fee);
       const quantity = Math.abs(row.quantity);
+      const tax = Math.abs(row.tax);
       const unitPrice = Math.abs(row.unitPrice);
 
       const account = accounts.find(({ id }) => {
@@ -246,6 +248,7 @@ export class AiService {
             date,
             fee,
             quantity,
+            tax,
             type,
             unitPrice,
             accountId: account?.id,
@@ -256,6 +259,7 @@ export class AiService {
             date,
             fee,
             quantity,
+            tax,
             type,
             unitPrice,
             accountId: account?.id,
@@ -327,10 +331,11 @@ export class AiService {
           'Give the name of the broker or of the bank which issued the file as broker, for example from the logo, the letterhead, the text or the name of the file. Give null if the file does not show it.',
           'For a fee, an interest or a liability, give its description as name.',
           `Give the date as an ISO 8601 date. Today is ${format(new Date(), DATE_FORMAT)}.`,
-          'Give the quantity, the unit price and the fee as positive numbers. Give 0 as fee if the file does not show a fee.',
+          'Give the quantity, the unit price, the fee and the tax as positive numbers. Give 0 as fee or tax if the file does not show it.',
           'For a dividend with a total amount only, give 1 as quantity and the total amount as unit price.',
           'For an interest or a liability, give 1 as quantity and the amount as unit price.',
-          'Add every fee, commission and tax of a buy or a sell, for example a commission, a stamp duty or an exchange fee, to the fee of its row. Do not give them as separate rows.',
+          'Add every fee and commission of a buy or a sell, for example a commission or an exchange fee, to the fee of its row. Do not give them as separate rows.',
+          'Give every tax or withholding tax of an activity, for example a stamp duty or a dividend withholding tax, separately as tax. Do not include it in the fee and do not give it as a separate row.',
           'For a fee which is not part of a buy or a sell, for example a custody fee, give 0 as quantity, 0 as unit price and the amount as fee.',
           `If the format of a date or of a number is ambiguous and the file gives no other hint, read it as in the locale ${locale}.`,
           `Give at most ${AI_MAX_ACTIVITIES} rows.`

@@ -86,7 +86,14 @@
         [label]="labelAccount"
       />
     </div>
-    <div class="mb-3" [class.d-none]="mode === 'update'">
+    <div
+      class="mb-3"
+      [class.d-none]="
+        mode === 'update' &&
+        !isCashManaged &&
+        !data.activity?.updateAccountBalance
+      "
+    >
       <mat-checkbox color="primary" formControlName="updateAccountBalance" i18n
         >Update Cash Balance</mat-checkbox
       >
@@ -238,6 +245,26 @@
       <mat-form-field appearance="outline" class="w-100">
         <mat-label i18n>Fee</mat-label>
         <input formControlName="fee" matInput type="number" />
+        <div
+          class="ms-2"
+          matTextSuffix
+          [class.d-none]="!activityForm.get('currency')?.value"
+        >
+          {{ activityForm.get('currencyOfUnitPrice')?.value }}
+        </div>
+      </mat-form-field>
+    </div>
+    <div
+      class="mb-3"
+      [class.d-none]="
+        activityForm.get('type')?.value === 'FEE' ||
+        activityForm.get('type')?.value === 'LIABILITY' ||
+        activityForm.get('type')?.value === 'VALUABLE'
+      "
+    >
+      <mat-form-field appearance="outline" class="w-100">
+        <mat-label i18n>Tax</mat-label>
+        <input formControlName="tax" matInput type="number" />
         <div
           class="ms-2"
           matTextSuffix

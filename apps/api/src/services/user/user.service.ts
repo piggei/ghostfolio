@@ -127,7 +127,16 @@ export class UserService {
         where: { granteeUserId: id }
       }),
       this.prismaService.account.findMany({
-        include: { platform: true },
+        include: {
+          platform: true,
+          cashState: {
+            select: {
+              defaultUpdateCash: true,
+              includeCashInPortfolio: true,
+              openingDate: true
+            }
+          }
+        },
         orderBy: {
           name: 'asc'
         },
@@ -220,11 +229,22 @@ export class UserService {
           scopes: getScopesOfAccess(accessItem)
         };
       }),
-      accounts: accounts.sort((a, b) => {
-        return (a.name ?? '')
-          .toLowerCase()
-          .localeCompare((b.name ?? '').toLowerCase());
-      }),
+      accounts: accounts
+        .map(({ cashState, ...account }) => ({
+          ...account,
+          cashManagement: cashState
+            ? {
+                defaultUpdateCash: cashState.defaultUpdateCash,
+                includeCashInPortfolio: cashState.includeCashInPortfolio,
+                openingDate: cashState.openingDate.toISOString().slice(0, 10)
+              }
+            : undefined
+        }))
+        .sort((a, b) => {
+          return (a.name ?? '')
+            .toLowerCase()
+            .localeCompare((b.name ?? '').toLowerCase());
+        }),
       permissions: permissions ?? [],
       settings: {
         ...resolvedUserSettings,
@@ -654,6 +674,10 @@ export class UserService {
         where: { OR: [{ granteeUserId: where.id }, { userId: where.id }] }
       });
     } catch {}
+
+    await this.prismaService.cashEvent.deleteMany({
+      where: { userId: where.id }
+    });
 
     try {
       await this.prismaService.account.deleteMany({

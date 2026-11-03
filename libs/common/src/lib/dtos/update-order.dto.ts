@@ -15,6 +15,8 @@ import { Transform, TransformFnParams } from 'class-transformer';
 import {
   ArrayUnique,
   IsArray,
+  IsBoolean,
+  IsObject,
   IsEnum,
   IsISO8601,
   IsNotEmpty,
@@ -87,10 +89,27 @@ export class UpdateOrderDto {
   @IsString({ each: true })
   tags?: string[];
 
+  @IsNumber()
+  @IsOptional()
+  @Min(0)
+  tax?: number;
+
   @IsString()
   type: Type;
 
   @IsNumber()
   @Min(0)
   unitPrice: number;
+
+  @IsBoolean()
+  @IsOptional()
+  confirmNegativeBalance?: boolean;
+
+  @IsObject()
+  @IsOptional()
+  cashRevisions?: Record<string, number>;
+
+  @IsBoolean()
+  @IsOptional()
+  updateAccountBalance?: boolean;
 }

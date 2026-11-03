@@ -52,6 +52,7 @@ export class PortfolioSnapshotProcessor {
           filters: job.data.filters,
           userCurrency: job.data.userCurrency,
           userId: job.data.userId,
+          withHiddenCash: job.data.withHiddenCash,
           withCash: true
         });
 
@@ -59,7 +60,8 @@ export class PortfolioSnapshotProcessor {
         await this.accountBalanceService.getAccountBalanceItems({
           filters: job.data.filters,
           userCurrency: job.data.userCurrency,
-          userId: job.data.userId
+          userId: job.data.userId,
+          withHiddenCash: job.data.withHiddenCash
         });
 
       const portfolioCalculator = this.calculatorFactory.createCalculator({
@@ -68,10 +70,12 @@ export class PortfolioSnapshotProcessor {
         calculationType: job.data.calculationType,
         currency: job.data.userCurrency,
         filters: job.data.filters,
-        userId: job.data.userId
+        usePortfolioSnapshotCache: false,
+        userId: job.data.userId,
+        withHiddenCash: job.data.withHiddenCash
       });
 
-      const snapshot = await portfolioCalculator.computeSnapshot();
+      const snapshot = await portfolioCalculator.getSnapshot();
 
       this.logger.log(
         `Portfolio snapshot calculation of user '${job.data.userId}' has been completed in ${(
@@ -89,12 +93,14 @@ export class PortfolioSnapshotProcessor {
         this.redisCacheService.getPortfolioSnapshotKey({
           calculationType: job.data.calculationType,
           filters: job.data.filters,
-          userId: job.data.userId
+          userId: job.data.userId,
+          withHiddenCash: job.data.withHiddenCash
         }),
         JSON.stringify({
+          calculationContext: portfolioCalculator.getCalculationContext(),
           expiration: expiration.getTime(),
           portfolioSnapshot: snapshot
-        } as unknown as PortfolioSnapshotValue),
+        } satisfies PortfolioSnapshotValue),
         CACHE_TTL_INFINITE
       );
 

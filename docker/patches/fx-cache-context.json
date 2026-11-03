@@ -1,0 +1,7 @@
+{
+  "sha256": "89f7e2987bd42f99c8f8fa174f291f1e5c00ee6212f01b63a0cde2f213eac8c6",
+  "source": "ghostfolio-cached-fx-validation/integration.patch",
+  "integrationBaseline": "b9e12e3e068be79997fa37e9595bee2acdd639a7",
+  "sourceBranch": "fix/portfolio-cached-fx-context",
+  "sourceBaseline": "a8193354d810489ae74c68fece68aceedbcc9411"
+}

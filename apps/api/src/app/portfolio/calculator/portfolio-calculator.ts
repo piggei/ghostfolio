@@ -12,6 +12,7 @@ import { MethodIndependentHoldingPerformance } from '@ghostfolio/api/app/portfol
 import { PortfolioCalculatorActivityItem } from '@ghostfolio/api/app/portfolio/interfaces/portfolio-calculator-activity-item.interface';
 import { PortfolioCalculatorActivity } from '@ghostfolio/api/app/portfolio/interfaces/portfolio-calculator-activity.interface';
 import { PortfolioCalculatorHolding } from '@ghostfolio/api/app/portfolio/interfaces/portfolio-calculator-holding.interface';
+import { PortfolioSnapshotCalculationContext } from '@ghostfolio/api/app/portfolio/interfaces/snapshot-calculation-context.interface';
 import { PortfolioSnapshotValue } from '@ghostfolio/api/app/portfolio/interfaces/snapshot-value.interface';
 import { PerformancePercentages } from '@ghostfolio/api/app/portfolio/types/performance-percentages.type';
 import { getFactor } from '@ghostfolio/api/helper/portfolio.helper';
@@ -101,6 +102,9 @@ export abstract class PortfolioCalculator {
   private dataProviderInfos: DataProviderInfo[];
   private endDate: Date;
   private exchangeRateDataService: ExchangeRateDataService;
+  private exchangeRatesByCurrency: {
+    [currencyPair: string]: { [date: string]: number };
+  } = {};
   private filters: Filter[];
   private holdingBalancesByDate: HoldingBalancesAtDate[];
   private portfolioSnapshotService: PortfolioSnapshotService;
@@ -110,6 +114,7 @@ export abstract class PortfolioCalculator {
   private startDate: Date;
   private subscriptionType?: SubscriptionType;
   private usePortfolioSnapshotCache: boolean;
+  private withHiddenCash: boolean;
   private userId: string;
 
   public constructor({
@@ -123,6 +128,7 @@ export abstract class PortfolioCalculator {
     portfolioSnapshotService,
     redisCacheService,
     usePortfolioSnapshotCache = true,
+    withHiddenCash = false,
     subscriptionType,
     userId
   }: {
@@ -136,6 +142,7 @@ export abstract class PortfolioCalculator {
     portfolioSnapshotService: PortfolioSnapshotService;
     redisCacheService: RedisCacheService;
     usePortfolioSnapshotCache?: boolean;
+    withHiddenCash?: boolean;
     subscriptionType?: SubscriptionType;
     userId: string;
   }) {
@@ -160,6 +167,8 @@ export abstract class PortfolioCalculator {
           feeInAssetProfileCurrency,
           feeInBaseCurrency,
           quantity,
+          taxInAssetProfileCurrency,
+          taxInBaseCurrency,
           tags = [],
           type,
           unitPriceInAssetProfileCurrency
@@ -182,6 +191,8 @@ export abstract class PortfolioCalculator {
             fee: new Big(feeInAssetProfileCurrency),
             feeInBaseCurrency: new Big(feeInBaseCurrency),
             quantity: new Big(quantity),
+            tax: new Big(taxInAssetProfileCurrency ?? 0),
+            taxInBaseCurrency: new Big(taxInBaseCurrency ?? 0),
             unitPrice: new Big(unitPriceInAssetProfileCurrency)
           };
         }
@@ -200,6 +211,7 @@ export abstract class PortfolioCalculator {
     this.portfolioSnapshotService = portfolioSnapshotService;
     this.redisCacheService = redisCacheService;
     this.usePortfolioSnapshotCache = usePortfolioSnapshotCache;
+    this.withHiddenCash = withHiddenCash;
     this.subscriptionType = subscriptionType;
     this.userId = userId;
 
@@ -308,13 +320,15 @@ export abstract class PortfolioCalculator {
       currencies[getAssetProfileIdentifier({ dataSource, symbol })] = currency;
     }
 
-    const exchangeRatesByCurrency =
+    this.exchangeRatesByCurrency =
       await this.exchangeRateDataService.getExchangeRatesByCurrency({
         currencies: Array.from(new Set(Object.values(currencies))),
         endDate: this.endDate,
         startDate: this.startDate,
         targetCurrency: this.currency
       });
+
+    const exchangeRatesByCurrency = this.exchangeRatesByCurrency;
 
     const {
       dataProviderInfos,
@@ -521,6 +535,8 @@ export abstract class PortfolioCalculator {
         dividendInBaseCurrency: totalDividendInBaseCurrency,
         fee: item.fee,
         feeInBaseCurrency: item.feeInBaseCurrency,
+        tax: item.tax,
+        taxInBaseCurrency: item.taxInBaseCurrency,
         grossPerformance: !hasErrors ? (grossPerformance ?? null) : null,
         grossPerformancePercentage: !hasErrors
           ? (grossPerformancePercentage ?? null)
@@ -795,6 +811,8 @@ export abstract class PortfolioCalculator {
       date: startDateString,
       fee: new Big(0),
       feeInBaseCurrency: new Big(0),
+      tax: new Big(0),
+      taxInBaseCurrency: new Big(0),
       itemType: 'start',
       quantity: new Big(0),
       type: 'BUY',
@@ -806,6 +824,8 @@ export abstract class PortfolioCalculator {
       date: endDateString,
       fee: new Big(0),
       feeInBaseCurrency: new Big(0),
+      tax: new Big(0),
+      taxInBaseCurrency: new Big(0),
       itemType: 'end',
       quantity: new Big(0),
       type: 'BUY',
@@ -880,6 +900,8 @@ export abstract class PortfolioCalculator {
           fee: new Big(0),
           feeInBaseCurrency: new Big(0),
           quantity: new Big(0),
+          tax: new Big(0),
+          taxInBaseCurrency: new Big(0),
           type: 'BUY',
           unitPriceFromMarketData: unitPrice
         });
@@ -901,8 +923,22 @@ export abstract class PortfolioCalculator {
     });
   }
 
+  // Persist this with the completed snapshot, rather than reloading newer FX
+  // rates when the snapshot is read from the cache.
+  public getCalculationContext(): PortfolioSnapshotCalculationContext {
+    return {
+      currency: this.currency,
+      exchangeRatesByCurrency: this.exchangeRatesByCurrency,
+      version: 1
+    };
+  }
+
   public getDataProviderInfos() {
     return this.dataProviderInfos;
+  }
+
+  protected getExchangeRatesByCurrency() {
+    return this.exchangeRatesByCurrency;
   }
 
   protected getDividendInBaseCurrencyOfHoldings(
@@ -957,6 +993,10 @@ export abstract class PortfolioCalculator {
 
   public getHoldingBalancesByDate() {
     return this.holdingBalancesByDate;
+  }
+
+  protected getBaseCurrency() {
+    return this.currency;
   }
 
   protected abstract getHoldingPerformance({
@@ -1073,6 +1113,10 @@ export abstract class PortfolioCalculator {
     let feesAtStartDate = new Big(0);
     let feesAtStartDateWithCurrencyEffect = new Big(0);
     let feesWithCurrencyEffect = new Big(0);
+    let taxes = new Big(0);
+    let taxesAtStartDate = new Big(0);
+    let taxesAtStartDateWithCurrencyEffect = new Big(0);
+    let taxesWithCurrencyEffect = new Big(0);
     let grossPerformance = new Big(0);
     let grossPerformanceWithCurrencyEffect = new Big(0);
     let grossPerformanceAtStartDate = new Big(0);
@@ -1093,11 +1137,8 @@ export abstract class PortfolioCalculator {
     const netPerformanceValues: { [date: string]: Big } = {};
     const netPerformanceValuesWithCurrencyEffect: { [date: string]: Big } = {};
     let totalInvestment = new Big(0);
-    let totalInvestmentFromBuyTransactions = new Big(0);
-    let totalInvestmentFromBuyTransactionsWithCurrencyEffect = new Big(0);
     let totalInvestmentWithCurrencyEffect = new Big(0);
     let totalQuantity = new Big(0);
-    let totalQuantityFromBuyTransactions = new Big(0);
 
     const indexOfStartActivity = activities.findIndex(({ itemType }) => {
       return itemType === 'start';
@@ -1135,6 +1176,13 @@ export abstract class PortfolioCalculator {
       if (activity.fee) {
         activity.feeInBaseCurrency = activity.fee.mul(currentExchangeRate ?? 1);
         activity.feeInBaseCurrencyWithCurrencyEffect = activity.fee.mul(
+          exchangeRateAtActivityDate ?? 1
+        );
+      }
+
+      if (activity.tax) {
+        activity.taxInBaseCurrency = activity.tax.mul(currentExchangeRate ?? 1);
+        activity.taxInBaseCurrencyWithCurrencyEffect = activity.tax.mul(
           exchangeRateAtActivityDate ?? 1
         );
       }
@@ -1179,17 +1227,6 @@ export abstract class PortfolioCalculator {
         transactionInvestmentWithCurrencyEffect = activity.quantity
           .mul(activity.unitPriceInBaseCurrencyWithCurrencyEffect)
           .mul(getFactor(activity.type));
-
-        totalQuantityFromBuyTransactions =
-          totalQuantityFromBuyTransactions.plus(activity.quantity);
-
-        totalInvestmentFromBuyTransactions =
-          totalInvestmentFromBuyTransactions.plus(transactionInvestment);
-
-        totalInvestmentFromBuyTransactionsWithCurrencyEffect =
-          totalInvestmentFromBuyTransactionsWithCurrencyEffect.plus(
-            transactionInvestmentWithCurrencyEffect
-          );
       } else if (activity.type === 'SELL') {
         if (totalQuantity.gt(0)) {
           const remainingQuantity = totalQuantity.minus(activity.quantity);
@@ -1246,6 +1283,12 @@ export abstract class PortfolioCalculator {
         activity.feeInBaseCurrencyWithCurrencyEffect ?? 0
       );
 
+      taxes = taxes.plus(activity.taxInBaseCurrency ?? 0);
+
+      taxesWithCurrencyEffect = taxesWithCurrencyEffect.plus(
+        activity.taxInBaseCurrencyWithCurrencyEffect ?? 0
+      );
+
       totalQuantity = totalQuantity.plus(
         activity.quantity.mul(getFactor(activity.type))
       );
@@ -1279,26 +1322,14 @@ export abstract class PortfolioCalculator {
           grossPerformanceFromSellWithCurrencyEffect
         );
 
-      lastAveragePrice = totalQuantityFromBuyTransactions.eq(0)
+      // Use the cost basis of the currently held quantity for the next sale.
+      lastAveragePrice = totalQuantity.eq(0)
         ? new Big(0)
-        : totalInvestmentFromBuyTransactions.div(
-            totalQuantityFromBuyTransactions
-          );
+        : totalInvestment.div(totalQuantity);
 
-      lastAveragePriceWithCurrencyEffect = totalQuantityFromBuyTransactions.eq(
-        0
-      )
+      lastAveragePriceWithCurrencyEffect = totalQuantity.eq(0)
         ? new Big(0)
-        : totalInvestmentFromBuyTransactionsWithCurrencyEffect.div(
-            totalQuantityFromBuyTransactions
-          );
-
-      if (totalQuantity.eq(0)) {
-        // Reset tracking variables when position is fully closed
-        totalInvestmentFromBuyTransactions = new Big(0);
-        totalInvestmentFromBuyTransactionsWithCurrencyEffect = new Big(0);
-        totalQuantityFromBuyTransactions = new Big(0);
-      }
+        : totalInvestmentWithCurrencyEffect.div(totalQuantity);
 
       if (PortfolioCalculator.ENABLE_LOGGING) {
         console.log(
@@ -1341,6 +1372,8 @@ export abstract class PortfolioCalculator {
         dividendsAtStartDateWithCurrencyEffect = dividendsWithCurrencyEffect;
         feesAtStartDate = fees;
         feesAtStartDateWithCurrencyEffect = feesWithCurrencyEffect;
+        taxesAtStartDate = taxes;
+        taxesAtStartDateWithCurrencyEffect = taxesWithCurrencyEffect;
         grossPerformanceAtStartDate = grossPerformance;
 
         grossPerformanceAtStartDateWithCurrencyEffect =
@@ -1360,13 +1393,17 @@ export abstract class PortfolioCalculator {
 
         netPerformanceValues[activity.date] = grossPerformance
           .minus(grossPerformanceAtStartDate)
-          .minus(fees.minus(feesAtStartDate));
+          .minus(fees.minus(feesAtStartDate))
+          .minus(taxes.minus(taxesAtStartDate));
 
         netPerformanceValuesWithCurrencyEffect[activity.date] =
           grossPerformanceWithCurrencyEffect
             .minus(grossPerformanceAtStartDateWithCurrencyEffect)
             .minus(
               feesWithCurrencyEffect.minus(feesAtStartDateWithCurrencyEffect)
+            )
+            .minus(
+              taxesWithCurrencyEffect.minus(taxesAtStartDateWithCurrencyEffect)
             );
 
         investmentValuesAccumulated[activity.date] = totalInvestment;
@@ -1404,6 +1441,8 @@ export abstract class PortfolioCalculator {
         fees,
         feesWithCurrencyEffect,
         grossPerformance,
+        taxes,
+        taxesWithCurrencyEffect,
         grossPerformanceWithCurrencyEffect,
         transactionInvestment,
         transactionInvestmentWithCurrencyEffect,
@@ -1626,7 +1665,8 @@ export abstract class PortfolioCalculator {
       fees: feesAtStartDate,
       grossPerformance: grossPerformanceAtStartDate,
       grossPerformanceWithCurrencyEffect:
-        grossPerformanceAtStartDateWithCurrencyEffect
+        grossPerformanceAtStartDateWithCurrencyEffect,
+      taxes: taxesAtStartDate
     } = items[indexOfStartActivity];
 
     const {
@@ -1635,7 +1675,8 @@ export abstract class PortfolioCalculator {
       grossPerformanceWithCurrencyEffect,
       investment: totalInvestment,
       investmentWithCurrencyEffect: totalInvestmentWithCurrencyEffect,
-      quantity: totalQuantity
+      quantity: totalQuantity,
+      taxes
     } = items[indexOfEndActivity];
 
     const totalGrossPerformance = grossPerformance.minus(
@@ -1647,9 +1688,9 @@ export abstract class PortfolioCalculator {
         grossPerformanceAtStartDateWithCurrencyEffect
       );
 
-    const totalNetPerformance = totalGrossPerformance.minus(
-      fees.minus(feesAtStartDate)
-    );
+    const totalNetPerformance = totalGrossPerformance
+      .minus(fees.minus(feesAtStartDate))
+      .minus(taxes.minus(taxesAtStartDate));
 
     const dateRanges = (
       [
@@ -1974,6 +2015,10 @@ export abstract class PortfolioCalculator {
     return this.snapshot;
   }
 
+  protected getCurrentSnapshot() {
+    return this.snapshot;
+  }
+
   public getStartDate() {
     let firstAccountBalanceDate: Date;
     let firstActivityDate: Date;
@@ -2104,6 +2149,8 @@ export abstract class PortfolioCalculator {
       feeInBaseCurrency,
       quantity,
       tags,
+      tax,
+      taxInBaseCurrency,
       type,
       unitPrice
     } of this.activities) {
@@ -2173,6 +2220,9 @@ export abstract class PortfolioCalculator {
             previousHoldingBalance.feeInBaseCurrency.plus(feeInBaseCurrency),
           includeInHoldings: previousHoldingBalance.includeInHoldings,
           quantity: newQuantity,
+          tax: previousHoldingBalance.tax.plus(tax),
+          taxInBaseCurrency:
+            previousHoldingBalance.taxInBaseCurrency.plus(taxInBaseCurrency),
           tags: previousHoldingBalance.tags.concat(tags)
         };
       } else {
@@ -2185,6 +2235,8 @@ export abstract class PortfolioCalculator {
           skipErrors,
           symbol,
           tags,
+          tax,
+          taxInBaseCurrency,
           activitiesCount: 1,
           averagePrice: unitPrice,
           dateOfFirstActivity: date,
@@ -2332,11 +2384,38 @@ export abstract class PortfolioCalculator {
     });
   }
 
+  private isCalculationContextCompatible(
+    context: unknown
+  ): context is PortfolioSnapshotCalculationContext {
+    const isRecord = (value: unknown): value is Record<string, unknown> => {
+      return (
+        typeof value === 'object' && value !== null && !Array.isArray(value)
+      );
+    };
+
+    return (
+      isRecord(context) &&
+      context.version === 1 &&
+      context.currency === this.currency &&
+      isRecord(context.exchangeRatesByCurrency) &&
+      Object.values(context.exchangeRatesByCurrency).every((rates) => {
+        return (
+          isRecord(rates) &&
+          Object.values(rates).every((rate) => {
+            return typeof rate === 'number' && Number.isFinite(rate);
+          })
+        );
+      })
+    );
+  }
+
   @LogPerformance
   private async initialize(attempt = 1) {
     const startTimeTotal = performance.now();
 
     let cachedPortfolioSnapshot: PortfolioSnapshot | undefined;
+    let cachedCalculationContext:
+      PortfolioSnapshotCalculationContext | undefined;
     let isCachedPortfolioSnapshotExpired = false;
 
     const calculationType = this.getPerformanceCalculationType();
@@ -2345,7 +2424,8 @@ export abstract class PortfolioCalculator {
       {
         calculationType,
         filters: this.filters,
-        userId: this.userId
+        userId: this.userId,
+        withHiddenCash: this.withHiddenCash
       }
     );
 
@@ -2355,13 +2435,32 @@ export abstract class PortfolioCalculator {
       const cachedPortfolioSnapshotValue =
         await this.redisCacheService.get(portfolioSnapshotKey);
 
-      const { expiration, portfolioSnapshot }: PortfolioSnapshotValue =
-        JSON.parse(cachedPortfolioSnapshotValue);
+      const {
+        calculationContext,
+        expiration,
+        portfolioSnapshot
+      }: PortfolioSnapshotValue = JSON.parse(cachedPortfolioSnapshotValue);
+
+      if (calculationContext !== undefined) {
+        if (!this.isCalculationContextCompatible(calculationContext)) {
+          throw new Error(
+            'Incompatible portfolio snapshot calculation context'
+          );
+        }
+      } else if (
+        calculationType === PerformanceCalculationType.TWR ||
+        calculationType === PerformanceCalculationType.MWR
+      ) {
+        // Legacy snapshots cannot safely calculate these methods' date ranges
+        // without the FX rates used to value the cached portfolio.
+        throw new Error('Missing portfolio snapshot calculation context');
+      }
 
       cachedPortfolioSnapshot = plainToClass(
         PortfolioSnapshot,
         portfolioSnapshot
       );
+      cachedCalculationContext = calculationContext;
 
       if (isPast(new Date(expiration))) {
         isCachedPortfolioSnapshotExpired = true;
@@ -2370,6 +2469,10 @@ export abstract class PortfolioCalculator {
 
     if (cachedPortfolioSnapshot) {
       this.snapshot = cachedPortfolioSnapshot;
+      if (cachedCalculationContext) {
+        this.exchangeRatesByCurrency =
+          cachedCalculationContext.exchangeRatesByCurrency;
+      }
 
       this.logger.debug(
         `Fetched portfolio snapshot from cache in ${(
@@ -2380,20 +2483,28 @@ export abstract class PortfolioCalculator {
 
       if (isCachedPortfolioSnapshotExpired) {
         // Compute in the background
-        this.portfolioSnapshotService.addJobToQueue({
-          data: {
-            calculationType,
-            filters: this.filters,
-            userCurrency: this.currency,
-            userId: this.userId
-          },
-          name: PORTFOLIO_SNAPSHOT_PROCESS_JOB_NAME,
-          opts: {
-            ...PORTFOLIO_SNAPSHOT_PROCESS_JOB_OPTIONS,
-            jobId,
-            priority: PORTFOLIO_SNAPSHOT_COMPUTATION_QUEUE_PRIORITY_LOW
-          }
-        });
+        this.portfolioSnapshotService
+          .addJobToQueue({
+            data: {
+              calculationType,
+              filters: this.filters,
+              userCurrency: this.currency,
+              userId: this.userId,
+              withHiddenCash: this.withHiddenCash
+            },
+            name: PORTFOLIO_SNAPSHOT_PROCESS_JOB_NAME,
+            opts: {
+              ...PORTFOLIO_SNAPSHOT_PROCESS_JOB_OPTIONS,
+              jobId,
+              priority: PORTFOLIO_SNAPSHOT_COMPUTATION_QUEUE_PRIORITY_LOW
+            }
+          })
+          .catch((error: unknown) => {
+            this.logger.error(
+              'Failed to enqueue portfolio snapshot refresh',
+              error
+            );
+          });
       }
     } else {
       if (attempt > PortfolioCalculator.MAX_INITIALIZATION_ATTEMPTS) {
@@ -2408,7 +2519,8 @@ export abstract class PortfolioCalculator {
           calculationType,
           filters: this.filters,
           userCurrency: this.currency,
-          userId: this.userId
+          userId: this.userId,
+          withHiddenCash: this.withHiddenCash
         },
         name: PORTFOLIO_SNAPSHOT_PROCESS_JOB_NAME,
         opts: {

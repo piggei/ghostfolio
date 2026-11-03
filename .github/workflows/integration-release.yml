@@ -1,0 +1,476 @@
+name: Publish integration Docker release
+
+on:
+  push:
+    branches: [integration/ghostfolio-all-pr]
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+concurrency:
+  group: integration-release
+  cancel-in-progress: false
+
+jobs:
+  prepare:
+    if: github.repository == 'piggei/ghostfolio' && github.ref == 'refs/heads/integration/ghostfolio-all-pr'
+    runs-on: ubuntu-latest
+    outputs:
+      image: ${{ steps.version.outputs.image }}
+      tag: ${{ steps.version.outputs.tag }}
+      sha_tag: ${{ steps.version.outputs.sha_tag }}
+      version: ${{ steps.version.outputs.version }}
+    steps:
+      - uses: actions/checkout@v4
+      - id: version
+        shell: bash
+        run: |
+          version=$(node -p "require('./package.json').version")
+          echo "version=$version" >> "$GITHUB_OUTPUT"
+          echo "image=ghcr.io/${GITHUB_REPOSITORY_OWNER,,}/ghostfolio-ng" >> "$GITHUB_OUTPUT"
+          echo "tag=integration-${version}-${GITHUB_RUN_NUMBER}" >> "$GITHUB_OUTPUT"
+          echo "sha_tag=sha-${GITHUB_SHA}" >> "$GITHUB_OUTPUT"
+
+  verify:
+    needs: prepare
+    runs-on: ubuntu-latest
+    timeout-minutes: 30
+    env:
+      NX_DAEMON: 'false'
+      HUSKY: '0'
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 22.23.4
+          cache: npm
+      - run: npm ci
+      - run: node --test scripts/integration-release.test.mjs
+      - run: npm test
+
+  build:
+    needs: [prepare, verify]
+    permissions:
+      contents: read
+      packages: write
+    strategy:
+      fail-fast: false
+      matrix:
+        include:
+          - arch: amd64
+            runner: ubuntu-latest
+          - arch: arm64
+            runner: ubuntu-24.04-arm
+    runs-on: ${{ matrix.runner }}
+    timeout-minutes: 60
+    steps:
+      - uses: actions/checkout@v4
+      - uses: docker/setup-buildx-action@v3
+      - uses: docker/login-action@v3
+        with:
+          registry: ghcr.io
+          username: ${{ github.actor }}
+          password: ${{ secrets.GITHUB_TOKEN }}
+      - name: Build Ghostfolio-NG architecture image
+        uses: docker/build-push-action@v6
+        with:
+          context: .
+          platforms: linux/${{ matrix.arch }}
+          push: false
+          load: true
+          tags: ${{ needs.prepare.outputs.image }}:${{ needs.prepare.outputs.tag }}-${{ matrix.arch }}
+          labels: |
+            org.opencontainers.image.source=https://github.com/${{ github.repository }}
+            org.opencontainers.image.revision=${{ github.sha }}
+            org.opencontainers.image.version=${{ needs.prepare.outputs.version }}
+          cache-from: type=gha,scope=integration-${{ matrix.arch }}
+          cache-to: type=gha,mode=max,scope=integration-${{ matrix.arch }}
+
+      - name: Test shared smoke test implementation
+        run: node --test scripts/ghostfolio-ng-smoke-test.test.mjs
+
+      - name: Qualify Ghostfolio-NG architecture image
+        shell: bash
+        env:
+          IMAGE: ${{ needs.prepare.outputs.image }}
+          TAG: ${{ needs.prepare.outputs.tag }}
+          ARCH: ${{ matrix.arch }}
+        run: |
+          set -euo pipefail
+          bash scripts/ghostfolio-ng-smoke-test.sh "$IMAGE:$TAG-$ARCH"
+      - name: Export qualified Docker image
+        shell: bash
+        env:
+          IMAGE: ${{ needs.prepare.outputs.image }}
+          TAG: ${{ needs.prepare.outputs.tag }}
+          ARCH: ${{ matrix.arch }}
+        run: |
+          set -euo pipefail
+
+          mkdir -p release-assets
+
+          docker tag "$IMAGE:$TAG-$ARCH" "$IMAGE:$TAG"
+
+          docker save "$IMAGE:$TAG" |
+            gzip -1 > "release-assets/ghostfolio-ng-$TAG-linux-$ARCH.tar.gz"
+
+      - name: Verify qualified local image architecture
+        shell: bash
+        env:
+          IMAGE: ${{ needs.prepare.outputs.image }}
+          TAG: ${{ needs.prepare.outputs.tag }}
+          ARCH: ${{ matrix.arch }}
+        run: |
+          set -euo pipefail
+
+          os=$(docker image inspect "$IMAGE:$TAG-$ARCH" --format '{{.Os}}')
+          arch=$(docker image inspect "$IMAGE:$TAG-$ARCH" --format '{{.Architecture}}')
+
+          if [ "$os" != "linux" ] || [ "$arch" != "$ARCH" ]; then
+            echo "ERROR: Unexpected local image platform: $os/$arch" >&2
+            exit 1
+          fi
+
+          echo "Verified local image platform: $os/$arch"
+
+      - name: Publish qualified candidate image
+        shell: bash
+        env:
+          IMAGE: ${{ needs.prepare.outputs.image }}
+          ARCH: ${{ matrix.arch }}
+        run: |
+          set -euo pipefail
+
+          candidate="candidate-${GITHUB_RUN_ID}-${ARCH}"
+
+          docker tag "$IMAGE:${{ needs.prepare.outputs.tag }}-$ARCH" "$IMAGE:$candidate"
+          docker push "$IMAGE:$candidate"
+
+      - name: Verify published candidate
+        shell: bash
+        env:
+          IMAGE: ${{ needs.prepare.outputs.image }}
+          ARCH: ${{ matrix.arch }}
+        run: |
+          set -euo pipefail
+
+          candidate="candidate-${GITHUB_RUN_ID}-${ARCH}"
+
+          docker buildx imagetools inspect "$IMAGE:$candidate"
+      - uses: actions/upload-artifact@v4
+        with:
+          name: docker-${{ matrix.arch }}
+          path: release-assets/*.tar.gz
+          compression-level: 0
+          retention-days: 14
+
+  release:
+    needs: [prepare, build]
+    runs-on: ubuntu-latest
+    permissions:
+      actions: read
+      contents: write
+      packages: write
+    env:
+      GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+      IMAGE: ${{ needs.prepare.outputs.image }}
+      TAG: ${{ needs.prepare.outputs.tag }}
+      SHA_TAG: ${{ needs.prepare.outputs.sha_tag }}
+      MULTIARCH_TAG: candidate-${{ github.run_id }}-${{ github.run_attempt }}-multiarch
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+      - uses: docker/setup-buildx-action@v3
+      - uses: docker/login-action@v3
+        with:
+          registry: ghcr.io
+          username: ${{ github.actor }}
+          password: ${{ secrets.GITHUB_TOKEN }}
+      - name: Verify qualified architecture candidates
+        id: candidates
+        shell: bash
+        run: |
+          set -euo pipefail
+
+          for arch in amd64 arm64; do
+            candidate="candidate-${GITHUB_RUN_ID}-${arch}"
+            reference="$IMAGE:$candidate"
+
+            echo "Checking candidate for linux/$arch"
+
+            manifest=$(docker buildx imagetools inspect --raw "$reference")
+
+            digest=$(docker buildx imagetools inspect "$reference" |
+              awk '/^Digest:/ { print $2; exit }')
+
+            if [[ ! "$digest" =~ ^sha256:[a-f0-9]{64}$ ]]; then
+              echo "ERROR: Invalid candidate digest for $arch" >&2
+              exit 1
+            fi
+
+            media_type=$(jq -r '.mediaType // empty' <<< "$manifest")
+
+            case "$media_type" in
+              application/vnd.oci.image.index.v1+json|application/vnd.docker.distribution.manifest.list.v2+json)
+                count=$(jq --arg arch "$arch" '
+                  [.manifests[] |
+                    select(.platform.os == "linux" and .platform.architecture == $arch)
+                  ] | length
+                ' <<< "$manifest")
+
+                other=$(jq --arg arch "$arch" '
+                  [.manifests[] |
+                    select(
+                      .platform.os != "unknown" and
+                      (.platform.os != "linux" or .platform.architecture != $arch)
+                    )
+                  ] | length
+                ' <<< "$manifest")
+
+                if [ "$count" -ne 1 ] || [ "$other" -ne 0 ]; then
+                  echo "ERROR: Unexpected candidate platforms for $arch" >&2
+                  exit 1
+                fi
+                ;;
+              application/vnd.oci.image.manifest.v1+json|application/vnd.docker.distribution.manifest.v2+json)
+                # A single-platform manifest does not declare its architecture.
+                # The architecture was checked locally before publishing.
+                echo "Single-platform manifest detected for $arch"
+                ;;
+              *)
+                echo "ERROR: Unsupported manifest type: $media_type" >&2
+                exit 1
+                ;;
+            esac
+
+            echo "${arch}_digest=$digest" >> "$GITHUB_OUTPUT"
+            echo "Verified linux/$arch: $digest"
+          done
+      - name: Test GHCR release tag protection
+        run: node --test scripts/ghostfolio-ng-check-tags.test.mjs
+
+      - name: Check immutable release tags
+        shell: bash
+        run: |
+          set -euo pipefail
+
+          bash scripts/ghostfolio-ng-check-tags.sh "$IMAGE" "$MULTIARCH_TAG"
+
+      - name: Test OCI manifest validator
+        run: node --test scripts/ghostfolio-ng-validate-manifest.test.mjs
+
+      - name: Validate multi-platform manifest before publication
+        shell: bash
+        env:
+          AMD64_DIGEST: ${{ steps.candidates.outputs.amd64_digest }}
+          ARM64_DIGEST: ${{ steps.candidates.outputs.arm64_digest }}
+        run: |
+          set -euo pipefail
+
+          docker buildx imagetools create --dry-run \
+            "$IMAGE@$AMD64_DIGEST" \
+            "$IMAGE@$ARM64_DIGEST" |
+            node scripts/ghostfolio-ng-validate-manifest.mjs \
+              "$AMD64_DIGEST" "$ARM64_DIGEST"
+
+      - name: Publish temporary multi-platform candidate
+        shell: bash
+        env:
+          AMD64_DIGEST: ${{ steps.candidates.outputs.amd64_digest }}
+          ARM64_DIGEST: ${{ steps.candidates.outputs.arm64_digest }}
+        run: |
+          set -euo pipefail
+
+          docker buildx imagetools create \
+            --tag "$IMAGE:$MULTIARCH_TAG" \
+            "$IMAGE@$AMD64_DIGEST" \
+            "$IMAGE@$ARM64_DIGEST"
+
+      - name: Verify temporary multi-platform candidate
+        shell: bash
+        env:
+          AMD64_DIGEST: ${{ steps.candidates.outputs.amd64_digest }}
+          ARM64_DIGEST: ${{ steps.candidates.outputs.arm64_digest }}
+        run: |
+          set -euo pipefail
+
+          docker buildx imagetools inspect --raw "$IMAGE:$MULTIARCH_TAG" |
+            node scripts/ghostfolio-ng-validate-manifest.mjs \
+              "$AMD64_DIGEST" "$ARM64_DIGEST"
+
+      - uses: actions/download-artifact@v4
+        with:
+          pattern: docker-*
+          path: release-assets
+          merge-multiple: true
+      - name: Prepare release notes and installation files
+        run: |
+          node --test scripts/integration-release.test.mjs
+          node scripts/integration-release.mjs
+          cd release-assets
+          sha256sum *.tar.gz docker-compose.yml ghostfolio.env.example > SHA256SUMS
+      - name: Test distributive Docker smoke test
+        run: node --test scripts/ghostfolio-ng-smoke-test.test.mjs
+
+      - name: Qualify distributive release Compose
+        shell: bash
+        env:
+          SOURCE_IMAGE: ${{ env.IMAGE }}:${{ env.TAG }}
+        run: |
+          set -euo pipefail
+
+          bash scripts/ghostfolio-ng-smoke-test.sh \
+            "$IMAGE:$MULTIARCH_TAG" \
+            release-assets/docker-compose.yml \
+            "$SOURCE_IMAGE"
+
+      - name: Test release automation
+        shell: bash
+        run: |
+          set -euo pipefail
+
+          node --test \
+            scripts/integration-release.test.mjs \
+            scripts/ghostfolio-ng-check-tags.test.mjs \
+            scripts/ghostfolio-ng-validate-manifest.test.mjs \
+            scripts/ghostfolio-ng-smoke-test.test.mjs \
+            scripts/ghostfolio-ng-promote-release.test.mjs \
+            scripts/ghostfolio-ng-publish-release.test.mjs \
+            scripts/ghostfolio-ng-check-integration-order.test.mjs \
+            scripts/ghostfolio-ng-workflow.test.mjs
+
+      - name: Prepare GitHub Draft Release
+        shell: bash
+        run: |
+          set -euo pipefail
+
+          bash scripts/ghostfolio-ng-publish-release.sh \
+            prepare \
+            "$GITHUB_REPOSITORY" \
+            "$TAG" \
+            "$GITHUB_SHA" \
+            release-assets
+
+      - name: Promote and verify immutable GHCR release tags
+        id: promotion
+        shell: bash
+        env:
+          AMD64_DIGEST: ${{ steps.candidates.outputs.amd64_digest }}
+          ARM64_DIGEST: ${{ steps.candidates.outputs.arm64_digest }}
+        run: |
+          set -euo pipefail
+
+          bash scripts/ghostfolio-ng-promote-release.sh \
+            "$IMAGE" \
+            "$MULTIARCH_TAG" \
+            "$AMD64_DIGEST" \
+            "$ARM64_DIGEST" \
+            "$TAG" \
+            "$SHA_TAG"
+
+          inspect_digest() {
+            docker buildx imagetools inspect "$IMAGE:$1" |
+              awk '$1 == "Digest:" { print $2; count++ }
+                END { if (count != 1) exit 1 }'
+          }
+
+          SOURCE_DIGEST="$(inspect_digest "$TAG")"
+          SHA_DIGEST="$(inspect_digest "$SHA_TAG")"
+
+          if [[ ! "$SOURCE_DIGEST" =~ ^sha256:[a-f0-9]{64}$ ]] ||
+             [[ "$SOURCE_DIGEST" != "$SHA_DIGEST" ]]; then
+            echo "ERROR: Final GHCR tags do not reference the same manifest" >&2
+            exit 1
+          fi
+
+          for tag in "$TAG" "$SHA_TAG"; do
+            echo "Verifying final manifest: $IMAGE:$tag"
+
+            docker buildx imagetools inspect --raw "$IMAGE:$tag" |
+              node scripts/ghostfolio-ng-validate-manifest.mjs \
+                "$AMD64_DIGEST" "$ARM64_DIGEST"
+
+            actual="$(inspect_digest "$tag")"
+
+            if [[ "$actual" != "$SOURCE_DIGEST" ]]; then
+              echo "ERROR: Manifest digest changed during verification" >&2
+              exit 1
+            fi
+          done
+
+          echo "source_digest=$SOURCE_DIGEST" >> "$GITHUB_OUTPUT"
+          echo "Final GHCR release tags verified: $SOURCE_DIGEST"
+
+      - name: Publish verified GitHub Release
+        shell: bash
+        env:
+          SOURCE_DIGEST: ${{ steps.promotion.outputs.source_digest }}
+        run: |
+          set -euo pipefail
+
+          bash scripts/ghostfolio-ng-publish-release.sh \
+            publish \
+            "$GITHUB_REPOSITORY" \
+            "$TAG" \
+            "$GITHUB_SHA" \
+            release-assets \
+            "$IMAGE" \
+            "$SOURCE_DIGEST"
+
+      - name: Protect integration channel from release regression
+        id: integration_order
+        shell: bash
+        run: |
+          set -euo pipefail
+
+          if bash scripts/ghostfolio-ng-check-integration-order.sh \
+            "$GITHUB_REPOSITORY" "$TAG" "$GITHUB_RUN_ID"; then
+            echo "Integration channel update authorized"
+            echo "advance=true" >> "$GITHUB_OUTPUT"
+          else
+            status=$?
+
+            if [[ "$status" -eq 10 ]]; then
+              echo "A newer release exists. Integration channel update skipped."
+              echo "advance=false" >> "$GITHUB_OUTPUT"
+              exit 0
+            fi
+
+            echo "ERROR: Cannot safely advance integration channel" >&2
+            exit "$status"
+          fi
+
+      - name: Advance integration channel after successful release
+        if: steps.integration_order.outputs.advance == 'true'
+        shell: bash
+        env:
+          SOURCE_DIGEST: ${{ steps.promotion.outputs.source_digest }}
+          AMD64_DIGEST: ${{ steps.candidates.outputs.amd64_digest }}
+          ARM64_DIGEST: ${{ steps.candidates.outputs.arm64_digest }}
+        run: |
+          set -euo pipefail
+
+          echo "Advancing integration to $SOURCE_DIGEST"
+
+          docker buildx imagetools create \
+            --tag "$IMAGE:integration" \
+            "$IMAGE@$SOURCE_DIGEST"
+
+          docker buildx imagetools inspect --raw "$IMAGE:integration" |
+            node scripts/ghostfolio-ng-validate-manifest.mjs \
+              "$AMD64_DIGEST" "$ARM64_DIGEST"
+
+          actual="$(
+            docker buildx imagetools inspect "$IMAGE:integration" |
+              awk '$1 == "Digest:" { print $2; count++ }
+                END { if (count != 1) exit 1 }'
+          )"
+
+          if [[ "$actual" != "$SOURCE_DIGEST" ]]; then
+            echo "ERROR: Integration channel does not reference the release manifest" >&2
+            exit 1
+          fi
+
+          echo "Integration channel verified: $SOURCE_DIGEST"

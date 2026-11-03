@@ -16,6 +16,7 @@ import {
   DATA_GATHERING_QUEUE_PRIORITY_HIGH,
   NON_INVESTMENT_ACTIVITY_TYPES
 } from '@ghostfolio/common/config';
+import { CashConfirmationDto } from '@ghostfolio/common/dtos';
 import { CreateOrderDto, UpdateOrderDto } from '@ghostfolio/common/dtos';
 import { SubscriptionType } from '@ghostfolio/common/enums';
 import { getAssetProfileIdentifier } from '@ghostfolio/common/helper';
@@ -64,6 +65,7 @@ export class ActivitiesController {
   @RequiresScope(scopes.activityDelete)
   @UseInterceptors(TransformDataSourceInRequestInterceptor)
   public async deleteActivities(
+    @Body() confirmation: CashConfirmationDto,
     @Impersonation() { userId }: ImpersonationContext,
     @Query()
     {
@@ -98,7 +100,8 @@ export class ActivitiesController {
       filters,
       startDate,
       userId,
-      types: activityTypes
+      types: activityTypes,
+      confirmation
     });
   }
 
@@ -107,6 +110,7 @@ export class ActivitiesController {
   @RequiresScope(scopes.activityDelete)
   @UseInterceptors(RedactValuesInResponseInterceptor)
   public async deleteActivity(
+    @Body() confirmation: CashConfirmationDto,
     @Impersonation() { userId }: ImpersonationContext,
     @Param('id') id: string
   ): Promise<DeleteOrUpdateActivityResponse> {
@@ -122,9 +126,10 @@ export class ActivitiesController {
       );
     }
 
-    const deletedActivity = await this.activitiesService.deleteActivity({
-      id
-    });
+    const deletedActivity = await this.activitiesService.deleteActivity(
+      { id, userId },
+      confirmation
+    );
 
     return this.getDeleteOrUpdateActivityResponse(deletedActivity);
   }
