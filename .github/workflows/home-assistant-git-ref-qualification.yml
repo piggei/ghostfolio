@@ -1,0 +1,139 @@
+# Proposal only: not installed in any repository or GitHub workflow.
+name: Qualify immutable HA controller D (read-only)
+
+on:
+  push:
+    branches: [test/home-assistant-git-ref-d-ci]
+
+permissions:
+  contents: read
+
+concurrency:
+  group: ha-git-ref-d-readonly-qualification
+  cancel-in-progress: false
+
+jobs:
+  qualify:
+    if: github.repository == 'piggei/ghostfolio' && github.event_name == 'push' && github.ref == 'refs/heads/test/home-assistant-git-ref-d-ci'
+    runs-on: ubuntu-24.04
+    timeout-minutes: 15
+    steps:
+      - name: Checkout exact controller D
+        uses: actions/checkout@11bd71901bbe5b1630ceea73d27597364c9af683
+        with:
+          repository: piggei/ghostfolio
+          ref: a695d99ca3593a02c95c78f096b3ebb930fb13e8
+          fetch-depth: 0
+          persist-credentials: false
+      - name: Checkout verified tooling data from H
+        uses: actions/checkout@11bd71901bbe5b1630ceea73d27597364c9af683
+        with:
+          repository: piggei/ghostfolio
+          ref: 7788e4eaa028d1d748cf29870f4eebd1d646d402
+          path: qualification-tools
+          persist-credentials: false
+          sparse-checkout-cone-mode: false
+          sparse-checkout: |
+            /ci-tooling/payload.tar.xz
+            /ci-tooling/inventory.json
+      - name: Checkout definition from immutable executing workflow revision
+        uses: actions/checkout@11bd71901bbe5b1630ceea73d27597364c9af683
+        with:
+          repository: piggei/ghostfolio
+          ref: ${{ github.workflow_sha }}
+          path: qualification-definition
+          persist-credentials: false
+          sparse-checkout-cone-mode: false
+          sparse-checkout: |
+            /.github/workflows/home-assistant-git-ref-qualification.yml
+      - name: Verify identities and hashes before executing bundled code
+        shell: bash
+        env:
+          HARNESS_SHA: ${{ github.workflow_sha }}
+        run: |
+          set -euo pipefail
+          [[ "$HARNESS_SHA" =~ ^[a-f0-9]{40}$ ]]
+          test "$(git rev-parse HEAD)" = a695d99ca3593a02c95c78f096b3ebb930fb13e8
+          test "$(git rev-parse HEAD^)" = 1899cdb43241dcb4f68efaac4df14e64089a212e
+          test "$(git -C qualification-tools rev-parse HEAD)" = 7788e4eaa028d1d748cf29870f4eebd1d646d402
+          test "$(git -C qualification-definition rev-parse HEAD)" = "$HARNESS_SHA"
+          git rev-parse HEAD
+          git -C qualification-tools rev-parse HEAD
+          git -C qualification-definition rev-parse HEAD
+          printf '%s  %s\n' \
+            '2cf360792e94f46da9f535340d9d9f2aace5ecc76b7aaaefb9fd1d418f992853' 'qualification-tools/ci-tooling/payload.tar.xz' \
+            '3895a4c333a6b2bca1e5c3370c9af5b5ff17393e3e70d5f7bb022301358279c5' 'qualification-tools/ci-tooling/inventory.json' \
+            | sha256sum --check --strict
+          bundle="$RUNNER_TEMP/ha-git-ref-tools"
+          test ! -e "$bundle"
+          mkdir "$bundle"
+          tar -xJf qualification-tools/ci-tooling/payload.tar.xz --no-same-owner --no-same-permissions -C "$bundle"
+          "$bundle/bin/node" "$bundle/wrappers/verify-inventory.mjs" "$bundle" qualification-tools/ci-tooling/inventory.json
+          "$bundle/bin/node" --input-type=module -e "import assert from 'node:assert/strict'; assert.equal(process.versions.node, '22.23.4'); console.log(process.version)"
+          "$bundle/bin/actionlint" --version
+          command -v shellcheck
+          shellcheck --version
+          sha256sum "$(command -v shellcheck)"
+      - name: Complete HA suite (231 tests, zero skips)
+        shell: bash
+        run: |
+          set -euo pipefail
+          "$RUNNER_TEMP/ha-git-ref-tools/bin/node" --test --experimental-test-isolation=none scripts/home-assistant-addon-*.test.mjs | tee "$RUNNER_TEMP/ha-git-ref.tap"
+          grep -qx '# tests 231' "$RUNNER_TEMP/ha-git-ref.tap"
+          grep -qx '# pass 231' "$RUNNER_TEMP/ha-git-ref.tap"
+          grep -qx '# fail 0' "$RUNNER_TEMP/ha-git-ref.tap"
+          grep -qx '# skipped 0' "$RUNNER_TEMP/ha-git-ref.tap"
+          grep -qx '# cancelled 0' "$RUNNER_TEMP/ha-git-ref.tap"
+          grep -qx '# todo 0' "$RUNNER_TEMP/ha-git-ref.tap"
+      - name: Node syntax, workflow schema and YAML duplicate keys
+        shell: bash
+        run: |
+          set -euo pipefail
+          bundle="$RUNNER_TEMP/ha-git-ref-tools"
+          for module in scripts/home-assistant-addon-*.mjs; do "$bundle/bin/node" --check "$module"; done
+          "$bundle/bin/actionlint" .github/workflows/home-assistant-addon.yml .github/workflows/home-assistant-addon-test.yml .github/workflows/home-assistant-addon-test-amd64.yml .github/workflows/home-assistant-addon-oci-native-test.yml qualification-definition/.github/workflows/home-assistant-git-ref-qualification.yml
+          "$bundle/bin/node" "$bundle/wrappers/yaml-unique.mjs" .github/workflows/home-assistant-addon.yml .github/workflows/home-assistant-addon-test.yml .github/workflows/home-assistant-addon-test-amd64.yml .github/workflows/home-assistant-addon-oci-native-test.yml qualification-definition/.github/workflows/home-assistant-git-ref-qualification.yml
+      - name: Bash syntax and mandatory ShellCheck
+        shell: bash
+        run: |
+          set -euo pipefail
+          bash -n scripts/home-assistant-addon-smoke-test.sh
+          for script in home-assistant-addon/rootfs/etc/s6-overlay/s6-rc.d/*/run home-assistant-addon/rootfs/etc/s6-overlay/s6-rc.d/*/init.sh; do bash -n "$script"; done
+          shellcheck scripts/home-assistant-addon-smoke-test.sh
+          bundle="$RUNNER_TEMP/ha-git-ref-tools"
+          export BUNDLED_ROOT="$bundle"
+          "$bundle/bin/node" --input-type=commonjs <<'NODE'
+          const assert = require('node:assert/strict');
+          const fs = require('node:fs');
+          const os = require('node:os');
+          const path = require('node:path');
+          const {spawnSync} = require('node:child_process');
+          const yaml = require(path.join(process.env.BUNDLED_ROOT, 'prettier/node_modules/yaml'));
+          const doc = yaml.parseDocument(fs.readFileSync('qualification-definition/.github/workflows/home-assistant-git-ref-qualification.yml', 'utf8'), {uniqueKeys:true});
+          assert.equal(doc.errors.length, 0);
+          const directory = fs.mkdtempSync(path.join(os.tmpdir(), 'ha-harness-shell-'));
+          let count = 0;
+          for (const step of doc.toJS().jobs.qualify.steps) {
+            if (!step.run) continue;
+            const file = path.join(directory, `${count++}.sh`);
+            fs.writeFileSync(file, step.run);
+            for (const [tool, args] of [['bash', ['-n', file]], ['shellcheck', ['--shell=bash', file]]]) {
+              const result = spawnSync(tool, args, {stdio:'inherit'});
+              if (result.error) throw result.error;
+              assert.equal(result.status, 0, `${tool}: ${step.name}`);
+            }
+          }
+          assert.ok(count > 0);
+          console.log(`Bash syntax and ShellCheck: ${count} inline scripts PASS`);
+          NODE
+      - name: Formatting, whitespace and checkout preservation
+        shell: bash
+        run: |
+          set -euo pipefail
+          bundle="$RUNNER_TEMP/ha-git-ref-tools"
+          "$bundle/bin/node" "$bundle/wrappers/prettier-check.mjs" scripts/home-assistant-addon-github.mjs scripts/home-assistant-addon-git-ref.test.mjs scripts/home-assistant-addon-services.test.mjs scripts/home-assistant-addon-pipeline.test.mjs scripts/home-assistant-addon-release.test.mjs docs/home-assistant-git-ref-consistency.md qualification-definition/.github/workflows/home-assistant-git-ref-qualification.yml
+          git diff --check 1899cdb43241dcb4f68efaac4df14e64089a212e a695d99ca3593a02c95c78f096b3ebb930fb13e8
+          git diff --check
+          test -z "$(git status --porcelain --untracked-files=no)"
+          test -z "$(git -C qualification-tools status --porcelain)"
+          test -z "$(git -C qualification-definition status --porcelain)"
