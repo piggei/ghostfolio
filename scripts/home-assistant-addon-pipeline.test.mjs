@@ -656,3 +656,25 @@ test('a conflicting candidate appearing after local smoke is never overwritten',
     conflictingDigest
   );
 });
+
+test('fresh preparation preserves generation3 and requalifies recorded AMD64 without another commit', async () => {
+  const h = harness();
+  await h.pipeline.prepare(identity);
+  const plan = await h.pipeline.prepare(newer);
+  await h.pipeline.qualify(plan, 'amd64');
+  assert.equal(h.state().generation, 3);
+  const preserved = structuredClone(h.remote.files);
+  const commits = h.remote.commits.length;
+  const builds = h.docker.builds.length;
+  const tests = h.docker.tests.length;
+  const fresh = await h.pipeline.prepare(newer);
+  assert.equal(fresh.head, h.remote.head);
+  await h.pipeline.qualify(fresh, 'amd64');
+  assert.deepEqual(h.remote.files, preserved);
+  assert.equal(h.state().generation, 3);
+  assert.equal(h.remote.commits.length, commits);
+  assert.equal(h.docker.builds.length, builds);
+  assert.equal(h.docker.tests.length, tests + 1);
+  assert.equal(h.state().releases[1].state, 'reserved');
+  assert.deepEqual(h.state().releases[1].published, {});
+});
