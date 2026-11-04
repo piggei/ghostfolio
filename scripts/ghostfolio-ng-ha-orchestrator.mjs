@@ -8,7 +8,7 @@ export const DEFAULT_BRANCH = 'main';
 export const NG_BRANCH = 'integration/ghostfolio-all-pr';
 export const NG_WORKFLOW = '.github/workflows/integration-release.yml';
 export const NG_WORKFLOW_NAME = 'Publish integration Docker release';
-export const HA_REVISION = '4d642df014071b5c72eb731409aef47507cad641';
+export const HA_REVISION = 'bfaf9ff86325d3d6fb25c37785e854cc583077df';
 export const HA_WORKFLOW = '.github/workflows/home-assistant-addon.yml';
 export const SOURCE_REPOSITORY = 'piggei/ghostfolio-ng';
 

@@ -54,7 +54,7 @@ jobs:
         uses: actions/checkout@v4
         with:
           repository: piggei/ghostfolio
-          ref: 4d642df014071b5c72eb731409aef47507cad641
+          ref: bfaf9ff86325d3d6fb25c37785e854cc583077df
           path: ha-contract
           persist-credentials: false
           sparse-checkout-cone-mode: false
@@ -78,7 +78,7 @@ jobs:
       contents: write
       actions: read
       packages: write
-    uses: piggei/ghostfolio/.github/workflows/home-assistant-addon.yml@4d642df014071b5c72eb731409aef47507cad641
+    uses: piggei/ghostfolio/.github/workflows/home-assistant-addon.yml@bfaf9ff86325d3d6fb25c37785e854cc583077df
     with:
       integration_tag: ${{ needs.resolve.outputs.integration_tag }}
       source_commit: ${{ needs.resolve.outputs.source_commit }}

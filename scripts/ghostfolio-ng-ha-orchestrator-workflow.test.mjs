@@ -44,6 +44,8 @@ test('workflow_run listens only to completed integration releases and provides H
 });
 
 test('reusable workflow reference and validator checkout are fixed to the approved HA revision', () => {
+  assert.equal(HA_REVISION, 'bfaf9ff86325d3d6fb25c37785e854cc583077df');
+  assert.ok(!yaml.includes('4d642df014071b5c72eb731409aef47507cad641'));
   assert.ok(
     releaseJob.includes(`uses: ${REPOSITORY}/${HA_WORKFLOW}@${HA_REVISION}`)
   );

@@ -881,6 +881,8 @@ test('safe output serialization rejects newlines, credentials fields and mutable
     { source_image: 'ghcr.io/piggei/ghostfolio-ng:integration' },
     { integration_tag: result.integration_tag + '\nshould_publish=true' },
     { addon_source_revision: 'main' },
+    { addon_source_revision: '4d642df014071b5c72eb731409aef47507cad641' },
+    { addon_source_revision: 'a'.repeat(40) },
     { ng_run_id: '1;echo bad' },
     { should_publish: 'false' },
     { secret: 'test-token-do-not-log' },

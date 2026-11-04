@@ -15,13 +15,13 @@ baseline is distinct: the local upstream ref is release 3.97.0 at
 check reported `c861b1adaaa894d752a2088f1a77b35a22eec2ac`. Neither was used as
 the orchestrator baseline; no fetch or upstream update was performed.
 
-Existing independent development lines remain unchanged:
+Historical Task 03A development context (superseded by the Task 05A status below):
 
 - NG: `integration/ghostfolio-all-pr`, commit
   `649d61f90429483cac949c0c97c83d10c13f7c8e`.
-- HA: `feat/home-assistant-addon`, approved reusable revision
+- HA at Task 03A: `feat/home-assistant-addon`, approved reusable revision
   `4d642df014071b5c72eb731409aef47507cad641`.
-- HA version `3.97.0`, generation-zero registry, no allocations.
+- At Task 03A: HA version `3.97.0`, generation-zero registry, no allocations.
 
 | Status                      | Evidence                                                                                                                                                     |
 | --------------------------- | ------------------------------------------------------------------------------------------------------------------------------------------------------------ |
@@ -34,6 +34,31 @@ Existing independent development lines remain unchanged:
 | Published orchestrator      | No commit or push authorized in Task 03A                                                                                                                     |
 | New HA images/metadata      | Not published or activated                                                                                                                                   |
 | Real Home Assistant upgrade | Not performed; separate maintainer validation                                                                                                                |
+
+## Task 05A: qualified controller pin
+
+The three operational references now agree on HA controller
+`bfaf9ff86325d3d6fb25c37785e854cc583077df`: the static reusable workflow,
+validator checkout and resolver `HA_REVISION` emitted as `addon_source_revision`.
+The registry remains generation 1, with `3.97.1` reserved under its original
+identity, no qualification/publication evidence, and visible version `3.97.0`.
+That failed attempt is abandoned operationally; do not dispatch its recovery.
+Changing this pin intentionally does not rewrite the historical reservation.
+
+Task 05A is local validation only. No new commit SHA P exists until a separately
+authorized commit. After approval, qualify P in a separate read-only CI harness:
+check out the orchestrator at full P and the HA contract at full C; run the
+orchestrator tests, HA regressions, actionlint, YAML, syntax and formatting checks.
+Use `contents: read`, no package write permission, no invocation of the release
+entry point or reusable release job, and no release dispatch. The current
+orchestrator has no push/PR validation trigger; pushing its branch alone would
+not qualify it on Actions. A harness must be reviewed and authorized separately
+before creation or invocation. Do not dispatch the production orchestrator for
+validation: its dispatch can publish HA. CI qualification and main activation
+are separate approval checkpoints. Before activation verify the committed diff
+contains only this pin change and tests/documentation, then verify P remotely.
+Future qualifying NG releases may publish through C after main activation;
+no historical event is automatically recovered.
 
 ## Files and architecture
 
@@ -143,7 +168,7 @@ completed run cannot establish a qualified release.
 The reference is literal and cannot be supplied through event fields:
 
 ```text
-piggei/ghostfolio/.github/workflows/home-assistant-addon.yml@4d642df014071b5c72eb731409aef47507cad641
+piggei/ghostfolio/.github/workflows/home-assistant-addon.yml@bfaf9ff86325d3d6fb25c37785e854cc583077df
 ```
 
 The resolver checks out only its trusted default-branch revision (`github.sha`)
@@ -252,7 +277,7 @@ environment. This creates a temporary source snapshot, not a branch or worktree:
   set -euo pipefail
   task03_contract="$(mktemp -d)"
   trap 'rm -rf "$task03_contract"' EXIT
-  git archive 4d642df014071b5c72eb731409aef47507cad641 \
+  git archive bfaf9ff86325d3d6fb25c37785e854cc583077df \
     scripts/home-assistant-addon-github.mjs \
     scripts/home-assistant-addon-oci.mjs \
     scripts/home-assistant-addon-release.mjs \
