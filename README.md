@@ -1,3 +1,13 @@
+> [!WARNING]
+>
+> ### Ghostfolio-NG
+>
+> **Ghostfolio-NG** is an enhanced distribution of [Ghostfolio](https://github.com/ghostfolio/ghostfolio), extending the original project with additional features, improvements, bug fixes and integrations that may not be available in the official release.
+>
+> This distribution **is not an official Ghostfolio release** and is not maintained or endorsed by the original Ghostfolio project.
+>
+> The original Ghostfolio README and documentation are preserved below.
+
 <div align="center">
 
 [<img src="https://avatars.githubusercontent.com/u/82473144?s=200" width="100" alt="Ghostfolio logo">](https://ghostfol.io)
