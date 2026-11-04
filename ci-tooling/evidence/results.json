@@ -1,0 +1,127 @@
+{
+  "status": "PASS",
+  "node_tests": 284,
+  "network": "kernel seccomp socket syscalls denied",
+  "checks": [
+    {
+      "check": "network-denied",
+      "exit": 1,
+      "expected": 1
+    },
+    {
+      "check": "inventory",
+      "exit": 0,
+      "expected": 0
+    },
+    {
+      "check": "node-version",
+      "exit": 0,
+      "expected": 0
+    },
+    {
+      "check": "actionlint-version",
+      "exit": 0,
+      "expected": 0
+    },
+    {
+      "check": "yaml-version",
+      "exit": 0,
+      "expected": 0
+    },
+    {
+      "check": "prettier",
+      "exit": 0,
+      "expected": 0
+    },
+    {
+      "check": "prettier-harness",
+      "exit": 0,
+      "expected": 0
+    },
+    {
+      "check": "actionlint",
+      "exit": 0,
+      "expected": 0
+    },
+    {
+      "check": "yaml-unique",
+      "exit": 0,
+      "expected": 0
+    },
+    {
+      "check": "syntax-ghostfolio-ng-ha-orchestrator-workflow.test",
+      "exit": 0,
+      "expected": 0
+    },
+    {
+      "check": "syntax-ghostfolio-ng-ha-orchestrator",
+      "exit": 0,
+      "expected": 0
+    },
+    {
+      "check": "syntax-ghostfolio-ng-ha-orchestrator.test",
+      "exit": 0,
+      "expected": 0
+    },
+    {
+      "check": "syntax-ghostfolio-ng-ha-qualification.test",
+      "exit": 0,
+      "expected": 0
+    },
+    {
+      "check": "orchestrator",
+      "exit": 0,
+      "expected": 0
+    },
+    {
+      "check": "ha",
+      "exit": 0,
+      "expected": 0
+    },
+    {
+      "check": "security",
+      "exit": 0,
+      "expected": 0
+    },
+    {
+      "check": "duplicate.yaml",
+      "exit": 1,
+      "expected": 1
+    },
+    {
+      "check": "malformed.yaml",
+      "exit": 1,
+      "expected": 1
+    },
+    {
+      "check": "yaml-missing",
+      "exit": 1,
+      "expected": 1
+    },
+    {
+      "check": "format-invalid",
+      "exit": 1,
+      "expected": 1
+    },
+    {
+      "check": "format-missing",
+      "exit": 1,
+      "expected": 1
+    },
+    {
+      "check": "inventory-corrupt",
+      "exit": 1,
+      "expected": 1
+    },
+    {
+      "check": "inventory-missing",
+      "exit": 1,
+      "expected": 1
+    },
+    {
+      "check": "inventory-restored",
+      "exit": 0,
+      "expected": 0
+    }
+  ]
+}

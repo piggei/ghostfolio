@@ -1,0 +1,119 @@
+# SPDX-License-Identifier: MIT
+name: Qualify immutable NG HA orchestrator (read-only)
+
+on:
+  push:
+    branches: [test/ghostfolio-ng-ha-orchestrator-ci]
+
+permissions:
+  contents: read
+
+jobs:
+  qualify:
+    runs-on: ubuntu-24.04
+    timeout-minutes: 15
+    steps:
+      - name: Checkout exact orchestrator P
+        uses: actions/checkout@11bd71901bbe5b1630ceea73d27597364c9af683
+        with:
+          repository: piggei/ghostfolio
+          ref: f6ea73ca1f28750abd3b061023cab6a4f3443638
+          persist-credentials: false
+          fetch-depth: 0
+      - name: Checkout exact HA contract C
+        uses: actions/checkout@11bd71901bbe5b1630ceea73d27597364c9af683
+        with:
+          repository: piggei/ghostfolio
+          ref: bfaf9ff86325d3d6fb25c37785e854cc583077df
+          path: ha-contract
+          persist-credentials: false
+      - name: Checkout qualification data from executing workflow revision
+        uses: actions/checkout@11bd71901bbe5b1630ceea73d27597364c9af683
+        with:
+          repository: piggei/ghostfolio
+          ref: ${{ github.workflow_sha }}
+          path: qualification-harness
+          persist-credentials: false
+          sparse-checkout-cone-mode: false
+          sparse-checkout: |
+            /ci-tooling/payload.tar.xz
+            /ci-tooling/inventory.json
+            /.github/workflows/ghostfolio-ng-ha-qualification.yml
+            /scripts/ghostfolio-ng-ha-qualification.test.mjs
+            /docs/ci/ghostfolio-ng-ha-qualification.md
+      - name: Verify independent hash pins before running bundled code
+        shell: bash
+        env:
+          EXPECTED_WORKFLOW_SHA: ${{ github.workflow_sha }}
+        run: |
+          set -euo pipefail
+          [[ "$EXPECTED_WORKFLOW_SHA" =~ ^[a-f0-9]{40}$ ]]
+          test "$(git -C qualification-harness rev-parse HEAD)" = "$EXPECTED_WORKFLOW_SHA"
+          test "$(git rev-parse HEAD)" = f6ea73ca1f28750abd3b061023cab6a4f3443638
+          test "$(git -C ha-contract rev-parse HEAD)" = bfaf9ff86325d3d6fb25c37785e854cc583077df
+          git rev-parse HEAD
+          git -C ha-contract rev-parse HEAD
+          git -C qualification-harness rev-parse HEAD
+          printf '%s  %s\n' \
+            '2cf360792e94f46da9f535340d9d9f2aace5ecc76b7aaaefb9fd1d418f992853' 'qualification-harness/ci-tooling/payload.tar.xz' \
+            '3895a4c333a6b2bca1e5c3370c9af5b5ff17393e3e70d5f7bb022301358279c5' 'qualification-harness/ci-tooling/inventory.json' \
+            '60e699ec3f1c91bdf41efa45b70ad805a5048e6d7625df3b040cb6f7e60cd782' 'qualification-harness/scripts/ghostfolio-ng-ha-qualification.test.mjs' \
+            | sha256sum --check --strict
+          bundle="$RUNNER_TEMP/ha-ci-tools"
+          test ! -e "$bundle"
+          mkdir "$bundle"
+          tar -xJf qualification-harness/ci-tooling/payload.tar.xz --no-same-owner --no-same-permissions -C "$bundle"
+          "$bundle/bin/node" "$bundle/wrappers/verify-inventory.mjs" "$bundle" qualification-harness/ci-tooling/inventory.json
+          "$bundle/bin/node" --input-type=module -e "import assert from 'node:assert/strict'; assert.equal(process.versions.node, '22.23.4'); console.log(process.version)"
+      - name: Orchestrator tests (107, no skips)
+        shell: bash
+        env:
+          HA_CONTRACT_DIR: ha-contract
+        run: |
+          set -euo pipefail
+          "$RUNNER_TEMP/ha-ci-tools/bin/node" --test --experimental-test-isolation=none scripts/ghostfolio-ng-ha-orchestrator*.test.mjs | tee "$RUNNER_TEMP/orchestrator.tap"
+          grep -qx '# tests 107' "$RUNNER_TEMP/orchestrator.tap"
+          grep -qx '# pass 107' "$RUNNER_TEMP/orchestrator.tap"
+          grep -qx '# fail 0' "$RUNNER_TEMP/orchestrator.tap"
+          grep -qx '# skipped 0' "$RUNNER_TEMP/orchestrator.tap"
+          grep -qx '# cancelled 0' "$RUNNER_TEMP/orchestrator.tap"
+          grep -qx '# todo 0' "$RUNNER_TEMP/orchestrator.tap"
+      - name: HA regressions (174, no skips)
+        working-directory: ha-contract
+        shell: bash
+        run: |
+          set -euo pipefail
+          "$RUNNER_TEMP/ha-ci-tools/bin/node" --test --experimental-test-isolation=none scripts/home-assistant-addon-*.test.mjs | tee "$RUNNER_TEMP/ha.tap"
+          grep -qx '# tests 174' "$RUNNER_TEMP/ha.tap"
+          grep -qx '# pass 174' "$RUNNER_TEMP/ha.tap"
+          grep -qx '# fail 0' "$RUNNER_TEMP/ha.tap"
+          grep -qx '# skipped 0' "$RUNNER_TEMP/ha.tap"
+          grep -qx '# cancelled 0' "$RUNNER_TEMP/ha.tap"
+          grep -qx '# todo 0' "$RUNNER_TEMP/ha.tap"
+      - name: Verified harness security tests (3, no skips)
+        working-directory: qualification-harness
+        shell: bash
+        run: |
+          set -euo pipefail
+          "$RUNNER_TEMP/ha-ci-tools/bin/node" --test --experimental-test-isolation=none scripts/ghostfolio-ng-ha-qualification.test.mjs | tee "$RUNNER_TEMP/security.tap"
+          grep -qx '# tests 3' "$RUNNER_TEMP/security.tap"
+          grep -qx '# pass 3' "$RUNNER_TEMP/security.tap"
+          grep -qx '# fail 0' "$RUNNER_TEMP/security.tap"
+          grep -qx '# skipped 0' "$RUNNER_TEMP/security.tap"
+          grep -qx '# cancelled 0' "$RUNNER_TEMP/security.tap"
+          grep -qx '# todo 0' "$RUNNER_TEMP/security.tap"
+      - name: Offline static checks and state preservation
+        shell: bash
+        run: |
+          set -euo pipefail
+          bundle="$RUNNER_TEMP/ha-ci-tools"
+          "$bundle/bin/actionlint" --version | grep -qx '1.7.12'
+          "$bundle/bin/actionlint" .github/workflows/ghostfolio-ng-ha-orchestrator.yml qualification-harness/.github/workflows/ghostfolio-ng-ha-qualification.yml
+          "$bundle/bin/node" "$bundle/wrappers/yaml-unique.mjs" .github/workflows/ghostfolio-ng-ha-orchestrator.yml qualification-harness/.github/workflows/ghostfolio-ng-ha-qualification.yml
+          for module in scripts/ghostfolio-ng-ha-orchestrator*.mjs qualification-harness/scripts/ghostfolio-ng-ha-qualification.test.mjs; do "$bundle/bin/node" --check "$module"; done
+          "$bundle/bin/node" "$bundle/wrappers/prettier-check.mjs"
+          "$bundle/bin/node" "$bundle/wrappers/prettier-check.mjs" qualification-harness/.github/workflows/ghostfolio-ng-ha-qualification.yml qualification-harness/scripts/ghostfolio-ng-ha-qualification.test.mjs qualification-harness/docs/ci/ghostfolio-ng-ha-qualification.md
+          git diff --check f54a95f6f56727662249f566472fe49283a32e56 f6ea73ca1f28750abd3b061023cab6a4f3443638
+          test -z "$(git -C ha-contract status --porcelain)"
+          test -z "$(git -C qualification-harness status --porcelain)"
+          test -z "$(git status --porcelain --untracked-files=no)"

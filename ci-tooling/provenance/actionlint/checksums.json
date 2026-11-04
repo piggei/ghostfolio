@@ -1,0 +1,13 @@
+{
+  "actionlint_1.7.12_checksums.txt": {
+    "expected": "433028cf0ba3c42163ea1a668dedce30fcdbe84fe912b1a5e288c006eab8a4f5",
+    "actual": "433028cf0ba3c42163ea1a668dedce30fcdbe84fe912b1a5e288c006eab8a4f5",
+    "match": true
+  },
+  "actionlint_1.7.12_linux_amd64.tar.gz": {
+    "expected": "8aca8db96f1b94770f1b0d72b6dddcb1ebb8123cb3712530b08cc387b349a3d8",
+    "actual": "8aca8db96f1b94770f1b0d72b6dddcb1ebb8123cb3712530b08cc387b349a3d8",
+    "match": true
+  },
+  "official_archive_entry": "8aca8db96f1b94770f1b0d72b6dddcb1ebb8123cb3712530b08cc387b349a3d8  actionlint_1.7.12_linux_amd64.tar.gz"
+}

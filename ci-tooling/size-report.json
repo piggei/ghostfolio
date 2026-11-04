@@ -1,0 +1,17 @@
+{
+  "archive_bytes": 38758636,
+  "unpacked_bytes": 145253936,
+  "payload_files": 1278,
+  "bytes_by_component": {
+    "actionlint": 6074530,
+    "bin": 396,
+    "licenses": 582252,
+    "manifest.json": 38349,
+    "prettier": 13630504,
+    "provenance": 19832,
+    "runtime": 124902584,
+    "wrappers": 5489
+  },
+  "archive_sha256": "2cf360792e94f46da9f535340d9d9f2aace5ecc76b7aaaefb9fd1d418f992853",
+  "inventory_sha256": "3895a4c333a6b2bca1e5c3370c9af5b5ff17393e3e70d5f7bb022301358279c5"
+}

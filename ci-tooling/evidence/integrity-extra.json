@@ -1,0 +1,42 @@
+[
+  {
+    "case": "extra",
+    "expected_exit": 1,
+    "actual_exit": 1
+  },
+  {
+    "case": "link",
+    "expected_exit": 1,
+    "actual_exit": 1
+  },
+  {
+    "case": "mode",
+    "expected_exit": 1,
+    "actual_exit": 1
+  },
+  {
+    "case": "unsafe-path",
+    "expected_exit": 1,
+    "actual_exit": 1
+  },
+  {
+    "case": "duplicate-entry",
+    "expected_exit": 1,
+    "actual_exit": 1
+  },
+  {
+    "case": "invalid-digest",
+    "expected_exit": 1,
+    "actual_exit": 1
+  },
+  {
+    "case": "restored exact payload",
+    "expected_exit": 0,
+    "actual_exit": 0
+  },
+  {
+    "case": "poisoned host module prefix ignored",
+    "expected_exit": 0,
+    "actual_exit": 0
+  }
+]

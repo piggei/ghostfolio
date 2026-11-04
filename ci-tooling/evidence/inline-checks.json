@@ -1,0 +1,27 @@
+[
+  {
+    "case": "approved literal pins",
+    "exit": 0,
+    "expected_success": true
+  },
+  {
+    "case": "modified ci-tooling/inventory.json",
+    "exit": 1,
+    "expected_success": false
+  },
+  {
+    "case": "modified scripts/ghostfolio-ng-ha-qualification.test.mjs",
+    "exit": 1,
+    "expected_success": false
+  },
+  {
+    "case": "corrupt archive",
+    "exit": 1,
+    "expected_success": false
+  },
+  {
+    "case": "missing archive",
+    "exit": 1,
+    "expected_success": false
+  }
+]

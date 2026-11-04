@@ -1,0 +1,14 @@
+{
+  "missing_prerequisite": {
+    "expected_exit": 2,
+    "actual_exit": 2,
+    "status": "MISSING_OR_INCOMPATIBLE_PREREQUISITE"
+  },
+  "intentional_failing_test_fixture": {
+    "expected_exit": 1,
+    "actual_exit": 1,
+    "status": "FAILED",
+    "failed_check": "orchestrator",
+    "scope": "Caller-provided Git fixture produces a failing temporary P test snapshot; real Git objects/worktrees never altered. Not used as a qualification result."
+  }
+}

@@ -1,0 +1,7 @@
+{
+  "official_binary_sha256": "c872d6db8c6bf83a8eaa704fc93999f027d55dffbc63b8a6abdccb47df5f4cd4",
+  "existing_binary_sha256": "c872d6db8c6bf83a8eaa704fc93999f027d55dffbc63b8a6abdccb47df5f4cd4",
+  "identical": true,
+  "dirty_metadata_present": true,
+  "bundle_admission": "BLOCKED by explicit non-dirty requirement"
+}

@@ -1,0 +1,158 @@
+{
+  "status": "SUCCESS",
+  "mode": "OPEN_LOCAL (not immutable hosted CI)",
+  "tests": 284,
+  "P": "f6ea73ca1f28750abd3b061023cab6a4f3443638",
+  "C": "bfaf9ff86325d3d6fb25c37785e854cc583077df",
+  "versions": {
+    "node": "22.23.4",
+    "actionlint": "1.7.12",
+    "prettier": "3.9.10",
+    "prettier-plugin-organize-attributes": "1.0.0",
+    "@trivago/prettier-plugin-sort-imports": "6.0.2",
+    "yaml": "2.9.0",
+    "shellcheck_optional": "ShellCheck - shell script analysis tool\nversion: 0.11.0\nlicense: GNU General Public License, version 3\nwebsite: https://www.shellcheck.net"
+  },
+  "checks": [
+    {
+      "name": "prerequisite-node-test-options",
+      "result": "PASS"
+    },
+    {
+      "name": "prerequisite-git",
+      "result": "PASS"
+    },
+    {
+      "name": "prerequisite-tar",
+      "result": "PASS"
+    },
+    {
+      "name": "prerequisite-bash",
+      "result": "PASS"
+    },
+    {
+      "name": "prerequisite-actionlint",
+      "result": "PASS"
+    },
+    {
+      "name": "prerequisite-full-clone",
+      "result": "PASS"
+    },
+    {
+      "name": "object-f6ea73ca1f28750abd3b061023cab6a4f3443638",
+      "result": "PASS"
+    },
+    {
+      "name": "object-bfaf9ff86325d3d6fb25c37785e854cc583077df",
+      "result": "PASS"
+    },
+    {
+      "name": "archive-P",
+      "result": "PASS"
+    },
+    {
+      "name": "extract-P",
+      "result": "PASS"
+    },
+    {
+      "name": "archive-C",
+      "result": "PASS"
+    },
+    {
+      "name": "extract-C",
+      "result": "PASS"
+    },
+    {
+      "name": "orchestrator",
+      "result": "PASS"
+    },
+    {
+      "name": "ha",
+      "result": "PASS"
+    },
+    {
+      "name": "security",
+      "result": "PASS"
+    },
+    {
+      "name": "actionlint",
+      "result": "PASS"
+    },
+    {
+      "name": "yaml-unique",
+      "result": "PASS"
+    },
+    {
+      "name": "prettier-P",
+      "result": "PASS"
+    },
+    {
+      "name": "prettier-harness",
+      "result": "PASS"
+    },
+    {
+      "name": "syntax-ghostfolio-ng-ha-orchestrator-workflow.test.mjs",
+      "result": "PASS"
+    },
+    {
+      "name": "syntax-ghostfolio-ng-ha-orchestrator.mjs",
+      "result": "PASS"
+    },
+    {
+      "name": "syntax-ghostfolio-ng-ha-orchestrator.test.mjs",
+      "result": "PASS"
+    },
+    {
+      "name": "syntax-ghostfolio-ng-ha-qualification.test.mjs",
+      "result": "PASS"
+    },
+    {
+      "name": "syntax-qualify-ha-orchestrator-local.mjs",
+      "result": "PASS"
+    },
+    {
+      "name": "bash-syntax",
+      "result": "PASS"
+    },
+    {
+      "name": "prettier-local-tooling",
+      "result": "PASS"
+    },
+    {
+      "name": "bash-inline-0",
+      "result": "PASS"
+    },
+    {
+      "name": "bash-inline-1",
+      "result": "PASS"
+    },
+    {
+      "name": "bash-inline-2",
+      "result": "PASS"
+    },
+    {
+      "name": "bash-inline-3",
+      "result": "PASS"
+    },
+    {
+      "name": "bash-inline-4",
+      "result": "PASS"
+    },
+    {
+      "name": "bash-inline-5",
+      "result": "PASS"
+    },
+    {
+      "name": "shellcheck-optional",
+      "result": "PASS"
+    },
+    {
+      "name": "whitespace-P",
+      "result": "PASS"
+    },
+    {
+      "name": "whitespace-working-tree",
+      "result": "PASS"
+    }
+  ]
+}

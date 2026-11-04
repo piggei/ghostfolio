@@ -1,0 +1,6 @@
+#!/bin/sh
+# SPDX-License-Identifier: MIT
+set -eu
+unset LD_LIBRARY_PATH LD_PRELOAD LD_AUDIT NODE_OPTIONS NODE_PATH HA_QUALIFY_NODE_MODULES
+root=$(CDPATH='' cd -- "$(dirname -- "$0")/.." && pwd)
+exec "$root/runtime/bin/node" "$@"

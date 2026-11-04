@@ -1,0 +1,6 @@
+/tmp/ha-tools-negative-q3i5qxms/malformed.yaml: Flow sequence in block collection must be sufficiently indented and end with a ] at line 2, column 1:
+
+one: [
+
+^
+

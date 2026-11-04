@@ -1,0 +1,17 @@
+{
+  "schema_version": 1,
+  "task": "05D-R4",
+  "source": "Independent verification reported and accepted by the user; raw PGP signature logs are not supplied in this workspace",
+  "node_version": "22.23.4",
+  "archive": "node-v22.23.4-linux-x64.tar.xz",
+  "archive_sha256": "1805bcd35e6815559bd2eb97db438d3fdb0eb3a5e6a977b7c1badca76337e9ce",
+  "pgp_exit_code": 0,
+  "pgp_status": [
+    "GOODSIG",
+    "VALIDSIG"
+  ],
+  "pgp_fingerprint": "5BE8A3F6C8A5C01D106C0AD820B1A390B168D356",
+  "official_signed_checksums": "SHASUMS256.txt",
+  "signed_checksum_match": true,
+  "accepted_by_user": true
+}

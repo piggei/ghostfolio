@@ -1,0 +1,746 @@
+{
+  "schema_version": 2,
+  "scope": "Redistributed files only; exact byte inventory defines scope. Assessment records grants, required notices, provenance and remaining limits, not blanket legal certification.",
+  "components": [
+    {
+      "component": "node",
+      "version": "22.23.4",
+      "spdx": "MIT AND LicenseRef-Node-ThirdParty-Notices",
+      "embedded_runtime_versions": {
+        "acorn": "8.16.0",
+        "ada": "2.9.2",
+        "amaro": "1.1.8",
+        "ares": "1.34.9",
+        "brotli": "1.1.0",
+        "cjs_module_lexer": "2.2.0",
+        "cldr": "48.0",
+        "icu": "78.3",
+        "llhttp": "9.4.3",
+        "modules": "127",
+        "napi": "10",
+        "nbytes": "0.1.3",
+        "ncrypto": "0.0.1",
+        "nghttp2": "1.69.0",
+        "node": "22.23.4",
+        "openssl": "3.5.9",
+        "simdjson": "4.5.0",
+        "simdutf": "6.4.2",
+        "sqlite": "3.53.4",
+        "tz": "2026e",
+        "undici": "6.29.1",
+        "unicode": "17.0",
+        "uv": "1.51.0",
+        "uvwasi": "0.0.23",
+        "v8": "12.4.254.21-node.57",
+        "zlib": "1.3.1-e00f703",
+        "zstd": "1.5.7"
+      },
+      "source": "https://nodejs.org/dist/v22.23.4/",
+      "provenance": {
+        "archive": "/home/pj/.nvm/.cache/bin/node-v22.23.4-linux-x64/node-v22.23.4-linux-x64.tar.xz",
+        "archive_sha256": "1805bcd35e6815559bd2eb97db438d3fdb0eb3a5e6a977b7c1badca76337e9ce",
+        "binary_sha256": "94efd062ed066c1a0b332e18249859c905e920eeada5df55d24c99b919629a90",
+        "trust": "Task 05D-R4: user accepted independent PGP verification and signed official SHASUMS256.txt match",
+        "verification": {
+          "accepted_by_user": true,
+          "archive": "node-v22.23.4-linux-x64.tar.xz",
+          "archive_sha256": "1805bcd35e6815559bd2eb97db438d3fdb0eb3a5e6a977b7c1badca76337e9ce",
+          "node_version": "22.23.4",
+          "official_signed_checksums": "SHASUMS256.txt",
+          "pgp_exit_code": 0,
+          "pgp_fingerprint": "5BE8A3F6C8A5C01D106C0AD820B1A390B168D356",
+          "pgp_status": [
+            "GOODSIG",
+            "VALIDSIG"
+          ],
+          "schema_version": 1,
+          "signed_checksum_match": true,
+          "source": "Independent verification reported and accepted by the user; raw PGP signature logs are not supplied in this workspace",
+          "task": "05D-R4"
+        }
+      },
+      "sha256": "94efd062ed066c1a0b332e18249859c905e920eeada5df55d24c99b919629a90",
+      "notices": [
+        "licenses/node/LICENSE"
+      ],
+      "obligations": "Retain complete upstream Node and embedded-component license notices/disclaimers. Referenced ICU GPL configuration helper scripts are not shipped; their upstream additional-permission text is retained, not applied as a blanket license to Node.",
+      "review": "Exact upstream binary unchanged; system glibc/libstdc++/libgcc not conveyed. No claim that Node has only one license."
+    },
+    {
+      "component": "actionlint",
+      "version": "1.7.12",
+      "spdx": "MIT",
+      "source": "https://github.com/rhysd/actionlint/releases/tag/v1.7.12",
+      "provenance": "SLSA-verified official artifact; exact digest exception R3",
+      "sha256": "c872d6db8c6bf83a8eaa704fc93999f027d55dffbc63b8a6abdccb47df5f4cd4",
+      "notices": [
+        "licenses/actionlint/LICENSE.txt"
+      ],
+      "obligations": "Retain MIT copyright, permission notice and disclaimer."
+    },
+    {
+      "component": "New qualification runtime wrappers",
+      "version": "05D-R5-review-candidate",
+      "spdx": "MIT",
+      "source": "New readable source under ci-tooling/source, proposed scope in LICENSE-SCOPE.md",
+      "sha256": "3895a4c333a6b2bca1e5c3370c9af5b5ff17393e3e70d5f7bb022301358279c5",
+      "digest_scope": "payload inventory binds exact wrapper source bytes",
+      "notices": [
+        "licenses/qualification-helpers/LICENSE"
+      ],
+      "obligations": "Retain proposed MIT license/copyright/disclaimer; new-code licensing scope requires human review before publication"
+    },
+    {
+      "component": "@babel/code-frame",
+      "version": "7.29.7",
+      "spdx": "MIT",
+      "source": "https://registry.npmjs.org/@babel/code-frame/-/code-frame-7.29.7.tgz",
+      "provenance": "Cached archive verified against existing lockfile SHA-512 sha512-Aup7aUOfpbAUg2ROOJN6Iw5f9DMBlzu0mIkm/malLQFN/YQgO48wCj0Kxa3sEHJvPVFg7siR+qRInwXd2qhQKw==",
+      "sha256": "fa8b176fa0b5d1d72b41ad33443f1f4f75933157a45010dffb51719f40c19c67",
+      "notices": [
+        "licenses/npm/node_modules/@babel/code-frame/LICENSE"
+      ],
+      "obligations": "Preserve upstream copyright/license/disclaimer; Apache-2.0 additionally retain NOTICE if supplied, mark changes and observe patent/termination clauses",
+      "review": null
+    },
+    {
+      "component": "@babel/generator",
+      "version": "7.29.8",
+      "spdx": "MIT",
+      "source": "https://registry.npmjs.org/@babel/generator/-/generator-7.29.8.tgz",
+      "provenance": "Cached archive verified against existing lockfile SHA-512 sha512-gZbepsdh3WDtgZKWL+vTPh71LSBrm/Y4/QDZBVCcYfmeTEEuoOYwlSy+G1StfJg+/Zy550u/3TATbm7qDbbMtg==",
+      "sha256": "b5ced4fd7c23a580549182676c43c03a8731b9625e66270f443ab27cd21b502d",
+      "notices": [
+        "licenses/npm/node_modules/@babel/generator/LICENSE"
+      ],
+      "obligations": "Preserve upstream copyright/license/disclaimer; Apache-2.0 additionally retain NOTICE if supplied, mark changes and observe patent/termination clauses",
+      "review": null
+    },
+    {
+      "component": "@babel/helper-globals",
+      "version": "7.29.7",
+      "spdx": "MIT",
+      "source": "https://registry.npmjs.org/@babel/helper-globals/-/helper-globals-7.29.7.tgz",
+      "provenance": "Cached archive verified against existing lockfile SHA-512 sha512-3nQVUAtvkKH9zahfWgw96Jc/uFOmjACE1kQz82E2lqWmHBgjzbNlsC22nuQTfahmWeQtTq5nQ/4Nnd2A1wj4zA==",
+      "sha256": "94fb962c489aae2c4e5581f1494721083dc76dddd7c703314dd4d7ff965d2a3f",
+      "notices": [
+        "licenses/npm/node_modules/@babel/helper-globals/LICENSE"
+      ],
+      "obligations": "Preserve upstream copyright/license/disclaimer; Apache-2.0 additionally retain NOTICE if supplied, mark changes and observe patent/termination clauses",
+      "review": null
+    },
+    {
+      "component": "@babel/helper-string-parser",
+      "version": "7.29.7",
+      "spdx": "MIT",
+      "source": "https://registry.npmjs.org/@babel/helper-string-parser/-/helper-string-parser-7.29.7.tgz",
+      "provenance": "Cached archive verified against existing lockfile SHA-512 sha512-Pb5ijPrZ89GDH8223L4UP8i6QApWxs04RbPQJTeWDV0/keR2E36MeKnyr6LYmUUvqRRI+Iv87SuF1W6ErINzYw==",
+      "sha256": "124565ecd300d7187973060ba6b1d1c4f296e55f0489ddfd6af794f516fed127",
+      "notices": [
+        "licenses/npm/node_modules/@babel/helper-string-parser/LICENSE"
+      ],
+      "obligations": "Preserve upstream copyright/license/disclaimer; Apache-2.0 additionally retain NOTICE if supplied, mark changes and observe patent/termination clauses",
+      "review": null
+    },
+    {
+      "component": "@babel/helper-validator-identifier",
+      "version": "7.29.7",
+      "spdx": "MIT",
+      "source": "https://registry.npmjs.org/@babel/helper-validator-identifier/-/helper-validator-identifier-7.29.7.tgz",
+      "provenance": "Cached archive verified against existing lockfile SHA-512 sha512-qehxGkRj55h/ff8EMaJ+cYhyaKlHIxqYDn682wQD7RNp9UujOQsHog2uS0r2vzr4pW+sXf90NeeayjcNaX3fFg==",
+      "sha256": "7a31904bc45f1bb232d5e5dd797d12296f4a27fb4bf0f6d517827700f997dc1f",
+      "notices": [
+        "licenses/npm/node_modules/@babel/helper-validator-identifier/LICENSE"
+      ],
+      "obligations": "Preserve upstream copyright/license/disclaimer; Apache-2.0 additionally retain NOTICE if supplied, mark changes and observe patent/termination clauses",
+      "review": null
+    },
+    {
+      "component": "@babel/parser",
+      "version": "7.29.8",
+      "spdx": "MIT",
+      "source": "https://registry.npmjs.org/@babel/parser/-/parser-7.29.8.tgz",
+      "provenance": "Cached archive verified against existing lockfile SHA-512 sha512-E8lTAYNB1KW+FH+VGJuZM1ioAx2E6oVlvQFRrf5P8ZZmsiJXYAD9vTFV7yyEURNzgh1dFqMZuO6tUwcARbqFCA==",
+      "sha256": "20f1459b23066ba65d0dec68ee59ff5e2284c72fe22f98a7153a6cccef903c80",
+      "notices": [
+        "licenses/npm/node_modules/@babel/parser/LICENSE"
+      ],
+      "obligations": "Preserve upstream copyright/license/disclaimer; Apache-2.0 additionally retain NOTICE if supplied, mark changes and observe patent/termination clauses",
+      "review": null
+    },
+    {
+      "component": "@babel/template",
+      "version": "7.29.7",
+      "spdx": "MIT",
+      "source": "https://registry.npmjs.org/@babel/template/-/template-7.29.7.tgz",
+      "provenance": "Cached archive verified against existing lockfile SHA-512 sha512-puq+Gf35oI24FeN11LkoUQFqv9uwNeWpxXZi/Ji3rRIoKAzKnxRaZ+Gkj0vKS9ZCiTESfng1N9LyOyXvo+m+Gg==",
+      "sha256": "5e0ee28d5536e986cf5ff2da0f096fb84810d9136c2a64c6c78a6b495a0e7764",
+      "notices": [
+        "licenses/npm/node_modules/@babel/template/LICENSE"
+      ],
+      "obligations": "Preserve upstream copyright/license/disclaimer; Apache-2.0 additionally retain NOTICE if supplied, mark changes and observe patent/termination clauses",
+      "review": null
+    },
+    {
+      "component": "@babel/traverse",
+      "version": "7.29.8",
+      "spdx": "MIT",
+      "source": "https://registry.npmjs.org/@babel/traverse/-/traverse-7.29.8.tgz",
+      "provenance": "Cached archive verified against existing lockfile SHA-512 sha512-I5z7H3bf/41ktsNVLtpN0wAa336HkqIHQ5BuPLEhTkt1jVSyZpeNKIzTgEWmlxjdg81R0IgUCcaE+Ok3NvrfZg==",
+      "sha256": "cf16861f356fd766361ba4d85d5462b6320e0e59f05cb55c762d8f5dff83e234",
+      "notices": [
+        "licenses/npm/node_modules/@babel/traverse/LICENSE"
+      ],
+      "obligations": "Preserve upstream copyright/license/disclaimer; Apache-2.0 additionally retain NOTICE if supplied, mark changes and observe patent/termination clauses",
+      "review": null
+    },
+    {
+      "component": "@babel/types",
+      "version": "7.29.8",
+      "spdx": "MIT",
+      "source": "https://registry.npmjs.org/@babel/types/-/types-7.29.8.tgz",
+      "provenance": "Cached archive verified against existing lockfile SHA-512 sha512-Vj1jF3cPfxg7OAfoI7QnVKLoILlm2JF9pnVHrX8qx7AHMiYWT+NDAA7jChlNgRS4WTLc/fD1lXLmPixluj+3Gg==",
+      "sha256": "514a4ed09355fe1417f03e89c5a5f518745e2eb75a4069d25b55a3e7298069de",
+      "notices": [
+        "licenses/npm/node_modules/@babel/types/LICENSE"
+      ],
+      "obligations": "Preserve upstream copyright/license/disclaimer; Apache-2.0 additionally retain NOTICE if supplied, mark changes and observe patent/termination clauses",
+      "review": null
+    },
+    {
+      "component": "@jridgewell/gen-mapping",
+      "version": "0.3.13",
+      "spdx": "MIT",
+      "source": "https://registry.npmjs.org/@jridgewell/gen-mapping/-/gen-mapping-0.3.13.tgz",
+      "provenance": "Cached archive verified against existing lockfile SHA-512 sha512-2kkt/7niJ6MgEPxF0bYdQ6etZaA+fQvDcLKckhy1yIQOzaoKjBBjSj63/aLVjYE3qhRt5dvM+uUyfCg6UKCBbA==",
+      "sha256": "bc16f658c1f6d63e0c8738ab881d03f49f1955d8f853cdcb8f7d315cf62f0082",
+      "notices": [
+        "licenses/npm/node_modules/@jridgewell/gen-mapping/LICENSE"
+      ],
+      "obligations": "Preserve upstream copyright/license/disclaimer; Apache-2.0 additionally retain NOTICE if supplied, mark changes and observe patent/termination clauses",
+      "review": null
+    },
+    {
+      "component": "@jridgewell/resolve-uri",
+      "version": "3.1.2",
+      "spdx": "MIT",
+      "source": "https://registry.npmjs.org/@jridgewell/resolve-uri/-/resolve-uri-3.1.2.tgz",
+      "provenance": "Cached archive verified against existing lockfile SHA-512 sha512-bRISgCIjP20/tbWSPWMEi54QVPRZExkuD9lJL+UIxUKtwVJA8wW1Trb1jMs1RFXo1CBTNZ/5hpC9QvmKWdopKw==",
+      "sha256": "db52f9f62558baab13353dd39e3200750fc33e6a129a575b46226f493776e230",
+      "notices": [
+        "licenses/npm/node_modules/@jridgewell/resolve-uri/LICENSE"
+      ],
+      "obligations": "Preserve upstream copyright/license/disclaimer; Apache-2.0 additionally retain NOTICE if supplied, mark changes and observe patent/termination clauses",
+      "review": null
+    },
+    {
+      "component": "@jridgewell/sourcemap-codec",
+      "version": "1.5.5",
+      "spdx": "MIT",
+      "source": "https://registry.npmjs.org/@jridgewell/sourcemap-codec/-/sourcemap-codec-1.5.5.tgz",
+      "provenance": "Cached archive verified against existing lockfile SHA-512 sha512-cYQ9310grqxueWbl+WuIUIaiUaDcj7WOq5fVhEljNVgRfOUhY9fy2zTvfoqWsnebh8Sl70VScFbICvJnLKB0Og==",
+      "sha256": "47ad3b0d20a2e5e31ed65049829440fb1e3d4ac554d93f8040562c1821816585",
+      "notices": [
+        "licenses/npm/node_modules/@jridgewell/sourcemap-codec/LICENSE"
+      ],
+      "obligations": "Preserve upstream copyright/license/disclaimer; Apache-2.0 additionally retain NOTICE if supplied, mark changes and observe patent/termination clauses",
+      "review": null
+    },
+    {
+      "component": "@jridgewell/trace-mapping",
+      "version": "0.3.31",
+      "spdx": "MIT",
+      "source": "https://registry.npmjs.org/@jridgewell/trace-mapping/-/trace-mapping-0.3.31.tgz",
+      "provenance": "Cached archive verified against existing lockfile SHA-512 sha512-zzNR+SdQSDJzc8joaeP8QQoCQr8NuYx2dIIytl1QeBEZHJ9uW6hebsrYgbz8hJwUQao3TWCMtmfV8Nu1twOLAw==",
+      "sha256": "c64c71a119630d5abe8246889edf334b2ca9ddad094e20d623332956b1453ccf",
+      "notices": [
+        "licenses/npm/node_modules/@jridgewell/trace-mapping/LICENSE"
+      ],
+      "obligations": "Preserve upstream copyright/license/disclaimer; Apache-2.0 additionally retain NOTICE if supplied, mark changes and observe patent/termination clauses",
+      "review": null
+    },
+    {
+      "component": "@trivago/prettier-plugin-sort-imports",
+      "version": "6.0.2",
+      "spdx": "Apache-2.0",
+      "source": "https://registry.npmjs.org/@trivago/prettier-plugin-sort-imports/-/prettier-plugin-sort-imports-6.0.2.tgz",
+      "provenance": "Cached archive verified against existing lockfile SHA-512 sha512-3DgfkukFyC/sE/VuYjaUUWoFfuVjPK55vOFDsxD56XXynFMCZDYFogH2l/hDfOsQAm1myoU/1xByJ3tWqtulXA==",
+      "sha256": "0f7c147cd51a765d5bfc47409ff6a0577e297630994c5ebd36be065baac655f0",
+      "notices": [
+        "licenses/npm/node_modules/@trivago/prettier-plugin-sort-imports/LICENSE"
+      ],
+      "obligations": "Preserve upstream copyright/license/disclaimer; Apache-2.0 additionally retain NOTICE if supplied, mark changes and observe patent/termination clauses",
+      "review": null
+    },
+    {
+      "component": "brace-expansion",
+      "version": "2.1.7",
+      "spdx": "MIT",
+      "source": "https://registry.npmjs.org/brace-expansion/-/brace-expansion-2.1.7.tgz",
+      "provenance": "Cached archive verified against existing lockfile SHA-512 sha512-uZbew1NqdmPDTMJ8ah1y+b+9QEJrfkXFk3RcTQw3X0jW/xRUvFKsg1CfQdSYGdTbXZWExtU3J3ccxtnfw1Fi0g==",
+      "sha256": "6f4d64fdab4cdc5096d48537f35a6bbb2b8b918abaa4bdb0833e92486f66befc",
+      "notices": [
+        "licenses/npm/node_modules/@trivago/prettier-plugin-sort-imports/node_modules/brace-expansion/LICENSE"
+      ],
+      "obligations": "Preserve upstream copyright/license/disclaimer; Apache-2.0 additionally retain NOTICE if supplied, mark changes and observe patent/termination clauses",
+      "review": null
+    },
+    {
+      "component": "minimatch",
+      "version": "9.0.9",
+      "spdx": "ISC",
+      "source": "https://registry.npmjs.org/minimatch/-/minimatch-9.0.9.tgz",
+      "provenance": "Cached archive verified against existing lockfile SHA-512 sha512-OBwBN9AL4dqmETlpS2zasx+vTeWclWzkblfZk7KTA5j3jeOONz/tRCnZomUyvNg83wL5Zv9Ss6HMJXAgL8R2Yg==",
+      "sha256": "7d28c9a3ef17ce542093c78ec191481503e2711d29db1bd1522062303ab40478",
+      "notices": [
+        "licenses/npm/node_modules/@trivago/prettier-plugin-sort-imports/node_modules/minimatch/LICENSE"
+      ],
+      "obligations": "Preserve upstream copyright/license/disclaimer; Apache-2.0 additionally retain NOTICE if supplied, mark changes and observe patent/termination clauses",
+      "review": null
+    },
+    {
+      "component": "balanced-match",
+      "version": "1.0.2",
+      "spdx": "MIT",
+      "source": "https://registry.npmjs.org/balanced-match/-/balanced-match-1.0.2.tgz",
+      "provenance": "Cached archive verified against existing lockfile SHA-512 sha512-3oSeUO0TMV67hN1AmbXsK4yaqU7tjiHlbxRDZOpH0KW9+CeX4bRAaX0Anxt0tx2MrpRpWwQaPwIlISEJhYU5Pw==",
+      "sha256": "d854f7abdd0c7a8120cf381e0ad5f972cbd0255f5d987424bd672c8c4fcebcc1",
+      "notices": [
+        "licenses/npm/node_modules/balanced-match/LICENSE.md"
+      ],
+      "obligations": "Preserve upstream copyright/license/disclaimer; Apache-2.0 additionally retain NOTICE if supplied, mark changes and observe patent/termination clauses",
+      "review": null
+    },
+    {
+      "component": "debug",
+      "version": "4.4.3",
+      "spdx": "MIT",
+      "source": "https://registry.npmjs.org/debug/-/debug-4.4.3.tgz",
+      "provenance": "Cached archive verified against existing lockfile SHA-512 sha512-RGwwWnwQvkVfavKVt22FGLw+xYSdzARwm0ru6DhTVA3umU5hZc28V3kO4stgYryrTlLpuvgI9GiijltAjNbcqA==",
+      "sha256": "89c1ac9c946ee8905a875837114528e97eeae35e03be3190584b2216af43e4a7",
+      "notices": [
+        "licenses/npm/node_modules/debug/LICENSE"
+      ],
+      "obligations": "Preserve upstream copyright/license/disclaimer; Apache-2.0 additionally retain NOTICE if supplied, mark changes and observe patent/termination clauses",
+      "review": null
+    },
+    {
+      "component": "ms",
+      "version": "2.1.3",
+      "spdx": "MIT",
+      "source": "https://registry.npmjs.org/ms/-/ms-2.1.3.tgz",
+      "provenance": "Cached archive verified against existing lockfile SHA-512 sha512-6FlzubTLZG3J2a/NVCAleEhjzq5oxgHyaCU9yYXvcLsvoVaHJq/s5xXI6/XXP6tz7R9xAOtHnSO/tXtF3WRTlA==",
+      "sha256": "f6616e15e530ed552f9daa2d3ce71963947c6bc7c98c9b64fd3e673fd02622c6",
+      "notices": [
+        "licenses/npm/node_modules/debug/node_modules/ms/license.md"
+      ],
+      "obligations": "Preserve upstream copyright/license/disclaimer; Apache-2.0 additionally retain NOTICE if supplied, mark changes and observe patent/termination clauses",
+      "review": null
+    },
+    {
+      "component": "javascript-natural-sort",
+      "version": "0.7.1",
+      "spdx": "MIT",
+      "source": "https://registry.npmjs.org/javascript-natural-sort/-/javascript-natural-sort-0.7.1.tgz",
+      "provenance": "Cached archive verified against existing lockfile SHA-512 sha512-nO6jcEfZWQXDhOiBtG2KvKyEptz7RVbpGP4vTD2hLBdmNQSsCiicO2Ioinv6UI4y9ukqnBpy+XZ9H6uLNgJTlw==",
+      "sha256": "541e461ad7a0253d8f83ac242ada0adb388d9835c4db4afb30cf249469ac1284",
+      "notices": [
+        "licenses/npm/node_modules/javascript-natural-sort/naturalSort.js",
+        "licenses/npm/node_modules/javascript-natural-sort/package.json",
+        "licenses/npm/node_modules/javascript-natural-sort/MIT-TERMS.txt"
+      ],
+      "obligations": "Preserve upstream copyright/license/disclaimer; Apache-2.0 additionally retain NOTICE if supplied, mark changes and observe patent/termination clauses",
+      "review": "Explicit upstream SPDX MIT grant in package.json and author/source notice preserved; standard MIT terms supplied separately without inventing copyright attribution/year"
+    },
+    {
+      "component": "js-tokens",
+      "version": "4.0.0",
+      "spdx": "MIT",
+      "source": "https://registry.npmjs.org/js-tokens/-/js-tokens-4.0.0.tgz",
+      "provenance": "Cached archive verified against existing lockfile SHA-512 sha512-RdJUflcE3cUzKiMqQgsCu06FPu9UdIJO0beYbPhHN4k6apgJtifcoCtT9bcxOpYBtpD2kCM6Sbzg4CausW/PKQ==",
+      "sha256": "d884c7a2d8adb5568c1272d92b4f9c62707f4226cf9e7b22e7b957c7361e3c53",
+      "notices": [
+        "licenses/npm/node_modules/js-tokens/LICENSE"
+      ],
+      "obligations": "Preserve upstream copyright/license/disclaimer; Apache-2.0 additionally retain NOTICE if supplied, mark changes and observe patent/termination clauses",
+      "review": null
+    },
+    {
+      "component": "jsesc",
+      "version": "3.1.0",
+      "spdx": "MIT",
+      "source": "https://registry.npmjs.org/jsesc/-/jsesc-3.1.0.tgz",
+      "provenance": "Cached archive verified against existing lockfile SHA-512 sha512-/sM3dO2FOzXjKQhJuo0Q173wf2KOo8t4I8vHy6lF9poUp7bKT0/NHE8fPX23PwfhnykfqnC2xRxOnVw5XuGIaA==",
+      "sha256": "0c712225ccca9a70bf83f2ac2f52a268c858c7df3b3df196f1623239d80d3c09",
+      "notices": [
+        "licenses/npm/node_modules/jsesc/LICENSE-MIT.txt"
+      ],
+      "obligations": "Preserve upstream copyright/license/disclaimer; Apache-2.0 additionally retain NOTICE if supplied, mark changes and observe patent/termination clauses",
+      "review": null
+    },
+    {
+      "component": "lodash-es",
+      "version": "4.18.1",
+      "spdx": "MIT",
+      "source": "https://registry.npmjs.org/lodash-es/-/lodash-es-4.18.1.tgz",
+      "provenance": "Cached archive verified against existing lockfile SHA-512 sha512-J8xewKD/Gk22OZbhpOVSwcs60zhd95ESDwezOFuA3/099925PdHJ7OFHNTGtajL3AlZkykD32HykiMo+BIBI8A==",
+      "sha256": "b0c810e5cd4cd580ed7b18fc71384b9a80c151dc5c85b1729bd656a49e3f16f8",
+      "notices": [
+        "licenses/npm/node_modules/lodash-es/LICENSE"
+      ],
+      "obligations": "Preserve upstream copyright/license/disclaimer; Apache-2.0 additionally retain NOTICE if supplied, mark changes and observe patent/termination clauses",
+      "review": null
+    },
+    {
+      "component": "parse-imports-exports",
+      "version": "0.2.4",
+      "spdx": "MIT",
+      "source": "https://registry.npmjs.org/parse-imports-exports/-/parse-imports-exports-0.2.4.tgz",
+      "provenance": "Cached archive verified against existing lockfile SHA-512 sha512-4s6vd6dx1AotCx/RCI2m7t7GCh5bDRUtGNvRfHSP2wbBQdMi67pPe7mtzmgwcaQ8VKK/6IB7Glfyu3qdZJPybQ==",
+      "sha256": "f1b983b74c4a2b20f83ce7e50c31a33462dfaa6ce94e17ebfb7af48bc90ab145",
+      "notices": [
+        "licenses/npm/node_modules/parse-imports-exports/LICENSE"
+      ],
+      "obligations": "Preserve upstream copyright/license/disclaimer; Apache-2.0 additionally retain NOTICE if supplied, mark changes and observe patent/termination clauses",
+      "review": null
+    },
+    {
+      "component": "parse-statements",
+      "version": "1.0.11",
+      "spdx": "MIT",
+      "source": "https://registry.npmjs.org/parse-statements/-/parse-statements-1.0.11.tgz",
+      "provenance": "Cached archive verified against existing lockfile SHA-512 sha512-HlsyYdMBnbPQ9Jr/VgJ1YF4scnldvJpJxCVx6KgqPL4dxppsWrJHCIIxQXMJrqGnsRkNPATbeMJ8Yxu7JMsYcA==",
+      "sha256": "8a9554ccd7a9fa1ccd94e677dbe9194dc66ad921d93e576b6822db2bd4e27cd6",
+      "notices": [
+        "licenses/npm/node_modules/parse-statements/LICENSE"
+      ],
+      "obligations": "Preserve upstream copyright/license/disclaimer; Apache-2.0 additionally retain NOTICE if supplied, mark changes and observe patent/termination clauses",
+      "review": null
+    },
+    {
+      "component": "picocolors",
+      "version": "1.1.1",
+      "spdx": "ISC",
+      "source": "https://registry.npmjs.org/picocolors/-/picocolors-1.1.1.tgz",
+      "provenance": "Cached archive verified against existing lockfile SHA-512 sha512-xceH2snhtb5M9liqDsmEw56le376mTZkEX/jEb/RxNFyegNul7eNslCXP9FDj/Lcu0X8KEyMceP2ntpaHrDEVA==",
+      "sha256": "d3aedb2807967b7eb37fd11b03b7e3701e725af79c650d0812ff7213f8f882d9",
+      "notices": [
+        "licenses/npm/node_modules/picocolors/LICENSE"
+      ],
+      "obligations": "Preserve upstream copyright/license/disclaimer; Apache-2.0 additionally retain NOTICE if supplied, mark changes and observe patent/termination clauses",
+      "review": null
+    },
+    {
+      "component": "prettier",
+      "version": "3.9.10",
+      "spdx": "MIT",
+      "source": "https://registry.npmjs.org/prettier/-/prettier-3.9.10.tgz",
+      "provenance": "Cached archive verified against existing lockfile SHA-512 sha512-skGHTH1Yb9QvaTC4hWnRTzEYtCpApF0UMBPz+t/0ZPzP8ihefo/btKd+QA7pUE0fEwA1SbS/NmhyEcstdXOIdA==",
+      "sha256": "9dc72045591793dff972432fb78722f7ab91aaa90a7fa8c1261ede55969246b7",
+      "notices": [
+        "licenses/npm/node_modules/prettier/LICENSE",
+        "licenses/npm/node_modules/prettier/THIRD-PARTY-NOTICES.md"
+      ],
+      "obligations": "Preserve upstream copyright/license/disclaimer; Apache-2.0 additionally retain NOTICE if supplied, mark changes and observe patent/termination clauses",
+      "review": null
+    },
+    {
+      "component": "prettier-plugin-organize-attributes",
+      "version": "1.0.0",
+      "spdx": "MIT",
+      "source": "https://registry.npmjs.org/prettier-plugin-organize-attributes/-/prettier-plugin-organize-attributes-1.0.0.tgz",
+      "provenance": "Cached archive verified against existing lockfile SHA-512 sha512-+NmameaLxbCcylEXsKPmawtzla5EE6ECqvGkpfQz4KM847fXDifB1gFnPQEpoADAq6IXg+cMI8Z0ISJEXa6fhg==",
+      "sha256": "58977afab4148faf318aad7114843d02c780fdaa9a3b2c1456ce686259548aaa",
+      "notices": [
+        "licenses/npm/node_modules/prettier-plugin-organize-attributes/LICENSE"
+      ],
+      "obligations": "Preserve upstream copyright/license/disclaimer; Apache-2.0 additionally retain NOTICE if supplied, mark changes and observe patent/termination clauses",
+      "review": null
+    },
+    {
+      "component": "yaml",
+      "version": "2.9.0",
+      "spdx": "ISC",
+      "source": "https://registry.npmjs.org/yaml/-/yaml-2.9.0.tgz",
+      "provenance": "Cached archive verified against existing lockfile SHA-512 sha512-2AvhNX3mb8zd6Zy7INTtSpl1F15HW6Wnqj0srWlkKLcpYl/gMIMJiyuGq2KeI2YFxUPjdlB+3Lc10seMLtL4cA==",
+      "sha256": "008fa204cb1ba700e0272ba045abbf09a6ffe63456e8146ba97cac6c2ad1ef91",
+      "notices": [
+        "licenses/npm/node_modules/yaml/LICENSE"
+      ],
+      "obligations": "Preserve upstream copyright/license/disclaimer; Apache-2.0 additionally retain NOTICE if supplied, mark changes and observe patent/termination clauses",
+      "review": null
+    },
+    {
+      "component": "github.com/bmatcuk/doublestar/v4",
+      "version": "v4.10.0",
+      "spdx": "MIT",
+      "source": "https://api.github.com/repos/bmatcuk/doublestar/contents?ref=v4.10.0",
+      "provenance": "h1:zU9WiOla1YA122oLM6i4EXvGW62DvKZVxIe6TYWexEs=",
+      "sha256": "cd4f5688e95ad58035db6a0b33a8b8117bc65bad83bca655c487ba4d859ec44b",
+      "digest_scope": "Go module h1 directory hash (not a binary artifact digest)",
+      "notices": [
+        "licenses/go/bmatcuk__doublestar/v4.10.0/LICENSE"
+      ],
+      "notice_sha256": [
+        "2391eb152e1f700051c1618a7aaa7ad86186585190ca9a30e7579c9b9d459332"
+      ],
+      "obligations": "Retain license, copyright and disclaimer; no endorsement under BSD; Apache notices/patent terms and modification notices where applicable",
+      "parent_binary_sha256": "c872d6db8c6bf83a8eaa704fc93999f027d55dffbc63b8a6abdccb47df5f4cd4"
+    },
+    {
+      "component": "github.com/clipperhouse/uax29/v2",
+      "version": "v2.7.0",
+      "spdx": "MIT",
+      "source": "https://api.github.com/repos/clipperhouse/uax29/contents?ref=v2.7.0",
+      "provenance": "h1:+gs4oBZ2gPfVrKPthwbMzWZDaAFPGYK72F0NJv2v7Vk=",
+      "sha256": "fa0b38a0167680f7d5aca3ed8706cccd664368014f1982bbd85d0d26fdafed59",
+      "digest_scope": "Go module h1 directory hash (not a binary artifact digest)",
+      "notices": [
+        "licenses/go/clipperhouse__uax29/v2.7.0/LICENSE"
+      ],
+      "notice_sha256": [
+        "07e9e3daaccc707c9b7d535ed1405a65d37919fdd42197fe55e68820e974688c"
+      ],
+      "obligations": "Retain license, copyright and disclaimer; no endorsement under BSD; Apache notices/patent terms and modification notices where applicable",
+      "parent_binary_sha256": "c872d6db8c6bf83a8eaa704fc93999f027d55dffbc63b8a6abdccb47df5f4cd4"
+    },
+    {
+      "component": "github.com/fatih/color",
+      "version": "v1.19.0",
+      "spdx": "MIT",
+      "source": "https://api.github.com/repos/fatih/color/contents?ref=v1.19.0",
+      "provenance": "h1:Zp3PiM21/9Ld6FzSKyL5c/BULoe/ONr9KlbYVOfG8+w=",
+      "sha256": "669dcf88cdb5ffd2dde85cd22b22f973f0542e87bf38dafd2a56d854e7c6f3ec",
+      "digest_scope": "Go module h1 directory hash (not a binary artifact digest)",
+      "notices": [
+        "licenses/go/fatih__color/v1.19.0/LICENSE.md"
+      ],
+      "notice_sha256": [
+        "de95ed802d2f90e3c72cb3c9a927cca5f2aec234a3ef1250232db0f8178b2d93"
+      ],
+      "obligations": "Retain license, copyright and disclaimer; no endorsement under BSD; Apache notices/patent terms and modification notices where applicable",
+      "parent_binary_sha256": "c872d6db8c6bf83a8eaa704fc93999f027d55dffbc63b8a6abdccb47df5f4cd4"
+    },
+    {
+      "component": "github.com/mattn/go-colorable",
+      "version": "v0.1.14",
+      "spdx": "MIT",
+      "source": "https://api.github.com/repos/mattn/go-colorable/contents?ref=v0.1.14",
+      "provenance": "h1:9A9LHSqF/7dyVVX6g0U9cwm9pG3kP9gSzcuIPHPsaIE=",
+      "sha256": "f40f4b1d2a85ffb7725555fa83453d7309bda46de43fd812cdcb883c73ec6881",
+      "digest_scope": "Go module h1 directory hash (not a binary artifact digest)",
+      "notices": [
+        "licenses/go/mattn__go-colorable/v0.1.14/LICENSE"
+      ],
+      "notice_sha256": [
+        "88a2379b3ca34bf5c57127aff9dcb802bbb60ece0805cdbda65b3bd115f971d9"
+      ],
+      "obligations": "Retain license, copyright and disclaimer; no endorsement under BSD; Apache notices/patent terms and modification notices where applicable",
+      "parent_binary_sha256": "c872d6db8c6bf83a8eaa704fc93999f027d55dffbc63b8a6abdccb47df5f4cd4"
+    },
+    {
+      "component": "github.com/mattn/go-isatty",
+      "version": "v0.0.20",
+      "spdx": "MIT",
+      "source": "https://api.github.com/repos/mattn/go-isatty/contents?ref=v0.0.20",
+      "provenance": "h1:xfD0iDuEKnDkl03q4limB+vH+GxLEtL/jb4xVJSWWEY=",
+      "sha256": "c5f0f4883b842a70e4974deae258a607ebc7f86c4b12d2ff8dbe315494965846",
+      "digest_scope": "Go module h1 directory hash (not a binary artifact digest)",
+      "notices": [
+        "licenses/go/mattn__go-isatty/v0.0.20/LICENSE"
+      ],
+      "notice_sha256": [
+        "08eab1118c80885fa1fa6a6dd7303f65a379fcb3733e063d20d1bbc2c76e6fa1"
+      ],
+      "obligations": "Retain license, copyright and disclaimer; no endorsement under BSD; Apache notices/patent terms and modification notices where applicable",
+      "parent_binary_sha256": "c872d6db8c6bf83a8eaa704fc93999f027d55dffbc63b8a6abdccb47df5f4cd4"
+    },
+    {
+      "component": "github.com/mattn/go-runewidth",
+      "version": "v0.0.21",
+      "spdx": "MIT",
+      "source": "https://api.github.com/repos/mattn/go-runewidth/contents?ref=v0.0.21",
+      "provenance": "h1:jJKAZiQH+2mIinzCJIaIG9Be1+0NR+5sz/lYEEjdM8w=",
+      "sha256": "8c9280662407fb69888a7cc22486881bd05ed7ed0d47ee6ccff9581048dd33cc",
+      "digest_scope": "Go module h1 directory hash (not a binary artifact digest)",
+      "notices": [
+        "licenses/go/mattn__go-runewidth/v0.0.21/LICENSE"
+      ],
+      "notice_sha256": [
+        "88a2379b3ca34bf5c57127aff9dcb802bbb60ece0805cdbda65b3bd115f971d9"
+      ],
+      "obligations": "Retain license, copyright and disclaimer; no endorsement under BSD; Apache notices/patent terms and modification notices where applicable",
+      "parent_binary_sha256": "c872d6db8c6bf83a8eaa704fc93999f027d55dffbc63b8a6abdccb47df5f4cd4"
+    },
+    {
+      "component": "github.com/mattn/go-shellwords",
+      "version": "v1.0.12",
+      "spdx": "MIT",
+      "source": "https://api.github.com/repos/mattn/go-shellwords/contents?ref=v1.0.12",
+      "provenance": "h1:M2zGm7EW6UQJvDeQxo4T51eKPurbeFbe8WtebGE2xrk=",
+      "sha256": "336cc69bb116e94409bc3790c68e13e7578a3eeadb7856def16b5e6c6136c6b9",
+      "digest_scope": "Go module h1 directory hash (not a binary artifact digest)",
+      "notices": [
+        "licenses/go/mattn__go-shellwords/v1.0.12/LICENSE"
+      ],
+      "notice_sha256": [
+        "dce57e2906b8ebfc7a0978105aac3082ddceb8a1f673bec71b9c8dc5df51c5d7"
+      ],
+      "obligations": "Retain license, copyright and disclaimer; no endorsement under BSD; Apache notices/patent terms and modification notices where applicable",
+      "parent_binary_sha256": "c872d6db8c6bf83a8eaa704fc93999f027d55dffbc63b8a6abdccb47df5f4cd4"
+    },
+    {
+      "component": "github.com/robfig/cron/v3",
+      "version": "v3.0.1",
+      "spdx": "MIT",
+      "source": "https://api.github.com/repos/robfig/cron/contents?ref=v3.0.1",
+      "provenance": "h1:WdRxkvbJztn8LMz/QEvLN5sBU+xKpSqwwUO1Pjr4qDs=",
+      "sha256": "59d47192f6c9ced9fc2cccff404bcb379b0153ec4aa52ab0c143b53e3af8a83b",
+      "digest_scope": "Go module h1 directory hash (not a binary artifact digest)",
+      "notices": [
+        "licenses/go/robfig__cron/v3.0.1/LICENSE"
+      ],
+      "notice_sha256": [
+        "8f650581478707182f3306d9a86676d4e03e2d4edc868344378cf4d6fe6c927a"
+      ],
+      "obligations": "Retain license, copyright and disclaimer; no endorsement under BSD; Apache notices/patent terms and modification notices where applicable",
+      "parent_binary_sha256": "c872d6db8c6bf83a8eaa704fc93999f027d55dffbc63b8a6abdccb47df5f4cd4"
+    },
+    {
+      "component": "go.yaml.in/yaml/v4",
+      "version": "v4.0.0-rc.3",
+      "spdx": "Apache-2.0 AND MIT",
+      "source": "https://api.github.com/repos/yaml/go-yaml/contents?ref=v4.0.0-rc.3",
+      "provenance": "h1:3h1fjsh1CTAPjW7q/EMe+C8shx5d8ctzZTrLcs/j8Go=",
+      "sha256": "de1d5f8ec87509300f8d6eeafc431ef82f2c871e5df1cb73653acb72cfe3f06a",
+      "digest_scope": "Go module h1 directory hash (not a binary artifact digest)",
+      "notices": [
+        "licenses/go/yaml__go-yaml/v4.0.0-rc.3/LICENSE",
+        "licenses/go/yaml__go-yaml/v4.0.0-rc.3/NOTICE",
+        "licenses/go/yaml__go-yaml/v4.0.0-rc.3/MIT-TERMS.txt"
+      ],
+      "notice_sha256": [
+        "4a4e095045f46875715234a884741acd2b61b88959d6f47a243ae03ef95c4e76",
+        "eaecbd48a908defec5acc088247b82d1fc1eb21d5b450348c25429bba42d9001",
+        "cb5aedb296c5246d1f22e9099f925a65146f9f0d6b4eebba97fd27a6cdbbab2d"
+      ],
+      "obligations": "Retain Apache-2.0 license and NOTICE; retain Kirill Simonov/libyaml MIT copyright, permission terms and disclaimer for the ported internal/libyaml files identified in NOTICE.",
+      "parent_binary_sha256": "c872d6db8c6bf83a8eaa704fc93999f027d55dffbc63b8a6abdccb47df5f4cd4"
+    },
+    {
+      "component": "golang.org/x/sync",
+      "version": "v0.20.0",
+      "spdx": "BSD-3-Clause",
+      "source": "https://api.github.com/repos/golang/sync/contents?ref=v0.20.0",
+      "provenance": "h1:e0PTpb7pjO8GAtTs2dQ6jYa5BWYlMuX047Dco/pItO4=",
+      "sha256": "7b43d3a5bee98cef0602d4ecd9d43a8d86b905662532e5f4e3b0dca3fa48b4ee",
+      "digest_scope": "Go module h1 directory hash (not a binary artifact digest)",
+      "notices": [
+        "licenses/go/golang__sync/v0.20.0/LICENSE"
+      ],
+      "notice_sha256": [
+        "911f8f5782931320f5b8d1160a76365b83aea6447ee6c04fa6d5591467db9dad"
+      ],
+      "obligations": "Retain license, copyright and disclaimer; no endorsement under BSD; Apache notices/patent terms and modification notices where applicable",
+      "parent_binary_sha256": "c872d6db8c6bf83a8eaa704fc93999f027d55dffbc63b8a6abdccb47df5f4cd4"
+    },
+    {
+      "component": "golang.org/x/sys",
+      "version": "v0.42.0",
+      "spdx": "BSD-3-Clause",
+      "source": "https://api.github.com/repos/golang/sys/contents?ref=v0.42.0",
+      "provenance": "h1:omrd2nAlyT5ESRdCLYdm3+fMfNFE/+Rf4bDIQImRJeo=",
+      "sha256": "a26addda7025c93e444917422d8766dfe7cc7cd144ffe45fe1b0c840899125ea",
+      "digest_scope": "Go module h1 directory hash (not a binary artifact digest)",
+      "notices": [
+        "licenses/go/golang__sys/v0.42.0/LICENSE"
+      ],
+      "notice_sha256": [
+        "911f8f5782931320f5b8d1160a76365b83aea6447ee6c04fa6d5591467db9dad"
+      ],
+      "obligations": "Retain license, copyright and disclaimer; no endorsement under BSD; Apache notices/patent terms and modification notices where applicable",
+      "parent_binary_sha256": "c872d6db8c6bf83a8eaa704fc93999f027d55dffbc63b8a6abdccb47df5f4cd4"
+    },
+    {
+      "component": "Go standard library/runtime embedded in Actionlint",
+      "version": "1.26.1",
+      "spdx": "BSD-3-Clause",
+      "source": "https://raw.githubusercontent.com/golang/go/go1.26.1/LICENSE",
+      "provenance": "Go build version metadata plus upstream tagged license",
+      "sha256": "911f8f5782931320f5b8d1160a76365b83aea6447ee6c04fa6d5591467db9dad",
+      "digest_scope": "copyright/license text; embedded runtime bytes covered by exact Actionlint binary SHA-256",
+      "notices": [
+        "licenses/go/go1.26.1/LICENSE"
+      ],
+      "notice_sha256": [
+        "911f8f5782931320f5b8d1160a76365b83aea6447ee6c04fa6d5591467db9dad"
+      ],
+      "obligations": "Retain BSD copyright, conditions, disclaimer; no endorsement",
+      "parent_binary_sha256": "c872d6db8c6bf83a8eaa704fc93999f027d55dffbc63b8a6abdccb47df5f4cd4"
+    }
+  ],
+  "license_refs": {
+    "LicenseRef-Node-ThirdParty-Notices": "Complete unmodified upstream licenses/node/LICENSE, including multiple embedded component notices; no separate build/configuration helper code is conveyed."
+  },
+  "not_redistributed": [
+    "ShellCheck",
+    "Python",
+    "PyYAML",
+    "glibc",
+    "libstdc++",
+    "libgcc",
+    "all distribution shared libraries"
+  ],
+  "all_notice_files": [
+    "licenses/actionlint/LICENSE.txt",
+    "licenses/go/bmatcuk__doublestar/v4.10.0/LICENSE",
+    "licenses/go/clipperhouse__uax29/v2.7.0/LICENSE",
+    "licenses/go/fatih__color/v1.19.0/LICENSE.md",
+    "licenses/go/go1.26.1/LICENSE",
+    "licenses/go/golang__sync/v0.20.0/LICENSE",
+    "licenses/go/golang__sys/v0.42.0/LICENSE",
+    "licenses/go/mattn__go-colorable/v0.1.14/LICENSE",
+    "licenses/go/mattn__go-isatty/v0.0.20/LICENSE",
+    "licenses/go/mattn__go-runewidth/v0.0.21/LICENSE",
+    "licenses/go/mattn__go-shellwords/v1.0.12/LICENSE",
+    "licenses/go/robfig__cron/v3.0.1/LICENSE",
+    "licenses/go/yaml__go-yaml/v4.0.0-rc.3/LICENSE",
+    "licenses/go/yaml__go-yaml/v4.0.0-rc.3/MIT-TERMS.txt",
+    "licenses/go/yaml__go-yaml/v4.0.0-rc.3/NOTICE",
+    "licenses/node/LICENSE",
+    "licenses/npm/node_modules/@babel/code-frame/LICENSE",
+    "licenses/npm/node_modules/@babel/generator/LICENSE",
+    "licenses/npm/node_modules/@babel/helper-globals/LICENSE",
+    "licenses/npm/node_modules/@babel/helper-string-parser/LICENSE",
+    "licenses/npm/node_modules/@babel/helper-validator-identifier/LICENSE",
+    "licenses/npm/node_modules/@babel/parser/LICENSE",
+    "licenses/npm/node_modules/@babel/template/LICENSE",
+    "licenses/npm/node_modules/@babel/traverse/LICENSE",
+    "licenses/npm/node_modules/@babel/types/LICENSE",
+    "licenses/npm/node_modules/@jridgewell/gen-mapping/LICENSE",
+    "licenses/npm/node_modules/@jridgewell/resolve-uri/LICENSE",
+    "licenses/npm/node_modules/@jridgewell/sourcemap-codec/LICENSE",
+    "licenses/npm/node_modules/@jridgewell/trace-mapping/LICENSE",
+    "licenses/npm/node_modules/@trivago/prettier-plugin-sort-imports/LICENSE",
+    "licenses/npm/node_modules/@trivago/prettier-plugin-sort-imports/node_modules/brace-expansion/LICENSE",
+    "licenses/npm/node_modules/@trivago/prettier-plugin-sort-imports/node_modules/minimatch/LICENSE",
+    "licenses/npm/node_modules/balanced-match/LICENSE.md",
+    "licenses/npm/node_modules/debug/LICENSE",
+    "licenses/npm/node_modules/debug/node_modules/ms/license.md",
+    "licenses/npm/node_modules/javascript-natural-sort/MIT-TERMS.txt",
+    "licenses/npm/node_modules/javascript-natural-sort/naturalSort.js",
+    "licenses/npm/node_modules/javascript-natural-sort/package.json",
+    "licenses/npm/node_modules/js-tokens/LICENSE",
+    "licenses/npm/node_modules/jsesc/LICENSE-MIT.txt",
+    "licenses/npm/node_modules/lodash-es/LICENSE",
+    "licenses/npm/node_modules/parse-imports-exports/LICENSE",
+    "licenses/npm/node_modules/parse-statements/LICENSE",
+    "licenses/npm/node_modules/picocolors/LICENSE",
+    "licenses/npm/node_modules/prettier/LICENSE",
+    "licenses/npm/node_modules/prettier/THIRD-PARTY-NOTICES.md",
+    "licenses/npm/node_modules/prettier-plugin-organize-attributes/LICENSE",
+    "licenses/npm/node_modules/yaml/LICENSE",
+    "licenses/qualification-helpers/LICENSE",
+    "licenses/qualification-helpers/SCOPE.md"
+  ]
+}

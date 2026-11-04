@@ -1,0 +1,2 @@
+MISSING PREREQUISITE: Node.js 22.x. See docs/ci/ghostfolio-ng-ha-local-qualification.md
+Expected exit 2; actual 2

@@ -1,0 +1,2 @@
+INCOMPATIBLE PREREQUISITE: Node.js 22.x required, found v20.0.0
+Expected exit 2; actual 2

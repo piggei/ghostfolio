@@ -1,0 +1,4 @@
+FILES 1278 UNPACKED 145253936
+ARCHIVE 38758636 SHA256 2cf360792e94f46da9f535340d9d9f2aace5ecc76b7aaaefb9fd1d418f992853
+
+Final artifact reconstructed twice to the same SHA-256.

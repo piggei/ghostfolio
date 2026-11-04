@@ -1,0 +1,1054 @@
+TAP version 13
+# Subtest: raw config bytes bind amd64 classic archive
+ok 1 - raw config bytes bind amd64 classic archive
+  ---
+  duration_ms: 11.250455
+  type: 'test'
+  ...
+# Subtest: raw config bytes bind amd64 OCI/containerd archive
+ok 2 - raw config bytes bind amd64 OCI/containerd archive
+  ---
+  duration_ms: 2.833063
+  type: 'test'
+  ...
+# Subtest: raw config bytes bind arm64 classic archive
+ok 3 - raw config bytes bind arm64 classic archive
+  ---
+  duration_ms: 2.031374
+  type: 'test'
+  ...
+# Subtest: raw config bytes bind arm64 OCI/containerd archive
+ok 4 - raw config bytes bind arm64 OCI/containerd archive
+  ---
+  duration_ms: 1.56598
+  type: 'test'
+  ...
+# Subtest: reject wrong OS
+ok 5 - reject wrong OS
+  ---
+  duration_ms: 3.788551
+  type: 'test'
+  ...
+# Subtest: reject wrong architecture
+ok 6 - reject wrong architecture
+  ---
+  duration_ms: 2.370469
+  type: 'test'
+  ...
+# Subtest: reject wrong labels
+ok 7 - reject wrong labels
+  ---
+  duration_ms: 3.028861
+  type: 'test'
+  ...
+# Subtest: reject malformed config
+ok 8 - reject malformed config
+  ---
+  duration_ms: 2.454168
+  type: 'test'
+  ...
+# Subtest: reject duplicate JSON config keys
+ok 9 - reject duplicate JSON config keys
+  ---
+  duration_ms: 2.485668
+  type: 'test'
+  ...
+# Subtest: reject escaped duplicate JSON key
+ok 10 - reject escaped duplicate JSON key
+  ---
+  duration_ms: 3.595554
+  type: 'test'
+  ...
+# Subtest: reject multiple saved images
+ok 11 - reject multiple saved images
+  ---
+  duration_ms: 1.380083
+  type: 'test'
+  ...
+# Subtest: reject ambiguous OCI index
+ok 12 - reject ambiguous OCI index
+  ---
+  duration_ms: 1.862876
+  type: 'test'
+  ...
+# Subtest: reject wrong config descriptor
+ok 13 - reject wrong config descriptor
+  ---
+  duration_ms: 1.675078
+  type: 'test'
+  ...
+# Subtest: reject wrong config descriptor size
+ok 14 - reject wrong config descriptor size
+  ---
+  duration_ms: 3.002861
+  type: 'test'
+  ...
+# Subtest: reject wrong manifest descriptor digest
+ok 15 - reject wrong manifest descriptor digest
+  ---
+  duration_ms: 1.991374
+  type: 'test'
+  ...
+# Subtest: reject wrong manifest descriptor size
+ok 16 - reject wrong manifest descriptor size
+  ---
+  duration_ms: 1.798777
+  type: 'test'
+  ...
+# Subtest: reject wrong descriptor platform
+ok 17 - reject wrong descriptor platform
+  ---
+  duration_ms: 2.034773
+  type: 'test'
+  ...
+# Subtest: reject unsupported manifest media type
+ok 18 - reject unsupported manifest media type
+  ---
+  duration_ms: 2.203171
+  type: 'test'
+  ...
+# Subtest: reject unsupported layer media type
+ok 19 - reject unsupported layer media type
+  ---
+  duration_ms: 1.840076
+  type: 'test'
+  ...
+# Subtest: reject wrong layer size
+ok 20 - reject wrong layer size
+  ---
+  duration_ms: 1.663579
+  type: 'test'
+  ...
+# Subtest: reject missing layer
+ok 21 - reject missing layer
+  ---
+  duration_ms: 1.605279
+  type: 'test'
+  ...
+# Subtest: reject layer count mismatch
+ok 22 - reject layer count mismatch
+  ---
+  duration_ms: 4.072947
+  type: 'test'
+  ...
+# Subtest: reject config filename hash mismatch
+ok 23 - reject config filename hash mismatch
+  ---
+  duration_ms: 3.818751
+  type: 'test'
+  ...
+# Subtest: reject corrupt layer
+ok 24 - reject corrupt layer
+  ---
+  duration_ms: 1.882776
+  type: 'test'
+  ...
+# Subtest: reject duplicate tar entry
+ok 25 - reject duplicate tar entry
+  ---
+  duration_ms: 2.223171
+  type: 'test'
+  ...
+# Subtest: reject archive traversal
+ok 26 - reject archive traversal
+  ---
+  duration_ms: 1.720578
+  type: 'test'
+  ...
+# Subtest: reject absolute archive path
+ok 27 - reject absolute archive path
+  ---
+  duration_ms: 2.181571
+  type: 'test'
+  ...
+# Subtest: reject symlink
+ok 28 - reject symlink
+  ---
+  duration_ms: 3.463855
+  type: 'test'
+  ...
+# Subtest: reject hardlink
+ok 29 - reject hardlink
+  ---
+  duration_ms: 3.270357
+  type: 'test'
+  ...
+# Subtest: reject PAX path override
+ok 30 - reject PAX path override
+  ---
+  duration_ms: 2.510568
+  type: 'test'
+  ...
+# Subtest: reject oversized JSON
+ok 31 - reject oversized JSON
+  ---
+  duration_ms: 9.893972
+  type: 'test'
+  ...
+# Subtest: reject missing OCI layout
+ok 32 - reject missing OCI layout
+  ---
+  duration_ms: 1.962974
+  type: 'test'
+  ...
+# Subtest: reject index with another config
+ok 33 - reject index with another config
+  ---
+  duration_ms: 1.466281
+  type: 'test'
+  ...
+# Subtest: reject checksum
+ok 34 - reject checksum
+  ---
+  duration_ms: 1.262584
+  type: 'test'
+  ...
+# Subtest: reject truncated
+ok 35 - reject truncated
+  ---
+  duration_ms: 1.668879
+  type: 'test'
+  ...
+# Subtest: reject trailing data
+ok 36 - reject trailing data
+  ---
+  duration_ms: 1.309783
+  type: 'test'
+  ...
+# Subtest: reject missing end markers
+ok 37 - reject missing end markers
+  ---
+  duration_ms: 1.138585
+  type: 'test'
+  ...
+# Subtest: reject rootfs mismatch
+ok 38 - reject rootfs mismatch
+  ---
+  duration_ms: 2.832164
+  type: 'test'
+  ...
+# Subtest: Docker binds exported config to opaque manifest handle
+ok 39 - Docker binds exported config to opaque manifest handle
+  ---
+  duration_ms: 3.14896
+  type: 'test'
+  ...
+# Subtest: Docker binds exported config to opaque config handle
+ok 40 - Docker binds exported config to opaque config handle
+  ---
+  duration_ms: 3.801351
+  type: 'test'
+  ...
+# Subtest: reject noncanonical tar number
+ok 41 - reject noncanonical tar number
+  ---
+  duration_ms: 1.079586
+  type: 'test'
+  ...
+# Subtest: reject nonzero tar padding
+ok 42 - reject nonzero tar padding
+  ---
+  duration_ms: 0.947587
+  type: 'test'
+  ...
+# Subtest: reject regular-file archive parent
+ok 43 - reject regular-file archive parent
+  ---
+  duration_ms: 1.631979
+  type: 'test'
+  ...
+# Subtest: reject excessive JSON nesting before trusting configuration
+ok 44 - reject excessive JSON nesting before trusting configuration
+  ---
+  duration_ms: 2.787264
+  type: 'test'
+  ...
+# Subtest: native ARM qualification requires both ARM64 Node and the native host
+ok 45 - native ARM qualification requires both ARM64 Node and the native host
+  ---
+  duration_ms: 0.656792
+  type: 'test'
+  ...
+# Subtest: native ARM qualification rejects registry "ghcr.io:443"
+ok 46 - native ARM qualification rejects registry "ghcr.io:443"
+  ---
+  duration_ms: 0.207197
+  type: 'test'
+  ...
+# Subtest: native ARM qualification rejects registry "localhost:5000"
+ok 47 - native ARM qualification rejects registry "localhost:5000"
+  ---
+  duration_ms: 0.123398
+  type: 'test'
+  ...
+# Subtest: native ARM qualification rejects registry "127.0.0.1:0"
+ok 48 - native ARM qualification rejects registry "127.0.0.1:0"
+  ---
+  duration_ms: 0.119599
+  type: 'test'
+  ...
+# Subtest: native ARM qualification rejects registry "127.0.0.1:65536"
+ok 49 - native ARM qualification rejects registry "127.0.0.1:65536"
+  ---
+  duration_ms: 12.517039
+  type: 'test'
+  ...
+# Subtest: native ARM qualification rejects registry "127.0.0.1:5000\\n"
+ok 50 - native ARM qualification rejects registry "127.0.0.1:5000\\n"
+  ---
+  duration_ms: 1.269784
+  type: 'test'
+  ...
+# Subtest: native ARM qualification rejects registry "127.0.0.1:5000/evil"
+ok 51 - native ARM qualification rejects registry "127.0.0.1:5000/evil"
+  ---
+  duration_ms: 0.135699
+  type: 'test'
+  ...
+# Subtest: prepared ARM workflow cannot publish to GHCR or invoke the release reusable
+ok 52 - prepared ARM workflow cannot publish to GHCR or invoke the release reusable
+  ---
+  duration_ms: 0.456294
+  type: 'test'
+  ...
+# Subtest: workflow input contract and CI source reject mutable or inconsistent values
+ok 53 - workflow input contract and CI source reject mutable or inconsistent values
+  ---
+  duration_ms: 1.609379
+  type: 'test'
+  ...
+# Subtest: reusable calls retain caller push context without selecting legacy tag recovery
+ok 54 - reusable calls retain caller push context without selecting legacy tag recovery
+  ---
+  duration_ms: 0.219797
+  type: 'test'
+  ...
+# Subtest: both native qualifications and digest promotion precede a single atomic metadata activation
+ok 55 - both native qualifications and digest promotion precede a single atomic metadata activation
+  ---
+  duration_ms: 24.278087
+  type: 'test'
+  ...
+# Subtest: amd64 qualification failure preserves metadata and supports retry
+ok 56 - amd64 qualification failure preserves metadata and supports retry
+  ---
+  duration_ms: 18.957255
+  type: 'test'
+  ...
+# Subtest: aarch64 qualification failure preserves metadata and supports retry
+ok 57 - aarch64 qualification failure preserves metadata and supports retry
+  ---
+  duration_ms: 16.902782
+  type: 'test'
+  ...
+# Subtest: one qualified architecture never permits any final publication
+ok 58 - one qualified architecture never permits any final publication
+  ---
+  duration_ms: 4.711939
+  type: 'test'
+  ...
+# Subtest: partial publication resumes without rebuilding or replacing the first final image
+ok 59 - partial publication resumes without rebuilding or replacing the first final image
+  ---
+  duration_ms: 18.993055
+  type: 'test'
+  ...
+# Subtest: existing identical finals and lost publication responses recover safely
+ok 60 - existing identical finals and lost publication responses recover safely
+  ---
+  duration_ms: 15.768096
+  type: 'test'
+  ...
+# Subtest: conflicting final tags never overwrite or activate metadata
+ok 61 - conflicting final tags never overwrite or activate metadata
+  ---
+  duration_ms: 6.845611
+  type: 'test'
+  ...
+# Subtest: GHCR failure retries without allocating another version
+ok 62 - GHCR failure retries without allocating another version
+  ---
+  duration_ms: 12.833735
+  type: 'test'
+  ...
+# Subtest: lost GitHub progress and tag failure recover from persisted remote state
+ok 63 - lost GitHub progress and tag failure recover from persisted remote state
+  ---
+  duration_ms: 17.83687
+  type: 'test'
+  ...
+# Subtest: remote concurrent commit prevents evidence persistence without overwriting
+ok 64 - remote concurrent commit prevents evidence persistence without overwriting
+  ---
+  duration_ms: 6.361917
+  type: 'test'
+  ...
+# Subtest: concurrent update immediately before activation preserves old metadata and supports recovery
+ok 65 - concurrent update immediately before activation preserves old metadata and supports recovery
+  ---
+  duration_ms: 17.159079
+  type: 'test'
+  ...
+# Subtest: source mismatches fail before reservation and conflicting Git tags before qualification
+ok 66 - source mismatches fail before reservation and conflicting Git tags before qualification
+  ---
+  duration_ms: 1.57868
+  type: 'test'
+  ...
+# Subtest: historical activation recovery never changes a newer advertised version
+ok 67 - historical activation recovery never changes a newer advertised version
+  ---
+  duration_ms: 37.545016
+  type: 'test'
+  ...
+# Subtest: registered amd64 candidate digest mismatch is rejected despite matching OCI labels
+ok 68 - registered amd64 candidate digest mismatch is rejected despite matching OCI labels
+  ---
+  duration_ms: 7.889798
+  type: 'test'
+  ...
+# Subtest: registered aarch64 candidate digest mismatch is rejected despite matching OCI labels
+ok 69 - registered aarch64 candidate digest mismatch is rejected despite matching OCI labels
+  ---
+  duration_ms: 6.449916
+  type: 'test'
+  ...
+# Subtest: registered candidate recovery pins the original digest and reruns smoke even if its mutable tag moved
+ok 70 - registered candidate recovery pins the original digest and reruns smoke even if its mutable tag moved
+  ---
+  duration_ms: 6.578615
+  type: 'test'
+  ...
+# Subtest: an uploaded but unregistered candidate is not qualified by its labels when recovered smoke fails
+ok 71 - an uploaded but unregistered candidate is not qualified by its labels when recovered smoke fails
+  ---
+  duration_ms: 5.939224
+  type: 'test'
+  ...
+# Subtest: AArch64 final with matching labels but a conflicting digest cannot activate metadata
+ok 72 - AArch64 final with matching labels but a conflicting digest cannot activate metadata
+  ---
+  duration_ms: 8.695888
+  type: 'test'
+  ...
+# Subtest: final digest drift after publication evidence is recorded still blocks activation
+ok 73 - final digest drift after publication evidence is recorded still blocks activation
+  ---
+  duration_ms: 9.774874
+  type: 'test'
+  ...
+# Subtest: amd64 qualification binds config with containerd handle and smokes remote digest
+ok 74 - amd64 qualification binds config with containerd handle and smokes remote digest
+  ---
+  duration_ms: 2.689665
+  type: 'test'
+  ...
+# Subtest: amd64 qualification binds config with classic handle and smokes remote digest
+ok 75 - amd64 qualification binds config with classic handle and smokes remote digest
+  ---
+  duration_ms: 3.86855
+  type: 'test'
+  ...
+# Subtest: amd64 remote smoke failure preserves reservation and uploaded candidate
+ok 76 - amd64 remote smoke failure preserves reservation and uploaded candidate
+  ---
+  duration_ms: 3.805351
+  type: 'test'
+  ...
+# Subtest: amd64 local tag replacement fails before push or evidence
+ok 77 - amd64 local tag replacement fails before push or evidence
+  ---
+  duration_ms: 2.696165
+  type: 'test'
+  ...
+# Subtest: amd64 valid remote manifest with incompatible config cannot be qualified
+ok 78 - amd64 valid remote manifest with incompatible config cannot be qualified
+  ---
+  duration_ms: 1.729877
+  type: 'test'
+  ...
+# Subtest: aarch64 qualification binds config with containerd handle and smokes remote digest
+ok 79 - aarch64 qualification binds config with containerd handle and smokes remote digest
+  ---
+  duration_ms: 2.754364
+  type: 'test'
+  ...
+# Subtest: aarch64 qualification binds config with classic handle and smokes remote digest
+ok 80 - aarch64 qualification binds config with classic handle and smokes remote digest
+  ---
+  duration_ms: 3.88315
+  type: 'test'
+  ...
+# Subtest: aarch64 remote smoke failure preserves reservation and uploaded candidate
+ok 81 - aarch64 remote smoke failure preserves reservation and uploaded candidate
+  ---
+  duration_ms: 2.994762
+  type: 'test'
+  ...
+# Subtest: aarch64 local tag replacement fails before push or evidence
+ok 82 - aarch64 local tag replacement fails before push or evidence
+  ---
+  duration_ms: 3.244858
+  type: 'test'
+  ...
+# Subtest: aarch64 valid remote manifest with incompatible config cannot be qualified
+ok 83 - aarch64 valid remote manifest with incompatible config cannot be qualified
+  ---
+  duration_ms: 1.713978
+  type: 'test'
+  ...
+# Subtest: a conflicting candidate appearing after local smoke is never overwritten
+ok 84 - a conflicting candidate appearing after local smoke is never overwritten
+  ---
+  duration_ms: 2.179672
+  type: 'test'
+  ...
+# Subtest: allocation follows all requested examples and avoids upstream patch collisions
+ok 85 - allocation follows all requested examples and avoids upstream patch collisions
+  ---
+  duration_ms: 1.055286
+  type: 'test'
+  ...
+# Subtest: numeric comparison handles multi-digit and arbitrarily large components
+ok 86 - numeric comparison handles multi-digit and arbitrarily large components
+  ---
+  duration_ms: 0.244497
+  type: 'test'
+  ...
+# Subtest: reject invalid version "3.97"
+ok 87 - reject invalid version "3.97"
+  ---
+  duration_ms: 0.183998
+  type: 'test'
+  ...
+# Subtest: reject invalid version "v3.97.0"
+ok 88 - reject invalid version "v3.97.0"
+  ---
+  duration_ms: 0.106099
+  type: 'test'
+  ...
+# Subtest: reject invalid version "03.97.0"
+ok 89 - reject invalid version "03.97.0"
+  ---
+  duration_ms: 0.095498
+  type: 'test'
+  ...
+# Subtest: reject invalid version "3.97.0-beta"
+ok 90 - reject invalid version "3.97.0-beta"
+  ---
+  duration_ms: 0.107599
+  type: 'test'
+  ...
+# Subtest: reject invalid version "3.97.0+1"
+ok 91 - reject invalid version "3.97.0+1"
+  ---
+  duration_ms: 0.091498
+  type: 'test'
+  ...
+# Subtest: reject invalid version "3.97.-1"
+ok 92 - reject invalid version "3.97.-1"
+  ---
+  duration_ms: 0.088799
+  type: 'test'
+  ...
+# Subtest: reject invalid version "3.97.0\\n"
+ok 93 - reject invalid version "3.97.0\\n"
+  ---
+  duration_ms: 0.098098
+  type: 'test'
+  ...
+# Subtest: reject invalid version ""
+ok 94 - reject invalid version ""
+  ---
+  duration_ms: 0.087899
+  type: 'test'
+  ...
+# Subtest: reject invalid version null
+ok 95 - reject invalid version null
+  ---
+  duration_ms: 0.135598
+  type: 'test'
+  ...
+# Subtest: reject invalid version 3.97
+ok 96 - reject invalid version 3.97
+  ---
+  duration_ms: 0.105898
+  type: 'test'
+  ...
+# Subtest: identity accepts only exact immutable contract fields
+ok 97 - identity accepts only exact immutable contract fields
+  ---
+  duration_ms: 1.998374
+  type: 'test'
+  ...
+# Subtest: allocation also works when the existing patch already exceeds upstream
+ok 98 - allocation also works when the existing patch already exceeds upstream
+  ---
+  duration_ms: 0.252497
+  type: 'test'
+  ...
+# Subtest: every immutable identity field is protected on retry
+ok 99 - every immutable identity field is protected on retry
+  ---
+  duration_ms: 1.940375
+  type: 'test'
+  ...
+# Subtest: reservations consume versions even if qualification never completes
+ok 100 - reservations consume versions even if qualification never completes
+  ---
+  duration_ms: 0.984687
+  type: 'test'
+  ...
+# Subtest: partial qualification, partial publication, activation and all retries
+ok 101 - partial qualification, partial publication, activation and all retries
+  ---
+  duration_ms: 2.820364
+  type: 'test'
+  ...
+# Subtest: reject architecture mismatches, unexpected platforms and changed digests
+ok 102 - reject architecture mismatches, unexpected platforms and changed digests
+  ---
+  duration_ms: 2.582167
+  type: 'test'
+  ...
+# Subtest: old published runs and old activated retries cannot regress current metadata
+ok 103 - old published runs and old activated retries cannot regress current metadata
+  ---
+  duration_ms: 15.611698
+  type: 'test'
+  ...
+# Subtest: schema rejects corrupt states, duplicate allocations and invalid current pointers
+ok 104 - schema rejects corrupt states, duplicate allocations and invalid current pointers
+  ---
+  duration_ms: 7.073009
+  type: 'test'
+  ...
+# Subtest: operations and manifests do not mutate their inputs
+ok 105 - operations and manifests do not mutate their inputs
+  ---
+  duration_ms: 1.292583
+  type: 'test'
+  ...
+# Subtest: duplicate architecture digests are rejected
+ok 106 - duplicate architecture digests are rejected
+  ---
+  duration_ms: 1.255683
+  type: 'test'
+  ...
+# Subtest: missing, invalid JSON and incompatible registries fail closed
+ok 107 - missing, invalid JSON and incompatible registries fail closed
+  ---
+  duration_ms: 11.62375
+  type: 'test'
+  ...
+# Subtest: failed persistence leaves registry intact and does not remove abandoned temporary files
+ok 108 - failed persistence leaves registry intact and does not remove abandoned temporary files
+  ---
+  duration_ms: 13.99032
+  type: 'test'
+  ...
+# Subtest: persistent CAS rejects stale writers, locks and history rewrites
+ok 109 - persistent CAS rejects stale writers, locks and history rewrites
+  ---
+  duration_ms: 18.231064
+  type: 'test'
+  ...
+# Subtest: restart resumes the same allocation and recorded partial image state
+ok 110 - restart resumes the same allocation and recorded partial image state
+  ---
+  duration_ms: 34.319758
+  type: 'test'
+  ...
+# Subtest: checked-in bootstrap matches existing advertised version without fabricated evidence
+ok 111 - checked-in bootstrap matches existing advertised version without fabricated evidence
+  ---
+  duration_ms: 11.266654
+  type: 'test'
+  ...
+# Subtest: persistence rejects forged reserved to activated with a valid schema
+ok 112 - persistence rejects forged reserved to activated with a valid schema
+  ---
+  duration_ms: 5.184533
+  type: 'test'
+  ...
+# Subtest: persistence rejects forged reserved to published with a valid schema
+ok 113 - persistence rejects forged reserved to published with a valid schema
+  ---
+  duration_ms: 12.359241
+  type: 'test'
+  ...
+# Subtest: persistence rejects forged qualified to activated with a valid schema
+ok 114 - persistence rejects forged qualified to activated with a valid schema
+  ---
+  duration_ms: 5.087535
+  type: 'test'
+  ...
+# Subtest: persistence rejects publication evidence before qualification completes
+ok 115 - persistence rejects publication evidence before qualification completes
+  ---
+  duration_ms: 2.161172
+  type: 'test'
+  ...
+# Subtest: persistence rejects qualification completion and publication in one generation
+ok 116 - persistence rejects qualification completion and publication in one generation
+  ---
+  duration_ms: 4.860537
+  type: 'test'
+  ...
+# Subtest: persistence rejects replacing existing qualified evidence
+ok 117 - persistence rejects replacing existing qualified evidence
+  ---
+  duration_ms: 4.604441
+  type: 'test'
+  ...
+# Subtest: persistence rejects replacing existing published evidence
+ok 118 - persistence rejects replacing existing published evidence
+  ---
+  duration_ms: 3.762951
+  type: 'test'
+  ...
+# Subtest: persistence rejects retroactive activated identity changes
+ok 119 - persistence rejects retroactive activated identity changes
+  ---
+  duration_ms: 11.561751
+  type: 'test'
+  ...
+# Subtest: persistence rejects retroactive activated evidence changes
+ok 120 - persistence rejects retroactive activated evidence changes
+  ---
+  duration_ms: 4.210245
+  type: 'test'
+  ...
+# Subtest: persistence rejects retroactive activated version changes
+ok 121 - persistence rejects retroactive activated version changes
+  ---
+  duration_ms: 4.294045
+  type: 'test'
+  ...
+# Subtest: persistence rejects pointer-only activation and pointer regression
+ok 122 - persistence rejects pointer-only activation and pointer regression
+  ---
+  duration_ms: 13.112531
+  type: 'test'
+  ...
+# Subtest: persistence rejects multiple operations, even with a forged generation
+ok 123 - persistence rejects multiple operations, even with a forged generation
+  ---
+  duration_ms: 7.167508
+  type: 'test'
+  ...
+# Subtest: persistence rejects modifying two releases in one generation
+ok 124 - persistence rejects modifying two releases in one generation
+  ---
+  duration_ms: 10.629463
+  type: 'test'
+  ...
+# Subtest: persistence rejects fabricated allocation and generation-only changes
+ok 125 - persistence rejects fabricated allocation and generation-only changes
+  ---
+  duration_ms: 6.008523
+  type: 'test'
+  ...
+# Subtest: each architecture evidence can persist individually in either order
+ok 126 - each architecture evidence can persist individually in either order
+  ---
+  duration_ms: 58.811342
+  type: 'test'
+  ...
+# Subtest: historical activated retries persist as no-ops after a newer activation
+ok 127 - historical activated retries persist as no-ops after a newer activation
+  ---
+  duration_ms: 14.919107
+  type: 'test'
+  ...
+# Subtest: an incomplete reservation does not block a newer identity or recycle its version
+ok 128 - an incomplete reservation does not block a newer identity or recycle its version
+  ---
+  duration_ms: 6.931511
+  type: 'test'
+  ...
+# Subtest: OCI verifies raw content hashes, both architectures and NG revision labels
+ok 129 - OCI verifies raw content hashes, both architectures and NG revision labels
+  ---
+  duration_ms: 56.264574
+  type: 'test'
+  ...
+# Subtest: GHCR HTTP 401 cannot be mistaken for an absent image
+ok 130 - GHCR HTTP 401 cannot be mistaken for an absent image
+  ---
+  duration_ms: 4.183646
+  type: 'test'
+  ...
+# Subtest: GHCR HTTP 403 cannot be mistaken for an absent image
+ok 131 - GHCR HTTP 403 cannot be mistaken for an absent image
+  ---
+  duration_ms: 2.047074
+  type: 'test'
+  ...
+# Subtest: GHCR HTTP 429 cannot be mistaken for an absent image
+ok 132 - GHCR HTTP 429 cannot be mistaken for an absent image
+  ---
+  duration_ms: 2.517068
+  type: 'test'
+  ...
+# Subtest: GHCR HTTP 500 cannot be mistaken for an absent image
+ok 133 - GHCR HTTP 500 cannot be mistaken for an absent image
+  ---
+  duration_ms: 2.047374
+  type: 'test'
+  ...
+# Subtest: GHCR HTTP 503 cannot be mistaken for an absent image
+ok 134 - GHCR HTTP 503 cannot be mistaken for an absent image
+  ---
+  duration_ms: 2.539967
+  type: 'test'
+  ...
+# Subtest: registry token failures fail closed
+ok 135 - registry token failures fail closed
+  ---
+  duration_ms: 1.152085
+  type: 'test'
+  ...
+# Subtest: OCI rejects digest tampering, wrong labels, wrong architecture and multiarch candidates
+ok 136 - OCI rejects digest tampering, wrong labels, wrong architecture and multiarch candidates
+  ---
+  duration_ms: 8.230194
+  type: 'test'
+  ...
+# Subtest: OCI source rejects missing, duplicate and unexpected runnable platforms
+ok 137 - OCI source rejects missing, duplicate and unexpected runnable platforms
+  ---
+  duration_ms: 11.277754
+  type: 'test'
+  ...
+# Subtest: OCI source accepts identified attestations but rejects a moved release tag
+ok 138 - OCI source accepts identified attestations but rejects a moved release tag
+  ---
+  duration_ms: 10.533464
+  type: 'test'
+  ...
+# Subtest: GitHub commit checks remote HEAD and preserves unrelated tree content
+ok 139 - GitHub commit checks remote HEAD and preserves unrelated tree content
+  ---
+  duration_ms: 4.078147
+  type: 'test'
+  ...
+# Subtest: GitHub concurrent-before fails without force or overwriting the remote commit
+ok 140 - GitHub concurrent-before fails without force or overwriting the remote commit
+  ---
+  duration_ms: 2.105073
+  type: 'test'
+  ...
+# Subtest: GitHub concurrent-race fails without force or overwriting the remote commit
+ok 141 - GitHub concurrent-race fails without force or overwriting the remote commit
+  ---
+  duration_ms: 1.856476
+  type: 'test'
+  ...
+# Subtest: GitHub lost branch update response recovers only the exact created commit
+ok 142 - GitHub lost branch update response recovers only the exact created commit
+  ---
+  duration_ms: 1.583779
+  type: 'test'
+  ...
+# Subtest: GitHub provenance resolves the actual tag commit and checks the NG release job
+ok 143 - GitHub provenance resolves the actual tag commit and checks the NG release job
+  ---
+  duration_ms: 11.953845
+  type: 'test'
+  ...
+# Subtest: Git tag create is idempotent, detects conflicts and recovers a lost response
+ok 144 - Git tag create is idempotent, detects conflicts and recovers a lost response
+  ---
+  duration_ms: 3.578154
+  type: 'test'
+  ...
+# Subtest: add-on revision guard permits metadata-only changes and rejects build/config drift
+ok 145 - add-on revision guard permits metadata-only changes and rejects build/config drift
+  ---
+  duration_ms: 6.357818
+  type: 'test'
+  ...
+# Subtest: provenance accepts one completed successful retry and pins all jobs to that attempt
+ok 146 - provenance accepts one completed successful retry and pins all jobs to that attempt
+  ---
+  duration_ms: 6.535216
+  type: 'test'
+  ...
+# Subtest: provenance rejects run still in progress
+ok 147 - provenance rejects run still in progress
+  ---
+  duration_ms: 2.255971
+  type: 'test'
+  ...
+# Subtest: provenance rejects failed run despite successful release job
+ok 148 - provenance rejects failed run despite successful release job
+  ---
+  duration_ms: 1.876676
+  type: 'test'
+  ...
+# Subtest: provenance rejects cancelled run
+ok 149 - provenance rejects cancelled run
+  ---
+  duration_ms: 2.033474
+  type: 'test'
+  ...
+# Subtest: provenance rejects timed-out run
+ok 150 - provenance rejects timed-out run
+  ---
+  duration_ms: 1.803077
+  type: 'test'
+  ...
+# Subtest: provenance rejects different release number
+ok 151 - provenance rejects different release number
+  ---
+  duration_ms: 1.224484
+  type: 'test'
+  ...
+# Subtest: provenance rejects different source commit
+ok 152 - provenance rejects different source commit
+  ---
+  duration_ms: 1.292583
+  type: 'test'
+  ...
+# Subtest: provenance rejects different branch
+ok 153 - provenance rejects different branch
+  ---
+  duration_ms: 1.305583
+  type: 'test'
+  ...
+# Subtest: provenance rejects different workflow
+ok 154 - provenance rejects different workflow
+  ---
+  duration_ms: 2.535767
+  type: 'test'
+  ...
+# Subtest: provenance rejects different workflow path
+ok 155 - provenance rejects different workflow path
+  ---
+  duration_ms: 4.279545
+  type: 'test'
+  ...
+# Subtest: provenance rejects different repository
+ok 156 - provenance rejects different repository
+  ---
+  duration_ms: 3.337056
+  type: 'test'
+  ...
+# Subtest: provenance rejects invalid attempt
+ok 157 - provenance rejects invalid attempt
+  ---
+  duration_ms: 2.344769
+  type: 'test'
+  ...
+# Subtest: provenance rejects duplicate release jobs
+ok 158 - provenance rejects duplicate release jobs
+  ---
+  duration_ms: 2.873563
+  type: 'test'
+  ...
+# Subtest: provenance rejects missing release job in latest attempt
+ok 159 - provenance rejects missing release job in latest attempt
+  ---
+  duration_ms: 3.516455
+  type: 'test'
+  ...
+# Subtest: provenance rejects job from another run
+ok 160 - provenance rejects job from another run
+  ---
+  duration_ms: 2.799464
+  type: 'test'
+  ...
+# Subtest: provenance rejects job from another commit
+ok 161 - provenance rejects job from another commit
+  ---
+  duration_ms: 3.960149
+  type: 'test'
+  ...
+# Subtest: provenance rejects job from an older attempt
+ok 162 - provenance rejects job from an older attempt
+  ---
+  duration_ms: 2.552367
+  type: 'test'
+  ...
+# Subtest: provenance rejects unfinished release job
+ok 163 - provenance rejects unfinished release job
+  ---
+  duration_ms: 2.022973
+  type: 'test'
+  ...
+# Subtest: provenance rejects failed release job
+ok 164 - provenance rejects failed release job
+  ---
+  duration_ms: 2.29577
+  type: 'test'
+  ...
+# Subtest: provenance rejects ambiguous matching runs across pages
+ok 165 - provenance rejects ambiguous matching runs across pages
+  ---
+  duration_ms: 3.327857
+  type: 'test'
+  ...
+# Subtest: provenance rejects a new retry during selection
+ok 166 - provenance rejects a new retry during selection
+  ---
+  duration_ms: 2.30237
+  type: 'test'
+  ...
+# Subtest: provenance rejects a new retry while jobs are being read
+ok 167 - provenance rejects a new retry while jobs are being read
+  ---
+  duration_ms: 2.490268
+  type: 'test'
+  ...
+# Subtest: provenance rejects a run becoming incomplete during verification
+ok 168 - provenance rejects a run becoming incomplete during verification
+  ---
+  duration_ms: 3.063261
+  type: 'test'
+  ...
+# Subtest: provenance rejects a run identity changing during verification
+ok 169 - provenance rejects a run identity changing during verification
+  ---
+  duration_ms: 3.197059
+  type: 'test'
+  ...
+# Subtest: release entry points expose the same explicit immutable input contract
+ok 170 - release entry points expose the same explicit immutable input contract
+  ---
+  duration_ms: 1.399382
+  type: 'test'
+  ...
+# Subtest: native jobs are serialized and promotion depends on both completed qualifications
+ok 171 - native jobs are serialized and promotion depends on both completed qualifications
+  ---
+  duration_ms: 0.517794
+  type: 'test'
+  ...
+# Subtest: checkout refs, artifact chain and minimum per-job token permissions are explicit
+ok 172 - checkout refs, artifact chain and minimum per-job token permissions are explicit
+  ---
+  duration_ms: 0.598192
+  type: 'test'
+  ...
+# Subtest: both ordinary test workflows use the same smoke implementation without write permissions
+ok 173 - both ordinary test workflows use the same smoke implementation without write permissions
+  ---
+  duration_ms: 1.896875
+  type: 'test'
+  ...
+# Subtest: shared smoke script retains the original runtime assertions and extends persistence
+ok 174 - shared smoke script retains the original runtime assertions and extends persistence
+  ---
+  duration_ms: 2.376569
+  type: 'test'
+  ...
+1..174
+# tests 174
+# suites 0
+# pass 174
+# fail 0
+# cancelled 0
+# skipped 0
+# todo 0
+# duration_ms 1119.445965

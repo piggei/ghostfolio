@@ -1,0 +1,652 @@
+TAP version 13
+# Subtest: workflow_run listens only to completed integration releases and provides HA-only recovery
+ok 1 - workflow_run listens only to completed integration releases and provides HA-only recovery
+  ---
+  duration_ms: 3.932649
+  type: 'test'
+  ...
+# Subtest: reusable workflow reference and validator checkout are fixed to the approved HA revision
+ok 2 - reusable workflow reference and validator checkout are fixed to the approved HA revision
+  ---
+  duration_ms: 0.597592
+  type: 'test'
+  ...
+# Subtest: five required HA inputs are propagated from validated job outputs with matching names and types
+ok 3 - five required HA inputs are propagated from validated job outputs with matching names and types
+  ---
+  duration_ms: 0.575993
+  type: 'test'
+  ...
+# Subtest: publication requires both successful resolution and explicit should_publish approval
+ok 4 - publication requires both successful resolution and explicit should_publish approval
+  ---
+  duration_ms: 0.694691
+  type: 'test'
+  ...
+# Subtest: validator permissions are read-only and only the reusable publication job receives writes
+ok 5 - validator permissions are read-only and only the reusable publication job receives writes
+  ---
+  duration_ms: 0.530693
+  type: 'test'
+  ...
+# Subtest: parent concurrency is distinct from the immutable HA child and does not cancel publication
+ok 6 - parent concurrency is distinct from the immutable HA child and does not cancel publication
+  ---
+  duration_ms: 0.424395
+  type: 'test'
+  ...
+# Subtest: no checkout or command is derived from triggering code, and credentials are not persisted
+ok 7 - no checkout or command is derived from triggering code, and credentials are not persisted
+  ---
+  duration_ms: 1.588279
+  type: 'test'
+  ...
+# Subtest: only previously approved actions and GITHUB_TOKEN are used
+ok 8 - only previously approved actions and GITHUB_TOKEN are used
+  ---
+  duration_ms: 0.516993
+  type: 'test'
+  ...
+# Subtest: completed authorized event resolves the exact release and actual OCI digest read-only
+ok 9 - completed authorized event resolves the exact release and actual OCI digest read-only
+  ---
+  duration_ms: 95.977463
+  type: 'test'
+  ...
+# Subtest: event gate rejects wrong event repository before any API request
+ok 10 - event gate rejects wrong event repository before any API request
+  ---
+  duration_ms: 4.941436
+  type: 'test'
+  ...
+# Subtest: event gate rejects wrong source repository before any API request
+ok 11 - event gate rejects wrong source repository before any API request
+  ---
+  duration_ms: 2.923163
+  type: 'test'
+  ...
+# Subtest: event gate rejects wrong run repository before any API request
+ok 12 - event gate rejects wrong run repository before any API request
+  ---
+  duration_ms: 1.882676
+  type: 'test'
+  ...
+# Subtest: event gate rejects wrong branch before any API request
+ok 13 - event gate rejects wrong branch before any API request
+  ---
+  duration_ms: 2.669666
+  type: 'test'
+  ...
+# Subtest: event gate rejects wrong workflow before any API request
+ok 14 - event gate rejects wrong workflow before any API request
+  ---
+  duration_ms: 2.389069
+  type: 'test'
+  ...
+# Subtest: event gate rejects wrong workflow name before any API request
+ok 15 - event gate rejects wrong workflow name before any API request
+  ---
+  duration_ms: 1.767577
+  type: 'test'
+  ...
+# Subtest: event gate rejects failed run before any API request
+ok 16 - event gate rejects failed run before any API request
+  ---
+  duration_ms: 1.423982
+  type: 'test'
+  ...
+# Subtest: event gate rejects cancelled run before any API request
+ok 17 - event gate rejects cancelled run before any API request
+  ---
+  duration_ms: 2.046874
+  type: 'test'
+  ...
+# Subtest: event gate rejects incomplete run before any API request
+ok 18 - event gate rejects incomplete run before any API request
+  ---
+  duration_ms: 1.475781
+  type: 'test'
+  ...
+# Subtest: event gate rejects wrong action before any API request
+ok 19 - event gate rejects wrong action before any API request
+  ---
+  duration_ms: 2.135672
+  type: 'test'
+  ...
+# Subtest: event gate rejects pull request trigger before any API request
+ok 20 - event gate rejects pull request trigger before any API request
+  ---
+  duration_ms: 1.940375
+  type: 'test'
+  ...
+# Subtest: event gate rejects pull request target trigger before any API request
+ok 21 - event gate rejects pull request target trigger before any API request
+  ---
+  duration_ms: 5.207133
+  type: 'test'
+  ...
+# Subtest: event gate rejects inconsistent workflow ID before any API request
+ok 22 - event gate rejects inconsistent workflow ID before any API request
+  ---
+  duration_ms: 2.490567
+  type: 'test'
+  ...
+# Subtest: event gate rejects inconsistent workflow path before any API request
+ok 23 - event gate rejects inconsistent workflow path before any API request
+  ---
+  duration_ms: 1.856776
+  type: 'test'
+  ...
+# Subtest: event gate rejects different default branch before any API request
+ok 24 - event gate rejects different default branch before any API request
+  ---
+  duration_ms: 6.553516
+  type: 'test'
+  ...
+# Subtest: event gate rejects invalid commit before any API request
+ok 25 - event gate rejects invalid commit before any API request
+  ---
+  duration_ms: 1.692278
+  type: 'test'
+  ...
+# Subtest: event gate rejects shell-sensitive commit before any API request
+ok 26 - event gate rejects shell-sensitive commit before any API request
+  ---
+  duration_ms: 1.224284
+  type: 'test'
+  ...
+# Subtest: event gate rejects commit with newline before any API request
+ok 27 - event gate rejects commit with newline before any API request
+  ---
+  duration_ms: 1.022187
+  type: 'test'
+  ...
+# Subtest: event rejects invalid id: 0
+ok 28 - event rejects invalid id: 0
+  ---
+  duration_ms: 0.968187
+  type: 'test'
+  ...
+# Subtest: event rejects invalid id: -1
+ok 29 - event rejects invalid id: -1
+  ---
+  duration_ms: 0.507094
+  type: 'test'
+  ...
+# Subtest: event rejects invalid id: 1.5
+ok 30 - event rejects invalid id: 1.5
+  ---
+  duration_ms: 0.420795
+  type: 'test'
+  ...
+# Subtest: event rejects invalid id: 9007199254740992
+ok 31 - event rejects invalid id: 9007199254740992
+  ---
+  duration_ms: 0.533693
+  type: 'test'
+  ...
+# Subtest: event rejects invalid id: 15; echo bad
+ok 32 - event rejects invalid id: 15; echo bad
+  ---
+  duration_ms: 0.411895
+  type: 'test'
+  ...
+# Subtest: event rejects invalid run_number: 0
+ok 33 - event rejects invalid run_number: 0
+  ---
+  duration_ms: 0.478594
+  type: 'test'
+  ...
+# Subtest: event rejects invalid run_number: -1
+ok 34 - event rejects invalid run_number: -1
+  ---
+  duration_ms: 0.449494
+  type: 'test'
+  ...
+# Subtest: event rejects invalid run_number: 1.5
+ok 35 - event rejects invalid run_number: 1.5
+  ---
+  duration_ms: 1.51998
+  type: 'test'
+  ...
+# Subtest: event rejects invalid run_number: 9007199254740992
+ok 36 - event rejects invalid run_number: 9007199254740992
+  ---
+  duration_ms: 1.444482
+  type: 'test'
+  ...
+# Subtest: event rejects invalid run_number: 15; echo bad
+ok 37 - event rejects invalid run_number: 15; echo bad
+  ---
+  duration_ms: 1.078486
+  type: 'test'
+  ...
+# Subtest: event rejects invalid run_attempt: 0
+ok 38 - event rejects invalid run_attempt: 0
+  ---
+  duration_ms: 1.099786
+  type: 'test'
+  ...
+# Subtest: event rejects invalid run_attempt: -1
+ok 39 - event rejects invalid run_attempt: -1
+  ---
+  duration_ms: 0.806689
+  type: 'test'
+  ...
+# Subtest: event rejects invalid run_attempt: 1.5
+ok 40 - event rejects invalid run_attempt: 1.5
+  ---
+  duration_ms: 1.102886
+  type: 'test'
+  ...
+# Subtest: event rejects invalid run_attempt: 9007199254740992
+ok 41 - event rejects invalid run_attempt: 9007199254740992
+  ---
+  duration_ms: 2.532867
+  type: 'test'
+  ...
+# Subtest: event rejects invalid run_attempt: 15; echo bad
+ok 42 - event rejects invalid run_attempt: 15; echo bad
+  ---
+  duration_ms: 1.130885
+  type: 'test'
+  ...
+# Subtest: event rejects invalid workflow_id: 0
+ok 43 - event rejects invalid workflow_id: 0
+  ---
+  duration_ms: 0.78209
+  type: 'test'
+  ...
+# Subtest: event rejects invalid workflow_id: -1
+ok 44 - event rejects invalid workflow_id: -1
+  ---
+  duration_ms: 0.379595
+  type: 'test'
+  ...
+# Subtest: event rejects invalid workflow_id: 1.5
+ok 45 - event rejects invalid workflow_id: 1.5
+  ---
+  duration_ms: 0.374195
+  type: 'test'
+  ...
+# Subtest: event rejects invalid workflow_id: 9007199254740992
+ok 46 - event rejects invalid workflow_id: 9007199254740992
+  ---
+  duration_ms: 0.308396
+  type: 'test'
+  ...
+# Subtest: event rejects invalid workflow_id: 15; echo bad
+ok 47 - event rejects invalid workflow_id: 15; echo bad
+  ---
+  duration_ms: 0.263897
+  type: 'test'
+  ...
+# Subtest: caller context cannot select an arbitrary branch, repository or trigger
+ok 48 - caller context cannot select an arbitrary branch, repository or trigger
+  ---
+  duration_ms: 1.480381
+  type: 'test'
+  ...
+# Subtest: manual recovery takes only a run ID and resolves immutable identity from APIs
+ok 49 - manual recovery takes only a run ID and resolves immutable identity from APIs
+  ---
+  duration_ms: 30.047113
+  type: 'test'
+  ...
+# Subtest: canonical API rejects different run ID
+ok 50 - canonical API rejects different run ID
+  ---
+  duration_ms: 2.810164
+  type: 'test'
+  ...
+# Subtest: canonical API rejects new attempt
+ok 51 - canonical API rejects new attempt
+  ---
+  duration_ms: 2.924562
+  type: 'test'
+  ...
+# Subtest: canonical API rejects different run number
+ok 52 - canonical API rejects different run number
+  ---
+  duration_ms: 1.895775
+  type: 'test'
+  ...
+# Subtest: canonical API rejects different source SHA
+ok 53 - canonical API rejects different source SHA
+  ---
+  duration_ms: 1.902676
+  type: 'test'
+  ...
+# Subtest: canonical API rejects failed canonical run
+ok 54 - canonical API rejects failed canonical run
+  ---
+  duration_ms: 2.33057
+  type: 'test'
+  ...
+# Subtest: canonical API rejects different canonical branch
+ok 55 - canonical API rejects different canonical branch
+  ---
+  duration_ms: 5.025335
+  type: 'test'
+  ...
+# Subtest: canonical API rejects different canonical repository
+ok 56 - canonical API rejects different canonical repository
+  ---
+  duration_ms: 1.929675
+  type: 'test'
+  ...
+# Subtest: canonical API rejects different canonical workflow ID
+ok 57 - canonical API rejects different canonical workflow ID
+  ---
+  duration_ms: 1.498481
+  type: 'test'
+  ...
+# Subtest: canonical API rejects different canonical workflow path
+ok 58 - canonical API rejects different canonical workflow path
+  ---
+  duration_ms: 1.358982
+  type: 'test'
+  ...
+# Subtest: an attempt changing after OCI/registry checks cannot produce invocation outputs
+ok 59 - an attempt changing after OCI/registry checks cannot produce invocation outputs
+  ---
+  duration_ms: 16.838883
+  type: 'test'
+  ...
+# Subtest: release resolution rejects draft release
+ok 60 - release resolution rejects draft release
+  ---
+  duration_ms: 1.641778
+  type: 'test'
+  ...
+# Subtest: release resolution rejects prerelease
+ok 61 - release resolution rejects prerelease
+  ---
+  duration_ms: 1.435181
+  type: 'test'
+  ...
+# Subtest: release resolution rejects unpublished release
+ok 62 - release resolution rejects unpublished release
+  ---
+  duration_ms: 2.703465
+  type: 'test'
+  ...
+# Subtest: release resolution rejects invalid publication date
+ok 63 - release resolution rejects invalid publication date
+  ---
+  duration_ms: 3.675753
+  type: 'test'
+  ...
+# Subtest: release resolution rejects wrong release tag
+ok 64 - release resolution rejects wrong release tag
+  ---
+  duration_ms: 2.211171
+  type: 'test'
+  ...
+# Subtest: release resolution rejects wrong target commit
+ok 65 - release resolution rejects wrong target commit
+  ---
+  duration_ms: 2.875763
+  type: 'test'
+  ...
+# Subtest: release resolution rejects moving branch target
+ok 66 - release resolution rejects moving branch target
+  ---
+  duration_ms: 2.474568
+  type: 'test'
+  ...
+# Subtest: release resolution rejects wrong Git tag commit
+ok 67 - release resolution rejects wrong Git tag commit
+  ---
+  duration_ms: 2.465168
+  type: 'test'
+  ...
+# Subtest: release resolution rejects missing metadata
+ok 68 - release resolution rejects missing metadata
+  ---
+  duration_ms: 4.63044
+  type: 'test'
+  ...
+# Subtest: release resolution rejects wrong image metadata
+ok 69 - release resolution rejects wrong image metadata
+  ---
+  duration_ms: 6.595415
+  type: 'test'
+  ...
+# Subtest: release resolution rejects mutable image metadata
+ok 70 - release resolution rejects mutable image metadata
+  ---
+  duration_ms: 4.036148
+  type: 'test'
+  ...
+# Subtest: release resolution rejects conflicting metadata
+ok 71 - release resolution rejects conflicting metadata
+  ---
+  duration_ms: 3.812251
+  type: 'test'
+  ...
+# Subtest: release resolution rejects indented conflicting metadata
+ok 72 - release resolution rejects indented conflicting metadata
+  ---
+  duration_ms: 4.512641
+  type: 'test'
+  ...
+# Subtest: release resolution rejects missing architecture metadata
+ok 73 - release resolution rejects missing architecture metadata
+  ---
+  duration_ms: 7.525603
+  type: 'test'
+  ...
+# Subtest: release resolution rejects wrong application version
+ok 74 - release resolution rejects wrong application version
+  ---
+  duration_ms: 5.208333
+  type: 'test'
+  ...
+# Subtest: release resolution rejects invalid application version
+ok 75 - release resolution rejects invalid application version
+  ---
+  duration_ms: 3.576554
+  type: 'test'
+  ...
+# Subtest: missing GitHub release is rejected without falling back to latest
+ok 76 - missing GitHub release is rejected without falling back to latest
+  ---
+  duration_ms: 4.62944
+  type: 'test'
+  ...
+# Subtest: OCI validation rejects missing GHCR image
+ok 77 - OCI validation rejects missing GHCR image
+  ---
+  duration_ms: 22.45761
+  type: 'test'
+  ...
+# Subtest: OCI validation rejects missing AMD64
+ok 78 - OCI validation rejects missing AMD64
+  ---
+  duration_ms: 11.168557
+  type: 'test'
+  ...
+# Subtest: OCI validation rejects missing ARM64
+ok 79 - OCI validation rejects missing ARM64
+  ---
+  duration_ms: 10.465465
+  type: 'test'
+  ...
+# Subtest: OCI validation rejects duplicate architecture
+ok 80 - OCI validation rejects duplicate architecture
+  ---
+  duration_ms: 10.311968
+  type: 'test'
+  ...
+# Subtest: OCI validation rejects unexpected architecture
+ok 81 - OCI validation rejects unexpected architecture
+  ---
+  duration_ms: 6.888411
+  type: 'test'
+  ...
+# Subtest: OCI validation rejects incorrect config architecture
+ok 82 - OCI validation rejects incorrect config architecture
+  ---
+  duration_ms: 10.591664
+  type: 'test'
+  ...
+# Subtest: OCI validation rejects wrong OCI source revision
+ok 83 - OCI validation rejects wrong OCI source revision
+  ---
+  duration_ms: 11.822647
+  type: 'test'
+  ...
+# Subtest: OCI validation rejects commit tag digest mismatch
+ok 84 - OCI validation rejects commit tag digest mismatch
+  ---
+  duration_ms: 15.350402
+  type: 'test'
+  ...
+# Subtest: OCI validation rejects content digest mismatch
+ok 85 - OCI validation rejects content digest mismatch
+  ---
+  duration_ms: 13.358328
+  type: 'test'
+  ...
+# Subtest: a release tag moving after first digest resolution is rejected
+ok 86 - a release tag moving after first digest resolution is rejected
+  ---
+  duration_ms: 12.674737
+  type: 'test'
+  ...
+# Subtest: GitHub release metadata changing during resolution is rejected
+ok 87 - GitHub release metadata changing during resolution is rejected
+  ---
+  duration_ms: 17.015181
+  type: 'test'
+  ...
+# Subtest: GHCR HTTP 401 cannot start HA publication
+ok 88 - GHCR HTTP 401 cannot start HA publication
+  ---
+  duration_ms: 3.291757
+  type: 'test'
+  ...
+# Subtest: GHCR HTTP 403 cannot start HA publication
+ok 89 - GHCR HTTP 403 cannot start HA publication
+  ---
+  duration_ms: 5.076035
+  type: 'test'
+  ...
+# Subtest: GHCR HTTP 429 cannot start HA publication
+ok 90 - GHCR HTTP 429 cannot start HA publication
+  ---
+  duration_ms: 3.85975
+  type: 'test'
+  ...
+# Subtest: GHCR HTTP 500 cannot start HA publication
+ok 91 - GHCR HTTP 500 cannot start HA publication
+  ---
+  duration_ms: 3.665553
+  type: 'test'
+  ...
+# Subtest: GHCR HTTP 503 cannot start HA publication
+ok 92 - GHCR HTTP 503 cannot start HA publication
+  ---
+  duration_ms: 4.560741
+  type: 'test'
+  ...
+# Subtest: release job success cannot qualify a failed/incomplete NG run or ambiguous provenance
+ok 93 - release job success cannot qualify a failed/incomplete NG run or ambiguous provenance
+  ---
+  duration_ms: 58.741143
+  type: 'test'
+  ...
+# Subtest: duplicate events and recovery do not allocate a new version or mutate any remote state
+ok 94 - duplicate events and recovery do not allocate a new version or mutate any remote state
+  ---
+  duration_ms: 38.857199
+  type: 'test'
+  ...
+# Subtest: newer reserved release supersedes an older request without calling HA
+ok 95 - newer reserved release supersedes an older request without calling HA
+  ---
+  duration_ms: 14.823309
+  type: 'test'
+  ...
+# Subtest: same release with a conflicting digest or HA revision cannot be resumed
+ok 96 - same release with a conflicting digest or HA revision cannot be resumed
+  ---
+  duration_ms: 28.210936
+  type: 'test'
+  ...
+# Subtest: activated historical release is delegated for tag repair without changing newer metadata
+ok 97 - activated historical release is delegated for tag repair without changing newer metadata
+  ---
+  duration_ms: 31.639692
+  type: 'test'
+  ...
+# Subtest: HA manifest/config drift fails before publishing any output
+ok 98 - HA manifest/config drift fails before publishing any output
+  ---
+  duration_ms: 37.005323
+  type: 'test'
+  ...
+# Subtest: GitHub and GHCR failures retry read-only with the same reserved identity
+ok 99 - GitHub and GHCR failures retry read-only with the same reserved identity
+  ---
+  duration_ms: 45.640512
+  type: 'test'
+  ...
+# Subtest: safe output serialization rejects newlines, credentials fields and mutable images
+ok 100 - safe output serialization rejects newlines, credentials fields and mutable images
+  ---
+  duration_ms: 25.764068
+  type: 'test'
+  ...
+# Subtest: HA source drift is rejected against the approved revision before invoking publication
+ok 101 - HA source drift is rejected against the approved revision before invoking publication
+  ---
+  duration_ms: 20.259639
+  type: 'test'
+  ...
+# Subtest: manual recovery does not bypass the canonical NG event allowlist
+ok 102 - manual recovery does not bypass the canonical NG event allowlist
+  ---
+  duration_ms: 2.482368
+  type: 'test'
+  ...
+# Subtest: same run number with a conflicting upstream identity is rejected
+ok 103 - same run number with a conflicting upstream identity is rejected
+  ---
+  duration_ms: 21.320325
+  type: 'test'
+  ...
+# Subtest: read-only transport rejects writes, arbitrary hosts and foreign repositories before fetch
+ok 104 - read-only transport rejects writes, arbitrary hosts and foreign repositories before fetch
+  ---
+  duration_ms: 2.390869
+  type: 'test'
+  ...
+# Subtest: blob redirect validation strips credentials and rejects unsafe destinations
+ok 105 - blob redirect validation strips credentials and rejects unsafe destinations
+  ---
+  duration_ms: 3.191059
+  type: 'test'
+  ...
+# Subtest: extra event scripts/artifact references cannot alter the selected release or execute code
+ok 106 - extra event scripts/artifact references cannot alter the selected release or execute code
+  ---
+  duration_ms: 19.40625
+  type: 'test'
+  ...
+# Subtest: runtime entry point emits outputs only after complete validation and never logs credentials
+ok 107 - runtime entry point emits outputs only after complete validation and never logs credentials
+  ---
+  duration_ms: 22.49341
+  type: 'test'
+  ...
+1..107
+# tests 107
+# suites 0
+# pass 107
+# fail 0
+# cancelled 0
+# skipped 0
+# todo 0
+# duration_ms 1008.691296

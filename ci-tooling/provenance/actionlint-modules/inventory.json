@@ -1,0 +1,215 @@
+[
+  {
+    "component": "github.com/bmatcuk/doublestar/v4",
+    "version": "v4.10.0",
+    "spdx": "MIT",
+    "go_h1": "h1:zU9WiOla1YA122oLM6i4EXvGW62DvKZVxIe6TYWexEs=",
+    "sha256": "cd4f5688e95ad58035db6a0b33a8b8117bc65bad83bca655c487ba4d859ec44b",
+    "digest_scope": "Go module h1 directory hash (not a binary artifact digest)",
+    "notices": [
+      {
+        "path": "provenance/actionlint-modules/bmatcuk__doublestar/v4.10.0/LICENSE",
+        "source": "https://raw.githubusercontent.com/bmatcuk/doublestar/v4.10.0/LICENSE",
+        "sha256": "2391eb152e1f700051c1618a7aaa7ad86186585190ca9a30e7579c9b9d459332"
+      }
+    ],
+    "source": "https://api.github.com/repos/bmatcuk/doublestar/contents?ref=v4.10.0",
+    "obligations": "Retain license, copyright and disclaimer; no endorsement under BSD; Apache notices/patent terms and modification notices where applicable"
+  },
+  {
+    "component": "github.com/clipperhouse/uax29/v2",
+    "version": "v2.7.0",
+    "spdx": "MIT",
+    "go_h1": "h1:+gs4oBZ2gPfVrKPthwbMzWZDaAFPGYK72F0NJv2v7Vk=",
+    "sha256": "fa0b38a0167680f7d5aca3ed8706cccd664368014f1982bbd85d0d26fdafed59",
+    "digest_scope": "Go module h1 directory hash (not a binary artifact digest)",
+    "notices": [
+      {
+        "path": "provenance/actionlint-modules/clipperhouse__uax29/v2.7.0/LICENSE",
+        "source": "https://raw.githubusercontent.com/clipperhouse/uax29/v2.7.0/LICENSE",
+        "sha256": "07e9e3daaccc707c9b7d535ed1405a65d37919fdd42197fe55e68820e974688c"
+      }
+    ],
+    "source": "https://api.github.com/repos/clipperhouse/uax29/contents?ref=v2.7.0",
+    "obligations": "Retain license, copyright and disclaimer; no endorsement under BSD; Apache notices/patent terms and modification notices where applicable"
+  },
+  {
+    "component": "github.com/fatih/color",
+    "version": "v1.19.0",
+    "spdx": "MIT",
+    "go_h1": "h1:Zp3PiM21/9Ld6FzSKyL5c/BULoe/ONr9KlbYVOfG8+w=",
+    "sha256": "669dcf88cdb5ffd2dde85cd22b22f973f0542e87bf38dafd2a56d854e7c6f3ec",
+    "digest_scope": "Go module h1 directory hash (not a binary artifact digest)",
+    "notices": [
+      {
+        "path": "provenance/actionlint-modules/fatih__color/v1.19.0/LICENSE.md",
+        "source": "https://raw.githubusercontent.com/fatih/color/v1.19.0/LICENSE.md",
+        "sha256": "de95ed802d2f90e3c72cb3c9a927cca5f2aec234a3ef1250232db0f8178b2d93"
+      }
+    ],
+    "source": "https://api.github.com/repos/fatih/color/contents?ref=v1.19.0",
+    "obligations": "Retain license, copyright and disclaimer; no endorsement under BSD; Apache notices/patent terms and modification notices where applicable"
+  },
+  {
+    "component": "github.com/mattn/go-colorable",
+    "version": "v0.1.14",
+    "spdx": "MIT",
+    "go_h1": "h1:9A9LHSqF/7dyVVX6g0U9cwm9pG3kP9gSzcuIPHPsaIE=",
+    "sha256": "f40f4b1d2a85ffb7725555fa83453d7309bda46de43fd812cdcb883c73ec6881",
+    "digest_scope": "Go module h1 directory hash (not a binary artifact digest)",
+    "notices": [
+      {
+        "path": "provenance/actionlint-modules/mattn__go-colorable/v0.1.14/LICENSE",
+        "source": "https://raw.githubusercontent.com/mattn/go-colorable/v0.1.14/LICENSE",
+        "sha256": "88a2379b3ca34bf5c57127aff9dcb802bbb60ece0805cdbda65b3bd115f971d9"
+      }
+    ],
+    "source": "https://api.github.com/repos/mattn/go-colorable/contents?ref=v0.1.14",
+    "obligations": "Retain license, copyright and disclaimer; no endorsement under BSD; Apache notices/patent terms and modification notices where applicable"
+  },
+  {
+    "component": "github.com/mattn/go-isatty",
+    "version": "v0.0.20",
+    "spdx": "MIT",
+    "go_h1": "h1:xfD0iDuEKnDkl03q4limB+vH+GxLEtL/jb4xVJSWWEY=",
+    "sha256": "c5f0f4883b842a70e4974deae258a607ebc7f86c4b12d2ff8dbe315494965846",
+    "digest_scope": "Go module h1 directory hash (not a binary artifact digest)",
+    "notices": [
+      {
+        "path": "provenance/actionlint-modules/mattn__go-isatty/v0.0.20/LICENSE",
+        "source": "https://raw.githubusercontent.com/mattn/go-isatty/v0.0.20/LICENSE",
+        "sha256": "08eab1118c80885fa1fa6a6dd7303f65a379fcb3733e063d20d1bbc2c76e6fa1"
+      }
+    ],
+    "source": "https://api.github.com/repos/mattn/go-isatty/contents?ref=v0.0.20",
+    "obligations": "Retain license, copyright and disclaimer; no endorsement under BSD; Apache notices/patent terms and modification notices where applicable"
+  },
+  {
+    "component": "github.com/mattn/go-runewidth",
+    "version": "v0.0.21",
+    "spdx": "MIT",
+    "go_h1": "h1:jJKAZiQH+2mIinzCJIaIG9Be1+0NR+5sz/lYEEjdM8w=",
+    "sha256": "8c9280662407fb69888a7cc22486881bd05ed7ed0d47ee6ccff9581048dd33cc",
+    "digest_scope": "Go module h1 directory hash (not a binary artifact digest)",
+    "notices": [
+      {
+        "path": "provenance/actionlint-modules/mattn__go-runewidth/v0.0.21/LICENSE",
+        "source": "https://raw.githubusercontent.com/mattn/go-runewidth/v0.0.21/LICENSE",
+        "sha256": "88a2379b3ca34bf5c57127aff9dcb802bbb60ece0805cdbda65b3bd115f971d9"
+      }
+    ],
+    "source": "https://api.github.com/repos/mattn/go-runewidth/contents?ref=v0.0.21",
+    "obligations": "Retain license, copyright and disclaimer; no endorsement under BSD; Apache notices/patent terms and modification notices where applicable"
+  },
+  {
+    "component": "github.com/mattn/go-shellwords",
+    "version": "v1.0.12",
+    "spdx": "MIT",
+    "go_h1": "h1:M2zGm7EW6UQJvDeQxo4T51eKPurbeFbe8WtebGE2xrk=",
+    "sha256": "336cc69bb116e94409bc3790c68e13e7578a3eeadb7856def16b5e6c6136c6b9",
+    "digest_scope": "Go module h1 directory hash (not a binary artifact digest)",
+    "notices": [
+      {
+        "path": "provenance/actionlint-modules/mattn__go-shellwords/v1.0.12/LICENSE",
+        "source": "https://raw.githubusercontent.com/mattn/go-shellwords/v1.0.12/LICENSE",
+        "sha256": "dce57e2906b8ebfc7a0978105aac3082ddceb8a1f673bec71b9c8dc5df51c5d7"
+      }
+    ],
+    "source": "https://api.github.com/repos/mattn/go-shellwords/contents?ref=v1.0.12",
+    "obligations": "Retain license, copyright and disclaimer; no endorsement under BSD; Apache notices/patent terms and modification notices where applicable"
+  },
+  {
+    "component": "github.com/robfig/cron/v3",
+    "version": "v3.0.1",
+    "spdx": "MIT",
+    "go_h1": "h1:WdRxkvbJztn8LMz/QEvLN5sBU+xKpSqwwUO1Pjr4qDs=",
+    "sha256": "59d47192f6c9ced9fc2cccff404bcb379b0153ec4aa52ab0c143b53e3af8a83b",
+    "digest_scope": "Go module h1 directory hash (not a binary artifact digest)",
+    "notices": [
+      {
+        "path": "provenance/actionlint-modules/robfig__cron/v3.0.1/LICENSE",
+        "source": "https://raw.githubusercontent.com/robfig/cron/v3.0.1/LICENSE",
+        "sha256": "8f650581478707182f3306d9a86676d4e03e2d4edc868344378cf4d6fe6c927a"
+      }
+    ],
+    "source": "https://api.github.com/repos/robfig/cron/contents?ref=v3.0.1",
+    "obligations": "Retain license, copyright and disclaimer; no endorsement under BSD; Apache notices/patent terms and modification notices where applicable"
+  },
+  {
+    "component": "go.yaml.in/yaml/v4",
+    "version": "v4.0.0-rc.3",
+    "spdx": "Apache-2.0 AND MIT",
+    "go_h1": "h1:3h1fjsh1CTAPjW7q/EMe+C8shx5d8ctzZTrLcs/j8Go=",
+    "sha256": "de1d5f8ec87509300f8d6eeafc431ef82f2c871e5df1cb73653acb72cfe3f06a",
+    "digest_scope": "Go module h1 directory hash (not a binary artifact digest)",
+    "notices": [
+      {
+        "path": "provenance/actionlint-modules/yaml__go-yaml/v4.0.0-rc.3/LICENSE",
+        "source": "https://raw.githubusercontent.com/yaml/go-yaml/v4.0.0-rc.3/LICENSE",
+        "sha256": "4a4e095045f46875715234a884741acd2b61b88959d6f47a243ae03ef95c4e76"
+      },
+      {
+        "path": "provenance/actionlint-modules/yaml__go-yaml/v4.0.0-rc.3/NOTICE",
+        "source": "https://raw.githubusercontent.com/yaml/go-yaml/v4.0.0-rc.3/NOTICE",
+        "sha256": "eaecbd48a908defec5acc088247b82d1fc1eb21d5b450348c25429bba42d9001"
+      },
+      {
+        "path": "provenance/actionlint-modules/yaml__go-yaml/v4.0.0-rc.3/MIT-TERMS.txt",
+        "source": "Standard MIT permission text from integrity-verified @babel/helper-string-parser@7.29.7/LICENSE; original applicable copyright is retained verbatim in upstream go-yaml NOTICE",
+        "sha256": "cb5aedb296c5246d1f22e9099f925a65146f9f0d6b4eebba97fd27a6cdbbab2d"
+      }
+    ],
+    "source": "https://api.github.com/repos/yaml/go-yaml/contents?ref=v4.0.0-rc.3",
+    "obligations": "Retain Apache-2.0 license and NOTICE; retain Kirill Simonov/libyaml MIT copyright, permission terms and disclaimer for the ported internal/libyaml files identified in NOTICE."
+  },
+  {
+    "component": "golang.org/x/sync",
+    "version": "v0.20.0",
+    "spdx": "BSD-3-Clause",
+    "go_h1": "h1:e0PTpb7pjO8GAtTs2dQ6jYa5BWYlMuX047Dco/pItO4=",
+    "sha256": "7b43d3a5bee98cef0602d4ecd9d43a8d86b905662532e5f4e3b0dca3fa48b4ee",
+    "digest_scope": "Go module h1 directory hash (not a binary artifact digest)",
+    "notices": [
+      {
+        "path": "provenance/actionlint-modules/golang__sync/v0.20.0/LICENSE",
+        "source": "https://raw.githubusercontent.com/golang/sync/v0.20.0/LICENSE",
+        "sha256": "911f8f5782931320f5b8d1160a76365b83aea6447ee6c04fa6d5591467db9dad"
+      }
+    ],
+    "source": "https://api.github.com/repos/golang/sync/contents?ref=v0.20.0",
+    "obligations": "Retain license, copyright and disclaimer; no endorsement under BSD; Apache notices/patent terms and modification notices where applicable"
+  },
+  {
+    "component": "golang.org/x/sys",
+    "version": "v0.42.0",
+    "spdx": "BSD-3-Clause",
+    "go_h1": "h1:omrd2nAlyT5ESRdCLYdm3+fMfNFE/+Rf4bDIQImRJeo=",
+    "sha256": "a26addda7025c93e444917422d8766dfe7cc7cd144ffe45fe1b0c840899125ea",
+    "digest_scope": "Go module h1 directory hash (not a binary artifact digest)",
+    "notices": [
+      {
+        "path": "provenance/actionlint-modules/golang__sys/v0.42.0/LICENSE",
+        "source": "https://raw.githubusercontent.com/golang/sys/v0.42.0/LICENSE",
+        "sha256": "911f8f5782931320f5b8d1160a76365b83aea6447ee6c04fa6d5591467db9dad"
+      }
+    ],
+    "source": "https://api.github.com/repos/golang/sys/contents?ref=v0.42.0",
+    "obligations": "Retain license, copyright and disclaimer; no endorsement under BSD; Apache notices/patent terms and modification notices where applicable"
+  },
+  {
+    "component": "Go standard library/runtime embedded in Actionlint",
+    "version": "1.26.1",
+    "spdx": "BSD-3-Clause",
+    "source": "https://raw.githubusercontent.com/golang/go/go1.26.1/LICENSE",
+    "sha256": "911f8f5782931320f5b8d1160a76365b83aea6447ee6c04fa6d5591467db9dad",
+    "digest_scope": "copyright/license text; embedded runtime bytes covered by exact Actionlint binary SHA-256",
+    "notices": [
+      {
+        "path": "provenance/actionlint-modules/go1.26.1/LICENSE",
+        "source": "https://raw.githubusercontent.com/golang/go/go1.26.1/LICENSE",
+        "sha256": "911f8f5782931320f5b8d1160a76365b83aea6447ee6c04fa6d5591467db9dad"
+      }
+    ],
+    "obligations": "Retain BSD copyright, conditions, disclaimer; no endorsement"
+  }
+]

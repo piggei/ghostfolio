@@ -1,0 +1,3 @@
+Final payload: /tmp/ghostfolio-task05dr5-reviewed-bundle
+Command: bwrap --ro-bind / / --bind /tmp /tmp --dev /dev --proc /proc --tmpfs /usr/share/nodejs --tmpfs /home/pj/repo/ghostfolio-italian-localization/node_modules --ro-bind /dev/null /usr/bin/node --ro-bind /dev/null /usr/local/bin/actionlint --ro-bind /dev/null /usr/bin/shellcheck python3 ci-tooling/qualify-local.py /tmp/ghostfolio-task05dr5-reviewed-bundle /tmp/ghostfolio-task05dr5-final-offline-results
+Kernel seccomp socket denial applies to each tool child. OS ABI is explicitly allowed; Python/Bubblewrap are test drivers only, not distributed tools.
