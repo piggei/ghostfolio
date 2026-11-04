@@ -1,0 +1,87 @@
+name: Release Home Assistant after verified Ghostfolio NG
+
+on:
+  workflow_run:
+    workflows: [Publish integration Docker release]
+    types: [completed]
+    branches: [integration/ghostfolio-all-pr]
+  workflow_dispatch:
+    inputs:
+      ng_run_id:
+        description: Completed successful NG run ID to recover; does not rebuild NG
+        required: true
+        type: string
+
+permissions:
+  contents: read
+
+# Different from both integration-release and ghostfolio-home-assistant-release.
+# Never cancel an in-flight publication; GitHub pending runs are not a FIFO queue.
+concurrency:
+  group: ghostfolio-ng-ha-orchestrator
+  cancel-in-progress: false
+
+jobs:
+  resolve:
+    if: >-
+      github.repository == 'piggei/ghostfolio' &&
+      github.ref == 'refs/heads/main' &&
+      (github.event_name == 'workflow_dispatch' ||
+       (github.event_name == 'workflow_run' && github.event.action == 'completed' &&
+        github.event.workflow_run.conclusion == 'success'))
+    runs-on: ubuntu-latest
+    timeout-minutes: 15
+    permissions:
+      contents: read
+      actions: read
+      packages: read
+    outputs:
+      integration_tag: ${{ steps.resolve.outputs.integration_tag }}
+      source_commit: ${{ steps.resolve.outputs.source_commit }}
+      source_image: ${{ steps.resolve.outputs.source_image }}
+      ghostfolio_version: ${{ steps.resolve.outputs.ghostfolio_version }}
+      addon_source_revision: ${{ steps.resolve.outputs.addon_source_revision }}
+      should_publish: ${{ steps.resolve.outputs.should_publish }}
+      resolution: ${{ steps.resolve.outputs.resolution }}
+    steps:
+      - name: Checkout trusted orchestrator revision
+        uses: actions/checkout@v4
+        with:
+          repository: piggei/ghostfolio
+          ref: ${{ github.sha }}
+          persist-credentials: false
+      - name: Checkout approved read-only HA validators
+        uses: actions/checkout@v4
+        with:
+          repository: piggei/ghostfolio
+          ref: 4d642df014071b5c72eb731409aef47507cad641
+          path: ha-contract
+          persist-credentials: false
+          sparse-checkout-cone-mode: false
+          sparse-checkout: |
+            /scripts/
+            /.github/workflows/home-assistant-addon.yml
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 22.23.4
+      - name: Resolve and verify completed NG release
+        id: resolve
+        env:
+          GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+          HA_CONTRACT_DIR: ha-contract
+        run: node scripts/ghostfolio-ng-ha-orchestrator.mjs
+
+  release-ha:
+    needs: resolve
+    if: needs.resolve.result == 'success' && needs.resolve.outputs.should_publish == 'true'
+    permissions:
+      contents: write
+      actions: read
+      packages: write
+    uses: piggei/ghostfolio/.github/workflows/home-assistant-addon.yml@4d642df014071b5c72eb731409aef47507cad641
+    with:
+      integration_tag: ${{ needs.resolve.outputs.integration_tag }}
+      source_commit: ${{ needs.resolve.outputs.source_commit }}
+      source_image: ${{ needs.resolve.outputs.source_image }}
+      ghostfolio_version: ${{ needs.resolve.outputs.ghostfolio_version }}
+      addon_source_revision: ${{ needs.resolve.outputs.addon_source_revision }}
