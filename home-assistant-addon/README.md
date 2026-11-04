@@ -71,13 +71,19 @@ The add-on uses architecture-specific images:
 
 The add-on version determines the image tag requested by Supervisor.
 
-The current add-on version is **3.97.0**.
+<!-- release-current:start -->
+
+Current add-on version: **3.97.0**.
+The legacy deployment predates the automated release registry.
+<!-- release-current:end -->
 
 Release builds use an immutable Ghostfolio source image digest to ensure
 both architectures are built from the same Ghostfolio release.
 
-The GitHub Actions release workflow is triggered by publishing a versioned
-Git tag matching `home-assistant-addon/v*`.
+The release workflow accepts explicit immutable inputs through `workflow_call`
+and, when exposed by GitHub, `workflow_dispatch`. Versioned tags matching
+`home-assistant-addon/v*` verify/recover an already activated release.
+See [release automation](releases/WORKFLOW.md) for recovery and permissions.
 
 ## Persistent data
 

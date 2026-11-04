@@ -60,13 +60,13 @@ installation or upgrade.
 
 The following add-on options are available:
 
-| Option | Description |
-| --- | --- |
+| Option        | Description                         |
+| ------------- | ----------------------------------- |
 | database_host | PostgreSQL hostname or IPv4 address |
-| database_port | PostgreSQL TCP port |
-| database_name | Ghostfolio database name |
-| database_user | PostgreSQL username |
-| database_pass | PostgreSQL password |
+| database_port | PostgreSQL TCP port                 |
+| database_name | Ghostfolio database name            |
+| database_user | PostgreSQL username                 |
+| database_pass | PostgreSQL password                 |
 
 Example configuration:
 
@@ -264,10 +264,20 @@ Coordinate PostgreSQL backups separately.
 Before restoring a database, verify compatibility with the
 Ghostfolio application version.
 
+<!-- release-current:start -->
+
+Current add-on version: **3.97.0**.
+The legacy deployment predates the automated release registry.
+<!-- release-current:end -->
+
 ## Updates
 
-Starting with add-on version 3.97.0, the add-on version follows
-the underlying Ghostfolio upstream version.
+Add-on versions increase independently when multiple NG releases share an
+upstream version. The release manifest records the exact upstream version,
+NG tag and immutable source digest. The advertised version advances only after
+both architecture images are published and verified.
+
+See [release automation](releases/WORKFLOW.md) for maintainer recovery procedures.
 
 Add-on-only maintenance revisions must use a distinct, compatible
 version identifier without changing the referenced Ghostfolio

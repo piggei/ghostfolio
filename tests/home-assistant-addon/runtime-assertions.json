@@ -1,0 +1,31 @@
+{
+  "baseline_commit": "ae29e27d8acb83f02d402ddeaa934aea867e7ea5",
+  "assertions": [
+    "test \"$arch\" = 'arm64'",
+    "test \"$status\" = '401'",
+    "test -n \"$app_uid\"",
+    "test \"$app_uid\" = \"$node_uid\"",
+    "grep -c 'Authenticated Supervisor options request' || true)",
+    "test \"$requests\" -ge 1",
+    "test -r \"$file\"",
+    "test \"$mode\" = \"600\"",
+    "test \"$result\" = \"PONG\"",
+    "test \"$sessions\" -ge 1",
+    "test \"$location\" = \"$INGRESS_PATH/en\"",
+    "grep -Fq \"<base href=\\\"$INGRESS_PATH/it/\\\"\" <<< \"$html\"",
+    "grep -oE 'src=\"[^\"]*main-[^\"]+\\.js\"' |",
+    "test -n \"$main_bundle\"",
+    "grep -Fq \"$INGRESS_PATH/api/v1/info\" <<< \"$bundle\"",
+    "grep -oF '/api/' | wc -l || true)",
+    "grep -oE 'href=\"chunk-[^\"]+\\.js\"' <<< \"$html\" |",
+    "test \"$chunk_count\" -gt 0",
+    "test \"$api_chunk_count\" -gt 0",
+    ".start_url == ($prefix + \"/it/\") and",
+    "(.icons | length == 3) and",
+    "all(.icons[]; .src | startswith($prefix + \"/assets/\"))",
+    ".start_url == \"/it/\" and",
+    "all(.icons[]; .src | startswith(\"/assets/\"))",
+    "jq -e 'type == \"object\"' >/dev/null",
+    "jq -e 'type == \"object\"' >/dev/null"
+  ]
+}

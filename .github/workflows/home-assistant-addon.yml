@@ -1,211 +1,220 @@
 name: Publish Ghostfolio Home Assistant Add-on
 
 on:
+  workflow_call:
+    inputs:
+      integration_tag:
+        description: Immutable integration tag
+        required: true
+        type: string
+      source_commit:
+        description: Immutable source commit
+        required: true
+        type: string
+      source_image:
+        description: Immutable source image
+        required: true
+        type: string
+      ghostfolio_version:
+        description: Immutable ghostfolio version
+        required: true
+        type: string
+      addon_source_revision:
+        description: Immutable addon source revision
+        required: true
+        type: string
+    outputs:
+      addon_version:
+        description: Verified addon version
+        value: ${{ jobs.publish.outputs.addon_version }}
+      amd64_digest:
+        description: Verified amd64 digest
+        value: ${{ jobs.publish.outputs.amd64_digest }}
+      aarch64_digest:
+        description: Verified aarch64 digest
+        value: ${{ jobs.publish.outputs.aarch64_digest }}
+      metadata_commit:
+        description: Verified metadata commit
+        value: ${{ jobs.publish.outputs.metadata_commit }}
+      publication_status:
+        description: Verified publication status
+        value: ${{ jobs.publish.outputs.publication_status }}
+  workflow_dispatch:
+    inputs:
+      integration_tag:
+        description: Immutable integration tag
+        required: true
+        type: string
+      source_commit:
+        description: Immutable source commit
+        required: true
+        type: string
+      source_image:
+        description: Immutable source image
+        required: true
+        type: string
+      ghostfolio_version:
+        description: Immutable ghostfolio version
+        required: true
+        type: string
+      addon_source_revision:
+        description: Immutable addon source revision
+        required: true
+        type: string
   push:
     tags:
       - 'home-assistant-addon/v*'
 
 permissions:
   contents: read
+  packages: read
 
+# Repository-wide serialization, independent of caller workflow and source ref.
 concurrency:
   group: ghostfolio-home-assistant-release
   cancel-in-progress: false
 
 jobs:
   prepare:
+    if: github.repository == 'piggei/ghostfolio'
     runs-on: ubuntu-latest
+    timeout-minutes: 15
     permissions:
-      contents: read
+      contents: write
       packages: read
+      actions: read
     outputs:
-      version: ${{ steps.metadata.outputs.version }}
-      source: ${{ steps.source.outputs.image }}
+      addon_source_revision: ${{ steps.prepare.outputs.addon_source_revision }}
     steps:
       - uses: actions/checkout@v4
-      - uses: docker/setup-buildx-action@v3
-      - uses: docker/login-action@v3
         with:
-          registry: ghcr.io
-          username: ${{ github.actor }}
-          password: ${{ secrets.GITHUB_TOKEN }}
-
-      - name: Validate release tag and add-on version
-        id: metadata
-        shell: bash
+          ref: ${{ inputs.addon_source_revision || github.sha }}
+          persist-credentials: false
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 22.23.4
+      - name: Verify release and persist reservation
+        id: prepare
         env:
-          REF_NAME: ${{ github.ref_name }}
-        run: |
-          set -euo pipefail
-          version=$(sed -n 's/^version: *"\([^"]*\)"/\1/p' home-assistant-addon/config.yaml)
-          [[ "$version" =~ ^[0-9]+\.[0-9]+\.[0-9]+$ ]] || { echo '::error::Invalid add-on version'; exit 1; }
-          [[ "$REF_NAME" == "home-assistant-addon/v${version}" ]] || { echo '::error::Git tag does not match add-on version'; exit 1; }
-          echo "version=$version" >> "$GITHUB_OUTPUT"
+          GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+          INPUT_INTEGRATION_TAG: ${{ inputs.integration_tag }}
+          INPUT_SOURCE_COMMIT: ${{ inputs.source_commit }}
+          INPUT_SOURCE_IMAGE: ${{ inputs.source_image }}
+          INPUT_GHOSTFOLIO_VERSION: ${{ inputs.ghostfolio_version }}
+          INPUT_ADDON_SOURCE_REVISION: ${{ inputs.addon_source_revision }}
+        run: node scripts/home-assistant-addon-workflow.mjs prepare release-plan.json
+      - uses: actions/upload-artifact@v4
+        with:
+          name: ha-plan-prepare-${{ github.run_attempt }}
+          path: release-plan.json
+          retention-days: 14
+          if-no-files-found: error
 
-      - name: Verify immutable Ghostfolio source
-        id: source
-        shell: bash
-        run: |
-          set -euo pipefail
-          source='ghcr.io/piggei/ghostfolio-ng@sha256:f79581ccb8cdc9716bca962dad5e1915b6c6f2d0864ead91f3c1e92327382a94'
-          docker buildx imagetools inspect "$source" --raw > "$RUNNER_TEMP/ghostfolio-source-manifest.json"
-          for arch in amd64 arm64; do
-            jq -e --arg arch "$arch" '
-              any(.manifests[]?; .platform.os == "linux" and .platform.architecture == $arch)
-            ' "$RUNNER_TEMP/ghostfolio-source-manifest.json" >/dev/null
-          done
-          echo "image=$source" >> "$GITHUB_OUTPUT"
-
-      - name: Ensure final tags do not exist
-        shell: bash
-        env:
-          VERSION: ${{ steps.metadata.outputs.version }}
-        run: |
-          set -euo pipefail
-          for arch in amd64 aarch64; do
-            image="ghcr.io/piggei/ghostfolio-ng-ha-${arch}:${VERSION}"
-            if docker buildx imagetools inspect "$image" > /dev/null 2> "$RUNNER_TEMP/inspect-error.log"; then
-              echo "::error::Destination already exists: $image"
-              exit 1
-            fi
-            error=$(cat "$RUNNER_TEMP/inspect-error.log")
-            if printf '%s' "$error" | grep -Eqi '401|403|unauthorized|denied|forbidden|timeout|429|5[0-9][0-9]'; then
-              echo "::error::Registry error while checking $image"
-              exit 1
-            fi
-            if ! printf '%s' "$error" | grep -Eqi '(^|: )not found$|manifest unknown|name unknown|404'; then
-              echo "::error::Cannot establish absence of $image"
-              exit 1
-            fi
-            echo "Destination available: $image"
-          done
-
-  build:
+  qualify-amd64:
     needs: prepare
-    runs-on: ${{ matrix.runner }}
+    runs-on: ubuntu-latest
+    timeout-minutes: 60
     permissions:
-      contents: read
+      contents: write
       packages: write
-    strategy:
-      fail-fast: false
-      matrix:
-        include:
-          - arch: amd64
-            platform: linux/amd64
-            runner: ubuntu-latest
-          - arch: aarch64
-            platform: linux/arm64
-            runner: ubuntu-24.04-arm
+      actions: read
     steps:
       - uses: actions/checkout@v4
+        with:
+          ref: ${{ needs.prepare.outputs.addon_source_revision }}
+          persist-credentials: false
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 22.23.4
       - uses: docker/setup-buildx-action@v3
       - uses: docker/login-action@v3
         with:
           registry: ghcr.io
           username: ${{ github.actor }}
           password: ${{ secrets.GITHUB_TOKEN }}
-      - name: Build and publish architecture candidate
-        uses: docker/build-push-action@v6
+      - uses: actions/download-artifact@v4
         with:
-          context: ./home-assistant-addon
-          platforms: ${{ matrix.platform }}
-          push: true
-          build-args: |
-            BUILD_ARCH=${{ matrix.arch }}
-            GHOSTFOLIO_IMAGE=${{ needs.prepare.outputs.source }}
-          tags: |
-            ghcr.io/piggei/ghostfolio-ng-ha-${{ matrix.arch }}:candidate-${{ github.run_id }}-${{ github.run_attempt }}
-          labels: |
-            org.opencontainers.image.source=https://github.com/piggei/ghostfolio
-            org.opencontainers.image.version=${{ needs.prepare.outputs.version }}
-            org.opencontainers.image.revision=${{ github.sha }}
+          name: ha-plan-prepare-${{ github.run_attempt }}
+      - name: Qualify exact amd64 artifact and persist evidence
+        env:
+          GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+        run: node scripts/home-assistant-addon-workflow.mjs qualify release-plan.json amd64
+      - uses: actions/upload-artifact@v4
+        with:
+          name: ha-plan-amd64-${{ github.run_attempt }}
+          path: release-plan.json
+          retention-days: 14
+          if-no-files-found: error
+
+  qualify-aarch64:
+    needs: [prepare, qualify-amd64]
+    runs-on: ubuntu-24.04-arm
+    timeout-minutes: 60
+    permissions:
+      contents: write
+      packages: write
+      actions: read
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          ref: ${{ needs.prepare.outputs.addon_source_revision }}
+          persist-credentials: false
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 22.23.4
+      - uses: docker/setup-buildx-action@v3
+      - uses: docker/login-action@v3
+        with:
+          registry: ghcr.io
+          username: ${{ github.actor }}
+          password: ${{ secrets.GITHUB_TOKEN }}
+      - uses: actions/download-artifact@v4
+        with:
+          name: ha-plan-amd64-${{ github.run_attempt }}
+      - name: Qualify exact aarch64 artifact and persist evidence
+        env:
+          GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+        run: node scripts/home-assistant-addon-workflow.mjs qualify release-plan.json aarch64
+      - uses: actions/upload-artifact@v4
+        with:
+          name: ha-plan-aarch64-${{ github.run_attempt }}
+          path: release-plan.json
+          retention-days: 14
+          if-no-files-found: error
 
   publish:
-    needs: [prepare, build]
+    needs: [prepare, qualify-aarch64]
     runs-on: ubuntu-latest
+    timeout-minutes: 20
     permissions:
-      contents: read
+      contents: write
       packages: write
+      actions: read
+    outputs:
+      addon_version: ${{ steps.publish.outputs.addon_version }}
+      amd64_digest: ${{ steps.publish.outputs.amd64_digest }}
+      aarch64_digest: ${{ steps.publish.outputs.aarch64_digest }}
+      metadata_commit: ${{ steps.publish.outputs.metadata_commit }}
+      publication_status: ${{ steps.publish.outputs.publication_status }}
     steps:
+      - uses: actions/checkout@v4
+        with:
+          ref: ${{ needs.prepare.outputs.addon_source_revision }}
+          persist-credentials: false
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 22.23.4
       - uses: docker/setup-buildx-action@v3
       - uses: docker/login-action@v3
         with:
           registry: ghcr.io
           username: ${{ github.actor }}
           password: ${{ secrets.GITHUB_TOKEN }}
-      - name: Verify candidates and destination availability
-        shell: bash
+      - uses: actions/download-artifact@v4
+        with:
+          name: ha-plan-aarch64-${{ github.run_attempt }}
+      - name: Promote verified digests and activate metadata
+        id: publish
         env:
-          VERSION: ${{ needs.prepare.outputs.version }}
-        run: |
-          set -euo pipefail
-          for arch in amd64 aarch64; do
-            repository="ghcr.io/piggei/ghostfolio-ng-ha-${arch}"
-            candidate="${repository}:candidate-${GITHUB_RUN_ID}-${GITHUB_RUN_ATTEMPT}"
-            final="${repository}:${VERSION}"
-            docker buildx imagetools inspect "$candidate" --raw > "$RUNNER_TEMP/candidate-${arch}.json"
-            expected_arch="$arch"
-            if [ "$arch" = aarch64 ]; then expected_arch=arm64; fi
-            jq -e --arg arch "$expected_arch" '
-              if .manifests then
-                any(.manifests[]?; .platform.os == "linux" and .platform.architecture == $arch)
-              else
-                .architecture == $arch and .os == "linux"
-              end
-            ' "$RUNNER_TEMP/candidate-${arch}.json" >/dev/null
-            if docker buildx imagetools inspect "$final" > /dev/null 2> "$RUNNER_TEMP/inspect-error.log"; then
-              echo "::error::Destination already exists: $final"
-              exit 1
-            fi
-            error=$(cat "$RUNNER_TEMP/inspect-error.log")
-            if printf '%s' "$error" | grep -Eqi '401|403|unauthorized|denied|forbidden|timeout|429|5[0-9][0-9]'; then
-              echo "::error::Registry error while checking $final"
-              exit 1
-            fi
-            if ! printf '%s' "$error" | grep -Eqi '(^|: )not found$|manifest unknown|name unknown|404'; then
-              echo "::error::Cannot establish absence of $final"
-              exit 1
-            fi
-          done
-
-      - name: Promote and verify release images
-        shell: bash
-        env:
-          VERSION: ${{ needs.prepare.outputs.version }}
-        run: |
-          set -euo pipefail
-          for arch in amd64 aarch64; do
-            repository="ghcr.io/piggei/ghostfolio-ng-ha-${arch}"
-            candidate="${repository}:candidate-${GITHUB_RUN_ID}-${GITHUB_RUN_ATTEMPT}"
-            final="${repository}:${VERSION}"
-            candidate_digest=$(docker buildx imagetools inspect "$candidate" |
-              awk '/^Digest:/ {print $2}')
-
-            if [[ ! "$candidate_digest" =~ ^sha256:[a-f0-9]{64}$ ]]; then
-              echo "::error::Invalid candidate digest: $candidate"
-              exit 1
-            fi
-
-            docker buildx imagetools create --tag "$final" "$candidate"
-
-            final_digest=$(docker buildx imagetools inspect "$final" |
-              awk '/^Digest:/ {print $2}')
-
-            if [ "$candidate_digest" != "$final_digest" ]; then
-              echo "::error::Digest mismatch after promotion: $final"
-              exit 1
-            fi
-
-            echo "Verified OCI digest: $final_digest"
-            docker buildx imagetools inspect "$final" --raw > "$RUNNER_TEMP/final-${arch}.json"
-            expected_arch="$arch"
-            if [ "$arch" = aarch64 ]; then expected_arch=arm64; fi
-            jq -e --arg arch "$expected_arch" '
-              if .manifests then
-                any(.manifests[]?; .platform.os == "linux" and .platform.architecture == $arch)
-              else
-                .architecture == $arch and .os == "linux"
-              end
-            ' "$RUNNER_TEMP/final-${arch}.json" >/dev/null
-            echo "Published and verified: $final"
-          done
+          GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+        run: node scripts/home-assistant-addon-workflow.mjs publish release-plan.json
