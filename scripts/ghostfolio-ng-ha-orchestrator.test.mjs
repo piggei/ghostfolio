@@ -13,6 +13,7 @@ import { test } from 'node:test';
 
 import {
   DEFAULT_BRANCH,
+  disposition,
   eventRequest,
   HA_REVISION,
   loadContract,
@@ -49,11 +50,11 @@ const context = {
   sha: '1'.repeat(40)
 };
 
-function fixture() {
+function fixture(number = 15) {
   const run = {
-    id: 41731193162,
+    id: 41731193162 + number - 15,
     run_attempt: 1,
-    run_number: 15,
+    run_number: number,
     workflow_id: 401082200,
     repository: { full_name: REPOSITORY },
     head_repository: { full_name: REPOSITORY },
@@ -75,7 +76,7 @@ function fixture() {
     },
     workflow_run: structuredClone(run)
   };
-  const tag = 'integration-3.97.0-15';
+  const tag = `integration-3.97.0-${number}`;
   const release = {
     tag_name: tag,
     target_commitish: run.head_sha,
@@ -882,6 +883,7 @@ test('safe output serialization rejects newlines, credentials fields and mutable
     { integration_tag: result.integration_tag + '\nshould_publish=true' },
     { addon_source_revision: 'main' },
     { addon_source_revision: '4d642df014071b5c72eb731409aef47507cad641' },
+    { addon_source_revision: 'bfaf9ff86325d3d6fb25c37785e854cc583077df' },
     { addon_source_revision: 'a'.repeat(40) },
     { ng_run_id: '1;echo bad' },
     { should_publish: 'false' },
@@ -1043,4 +1045,69 @@ test('runtime entry point emits outputs only after complete validation and never
       if (mode === 'bad-event') assert.equal(f.calls.length, 0);
     }
   }
+});
+
+function historicalReservations() {
+  const first = {
+    integration_tag: 'integration-3.97.0-15',
+    source_commit: '649d61f90429483cac949c0c97c83d10c13f7c8e',
+    source_image:
+      'ghcr.io/piggei/ghostfolio-ng@sha256:8ae5031f41e96bebf1fc5a599513c4ba8c0ef33e49171dc45198bcb9cba4e27f',
+    ghostfolio_version: '3.97.0',
+    addon_source_revision: '4d642df014071b5c72eb731409aef47507cad641'
+  };
+  const second = {
+    integration_tag: 'integration-3.97.0-16',
+    source_commit: '0e24e1a7cec9a4f47422eb5c6889332c78ba1c13',
+    source_image:
+      'ghcr.io/piggei/ghostfolio-ng@sha256:b42328186155de9feda900fb9a457c9d53f842fdb12d53b9406bc7f4c5f3cc59',
+    ghostfolio_version: '3.97.0',
+    addon_source_revision: 'bfaf9ff86325d3d6fb25c37785e854cc583077df'
+  };
+  let registry = contract.reserveRelease(
+    contract.createRegistry('3.97.0'),
+    first
+  );
+  registry = contract.reserveRelease(registry, second);
+  return contract.recordImage(registry, second, 'qualified', 'amd64', {
+    os: 'linux',
+    architecture: 'amd64',
+    digest:
+      'sha256:9f2ccd3f757699dcf55a1d57a46c9c056df94081edcc27db9c520ace742a7072'
+  });
+}
+
+for (const index of [0, 1]) {
+  test(`controller D rejects historical reservation ${index + 1} without changing its identity or evidence`, () => {
+    const registry = historicalReservations();
+    const before = JSON.stringify(registry);
+    const existing = registry.releases[index];
+    const selected = {
+      ...existing.identity,
+      addon_source_revision: HA_REVISION
+    };
+    assert.equal(HA_REVISION, 'a695d99ca3593a02c95c78f096b3ebb930fb13e8');
+    assert.throws(
+      () => disposition(registry, selected, contract),
+      /Conflicting HA release identity/
+    );
+    assert.equal(JSON.stringify(registry), before);
+  });
+}
+
+test('controller D resolves a genuinely published newer NG mock release without resuming historical reservations', async () => {
+  const f = fixture(17);
+  f.ha = historicalReservations();
+  const before = JSON.stringify(f.ha);
+  const result = await f.resolve();
+  assert.equal(result.resolution, 'new_release');
+  assert.equal(result.should_publish, 'true');
+  assert.equal(result.addon_source_revision, HA_REVISION);
+  assert.equal(result.integration_tag, 'integration-3.97.0-17');
+  assert.equal(result.ng_run_id, String(f.run.id));
+  assert.equal(JSON.stringify(f.ha), before);
+  const proposed = contract.reserveRelease(f.ha, f.identity());
+  assert.equal(proposed.releases.at(-1).addon_version, '3.97.3');
+  assert.deepEqual(proposed.releases.slice(0, 2), f.ha.releases);
+  assert.ok(f.calls.every((c) => c.method === 'GET'));
 });

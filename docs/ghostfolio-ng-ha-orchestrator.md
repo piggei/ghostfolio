@@ -15,7 +15,7 @@ baseline is distinct: the local upstream ref is release 3.97.0 at
 check reported `c861b1adaaa894d752a2088f1a77b35a22eec2ac`. Neither was used as
 the orchestrator baseline; no fetch or upstream update was performed.
 
-Historical Task 03A development context (superseded by the Task 05A status below):
+Historical Task 03A development context (current pin status is in Task 07K below):
 
 - NG: `integration/ghostfolio-all-pr`, commit
   `649d61f90429483cac949c0c97c83d10c13f7c8e`.
@@ -35,12 +35,12 @@ Historical Task 03A development context (superseded by the Task 05A status below
 | New HA images/metadata      | Not published or activated                                                                                                                                   |
 | Real Home Assistant upgrade | Not performed; separate maintainer validation                                                                                                                |
 
-## Task 05A: qualified controller pin
+## Historical Task 05A: qualified controller pin
 
-The three operational references now agree on HA controller
+At Task 05A the three operational references agreed on HA controller
 `bfaf9ff86325d3d6fb25c37785e854cc583077df`: the static reusable workflow,
 validator checkout and resolver `HA_REVISION` emitted as `addon_source_revision`.
-The registry remains generation 1, with `3.97.1` reserved under its original
+At that checkpoint the registry was generation 1, with `3.97.1` reserved under its original
 identity, no qualification/publication evidence, and visible version `3.97.0`.
 That failed attempt is abandoned operationally; do not dispatch its recovery.
 Changing this pin intentionally does not rewrite the historical reservation.
@@ -59,6 +59,50 @@ are separate approval checkpoints. Before activation verify the committed diff
 contains only this pin change and tests/documentation, then verify P remotely.
 Future qualifying NG releases may publish through C after main activation;
 no historical event is automatically recovered.
+
+## Task 07K: controller D pin proposal
+
+The three operational pins now agree on qualified controller D,
+`a695d99ca3593a02c95c78f096b3ebb930fb13e8`: the reusable workflow, validator
+checkout and resolver `HA_REVISION`. D passed independent unit/API CI run
+`41929010254` (231 tests), native AMD64 run `41930186705` and native ARM64 run
+`41930186708`. Native application/persistence checks used the existing immutable
+bootstrap NG image pin; they do not qualify a future NG image automatically.
+
+This proposal starts at current main P,
+`f6ea73ca1f28750abd3b061023cab6a4f3443638`, and is local and uncommitted. Q does
+not yet exist. Before publishing or activating Q, separately authorize its commit,
+qualify its exact SHA against exact D in a read-only harness, and review the
+main fast-forward. Existing P/C or F/D-only CI does not qualify the new Q.
+
+The registry remains generation 3, visible version `3.97.0`, current release null.
+Historical `3.97.1` keeps revision `4d642df014071b5c72eb731409aef47507cad641`;
+`3.97.2` keeps revision `bfaf9ff86325d3d6fb25c37785e854cc583077df`, its AMD64
+evidence and no ARM64/publication evidence. Both are abandoned operationally,
+while their stored state stays `reserved`. Do not change their identities, clear
+evidence, allocate again for them, dispatch their NG runs or attempt recovery.
+
+With D, selecting NG release 15 or 16 conflicts with its historical identity and
+fails closed before the HA reusable job. It is not silently converted into a new
+release or skipped as successful recovery. The unchanged retry contract remains
+idempotent for an identical D identity; this pin does not disable legitimate
+future retries or historical activation safety checks.
+
+A genuinely new, independently published NG release with a run number greater
+than 16 is required for the next fresh HA release. Changing only the controller
+revision for the already published NG release 16 is not sufficient. Provenance
+still binds the canonical run/attempt, successful release job, source commit,
+GitHub release/tag, immutable OCI index and native image architecture/revision.
+Do not invent a release number or relabel an existing image to bypass those checks.
+With upstream still `3.97.0`, the allocator would assign `3.97.3`; an upstream
+version greater than `3.97.2` takes precedence instead. Resolution only simulates
+allocation; actual reservation requires the separately authorized publication.
+
+Local validation uses the immutable D contract and includes 110 orchestrator
+tests plus 231 HA regressions. Added cases reject both historical controller
+identities and resolve a mock independently published NG release 17 without
+mutating either old record or emitting any write request. No production identity,
+permission, concurrency group, provenance check or publication gate changes.
 
 ## Files and architecture
 
@@ -168,7 +212,7 @@ completed run cannot establish a qualified release.
 The reference is literal and cannot be supplied through event fields:
 
 ```text
-piggei/ghostfolio/.github/workflows/home-assistant-addon.yml@bfaf9ff86325d3d6fb25c37785e854cc583077df
+piggei/ghostfolio/.github/workflows/home-assistant-addon.yml@a695d99ca3593a02c95c78f096b3ebb930fb13e8
 ```
 
 The resolver checks out only its trusted default-branch revision (`github.sha`)
@@ -277,7 +321,7 @@ environment. This creates a temporary source snapshot, not a branch or worktree:
   set -euo pipefail
   task03_contract="$(mktemp -d)"
   trap 'rm -rf "$task03_contract"' EXIT
-  git archive bfaf9ff86325d3d6fb25c37785e854cc583077df \
+  git archive a695d99ca3593a02c95c78f096b3ebb930fb13e8 \
     scripts/home-assistant-addon-github.mjs \
     scripts/home-assistant-addon-oci.mjs \
     scripts/home-assistant-addon-release.mjs \
