@@ -12,6 +12,7 @@ import {
   manifestPath,
   registryPath
 } from './home-assistant-addon-github.mjs';
+import { localImageIdentity } from './home-assistant-addon-local-image.mjs';
 import { architectures } from './home-assistant-addon-oci.mjs';
 import {
   activateRelease,
@@ -93,6 +94,42 @@ export class Docker {
       encoding: 'utf8',
       maxBuffer: 64 * 1024 * 1024
     }).trim();
+  }
+  localReference(reference, arch) {
+    assert.ok(Object.hasOwn(architectures, arch));
+    const images = JSON.parse(this.run(['image', 'inspect', reference]));
+    assert.ok(Array.isArray(images) && images.length === 1);
+    const image = images[0];
+    assert.equal(typeof image.Id, 'string');
+    assert.equal(image.Id.length, 71);
+    assert.match(image.Id, /^sha256:[a-f0-9]{64}$/);
+    assert.equal(image.Os, 'linux');
+    assert.equal(image.Architecture, architectures[arch]);
+    assert.equal(image.RootFS?.Type, 'layers');
+    return image;
+  }
+  localIdentity(reference, arch, labels) {
+    const image = this.localReference(reference, arch);
+    const temporary = mkdtempSync(join(tmpdir(), 'ha-local-image-'));
+    try {
+      const archive = join(temporary, 'image.tar');
+      // Id is an opaque immutable daemon handle. Its digest is never assumed
+      // to describe a config, manifest or index; hash the exported config bytes.
+      this.run(['image', 'save', '--output', archive, image.Id]);
+      return {
+        ...localImageIdentity(archive, arch, labels, image.RootFS.Layers ?? []),
+        handle: image.Id
+      };
+    } finally {
+      rmSync(temporary, { recursive: true, force: true });
+    }
+  }
+  assertLocalReference(reference, local, arch) {
+    assert.equal(
+      this.localReference(reference, arch).Id,
+      local.handle,
+      'Local candidate tag was replaced'
+    );
   }
   build(reference, identity, version, arch) {
     this.run([
@@ -248,27 +285,19 @@ export class Pipeline {
           labels
         )
       : await this.registry.image(repository, tag, arch, labels, true);
-    let reference;
     if (image) {
       if (record.qualified[arch])
         assert.deepEqual(descriptor(image), record.qualified[arch]);
-      reference = `ghcr.io/${repository}@${image.digest}`;
-      this.docker.run(['pull', reference]);
-      this.docker.smoke(reference, arch);
     } else {
-      reference = `ghcr.io/${repository}:${tag}`;
+      const reference = `ghcr.io/${repository}:${tag}`;
       this.docker.build(reference, plan.identity, record.addon_version, arch);
-      this.docker.smoke(reference, arch);
-      const localConfig = this.docker.run([
-        'image',
-        'inspect',
-        reference,
-        '--format',
-        '{{.Id}}'
-      ]);
+      const local = this.docker.localIdentity(reference, arch, labels);
+      this.docker.smoke(local.handle, arch);
+      this.docker.assertLocalReference(reference, local, arch);
       // Recheck immediately before writing; never replace an existing candidate.
       image = await this.registry.image(repository, tag, arch, labels, true);
       if (!image) {
+        this.docker.assertLocalReference(reference, local, arch);
         try {
           this.docker.run(['push', reference]);
         } catch (error) {
@@ -285,10 +314,21 @@ export class Pipeline {
       image ??= await this.registry.image(repository, tag, arch, labels);
       assert.equal(
         image.config_digest,
-        localConfig,
+        local.config_digest,
         'Uploaded candidate differs from tested local image'
       );
+      this.docker.assertLocalReference(reference, local, arch);
     }
+    // Fresh uploads and recovered candidates must both pass the native smoke
+    // against the exact remote manifest that will become qualification evidence.
+    const reference = `ghcr.io/${repository}@${image.digest}`;
+    this.docker.run(['pull', reference]);
+    this.docker.smoke(reference, arch);
+    assert.deepEqual(
+      await this.registry.image(repository, image.digest, arch, labels),
+      image,
+      'Candidate changed during remote qualification'
+    );
     await this.persist(plan, (r) =>
       recordImage(r, plan.identity, 'qualified', arch, descriptor(image))
     );

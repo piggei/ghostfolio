@@ -419,7 +419,15 @@ test('checked-in bootstrap matches existing advertised version without fabricate
   );
   assert.deepEqual(currentManifest(registry), manifest);
   assert.ok(config.includes(`version: "${manifest.addon_version}"`));
-  assert.equal(registry.releases.length, 0);
+  // A reservation is now present in the approved baseline. It must not make
+  // the pending version visible or fabricate qualification/publication evidence.
+  assert.equal(registry.current_release, null);
+  assert.equal(registry.generation, registry.releases.length);
+  for (const record of registry.releases) {
+    assert.equal(record.state, 'reserved');
+    assert.deepEqual(record.qualified, {});
+    assert.deepEqual(record.published, {});
+  }
   assert.equal(manifest.state, 'legacy');
 });
 
@@ -622,4 +630,39 @@ test('historical activated retries persist as no-ops after a newer activation', 
       release(16).integration_tag
     );
   }
+});
+
+test('an incomplete reservation does not block a newer identity or recycle its version', () => {
+  const original = reserved();
+  const abandonedRecord = structuredClone(original.releases[0]);
+  const before = JSON.stringify(original);
+  for (const [version, expected] of [
+    ['3.97.0', '3.97.2'],
+    ['3.97.1', '3.97.2'],
+    ['3.98.0', '3.98.0']
+  ]) {
+    const nextIdentity = {
+      ...release(16, version),
+      source_commit: 'c'.repeat(40),
+      source_image: `ghcr.io/piggei/ghostfolio-ng@sha256:${'d'.repeat(64)}`,
+      addon_source_revision: 'e'.repeat(40)
+    };
+    let next = reserveRelease(original, nextIdentity);
+    assert.equal(next.generation, 2);
+    assert.equal(next.releases[1].addon_version, expected);
+    assert.equal(currentManifest(next).addon_version, '3.97.0');
+    assert.deepEqual(reserveRelease(next, nextIdentity), next);
+    next = activateRelease(publish(next, nextIdentity), nextIdentity);
+    assert.equal(currentManifest(next).addon_version, expected);
+    assert.equal(next.current_release, nextIdentity.integration_tag);
+    assert.equal(next.generation, 7);
+    assert.deepEqual(next.releases[0], abandonedRecord);
+  }
+  assert.equal(JSON.stringify(original), before);
+  assert.throws(() =>
+    reserveRelease(original, {
+      ...identity,
+      addon_source_revision: 'f'.repeat(40)
+    })
+  );
 });

@@ -130,6 +130,7 @@ function harness() {
     tests: [],
     promotions: [],
     pushes: 0,
+    smokeReferences: [],
     build(reference, source, version, arch) {
       this.builds.push(arch);
       this.local = {
@@ -142,7 +143,25 @@ function harness() {
     },
     smoke(reference, arch) {
       this.tests.push(arch);
+      this.smokeReferences.push(reference);
       if (this.failSmoke === arch) throw new Error('Qualification failed');
+      if (this.failRemoteSmoke === arch && reference.includes('@'))
+        throw new Error('Remote qualification failed');
+    },
+    localIdentity(reference, arch, labels) {
+      assert.equal(this.local.architecture, architectures[arch]);
+      assert.deepEqual(this.local.labels, labels);
+      return {
+        handle: this.classicId ? this.local.config_digest : this.local.digest,
+        config_digest: this.local.config_digest
+      };
+    },
+    assertLocalReference(reference, local) {
+      assert.ok(!this.replacedTag, 'Local candidate tag was replaced');
+      assert.equal(
+        local.handle,
+        this.classicId ? this.local.config_digest : this.local.digest
+      );
     },
     run(args) {
       if (args[0] === 'image') return this.local.config_digest;
@@ -238,7 +257,7 @@ test('both native qualifications and digest promotion precede a single atomic me
   const h = harness();
   const original = h.remote.files[configPath];
   const plan = await h.qualified();
-  assert.deepEqual(h.docker.tests, ['amd64', 'aarch64']);
+  assert.deepEqual(h.docker.tests, ['amd64', 'amd64', 'aarch64', 'aarch64']);
   assert.equal(h.remote.files[configPath], original);
   const result = await h.pipeline.publish(plan);
   assert.equal(result.addon_version, '3.97.1');
@@ -470,7 +489,7 @@ test('registered candidate recovery pins the original digest and reruns smoke ev
   assert.deepEqual(references, [`ghcr.io/${repository}@${expected.digest}`]);
   assert.deepEqual(h.remote.files, before);
   assert.equal(h.docker.builds.length, 2);
-  assert.equal(h.docker.tests.length, 3);
+  assert.equal(h.docker.tests.length, 5);
 });
 
 test('an uploaded but unregistered candidate is not qualified by its labels when recovered smoke fails', async () => {
@@ -487,7 +506,7 @@ test('an uploaded but unregistered candidate is not qualified by its labels when
   assert.deepEqual(h.state().releases[0].qualified, {});
   assert.equal(h.docker.builds.length, 1);
   assert.equal(h.docker.pushes, 1);
-  assert.equal(h.docker.tests.length, 2);
+  assert.equal(h.docker.tests.length, 3);
 });
 
 test('AArch64 final with matching labels but a conflicting digest cannot activate metadata', async () => {
@@ -531,5 +550,109 @@ test('final digest drift after publication evidence is recorded still blocks act
   assert.equal(currentManifest(h.state()).addon_version, '3.97.0');
   assert.ok(
     !h.remote.commits.some((commit) => commit.message.startsWith('Activate '))
+  );
+});
+
+for (const arch of ['amd64', 'aarch64']) {
+  for (const classicId of [false, true]) {
+    test(`${arch} qualification binds config with ${classicId ? 'classic' : 'containerd'} handle and smokes remote digest`, async () => {
+      const h = harness();
+      h.docker.classicId = classicId;
+      const plan = await h.pipeline.prepare(identity);
+      await h.pipeline.qualify(plan, arch);
+      const image = h.registry.images.get(
+        `${imageRepository(arch)}:${candidateTag(identity)}`
+      );
+      assert.notEqual(image.digest, image.config_digest);
+      assert.deepEqual(h.docker.smokeReferences, [
+        classicId ? image.config_digest : image.digest,
+        `ghcr.io/${imageRepository(arch)}@${image.digest}`
+      ]);
+      assert.equal(h.state().releases[0].qualified[arch].digest, image.digest);
+      assert.equal(h.state().generation, 2);
+    });
+  }
+  test(`${arch} remote smoke failure preserves reservation and uploaded candidate`, async () => {
+    const h = harness();
+    const plan = await h.pipeline.prepare(identity);
+    const original = structuredClone(h.remote.files);
+    h.docker.failRemoteSmoke = arch;
+    await assert.rejects(
+      h.pipeline.qualify(plan, arch),
+      /Remote qualification/
+    );
+    assert.deepEqual(h.remote.files, original);
+    assert.equal(h.docker.pushes, 1);
+    assert.ok(
+      h.registry.images.get(
+        `${imageRepository(arch)}:${candidateTag(identity)}`
+      )
+    );
+    h.docker.failRemoteSmoke = undefined;
+    await h.pipeline.qualify(plan, arch);
+    assert.equal(h.docker.pushes, 1);
+    assert.equal(h.docker.builds.length, 1);
+    assert.equal(h.state().releases[0].addon_version, '3.97.1');
+  });
+  test(`${arch} local tag replacement fails before push or evidence`, async () => {
+    const h = harness();
+    const plan = await h.pipeline.prepare(identity);
+    const before = structuredClone(h.remote.files);
+    h.docker.replacedTag = true;
+    await assert.rejects(h.pipeline.qualify(plan, arch), /Local candidate tag/);
+    assert.equal(h.docker.pushes, 0);
+    assert.deepEqual(h.remote.files, before);
+  });
+  test(`${arch} valid remote manifest with incompatible config cannot be qualified`, async () => {
+    const h = harness();
+    const plan = await h.pipeline.prepare(identity);
+    const before = structuredClone(h.remote.files);
+    const original = h.docker.run;
+    h.docker.run = function (args) {
+      const result = original.call(this, args);
+      if (args[0] === 'push') {
+        const image = h.registry.images.get(
+          `${imageRepository(arch)}:${candidateTag(identity)}`
+        );
+        image.config_digest = `sha256:${'9'.repeat(64)}`;
+      }
+      return result;
+    };
+    await assert.rejects(
+      h.pipeline.qualify(plan, arch),
+      /Uploaded candidate differs/
+    );
+    assert.deepEqual(h.remote.files, before);
+    assert.equal(h.docker.tests.length, 1);
+  });
+}
+
+test('a conflicting candidate appearing after local smoke is never overwritten', async () => {
+  const h = harness();
+  const plan = await h.pipeline.prepare(identity);
+  const before = structuredClone(h.remote.files);
+  const smoke = h.docker.smoke;
+  const conflictingDigest = `sha256:${'7'.repeat(64)}`;
+  h.docker.smoke = function (reference, arch) {
+    smoke.call(this, reference, arch);
+    if (!reference.includes('@')) {
+      h.registry.put(imageRepository(arch), candidateTag(identity), {
+        ...structuredClone(this.local),
+        digest: conflictingDigest,
+        config_digest: `sha256:${'6'.repeat(64)}`
+      });
+    }
+  };
+  await assert.rejects(
+    h.pipeline.qualify(plan, 'amd64'),
+    /Uploaded candidate differs/
+  );
+  assert.equal(h.docker.pushes, 0);
+  assert.deepEqual(h.remote.files, before);
+  assert.equal(
+    h.registry.images.get(
+      `${imageRepository('amd64')}:${candidateTag(identity)}`
+    ).digest,
+    conflictingDigest
   );
 });

@@ -1,0 +1,53 @@
+name: Qualify Home Assistant OCI identity natively on ARM64
+
+on:
+  push:
+    branches: [fix/home-assistant-oci-identity]
+    paths:
+      - '.github/workflows/home-assistant-addon-oci-native-test.yml'
+      - 'scripts/home-assistant-addon-*'
+      - 'home-assistant-addon/**'
+      - 'tests/home-assistant-addon/**'
+
+permissions:
+  contents: read
+  packages: read
+
+concurrency:
+  group: ghostfolio-home-assistant-oci-native-arm64-${{ github.ref }}
+  cancel-in-progress: false
+
+jobs:
+  native-arm64:
+    if: github.repository == 'piggei/ghostfolio'
+    runs-on: ubuntu-24.04-arm
+    timeout-minutes: 60
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          persist-credentials: false
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 22.23.4
+      - uses: docker/setup-buildx-action@v3
+      - name: Native ARM64 identity and local registry qualification
+        env:
+          HA_OCI_ARM64_REPORT: ${{ runner.temp }}/ha-oci-arm64.json
+        run: |
+          set -euo pipefail
+          test "$(uname -m)" = aarch64
+          registry_name="ha-oci-arm64-${GITHUB_RUN_ID}-${GITHUB_RUN_ATTEMPT}"
+          trap 'docker rm -f "$registry_name" >/dev/null 2>&1 || true' EXIT
+          docker run --detach --name "$registry_name" \
+            --publish 127.0.0.1::5000 --tmpfs /var/lib/registry \
+            registry:3@sha256:d4032d4cc323c1731c707931ecada07a53076eac38e3b61ae57533f170f2c6c3
+          export HA_OCI_TEST_REGISTRY
+          HA_OCI_TEST_REGISTRY="$(docker port "$registry_name" 5000/tcp)"
+          node scripts/home-assistant-addon-oci-arm64-qualification.mjs
+      - uses: actions/upload-artifact@v4
+        if: always()
+        with:
+          name: ha-oci-native-arm64-${{ github.run_attempt }}
+          path: ${{ runner.temp }}/ha-oci-arm64.json
+          if-no-files-found: warn
+          retention-days: 14
