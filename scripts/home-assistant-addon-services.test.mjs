@@ -192,6 +192,12 @@ function githubFixture(mode) {
     fetcher: async (url, options) => {
       const path = url.split('/repos/piggei/ghostfolio/')[1];
       const body = options.body && JSON.parse(options.body);
+      if (path === `git/commits/${created}`)
+        return response({
+          sha: created,
+          parents: [{ sha: original }],
+          tree: { sha: 'd'.repeat(40) }
+        });
       if (options.method !== 'GET')
         writes.push({ path, method: options.method, body });
       if (path.startsWith('git/ref/heads/')) {
@@ -212,7 +218,10 @@ function githubFixture(mode) {
         }
         head = created;
         if (mode === 'lost-response') throw new Error('Lost GitHub response');
-        return response({ object: { sha: head } });
+        return response({
+          ref: 'refs/heads/feat/home-assistant-addon',
+          object: { type: 'commit', sha: head }
+        });
       }
       throw new Error(`Unexpected API ${path}`);
     }

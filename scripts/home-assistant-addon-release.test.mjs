@@ -404,7 +404,47 @@ test('restart resumes the same allocation and recorded partial image state', (t)
   }
 });
 
-test('checked-in bootstrap matches existing advertised version without fabricated evidence', () => {
+// This immutable initial-state fixture is independent of the evolving repository.
+const bootstrapFixture = Object.freeze({
+  schema_version: 1,
+  generation: 0,
+  baseline_version: '3.97.0',
+  current_release: null,
+  releases: Object.freeze([])
+});
+const bootstrapManifest = Object.freeze({
+  schema_version: 1,
+  addon_version: '3.97.0',
+  state: 'legacy'
+});
+
+function assertMetadataConsistency(registry, manifest, config) {
+  validateRegistry(registry);
+  assert.deepEqual(currentManifest(registry), manifest);
+  assert.deepEqual(config.match(/^version:.*$/gm), [
+    `version: "${manifest.addon_version}"`
+  ]);
+}
+
+function partiallyQualifiedFixture() {
+  let registry = reserveRelease(bootstrapFixture, identity);
+  registry = reserveRelease(registry, release(16));
+  return recordImage(registry, release(16), 'qualified', 'amd64', images.amd64);
+}
+
+test('immutable bootstrap has no allocations, evidence or fabricated activation', () => {
+  assert.deepEqual(createRegistry('3.97.0'), bootstrapFixture);
+  assertMetadataConsistency(
+    bootstrapFixture,
+    bootstrapManifest,
+    'version: "3.97.0"\n'
+  );
+  assert.equal(bootstrapFixture.current_release, null);
+  assert.equal(bootstrapFixture.generation, 0);
+  assert.deepEqual(bootstrapFixture.releases, []);
+});
+
+test('checked-in registry satisfies schema, state and advertised metadata invariants', () => {
   const registry = loadRegistry(
     new URL('../home-assistant-addon/releases/registry.json', import.meta.url)
   );
@@ -417,18 +457,105 @@ test('checked-in bootstrap matches existing advertised version without fabricate
     new URL('../home-assistant-addon/config.yaml', import.meta.url),
     'utf8'
   );
-  assert.deepEqual(currentManifest(registry), manifest);
-  assert.ok(config.includes(`version: "${manifest.addon_version}"`));
-  // A reservation is now present in the approved baseline. It must not make
-  // the pending version visible or fabricate qualification/publication evidence.
-  assert.equal(registry.current_release, null);
-  assert.equal(registry.generation, registry.releases.length);
-  for (const record of registry.releases) {
-    assert.equal(record.state, 'reserved');
-    assert.deepEqual(record.qualified, {});
-    assert.deepEqual(record.published, {});
+  assertMetadataConsistency(registry, manifest, config);
+});
+
+test('generation-three fixture accepts two reservations and legitimate partial AMD64 qualification', () => {
+  const registry = partiallyQualifiedFixture();
+  assert.equal(registry.generation, 3);
+  assert.equal(registry.releases.length, 2);
+  assert.equal(registry.releases[1].state, 'reserved');
+  assert.deepEqual(registry.releases[1].qualified, { amd64: images.amd64 });
+  assert.deepEqual(registry.releases[1].published, {});
+  assertMetadataConsistency(registry, bootstrapManifest, 'version: "3.97.0"\n');
+  assert.deepEqual(createRegistry('3.97.0'), bootstrapFixture);
+});
+
+test('metadata consistency accepts each legitimate transition including final activation', () => {
+  let registry = reserveRelease(bootstrapFixture, identity);
+  for (const operation of [
+    (r) => recordImage(r, identity, 'qualified', 'amd64', images.amd64),
+    (r) => recordImage(r, identity, 'qualified', 'aarch64', images.aarch64),
+    (r) => recordImage(r, identity, 'published', 'amd64', images.amd64),
+    (r) => recordImage(r, identity, 'published', 'aarch64', images.aarch64),
+    (r) => activateRelease(r, identity)
+  ]) {
+    registry = operation(registry);
+    const manifest = currentManifest(registry);
+    assertMetadataConsistency(
+      registry,
+      manifest,
+      `version: "${manifest.addon_version}"\n`
+    );
   }
-  assert.equal(manifest.state, 'legacy');
+  assert.equal(registry.releases[0].state, 'activated');
+  assert.equal(currentManifest(registry).addon_version, '3.97.1');
+});
+
+test('evolved registry consistency rejects invalid schema, states, evidence and current pointer', () => {
+  for (const corrupt of [
+    (r) => {
+      r.schema_version = 2;
+    },
+    (r) => {
+      r.generation = -1;
+    },
+    (r) => {
+      r.releases[1].state = 'qualified';
+    },
+    (r) => {
+      r.releases[1].qualified.amd64.architecture = 'arm64';
+    },
+    (r) => {
+      r.releases[1].published.amd64 = images.amd64;
+    },
+    (r) => {
+      r.current_release = r.releases[1].identity.integration_tag;
+    }
+  ]) {
+    const registry = partiallyQualifiedFixture();
+    corrupt(registry);
+    assert.throws(() =>
+      assertMetadataConsistency(
+        registry,
+        bootstrapManifest,
+        'version: "3.97.0"\n'
+      )
+    );
+  }
+});
+
+test('evolved registry rejects inconsistent manifest, premature version and duplicate advertised version', () => {
+  const registry = partiallyQualifiedFixture();
+  for (const [manifest, config] of [
+    [{ ...bootstrapManifest, state: 'activated' }, 'version: "3.97.0"\n'],
+    [{ ...bootstrapManifest, addon_version: '3.97.2' }, 'version: "3.97.2"\n'],
+    [bootstrapManifest, 'version: "3.97.2"\n'],
+    [bootstrapManifest, 'version: "3.97.0"\nversion: "3.97.2"\n']
+  ])
+    assert.throws(() => assertMetadataConsistency(registry, manifest, config));
+});
+
+test('evolved persistence still rejects identity changes, evidence replacement and skipped transitions', (t) => {
+  const registry = partiallyQualifiedFixture();
+  for (const corrupt of [
+    (r) => {
+      r.releases[1].identity.source_commit = 'f'.repeat(40);
+    },
+    (r) => {
+      r.releases[1].qualified.amd64.digest = `sha256:${'c'.repeat(64)}`;
+    },
+    (r) => {
+      r.releases[1].qualified.aarch64 = images.aarch64;
+      r.releases[1].published = structuredClone(images);
+      r.releases[1].state = 'published';
+    }
+  ]) {
+    const next = structuredClone(registry);
+    next.generation++;
+    corrupt(next);
+    rejectsSave(t, registry, next);
+  }
 });
 
 // Every rejected save must leave the original file byte-for-byte intact,

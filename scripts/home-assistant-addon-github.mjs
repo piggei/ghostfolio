@@ -11,29 +11,55 @@ export const docPaths = [
 const shaPattern = /^[a-f0-9]{40}$/;
 
 export class GitHub {
-  constructor({ fetcher = fetch, token = process.env.GH_TOKEN } = {}) {
+  constructor({
+    fetcher = fetch,
+    token = process.env.GH_TOKEN,
+    sleep = (ms) => new Promise((resolve) => setTimeout(resolve, ms))
+  } = {}) {
     this.fetcher = fetcher;
     this.token = token;
+    this.sleep = sleep;
   }
 
   async api(path, method = 'GET', body, missing = false) {
-    const response = await this.fetcher(
-      `https://api.github.com/repos/piggei/ghostfolio/${path}`,
-      {
-        method,
-        headers: {
-          Authorization: `Bearer ${this.token}`,
-          Accept: 'application/vnd.github+json',
-          'X-GitHub-Api-Version': '2022-11-28',
-          'Content-Type': 'application/json'
-        },
-        body: body === undefined ? undefined : JSON.stringify(body),
-        signal: AbortSignal.timeout(30000)
-      }
-    );
+    let response;
+    try {
+      response = await this.fetcher(
+        `https://api.github.com/repos/piggei/ghostfolio/${path}`,
+        {
+          method,
+          headers: {
+            Authorization: `Bearer ${this.token}`,
+            Accept: 'application/vnd.github+json',
+            'X-GitHub-Api-Version': '2022-11-28',
+            'Content-Type': 'application/json'
+          },
+          body: body === undefined ? undefined : JSON.stringify(body),
+          signal: AbortSignal.timeout(30000)
+        }
+      );
+    } catch (error) {
+      if (method === 'PATCH') error.ambiguous = true;
+      throw error;
+    }
     if (missing && response.status === 404) return null;
-    assert.ok(response.ok, `GitHub ${method} HTTP ${response.status}`);
-    return response.json();
+    if (!response.ok) {
+      throw Object.assign(
+        new Error(`GitHub ${method} HTTP ${response.status}`),
+        {
+          status: response.status,
+          ambiguous:
+            method === 'PATCH' &&
+            (response.status === 408 || response.status >= 500)
+        }
+      );
+    }
+    try {
+      return await response.json();
+    } catch (error) {
+      if (method === 'PATCH') error.ambiguous = true;
+      throw error;
+    }
   }
 
   async head() {
@@ -51,10 +77,35 @@ export class GitHub {
     return Buffer.from(value.content, 'base64').toString();
   }
 
+  async confirmHead(expected, predecessor, observed) {
+    assert.match(expected, shaPattern);
+    assert.match(predecessor, shaPattern);
+    assert.notEqual(expected, predecessor);
+    const delays = [100, 250, 500, 1000];
+    for (let attempt = 0; attempt <= delays.length; attempt++) {
+      const head = observed ?? (await this.head());
+      observed = undefined;
+      if (head === expected) return head;
+      assert.equal(head, predecessor, 'Concurrent remote branch update');
+      assert.ok(
+        attempt < delays.length,
+        'Remote branch confirmation timed out'
+      );
+      await this.sleep(delays[attempt]);
+    }
+  }
+
   async snapshot(expected) {
-    const head = await this.head();
-    if (expected)
-      assert.equal(head, expected, 'Concurrent remote branch update');
+    if (expected) assert.match(expected, shaPattern);
+    let head = await this.head();
+    if (expected && head !== expected) {
+      // Only the immutable expected commit's single, verified parent may be stale.
+      const commit = await this.api(`git/commits/${expected}`);
+      assert.equal(commit.sha, expected, 'Unexpected snapshot commit');
+      assert.equal(commit.parents.length, 1, 'Ambiguous snapshot predecessor');
+      const predecessor = commit.parents[0].sha;
+      head = await this.confirmHead(expected, predecessor, head);
+    }
     const files = {};
     for (const path of [registryPath, manifestPath, configPath, ...docPaths])
       files[path] = await this.file(path, head);
@@ -221,25 +272,44 @@ export class GitHub {
       tree: tree.sha,
       parents: [expectedHead]
     });
+    assert.match(commit.sha, shaPattern);
+    const created = await this.api(`git/commits/${commit.sha}`);
+    assert.equal(created.sha, commit.sha, 'Unexpected created commit');
+    assert.equal(created.parents.length, 1, 'Ambiguous created predecessor');
+    assert.equal(
+      created.parents[0].sha,
+      expectedHead,
+      'Created commit parent mismatch'
+    );
+    assert.equal(created.tree.sha, tree.sha, 'Created commit tree mismatch');
     assert.equal(
       await this.head(),
       expectedHead,
       'Concurrent remote branch update'
     );
+    let updated;
+    let ambiguous;
     try {
-      await this.api(`git/refs/heads/${branch}`, 'PATCH', {
+      updated = await this.api(`git/refs/heads/${branch}`, 'PATCH', {
         sha: commit.sha,
         force: false
       });
     } catch (error) {
-      // A lost HTTP response is recoverable only if exactly our commit is HEAD.
-      if ((await this.head()) !== commit.sha) throw error;
+      if (!error.ambiguous) throw error;
+      ambiguous = error;
     }
-    assert.equal(
-      await this.head(),
-      commit.sha,
-      'Concurrent remote branch update'
-    );
+    if (!ambiguous) {
+      assert.equal(updated.ref, `refs/heads/${branch}`, 'Unexpected PATCH ref');
+      assert.equal(updated.object.type, 'commit', 'Unexpected PATCH object');
+      assert.equal(updated.object.sha, commit.sha, 'Unexpected PATCH commit');
+    }
+    try {
+      // Never retry PATCH or infer success from merely creating a commit object.
+      await this.confirmHead(commit.sha, created.parents[0].sha);
+    } catch (error) {
+      if (ambiguous) error.cause = ambiguous;
+      throw error;
+    }
     return commit.sha;
   }
 
