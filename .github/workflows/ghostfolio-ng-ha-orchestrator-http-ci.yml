@@ -24,13 +24,22 @@ jobs:
       - name: Checkout orchestrator candidate
         uses: actions/checkout@v4
         with:
+          fetch-depth: 3
           persist-credentials: false
 
       - name: Verify exact orchestrator candidate
         run: |
           set -euo pipefail
-          test "$(git rev-parse HEAD^)" = "78fd48123000fb338d63309006754489e02995e9"
-          test "$(git diff --name-only HEAD^ HEAD)" = ".github/workflows/ghostfolio-ng-ha-orchestrator-http-ci.yml"
+          candidate="78fd48123000fb338d63309006754489e02995e9"
+          workflow=".github/workflows/ghostfolio-ng-ha-orchestrator-http-ci.yml"
+
+          git merge-base --is-ancestor "$candidate" HEAD
+
+          test "$(git rev-parse HEAD^^)" = "$candidate"
+
+          test "$(git diff --name-only "$candidate" HEAD)" = "$workflow"
+
+          test "$(git diff --name-only "$candidate" HEAD -- .github/workflows/ghostfolio-ng-ha-orchestrator.yml scripts/ghostfolio-ng-ha-orchestrator.mjs scripts/ghostfolio-ng-ha-orchestrator.test.mjs scripts/ghostfolio-ng-ha-orchestrator-workflow.test.mjs docs/ghostfolio-ng-ha-orchestrator.md)" = ""
 
       - name: Checkout immutable HA contract
         uses: actions/checkout@v4
