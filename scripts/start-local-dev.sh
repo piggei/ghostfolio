@@ -38,6 +38,52 @@ echo "npm:  $(npm -v)"
 echo
 
 # ---------------------------------------------------------------------------
+# Locale selection
+# ---------------------------------------------------------------------------
+
+if [ "$#" -gt 1 ]; then
+  echo "Usage: $0 [locale]"
+  exit 2
+fi
+
+LOCALE="${1:-${GHOSTFOLIO_LOCALE:-it}}"
+
+if [[ ! "${LOCALE}" =~ ^[a-z]{2}$ ]]; then
+  echo "ERROR: Invalid locale: ${LOCALE}"
+  exit 2
+fi
+
+SERVE_CONFIGURATION="development-${LOCALE}"
+
+if ! node -e '
+  const project = require("./apps/client/project.json");
+  const configuration = process.argv[1];
+  process.exit(
+    Object.hasOwn(project.targets?.serve?.configurations ?? {}, configuration)
+      ? 0
+      : 1
+  );
+' "${SERVE_CONFIGURATION}"; then
+  echo "ERROR: Unsupported locale: ${LOCALE}"
+  echo "Available locales:"
+  node -e '
+    const project = require("./apps/client/project.json");
+    console.log(
+      Object.keys(project.targets.serve.configurations)
+        .filter((name) => name.startsWith("development-"))
+        .map((name) => name.slice("development-".length))
+        .sort()
+        .join(" ")
+    );
+  '
+  exit 2
+fi
+
+echo "Locale: ${LOCALE}"
+echo "Angular configuration: ${SERVE_CONFIGURATION}"
+echo
+
+# ---------------------------------------------------------------------------
 # Environment
 # ---------------------------------------------------------------------------
 
@@ -195,7 +241,7 @@ echo "API PID: ${API_PID}"
 echo
 echo "=== Starting Ghostfolio client ==="
 npx nx run client:copy-assets
-npx nx run client:serve --configuration=development-it --hmr -o &
+npx nx run client:serve --configuration="${SERVE_CONFIGURATION}" --hmr -o &
 CLIENT_PID=$!
 
 echo "Client PID: ${CLIENT_PID}"
