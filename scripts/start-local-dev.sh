@@ -83,6 +83,9 @@ echo "Locale: ${LOCALE}"
 echo "Angular configuration: ${SERVE_CONFIGURATION}"
 echo
 
+# This launcher runs the Ghostfolio-NG development distribution.
+export GHOSTFOLIO_NG=true
+
 # ---------------------------------------------------------------------------
 # Environment
 # ---------------------------------------------------------------------------
