@@ -1,4 +1,8 @@
 import { UserService } from '@ghostfolio/client/services/user/user.service';
+import {
+  GhostfolioNgBuildInfo,
+  parseGhostfolioNgBuildInfo
+} from '@ghostfolio/common/ghostfolio-ng-build-info';
 import { User } from '@ghostfolio/common/interfaces';
 import { hasPermission, permissions } from '@ghostfolio/common/permissions';
 import { publicRoutes } from '@ghostfolio/common/routes/routes';
@@ -38,6 +42,7 @@ export class GfAboutOverviewPageComponent implements OnInit {
   public hasPermissionForSubscription: boolean;
   public isLoggedIn: boolean;
   public isGhostfolioNg: boolean;
+  public ghostfolioNgBuildInfo: GhostfolioNgBuildInfo | undefined;
   public routerLinkBlog = publicRoutes.blog.routerLink;
   public routerLinkFaq = publicRoutes.faq.routerLink;
   public routerLinkFeatures = publicRoutes.features.routerLink;
@@ -50,9 +55,13 @@ export class GfAboutOverviewPageComponent implements OnInit {
     private destroyRef: DestroyRef,
     private userService: UserService
   ) {
-    const { globalPermissions, isGhostfolioNg } = this.dataService.fetchInfo();
+    const { globalPermissions, isGhostfolioNg, ghostfolioNgBuildInfo } =
+      this.dataService.fetchInfo();
 
     this.isGhostfolioNg = isGhostfolioNg;
+    this.ghostfolioNgBuildInfo = parseGhostfolioNgBuildInfo(
+      ghostfolioNgBuildInfo
+    );
 
     this.hasPermissionForStatistics = hasPermission(
       globalPermissions,

@@ -28,6 +28,8 @@ import { MarketData } from '@prisma/client';
 import { subDays } from 'date-fns';
 import { isNil } from 'lodash-es';
 
+import { readGhostfolioNgBuildInfo } from './ghostfolio-ng-build-info';
+
 @Injectable()
 export class InfoService {
   private static CACHE_KEY_STATISTICS = 'STATISTICS';
@@ -47,6 +49,7 @@ export class InfoService {
 
   public async get(): Promise<InfoItem> {
     const info: Partial<InfoItem> = {};
+    const isGhostfolioNg = this.configurationService.get('GHOSTFOLIO_NG');
     let isReadOnlyMode: boolean | undefined;
     let latestFearAndGreedStocksMarketDataPromise:
       Promise<MarketData> | undefined;
@@ -127,7 +130,10 @@ export class InfoService {
 
     return {
       ...info,
-      isGhostfolioNg: this.configurationService.get('GHOSTFOLIO_NG'),
+      isGhostfolioNg,
+      ghostfolioNgBuildInfo: isGhostfolioNg
+        ? readGhostfolioNgBuildInfo()
+        : undefined,
       benchmarks,
       demoAuthToken,
       globalPermissions,

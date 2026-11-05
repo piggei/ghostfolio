@@ -62,6 +62,12 @@ RUN apt-get update && apt-get install -y --no-install-suggests \
 
 COPY --chown=node:node --from=builder /ghostfolio/dist/apps /ghostfolio/apps/
 COPY --chown=node:node ./docker/entrypoint.sh /ghostfolio/
+
+# Stamp the actual NG release number into the shared Docker/HA application image.
+ARG GHOSTFOLIO_NG_BUILD_NUMBER=
+COPY ./scripts/ghostfolio-ng-build-info.mjs /tmp/ghostfolio-ng-build-info.mjs
+RUN node /tmp/ghostfolio-ng-build-info.mjs /ghostfolio/apps/api/package.json "${GHOSTFOLIO_NG_BUILD_NUMBER}" \
+    && rm /tmp/ghostfolio-ng-build-info.mjs
 WORKDIR /ghostfolio/apps/api
 EXPOSE ${PORT:-3333}
 USER node

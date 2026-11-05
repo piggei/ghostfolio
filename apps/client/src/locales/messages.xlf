@@ -10164,6 +10164,24 @@
           <context context-type="linenumber">208</context>
         </context-group>
       </trans-unit>
+      <trans-unit id="ghostfolioNgVersionLabel" datatype="html">
+        <source>Ghostfolio-NG version:</source>
+        <context-group purpose="location">
+          <context context-type="sourcefile">apps/client/src/app/pages/about/overview/about-overview-page.html</context>
+        </context-group>
+      </trans-unit>
+      <trans-unit id="ghostfolioNgBuildVersion" datatype="html">
+        <source>Build <x id="INTERPOLATION" equiv-text="{{ buildInfo.buildNumber }}"/> — based on Ghostfolio <x id="INTERPOLATION_1" equiv-text="{{ buildInfo.upstreamVersion }}"/></source>
+        <context-group purpose="location">
+          <context context-type="sourcefile">apps/client/src/app/pages/about/overview/about-overview-page.html</context>
+        </context-group>
+      </trans-unit>
+      <trans-unit id="ghostfolioNgBaseVersion" datatype="html">
+        <source>based on Ghostfolio <x id="INTERPOLATION" equiv-text="{{ buildInfo.upstreamVersion }}"/></source>
+        <context-group purpose="location">
+          <context context-type="sourcefile">apps/client/src/app/pages/about/overview/about-overview-page.html</context>
+        </context-group>
+      </trans-unit>
       </body>
   </file>
 </xliff>

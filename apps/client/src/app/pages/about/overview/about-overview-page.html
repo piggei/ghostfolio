@@ -209,6 +209,23 @@
                 >GitHub repository</a
               >.
             </p>
+            @if (ghostfolioNgBuildInfo; as buildInfo) {
+              <p class="mb-0" data-testid="ghostfolio-ng-version">
+                <strong i18n="@@ghostfolioNgVersionLabel"
+                  >Ghostfolio-NG version:</strong
+                >&ngsp;
+                @if (buildInfo.buildNumber) {
+                  <span i18n="@@ghostfolioNgBuildVersion"
+                    >Build {{ buildInfo.buildNumber }} — based on Ghostfolio
+                    {{ buildInfo.upstreamVersion }}</span
+                  >
+                } @else {
+                  <span i18n="@@ghostfolioNgBaseVersion"
+                    >based on Ghostfolio {{ buildInfo.upstreamVersion }}</span
+                  >
+                }
+              </p>
+            }
           </section>
         }
       </div>

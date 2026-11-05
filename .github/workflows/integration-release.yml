@@ -47,6 +47,7 @@ jobs:
           cache: npm
       - run: npm ci
       - run: node --test scripts/integration-release.test.mjs
+      - run: node --test scripts/ghostfolio-ng-build-info.test.mjs
       - run: npm test
 
   build:
@@ -82,6 +83,7 @@ jobs:
           tags: ${{ needs.prepare.outputs.image }}:${{ needs.prepare.outputs.tag }}-${{ matrix.arch }}
           build-args: |
             GHOSTFOLIO_NG=true
+            GHOSTFOLIO_NG_BUILD_NUMBER=${{ github.run_number }}
           labels: |
             org.opencontainers.image.source=https://github.com/${{ github.repository }}
             org.opencontainers.image.revision=${{ github.sha }}
