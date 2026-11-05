@@ -139,3 +139,48 @@ test('the approved lossless team asset is unchanged and mobile layout keeps read
     /overflow-auto/
   );
 });
+
+test('revised tax and cash messages have current sources in all existing translations and explicit fallback review states', async () => {
+  const { XmlParser } = await import('@angular/compiler');
+  const affected = [
+    'ngGuideTaxCash',
+    'ngGuideTaxExample',
+    'ngGuideCashCsvLimits'
+  ];
+  const normalize = (text) => text.replace(/\s+/g, ' ').trim();
+  function fields(unit) {
+    const parsed = new XmlParser().parse(unit, 'translation.xlf');
+    assert.deepEqual(parsed.errors, []);
+    const nodes = parsed.rootNodes[0].children;
+    const text = (name) =>
+      normalize(
+        nodes
+          .find((n) => n.name === name)
+          .children.map((n) => n.value)
+          .join('')
+      );
+    const target = nodes.find((n) => n.name === 'target');
+    return {
+      source: text('source'),
+      target: target ? text('target') : undefined,
+      state: target?.attrs.find((a) => a.name === 'state')?.value
+    };
+  }
+  const source = new Map(
+    units('').map(([unit, id]) => [id, fields(unit).source])
+  );
+  for (const locale of ['it', 'ca', 'de', 'es', 'fr', 'nl', 'pl', 'pt', 'tr']) {
+    const entries = new Map(
+      units(locale).map(([unit, id]) => [id, fields(unit)])
+    );
+    for (const id of affected) {
+      const message = entries.get(id);
+      assert.equal(message.source, source.get(id), `${locale}/${id}`);
+      assert.ok(message.target.length > 0);
+      assert.ok(['translated', 'needs-translation'].includes(message.state));
+      if (message.state === 'needs-translation')
+        assert.equal(message.target, message.source);
+      if (locale === 'it') assert.equal(message.state, 'translated');
+    }
+  }
+});

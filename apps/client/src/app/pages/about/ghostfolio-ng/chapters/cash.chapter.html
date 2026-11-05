@@ -140,5 +140,9 @@ Date;Operation;Amount;Currency;Fee;Sequence;Reference
   your selection. Keep exported metadata and linked-activity columns unchanged.
   Files are limited to 2 MB and 5,000 records including metadata. A new transfer
   cannot be reconstructed from one side alone: use the complete JSON restore for
-  both accounts. Cash CSV is not a full portfolio backup.
+  both accounts. Cash CSV is not a full portfolio backup. Linked amounts are
+  already net and are not taxed again. Identical stored historical rows can be
+  recognized as existing, but new rows must match the current activity’s net
+  cash amount. Use full JSON restore to preserve older journals whose stored
+  amounts predate the tax correction.
 </p>

@@ -1,5 +1,9 @@
 # Ghostfolio-NG integrated guide: source traceability
 
+Task 11 corrects the linked-cash tax integration described in the original review.
+See [cash/tax integration and historical-record policy](ng-cash-activity-tax-integration.md).
+The baseline and historical findings below refer to the original guide review.
+
 ## Scope and review baseline
 
 The guide is researched against NG integration commit
@@ -103,17 +107,16 @@ The additional API file is a regression test against the existing calculators.
   enter Tax as a monetary amount in the displayed activity currency; review the
   Tax column and correct the source activity. JSON and financial-activity CSV
   tax import are distinguished from cash CSV.
-- **Semantics:** Economic interpretation is BUY gross + fee + tax and SELL/income gross − fee − tax.
-  However, the integrated cash service `orderAmount` subtracts fee but omits tax,
-  for both managed and legacy cash update paths. `synchronizeOrder` also omits tax
-  from its unchanged-value comparison. This is a documented baseline limitation,
-  not corrected here. The older ActivitiesService fallback deducts tax but is not
-  the injected cash-service path. Date-specific currency conversion still applies.
-  Monetary net investment performance deducts recorded taxes; omitted tax is zero.
-- **Example:** gross dividend 100, tax 26, fee 0 → economic net receipt 74, but the
-  current automatic cash amount is 100. The guide says to compare the statement
-  and reconcile the verified balance, while retaining gross income and avoiding
-  a second tax deduction. The actual amount routine is covered by a new test.
+- **Cash integration after Task 11:** BUY debits gross + fee + tax; SELL/income
+  credit gross − fee − tax. `orderAmount` now subtracts tax once before dated FX
+  conversion, and tax changes invalidate the unchanged-value shortcut.
+  Original pre-fix materialized movements are not rewritten during reads or
+  comment-only edits; explicit financial edits recalculate their linked amounts.
+  New JSON restores retain activity tax and preserve materialized cash amounts.
+- **Example:** a new gross dividend 100, tax 26, fee 0 credits 74. Editing tax to
+  20 updates the same linked movement to 80. Historical gross-only amounts from
+  before the fix remain unchanged unless explicitly financially edited; this
+  task does not implement a bulk repair. Gross income stays gross.
 - **Verified limitation:** the integrated TWR `getPortfolioAdjustmentsByDate` and
   MWR `getActivityCashFlows` do not explicitly include `tax`. The new guide test
   confirms a 20-unit tax reduces monetary gain from 100 to 80 while those

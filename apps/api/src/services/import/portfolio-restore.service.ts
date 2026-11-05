@@ -331,6 +331,7 @@ export class PortfolioRestoreService {
                     o.quantity === a.quantity &&
                     o.unitPrice === a.unitPrice &&
                     o.fee === a.fee &&
+                    (o.tax ?? 0) === (a.tax ?? 0) &&
                     (o.currency ?? '') === (a.currency ?? '') &&
                     (o.comment ?? '') === (a.comment ?? '')
                 );
@@ -607,6 +608,7 @@ export class PortfolioRestoreService {
                 comment: a.comment,
                 date: new Date(a.date),
                 fee: a.fee,
+                tax: a.tax ?? 0,
                 quantity: a.quantity,
                 type: a.type,
                 unitPrice: a.unitPrice,

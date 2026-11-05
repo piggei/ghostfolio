@@ -1,5 +1,7 @@
 import { PortfolioChangedEvent } from '@ghostfolio/api/events/portfolio-changed.event';
 import { PrismaService } from '@ghostfolio/api/services/prisma/prisma.service';
+import { CreateOrderDto } from '@ghostfolio/common/dtos/create-order.dto';
+import { UpdateOrderDto } from '@ghostfolio/common/dtos/update-order.dto';
 
 import {
   BadRequestException,
@@ -9,6 +11,7 @@ import {
 } from '@nestjs/common';
 import { EventEmitter2 } from '@nestjs/event-emitter';
 import { Order, Prisma } from '@prisma/client';
+import { validateSync } from 'class-validator';
 import { format, parseISO } from 'date-fns';
 
 import { CashManagementService } from './cash-management.service';
@@ -55,6 +58,262 @@ interface StoredState {
 describe('CashManagementService', () => {
   afterEach(() => {
     jest.restoreAllMocks();
+  });
+
+  describe('activity taxes in linked cash amounts', () => {
+    it.each([CreateOrderDto, UpdateOrderDto])(
+      'preserves rejection of negative tax in %p',
+      (Dto) => {
+        const errors = validateSync(Object.assign(new Dto(), { tax: -1 }));
+        expect(
+          errors.find((error) => error.property === 'tax')?.constraints
+        ).toHaveProperty('min');
+      }
+    );
+    function amountOf(
+      event: import('@ghostfolio/common/interfaces').ManagedCashEvent
+    ) {
+      if (event.type !== 'MOVEMENT')
+        throw new Error('Expected a linked movement');
+      return event.amount;
+    }
+
+    function order(fields: Partial<Order> = {}) {
+      return {
+        ...scope,
+        id: 'taxed-order',
+        date: parseISO('2026-10-02'),
+        type: 'DIVIDEND',
+        quantity: 1,
+        unitPrice: 100,
+        fee: 0,
+        tax: 26,
+        currency: 'EUR',
+        comment: null,
+        ...fields,
+        SymbolProfile: { currency: 'EUR' }
+      } as Order & { SymbolProfile: { currency: string } };
+    }
+    function funded() {
+      return createHarness(
+        makeState({ openingBalance: new Prisma.Decimal('5000') })
+      );
+    }
+    it.each([
+      { type: 'BUY', unitPrice: 1000, fee: 5, tax: 2, expected: '-1007' },
+      { type: 'SELL', unitPrice: 1200, fee: 5, tax: 20, expected: '1175' },
+      { type: 'DIVIDEND', unitPrice: 100, fee: 0, tax: 26, expected: '74' },
+      { type: 'INTEREST', unitPrice: 50, fee: 1, tax: 13, expected: '36' },
+      { type: 'FEE', unitPrice: 0, fee: 9, tax: 0, expected: '-9' }
+    ] as const)(
+      'calculates the exact net cash for $type without changing gross or tax',
+      async ({ expected, ...fields }) => {
+        const harness = funded();
+        const activity = order(fields);
+        const original = { ...activity };
+        await harness.service.synchronizeOrder(harness.tx as never, activity, {
+          enabled: true
+        });
+        const state = await harness.service.get(scope);
+        expect(state.events).toHaveLength(1);
+        expect(amountOf(state.events[0])).toBe(expected);
+        expect(state.events[0].fee ?? '0').toBe('0');
+        expect(activity).toEqual(original);
+      }
+    );
+    it.each([0, undefined, null])(
+      'preserves zero-tax calculation for %s',
+      async (tax) => {
+        const harness = funded();
+        await harness.service.synchronizeOrder(
+          harness.tx as never,
+          order({ tax, fee: 2 }),
+          { enabled: true }
+        );
+        expect(amountOf((await harness.service.get(scope)).events[0])).toBe(
+          '98'
+        );
+      }
+    );
+    it('preserves decimal precision before any existing FX boundary', async () => {
+      const harness = funded();
+      await harness.service.synchronizeOrder(
+        harness.tx as never,
+        order({ quantity: 3, unitPrice: 0.1, fee: 0.01, tax: 0.02 }),
+        { enabled: true }
+      );
+      expect(amountOf((await harness.service.get(scope)).events[0])).toBe(
+        '0.27'
+      );
+    });
+    it('changes tax and combined costs once, preserves the event identity and is idempotent', async () => {
+      const harness = funded();
+      let current = order();
+      await harness.service.synchronizeOrder(harness.tx as never, current, {
+        enabled: true
+      });
+      const id = harness.getState().events[0].id;
+      for (const fields of [
+        { tax: 20 },
+        { fee: 3, tax: 20 },
+        { fee: 3, tax: 20 }
+      ]) {
+        const next = order(fields);
+        await harness.service.synchronizeOrder(harness.tx as never, next, {
+          original: current
+        });
+        current = next;
+      }
+      const state = await harness.service.get(scope);
+      expect(state.events).toHaveLength(1);
+      expect(state.events[0]).toMatchObject({
+        id,
+        amount: '77',
+        orderId: current.id
+      });
+      expect(state.balances.at(-1).value).toBe('5077');
+    });
+    it.each([
+      [{ quantity: 2 }, '174'],
+      [{ unitPrice: 200 }, '174'],
+      [{ fee: 4 }, '70'],
+      [{ type: 'BUY' }, '-126'],
+      [{ date: parseISO('2026-10-03') }, '74']
+    ] as const)(
+      'recalculates a monetary or date edit %s',
+      async (fields, expected) => {
+        const harness = funded();
+        const original = order();
+        await harness.service.synchronizeOrder(harness.tx as never, original, {
+          enabled: true
+        });
+        await harness.service.synchronizeOrder(
+          harness.tx as never,
+          order(fields as Partial<Order>),
+          { original }
+        );
+        expect(amountOf((await harness.service.get(scope)).events[0])).toBe(
+          expected
+        );
+      }
+    );
+    it('converts the combined net amount using the original dated FX service', async () => {
+      const harness = funded();
+      const fx = { toCurrencyAtDate: jest.fn().mockResolvedValue(59.2) };
+      const service = new CashManagementService(
+        { emit: harness.emit } as never,
+        harness.prisma as never,
+        fx as never
+      );
+      const activity = order({ currency: 'USD' });
+      await service.synchronizeOrder(harness.tx as never, activity, {
+        enabled: true
+      });
+      expect(fx.toCurrencyAtDate).toHaveBeenCalledWith(
+        74,
+        'USD',
+        'EUR',
+        activity.date
+      );
+      expect(amountOf((await service.get(scope)).events[0])).toBe('59.2');
+    });
+    it('respects the account default and an explicit disabled override', async () => {
+      const harness = funded();
+      harness.tx.accountCashState.findUnique.mockImplementation(async () => ({
+        ...harness.getState(),
+        defaultUpdateCash: true
+      }));
+      await harness.service.synchronizeOrder(harness.tx as never, order(), {});
+      await harness.service.synchronizeOrder(
+        harness.tx as never,
+        order({ id: 'disabled' }),
+        { enabled: false }
+      );
+      expect((await harness.service.get(scope)).events).toHaveLength(1);
+      expect(harness.getState().events[0].value.toString()).toBe('74');
+    });
+    it('removes the entire taxed linked event on deletion, leaving no separate tax debit', async () => {
+      const harness = funded();
+      const activity = order();
+      await harness.service.synchronizeOrder(harness.tx as never, activity, {
+        enabled: true
+      });
+      await harness.service.removeOrderEffects(harness.tx as never, [activity]);
+      const state = await harness.service.get(scope);
+      expect(state.events).toHaveLength(0);
+      expect(state.balances.at(-1).value).toBe('5000');
+    });
+    it('orders multiple taxed activities on one day and keeps later absolute reconciliations', async () => {
+      const harness = funded();
+      await harness.service.synchronizeOrder(harness.tx as never, order(), {
+        enabled: true
+      });
+      await harness.service.synchronizeOrder(
+        harness.tx as never,
+        order({ id: 'second', tax: 20 }),
+        { enabled: true }
+      );
+      const before = await harness.service.get(scope);
+      expect(before.balances.at(-1).value).toBe('5154');
+      expect(before.events.map((e) => e.sequence)).toEqual([1, 2]);
+      await harness.service.createEvent({
+        ...scope,
+        expectedRevision: before.revision,
+        event: { type: 'CHECKPOINT', balance: '100', date: '2026-10-03' }
+      });
+      await harness.service.synchronizeOrder(
+        harness.tx as never,
+        order({ tax: 10 }),
+        { original: order() }
+      );
+      const state = await harness.service.get(scope);
+      expect(state.balances.find((b) => b.date === '2026-10-02').value).toBe(
+        '5170'
+      );
+      expect(state.balances.at(-1).value).toBe('100');
+    });
+    it('does not rewrite an old gross-only amount during reads or a comment-only edit', async () => {
+      const historical = {
+        ...storedEvent({
+          id: 'historical',
+          date: '2026-10-02',
+          sequence: 1,
+          type: 'MOVEMENT',
+          value: '100'
+        }),
+        orderId: 'taxed-order'
+      };
+      const harness = createHarness(
+        makeState({ events: [historical], lastSequence: 1 })
+      );
+      const before = await harness.service.get(scope);
+      await harness.service.synchronizeOrder(
+        harness.tx as never,
+        order({ comment: 'new note' }),
+        { original: order() }
+      );
+      const after = await harness.service.get(scope);
+      expect(amountOf(after.events[0])).toBe('100');
+      expect(after.balances).toEqual(before.balances);
+      await harness.service.synchronizeOrder(
+        harness.tx as never,
+        order({ tax: 20 }),
+        { original: order() }
+      );
+      expect(amountOf((await harness.service.get(scope)).events[0])).toBe('80');
+    });
+    it('uses net tax-aware cash on legacy creation without activating a ledger', async () => {
+      const harness = createHarness(null);
+      harness.tx.accountBalance.findFirst.mockResolvedValue({ value: 1000 });
+      await harness.service.synchronizeOrder(harness.tx as never, order(), {
+        enabled: true
+      });
+      expect(harness.tx.accountBalance.upsert).toHaveBeenCalledWith(
+        expect.objectContaining({ update: { value: 1074 } })
+      );
+      expect(harness.tx.accountCashState.create).not.toHaveBeenCalled();
+      expect(harness.tx.cashEvent.upsert).not.toHaveBeenCalled();
+    });
   });
 
   describe('activity dates and daily cash projections', () => {
@@ -1252,6 +1511,9 @@ function createHarness(initialState: StoredState | null) {
     $queryRaw: jest
       .fn()
       .mockResolvedValue([{ currency: 'EUR', id: scope.accountId }]),
+    account: {
+      findUnique: jest.fn().mockResolvedValue({ currency: 'EUR' })
+    },
     accountBalance: {
       findMany: jest.fn().mockResolvedValue([]),
       deleteMany: jest.fn().mockResolvedValue({ count: 0 }),
@@ -1288,6 +1550,13 @@ function createHarness(initialState: StoredState | null) {
       })
     },
     cashEvent: {
+      deleteMany: jest.fn().mockImplementation(({ where }) => {
+        const count = state.events.length;
+        state.events = state.events.filter(
+          (event) => !where.orderId.in.includes(event.orderId)
+        );
+        return Promise.resolve({ count: count - state.events.length });
+      }),
       findUnique: jest.fn().mockImplementation(({ where }) => {
         return Promise.resolve(
           state?.events.find(({ orderId }) => orderId === where.orderId) ?? null

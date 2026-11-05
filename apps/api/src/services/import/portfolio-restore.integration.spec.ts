@@ -140,6 +140,97 @@ describeDb('Portfolio JSON restore with PostgreSQL', () => {
     expect(plan.errors).toEqual([]);
     return service.run({ ...input, digest: plan.digest }, userId, false);
   }
+  it('does not reuse an existing activity with a different tax, while missing tax still matches zero', async () => {
+    const first = fixture();
+    delete first.backup.accounts[0].cashManagement;
+    await commit(first);
+    const account = await prisma.account.findFirst({ where: { userId } });
+    const next = fixture();
+    delete next.backup.accounts[0].cashManagement;
+    next.choices[0].targetId = account.id;
+    // Keep the source instrument identity consistent with the first backup.
+    next.backup.assetProfiles = first.backup.assetProfiles;
+    next.backup.activities[0] = {
+      ...first.backup.activities[0],
+      accountId: next.backup.accounts[0].id,
+      id: randomUUID()
+    };
+    const zero = await service.run(next, userId, true);
+    expect(zero.errors).toEqual([]);
+    expect(zero.duplicates).toBe(1);
+    next.backup.activities[0].tax = 2;
+    const taxed = await service.run(next, userId, true);
+    expect(taxed.errors).toEqual([]);
+    expect(taxed.duplicates).toBe(0);
+    await service.run({ ...next, digest: taxed.digest }, userId, false);
+    const orders = await prisma.order.findMany({
+      where: { userId },
+      orderBy: { tax: 'asc' }
+    });
+    expect(orders.map((o) => o.tax)).toEqual([0, 2]);
+  });
+  it.each(['-303', '-301'])(
+    'preserves a taxed ledger amount %s exactly, including historical pre-fix values',
+    async (amount) => {
+      const input = fixture();
+      input.backup.activities[0].tax = 2;
+      const event = input.backup.accounts[0].cashManagement.events[1];
+      if (event.type !== 'MOVEMENT')
+        throw new Error('Expected a linked movement');
+      event.amount = amount;
+      await commit(input);
+      const account = await prisma.account.findFirst({ where: { userId } });
+      const state = await cash.get({ accountId: account.id, userId });
+      const linked = state.events.find((e) => e.orderId);
+      expect(linked).toMatchObject({ type: 'MOVEMENT', amount });
+      const order = await prisma.order.findUnique({
+        where: { id: linked.orderId }
+      });
+      expect(order.tax).toBe(2);
+      expect(state.balances.at(-1).value).toBe(
+        amount === '-303' ? '4697' : '4699'
+      );
+      // Restore the already materialized journal to another user: no tax is deducted twice.
+      const second = randomUUID();
+      users.push(second);
+      await prisma.user.create({ data: { id: second } });
+      const exported: PortfolioRestoreDto = {
+        choices: [{ sourceId: account.id, targetId: 'NEW' }],
+        backup: {
+          ...input.backup,
+          accounts: [
+            {
+              ...input.backup.accounts[0],
+              id: account.id,
+              cashManagement: {
+                ...input.backup.accounts[0].cashManagement,
+                events: state.events
+              }
+            }
+          ],
+          activities: [
+            {
+              ...input.backup.activities[0],
+              id: order.id,
+              accountId: account.id
+            }
+          ]
+        }
+      };
+      const plan = await service.run(exported, second, true);
+      expect(plan.errors).toEqual([]);
+      await service.run({ ...exported, digest: plan.digest }, second, false);
+      const destination = await prisma.account.findFirst({
+        where: { userId: second }
+      });
+      const again = await cash.get({
+        accountId: destination.id,
+        userId: second
+      });
+      expect(again.events.find((e) => e.orderId)).toMatchObject({ amount });
+      expect(again.balances.at(-1).value).toBe(state.balances.at(-1).value);
+    }
+  );
   it('previews without writes, restores linked activity and cash with fresh IDs, and can export and restore a second time', async () => {
     const input = fixture();
     const sourceId = input.backup.accounts[0].id;

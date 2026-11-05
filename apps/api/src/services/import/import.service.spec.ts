@@ -623,7 +623,8 @@ describe('ImportService', () => {
         quantity: 1,
         tax: 7,
         type: 'BUY',
-        unitPrice: 100
+        unitPrice: 100,
+        updateAccountBalance: false
       });
     });
 

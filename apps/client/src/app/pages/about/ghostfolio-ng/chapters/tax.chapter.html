@@ -13,14 +13,15 @@
     percentage.
   </li>
   <li i18n="@@ngGuideTaxCash">
-    Financially, a buy costs gross value plus fee and tax, while a sell,
-    dividend or interest payment yields gross value minus fee and tax. Check the
-    linked account cash movement after saving: in this integrated version,
-    automatic cash updating subtracts fees but omits the Tax field. This also
-    affects cash amounts for non-managed accounts handled by the cash service.
-    Do not assume the account balance is already net of tax. Check the statement
-    and, if needed, reconcile to the verified actual balance without recording
-    the same tax twice.
+    When Update Cash Balance is enabled, a buy debits gross value plus fee and
+    tax; a sell, dividend or interest activity credits gross value minus fee and
+    tax. The combined net amount is calculated in the activity currency, then
+    converted to the account currency at the activity date. There is one linked
+    movement, not a separate tax debit. Previously saved movements keep their
+    recorded amounts: reading, editing only a note or restoring a JSON backup
+    does not repair earlier tax omissions. An explicit financial edit
+    recalculates the linked amount; review any manual corrections you previously
+    entered before changing historical activities.
   </li>
   <li i18n="@@ngGuideTaxReview">
     Review Tax in the activities table and edit the original activity to correct
@@ -38,12 +39,13 @@
   or ROI when reviewing the net result after recorded taxes.
 </p>
 <p i18n="@@ngGuideTaxExample">
-  Example: a dividend of 100 EUR with Tax 26 EUR and Fee 0 remains a gross
-  dividend of 100 EUR; the economic net receipt is 74 EUR. The current automatic
-  linked cash movement credits 100 EUR, not 74: verify the 26 EUR discrepancy
-  against the statement before reconciling. Monetary net investment performance
-  does deduct the recorded 26 EUR tax. Do not change the gross dividend to 74
-  and subtract tax again.
+  Example: a new dividend of 100 EUR with Tax 26 EUR and Fee 0 remains a gross
+  dividend of 100 EUR and credits 74 EUR of linked cash. Tax remains recorded
+  separately as 26 EUR. Changing Tax to 20 updates the same linked movement to
+  80 EUR without another tax debit. Deleting the activity removes its linked
+  cash effect. Monetary net investment performance already deducts the recorded
+  tax; do not change the gross dividend to 74 or enter the same tax as another
+  cash withdrawal.
 </p>
 <p class="small text-body-secondary" i18n="@@ngGuideTaxDisclaimer">
   Recorded tax information is not a substitute for professional tax advice.

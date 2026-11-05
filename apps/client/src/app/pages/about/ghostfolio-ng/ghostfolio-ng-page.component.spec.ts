@@ -193,6 +193,11 @@ describe('Ghostfolio-NG guide', () => {
       'not a substitute for professional tax advice'
     );
     expect(page.textContent).toContain('no explicit tax adjustment');
+    expect(
+      page.querySelector('#tax-management').textContent.replace(/\s+/g, ' ')
+    ).toContain(
+      'Changing Tax to 20 updates the same linked movement to 80 EUR'
+    );
     expect(page.textContent).toContain('annualized MWR');
   });
 

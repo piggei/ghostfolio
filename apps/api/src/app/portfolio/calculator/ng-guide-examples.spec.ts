@@ -65,7 +65,7 @@ function buy(
 describe('NG guide examples against the integrated financial calculators', () => {
   afterEach(() => jest.useRealTimers());
 
-  it('documents the existing linked-cash tax limitation using the actual amount routine', async () => {
+  it('includes the recorded tax in linked cash without changing gross income', async () => {
     const service = new CashManagementService(null, null, null);
     const cash = service as unknown as {
       orderAmount: (order: object, currency: string) => Promise<string>;
@@ -83,7 +83,7 @@ describe('NG guide examples against the integrated financial calculators', () =>
       },
       'EUR'
     );
-    expect(amount).toBe('100');
+    expect(amount).toBe('74');
   });
 
   async function calculate({

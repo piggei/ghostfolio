@@ -189,6 +189,252 @@ describeDatabase('Cash management with PostgreSQL', () => {
     };
   }
 
+  describe('tax-aware activity integration', () => {
+    function taxedInput(fields: Record<string, unknown> = {}) {
+      return {
+        ...activityInput(100),
+        type: 'DIVIDEND' as const,
+        fee: 0,
+        tax: 26,
+        updateAccountBalance: true,
+        ...fields
+      };
+    }
+    async function editTaxed(
+      order: Awaited<ReturnType<ActivitiesService['createActivity']>>,
+      fields: Record<string, unknown>
+    ) {
+      const updated = await activityService().updateActivity({
+        userId,
+        originalDate: order.date,
+        where: { id: order.id },
+        data: {
+          date: order.date,
+          type: order.type,
+          unitPrice: order.unitPrice,
+          quantity: order.quantity,
+          fee: order.fee,
+          tax: order.tax,
+          currency: 'EUR',
+          ...fields,
+          SymbolProfile: {
+            connect: {
+              dataSource_symbol: {
+                dataSource: order.SymbolProfile.dataSource,
+                symbol: order.SymbolProfile.symbol
+              }
+            },
+            update: {}
+          }
+        }
+      });
+      return prisma.order.findUniqueOrThrow({
+        where: { id: updated.id },
+        include: { SymbolProfile: true }
+      });
+    }
+    it.each([
+      ['BUY', 1000, 5, 2, '-1007', '3993'],
+      ['SELL', 1200, 5, 20, '1175', '6175'],
+      ['DIVIDEND', 100, 0, 26, '74', '5074'],
+      ['INTEREST', 50, 1, 13, '36', '5036'],
+      ['FEE', 0, 9, 0, '-9', '4991']
+    ] as const)(
+      'persists the exact %s cash effect through ActivitiesService',
+      async (type, unitPrice, fee, tax, amount, balance) => {
+        await open('5000');
+        const order = await activityService().createActivity(
+          taxedInput({ type, unitPrice, fee, tax })
+        );
+        const state = await service.get(scope());
+        expect(state.events).toHaveLength(1);
+        expect(state.events[0]).toMatchObject({
+          type: 'MOVEMENT',
+          amount,
+          orderId: order.id
+        });
+        expect(state.balances.at(-1).value).toBe(balance);
+        expect(order).toMatchObject({ unitPrice, fee, tax });
+      }
+    );
+    it('updates tax and fee exactly once, remains idempotent, and deletes the full linked effect', async () => {
+      await open('1000');
+      const activities = activityService();
+      let order = await activities.createActivity(taxedInput());
+      const id = (await service.get(scope())).events[0].id;
+      order = await editTaxed(order, { tax: 20 });
+      expect((await service.get(scope())).events[0]).toMatchObject({
+        id,
+        amount: '80'
+      });
+      order = await editTaxed(order, { tax: 20, fee: 3 });
+      order = await editTaxed(order, { tax: 20, fee: 3 });
+      const state = await service.get(scope());
+      expect(state.events).toHaveLength(1);
+      expect(state.events[0]).toMatchObject({ id, amount: '77' });
+      await activities.deleteActivity({ id: order.id, userId });
+      expect((await service.get(scope())).events).toHaveLength(0);
+      expect((await service.get(scope())).balances.at(-1).value).toBe('1000');
+    });
+    it('moves a taxed activity between managed accounts and preserves the later reconciliation', async () => {
+      await open('1000');
+      let order = await activityService().createActivity(taxedInput());
+      const destination = await prisma.account.create({
+        data: { userId, currency: 'EUR', name: 'Tax destination' }
+      });
+      await service.open({
+        accountId: destination.id,
+        userId,
+        date: '2026-10-01',
+        balance: '500'
+      });
+      order = await editTaxed(order, {
+        account: { connect: { id_userId: { id: destination.id, userId } } }
+      });
+      expect((await service.get(scope())).balances.at(-1).value).toBe('1000');
+      const destinationScope = { accountId: destination.id, userId };
+      let state = await service.get(destinationScope);
+      expect(state.balances.at(-1).value).toBe('574');
+      await service.createEvent({
+        ...destinationScope,
+        expectedRevision: state.revision,
+        event: { type: 'CHECKPOINT', date: '2026-10-04', balance: '600' }
+      });
+      order = await editTaxed(order, {
+        date: day('2026-10-03'),
+        quantity: 2,
+        unitPrice: 100,
+        tax: 20
+      });
+      state = await service.get(destinationScope);
+      expect(state.events.find((e) => e.orderId === order.id)).toMatchObject({
+        date: '2026-10-03',
+        amount: '180'
+      });
+      expect(state.balances.at(-1).value).toBe('600');
+    });
+    it('uses dated account-currency conversion for the combined net amount', async () => {
+      await open('1000');
+      exchangeRate.toCurrencyAtDate.mockImplementation((value) => value * 0.8);
+      const order = await activityService().createActivity(
+        taxedInput({ currency: 'USD' })
+      );
+      expect(exchangeRate.toCurrencyAtDate).toHaveBeenCalledWith(
+        74,
+        'USD',
+        'EUR',
+        order.date
+      );
+      expect((await service.get(scope())).events[0]).toMatchObject({
+        amount: '59.2'
+      });
+    });
+    it('keeps disabled updates disabled and legacy accounts unmanaged', async () => {
+      await activityService().createActivity(
+        taxedInput({ updateAccountBalance: false })
+      );
+      expect(await service.getPersisted(scope())).toBeNull();
+      expect(await prisma.accountBalance.count({ where: scope() })).toBe(0);
+      await activityService().createActivity(taxedInput());
+      expect(await service.getPersisted(scope())).toBeNull();
+      expect(await prisma.cashEvent.count({ where: scope() })).toBe(0);
+      expect(
+        (
+          await prisma.accountBalance.findFirst({
+            where: scope(),
+            orderBy: { date: 'desc' }
+          })
+        ).value
+      ).toBe(74);
+    });
+    it('keeps old materialized cash unchanged until an explicit financial edit', async () => {
+      await open('1000');
+      let order = await activityService().createActivity(taxedInput());
+      // Model an old journal created before this correction; no repair is performed.
+      await prisma.cashEvent.updateMany({
+        where: { ...scope(), orderId: order.id },
+        data: { value: 100 }
+      });
+      const original = await service.get(scope());
+      expect(original.events[0]).toMatchObject({ amount: '100' });
+      order = await editTaxed(order, { comment: 'Only a note' });
+      expect((await service.get(scope())).events[0]).toMatchObject({
+        amount: '100'
+      });
+      order = await editTaxed(order, { tax: 20 });
+      expect((await service.get(scope())).events[0]).toMatchObject({
+        amount: '80'
+      });
+    });
+    it('preserves an identical historical CSV retry but rejects a changed amount and a new gross-only row', async () => {
+      await open('1000');
+      const order = await activityService().createActivity(taxedInput());
+      await prisma.cashEvent.updateMany({
+        where: { ...scope(), orderId: order.id },
+        data: { value: 100 }
+      });
+      const { csv } = await service.exportCsv(scope());
+      let preview = await service.previewCsv(scope(), csv);
+      expect(preview.errors).toEqual([]);
+      expect(preview.newCount).toBe(0);
+      expect(preview.existingCount).toBe(1);
+      await service.importCsv(scope(), {
+        csv,
+        expectedRevision: preview.revision,
+        digest: preview.digest
+      });
+      expect((await service.get(scope())).events[0]).toMatchObject({
+        amount: '100'
+      });
+      const { readCashCsv, writeCashCsv } = await import('./cash-ledger-csv');
+      const rows = readCashCsv(csv);
+      const event = rows.find((r) => r.Record === 'EVENT');
+      event.Amount = '74';
+      preview = await service.previewCsv(scope(), writeCashCsv(rows));
+      expect(preview.errors.join()).toContain('different content');
+      rows.find((r) => r.Record === 'EVENT').Amount = '100';
+      await prisma.cashEvent.deleteMany({ where: scope() });
+      preview = await service.previewCsv(scope(), writeCashCsv(rows));
+      expect(preview.errors.join()).toContain(
+        'differs from the linked activity cash effect'
+      );
+    });
+    it('relinks a corrected cash CSV using its already-net amount without another tax deduction', async () => {
+      await open('1000');
+      const order = await activityService().createActivity(taxedInput());
+      const { csv } = await service.exportCsv(scope());
+      await prisma.cashEvent.deleteMany({ where: scope() });
+      const preview = await service.previewCsv(scope(), csv);
+      expect(preview.errors).toEqual([]);
+      await service.importCsv(scope(), {
+        csv,
+        expectedRevision: preview.revision,
+        digest: preview.digest
+      });
+      const state = await service.get(scope());
+      expect(state.events).toHaveLength(1);
+      expect(state.events[0]).toMatchObject({
+        amount: '74',
+        orderId: order.id
+      });
+      expect(
+        (await prisma.order.findUnique({ where: { id: order.id } })).tax
+      ).toBe(26);
+    });
+    it('rolls back a taxed purchase when the net amount would create an unconfirmed overdraft', async () => {
+      await open('1000');
+      await expect(
+        activityService().createActivity(
+          taxedInput({ type: 'BUY', unitPrice: 1000, fee: 5, tax: 2 })
+        )
+      ).rejects.toMatchObject({
+        response: { code: 'CASH_CONFIRMATION_REQUIRED' }
+      });
+      expect(await prisma.order.count({ where: { userId } })).toBe(0);
+      expect((await service.get(scope())).events).toHaveLength(0);
+    });
+  });
+
   it('uses the account default, honors an explicit override, and leaves old history unmanaged', async () => {
     await open('1000');
     await service.updatePreferences({

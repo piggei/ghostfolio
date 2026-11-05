@@ -558,6 +558,7 @@ export class CashManagementService {
             ? new Big(amount).neg().toFixed()
             : amount;
         let orderId: string | null = null;
+        let linkedOrder: (typeof orders)[number] | undefined;
         if (linked) {
           const matches = orders.filter((order) => {
             try {
@@ -601,14 +602,10 @@ export class CashManagementService {
                 : 'Linked activity not found. Import the financial activities first.'
             );
           orderId = order.id;
+          linkedOrder = order;
           if (date !== format(order.date, 'yyyy-MM-dd'))
             throw new BadRequestException(
               'Cash date must match the linked activity date.'
-            );
-          const expected = await this.orderAmount(order, state.currency);
-          if (new Big(value).minus(expected).abs().gt('0.00000001'))
-            throw new BadRequestException(
-              'Amount differs from the linked activity cash effect.'
             );
         }
         const existing = row.Reference
@@ -646,6 +643,16 @@ export class CashManagementService {
           item.message = 'Already present; no duplicate movement.';
           preview.existingCount++;
           continue;
+        }
+        // An identical stored movement is a retry, including historical amounts
+        // created before activity taxes were included. New rows must use the
+        // current net amount; importing is never a historical repair operation.
+        if (linkedOrder) {
+          const expected = await this.orderAmount(linkedOrder, state.currency);
+          if (new Big(value).minus(expected).abs().gt('0.00000001'))
+            throw new BadRequestException(
+              'Amount differs from the linked activity cash effect.'
+            );
         }
         if (transfer)
           throw new BadRequestException(
@@ -1442,6 +1449,7 @@ export class CashManagementService {
         ['accountId', 'currency', 'fee', 'quantity', 'type', 'unitPrice'].every(
           (key) => order[key] === options.original[key]
         ) &&
+        (order.tax ?? 0) === (options.original.tax ?? 0) &&
         order.date.getTime() === options.original.date.getTime();
       const value =
         unchanged && sameAccountEvent
@@ -1662,7 +1670,7 @@ export class CashManagementService {
     if (['BUY', 'FEE'].includes(order.type)) {
       amount = amount.neg();
     }
-    amount = amount.minus(order.fee);
+    amount = amount.minus(order.fee).minus(order.tax ?? 0);
     const from = order.currency ?? order.SymbolProfile.currency;
     if (from === currency) {
       return this.normalizeValue(amount.toString());
