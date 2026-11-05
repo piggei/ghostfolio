@@ -11263,6 +11263,391 @@
           <context context-type="linenumber">208</context>
         </context-group>
       </trans-unit>
+        <trans-unit id="ghostfolioNgVersionLabel" datatype="html">
+        <source>Ghostfolio-NG version:</source>
+        <target state="translated">Wersja Ghostfolio-NG:</target>
+        <context-group purpose="location">
+          <context context-type="sourcefile">apps/client/src/app/pages/about/overview/about-overview-page.html</context>
+        </context-group>
+      </trans-unit>
+      <trans-unit id="ngGuideTeam" datatype="html">
+        <source>The Ghostfolio-NG Team</source>
+        <target state="translated">Zespół Ghostfolio-NG</target>
+      </trans-unit>
+      <trans-unit id="ngGuideUpstreamLink" datatype="html">
+        <source>Original Ghostfolio project</source>
+        <target state="translated">Oryginalny projekt Ghostfolio</target>
+      </trans-unit>
+      <trans-unit id="ngGuideProjectLink" datatype="html">
+        <source>Ghostfolio-NG project</source>
+        <target state="translated">Projekt Ghostfolio-NG</target>
+      </trans-unit>
+      <trans-unit id="ngGuideCash" datatype="html">
+        <source>Cash Management</source>
+        <target state="translated">Zarządzanie środkami pieniężnymi</target>
+      </trans-unit>
+      <trans-unit id="ngGuideCashAccounts" datatype="html">
+        <source>Accounts and cash balances</source>
+        <target state="translated">Konta i salda gotówkowe</target>
+      </trans-unit>
+      <trans-unit id="ngGuideCashMovements" datatype="html">
+        <source>Deposits, withdrawals and reconciliation</source>
+        <target state="translated">Wpłaty, wypłaty i uzgadnianie salda</target>
+      </trans-unit>
+      <trans-unit id="ngGuideCashTransfers" datatype="html">
+        <source>Transfers between accounts</source>
+        <target state="translated">Przelewy między kontami</target>
+      </trans-unit>
+      <trans-unit id="ngGuideCashPerformance" datatype="html">
+        <source>Cash is not investment profit</source>
+        <target state="translated">Środki pieniężne nie są zyskiem z inwestycji</target>
+      </trans-unit>
+      <trans-unit id="ngGuideCashCsv" datatype="html">
+        <source>Cash CSV import and export</source>
+        <target state="translated">Import i eksport operacji gotówkowych w CSV</target>
+      </trans-unit>
+      <trans-unit id="ngGuideCsvExampleLabel" datatype="html">
+        <source>Cash CSV example</source>
+        <target state="translated">Przykład pliku CSV z operacjami gotówkowymi</target>
+      </trans-unit>
+      <trans-unit id="ngGuideTax" datatype="html">
+        <source>Tax Management</source>
+        <target state="translated">Zarządzanie podatkami</target>
+      </trans-unit>
+      <trans-unit id="ngGuideCalendar" datatype="html">
+        <source>Profit and Loss Calendar</source>
+        <target state="translated">Kalendarz zysków i strat</target>
+      </trans-unit>
+      <trans-unit id="ngGuideCalendarAmounts" datatype="html">
+        <source>What the amounts mean</source>
+        <target state="translated">Co oznaczają kwoty</target>
+      </trans-unit>
+      <trans-unit id="ngGuideReturns" datatype="html">
+        <source>Financial Performance and Returns</source>
+        <target state="translated">Wyniki finansowe i stopy zwrotu</target>
+      </trans-unit>
+      <trans-unit id="ngGuideRoi" datatype="html">
+        <source>ROI — Return on Investment</source>
+        <target state="translated">ROI — Zwrot z inwestycji</target>
+      </trans-unit>
+      <trans-unit id="ngGuideRoai" datatype="html">
+        <source>ROAI — Return on Average Investment</source>
+        <target state="translated">ROAI — Zwrot ze średniej wartości inwestycji</target>
+      </trans-unit>
+      <trans-unit id="ngGuideTwr" datatype="html">
+        <source>TWR — Time-Weighted Return</source>
+        <target state="translated">TWR — Stopa zwrotu ważona czasem</target>
+      </trans-unit>
+      <trans-unit id="ngGuideMwr" datatype="html">
+        <source>MWR — Money-Weighted Return</source>
+        <target state="translated">MWR — Stopa zwrotu ważona przepływami pieniężnymi</target>
+      </trans-unit>
+      <trans-unit id="ngGuideReturnExamples" datatype="html">
+        <source>Worked examples</source>
+        <target state="translated">Przykłady obliczeń</target>
+      </trans-unit>
+      <trans-unit id="ngGuideBenchmarks" datatype="html">
+        <source>Benchmarks</source>
+        <target state="translated">Benchmarki</target>
+      </trans-unit>
+      <trans-unit id="ngGuideImprovements" datatype="html">
+        <source>Other Ghostfolio-NG Improvements</source>
+        <target state="translated">Pozostałe ulepszenia Ghostfolio-NG</target>
+      </trans-unit>
+      <trans-unit id="ngGuideRestore" datatype="html">
+        <source>Complete portfolio restore</source>
+        <target state="translated">Pełne przywracanie portfela</target>
+      </trans-unit>
+      <trans-unit id="ngGuideCostBasis" datatype="html">
+        <source>Remaining cost basis after partial sales</source>
+        <target state="translated">Pozostały koszt nabycia po częściowej sprzedaży</target>
+      </trans-unit>
+      <trans-unit id="ngGuideSameDay" datatype="html">
+        <source>Same-day capital reuse</source>
+        <target state="translated">Ponowne wykorzystanie kapitału tego samego dnia</target>
+      </trans-unit>
+      <trans-unit id="ngGuideFeeNames" datatype="html">
+        <source>Editable fee descriptions</source>
+        <target state="translated">Edytowalne opisy opłat</target>
+      </trans-unit>
+      <trans-unit id="ngGuideContents" datatype="html">
+        <source>Chapters</source>
+        <target state="translated">Rozdziały</target>
+      </trans-unit>
+      <trans-unit id="ngGuideBackToIndex" datatype="html">
+        <source>Back to chapters</source>
+        <target state="translated">Wróć do rozdziałów</target>
+      </trans-unit>
+      <trans-unit id="ngGuideIntroduction" datatype="html">
+        <source>Ghostfolio-NG is an independently maintained distribution of Ghostfolio that extends the original open-source project with additional portfolio management, financial analysis and usability features.</source>
+        <target state="translated">Ghostfolio-NG to niezależnie utrzymywana dystrybucja Ghostfolio, która rozszerza oryginalny projekt open source o dodatkowe funkcje zarządzania portfelem, analizy finansowej i poprawy wygody użytkowania.</target>
+      </trans-unit>
+      <trans-unit id="ngGuideAiCollaboration" datatype="html">
+        <source>The project combines hands-on software development with AI-assisted analysis, implementation, testing and technical review. Codex and ChatGPT are AI assistants, not human contributors.</source>
+        <target state="translated">Projekt łączy praktyczne tworzenie oprogramowania z analizą, implementacją, testowaniem i przeglądem technicznym wspomaganymi przez AI. Codex i ChatGPT to asystenci AI, a nie współpracownicy będący ludźmi.</target>
+      </trans-unit>
+      <trans-unit id="ngGuidePjRole" datatype="html">
+        <source>PJ — Project maintainer and developer</source>
+        <target state="translated">PJ — Opiekun projektu i programista</target>
+      </trans-unit>
+      <trans-unit id="ngGuidePjDescription" datatype="html">
+        <source>PJ coordinates Ghostfolio-NG development, defines requirements, designs and validates features, and oversees integration, testing and release decisions.</source>
+        <target state="translated">PJ koordynuje rozwój Ghostfolio-NG, określa wymagania, projektuje i weryfikuje funkcje oraz nadzoruje decyzje dotyczące integracji, testów i wydań.</target>
+      </trans-unit>
+      <trans-unit id="ngGuideCodexRole" datatype="html">
+        <source>Codex — AI development assistant</source>
+        <target state="translated">Codex — Asystent AI wspierający programowanie</target>
+      </trans-unit>
+      <trans-unit id="ngGuideCodexDescription" datatype="html">
+        <source>Codex supports implementation, code analysis, automated testing, debugging and verification of changes.</source>
+        <target state="translated">Codex wspiera implementację, analizę kodu, testy automatyczne, debugowanie i weryfikację zmian.</target>
+      </trans-unit>
+      <trans-unit id="ngGuideChatgptRole" datatype="html">
+        <source>ChatGPT — AI analysis and design assistant</source>
+        <target state="translated">ChatGPT — Asystent AI wspierający analizę i projektowanie</target>
+      </trans-unit>
+      <trans-unit id="ngGuideChatgptDescription" datatype="html">
+        <source>ChatGPT supports technical planning, architectural analysis, financial reasoning, documentation and code review.</source>
+        <target state="translated">ChatGPT wspiera planowanie techniczne, analizę architektury, rozumowanie finansowe, dokumentację i przegląd kodu.</target>
+      </trans-unit>
+      <trans-unit id="ngGuideAttribution" datatype="html">
+        <source>Ghostfolio-NG builds on the original Ghostfolio open-source project and the work of its contributors. It is an independent distribution, not an official upstream edition or a replacement for the upstream project.</source>
+        <target state="translated">Ghostfolio-NG opiera się na oryginalnym projekcie open source Ghostfolio i pracy jego współtwórców. Jest niezależną dystrybucją, a nie oficjalną wersją projektu źródłowego ani jego zamiennikiem.</target>
+      </trans-unit>
+      <trans-unit id="ngGuideTeamImageAlt" datatype="html">
+        <source>Illustration of PJ with PJ on his shirt, Codex represented as a robot, and ChatGPT represented as a person; Codex and ChatGPT are AI assistants</source>
+        <target state="translated">Ilustracja przedstawiająca PJ z napisem PJ na koszulce, Codexa jako robota i ChatGPT jako osobę; Codex i ChatGPT są asystentami AI.</target>
+      </trans-unit>
+      <trans-unit id="ngGuideCashIntro" datatype="html">
+        <source>Cash Management records cash entering, leaving and moving between accounts alongside investment activities. Cash and holdings are distinct: positions represent investments, while total portfolio wealth also includes the cash that you choose to include.</source>
+        <target state="translated">Zarządzanie gotówką rejestruje środki wpływające na rachunki, wypływające z nich i przenoszone między rachunkami, równolegle z operacjami inwestycyjnymi. Gotówka i pozycje inwestycyjne to odrębne kategorie: pozycje reprezentują inwestycje, natomiast łączna wartość portfela obejmuje również gotówkę, którą zdecydujesz się uwzględnić.</target>
+      </trans-unit>
+      <trans-unit id="ngGuideCashAccountStep" datatype="html">
+        <source>Open Accounts, create or select an account with a currency, then open its details and Cash Balances. Creating an account alone does not create a deposit.</source>
+        <target state="translated">Otwórz Rachunki, utwórz lub wybierz rachunek z określoną walutą, a następnie przejdź do jego szczegółów i sald gotówkowych. Samo utworzenie rachunku nie powoduje wpłaty.</target>
+      </trans-unit>
+      <trans-unit id="ngGuideCashOpeningStep" datatype="html">
+        <source>For a new account, enter the first deposit on its actual date. For an older account, review the existing balances and reconcile to a known balance on a known date. Opening the view alone does not activate a historical account’s cash ledger; saving a movement or preference does. Existing balance snapshots are retained as dated reconciliations when management starts.</source>
+        <target state="translated">W przypadku nowego rachunku zarejestruj pierwszą wpłatę z jej rzeczywistą datą. W przypadku starszego rachunku sprawdź dotychczasowe salda i uzgodnij je ze znanym saldem na konkretny dzień. Samo otwarcie widoku nie aktywuje historycznej ewidencji gotówki rachunku; następuje to po zapisaniu operacji lub preferencji. Dotychczasowe zapisy sald są zachowywane jako uzgodnienia z datą rozpoczęcia zarządzania.</target>
+      </trans-unit>
+      <trans-unit id="ngGuideCashPreferences" datatype="html">
+        <source>Review the two independent preferences: Update Cash Balance by default for new activities, and Consider this account’s cash in analyses and allocations. Check Update Cash Balance on each financial activity; changing the default is not a replay of every past activity.</source>
+        <target state="translated">Sprawdź dwa niezależne ustawienia: Domyślnie aktualizuj saldo gotówki dla nowych operacji oraz Uwzględniaj gotówkę tego rachunku w analizach i alokacjach. Sprawdzaj opcję Aktualizuj saldo gotówki przy każdej operacji finansowej; zmiana ustawienia domyślnego nie przelicza ponownie wszystkich wcześniejszych operacji.</target>
+      </trans-unit>
+      <trans-unit id="ngGuideCashMovementStep" datatype="html">
+        <source>In Cash Balances, select the date and operation, enter the amount and any note, and choose Insert. The account determines the currency. Deposits and withdrawals require positive amounts; the application subtracts withdrawals automatically. Future dates are not accepted.</source>
+        <target state="translated">W sekcji Salda gotówkowe wybierz datę i rodzaj operacji, wprowadź kwotę i ewentualną notatkę, a następnie wybierz Dodaj. Waluta wynika z rachunku. Wpłaty i wypłaty wymagają kwot dodatnich; aplikacja automatycznie odejmuje wypłaty. Daty przyszłe nie są dozwolone.</target>
+      </trans-unit>
+      <trans-unit id="ngGuideCashFeeStep" datatype="html">
+        <source>For a deposit, cash increases by amount minus fee. For a withdrawal, cash decreases by amount plus fee. Enter a non-negative fee in the account currency. Financial activity-linked amounts already include their fees: do not add the same fee again as a manual cash movement.</source>
+        <target state="translated">Przy wpłacie saldo środków pieniężnych rośnie o kwotę pomniejszoną o opłatę. Przy wypłacie maleje o kwotę powiększoną o opłatę. Wprowadź nieujemną opłatę w walucie rachunku. Kwoty powiązane z operacjami inwestycyjnymi uwzględniają już ich opłaty: nie dodawaj tej samej opłaty ponownie jako ręcznego przepływu gotówki.</target>
+      </trans-unit>
+      <trans-unit id="ngGuideCashReconciliationStep" datatype="html">
+        <source>Choose Reconciliation and enter the actual cash balance, including zero or a negative balance. Its fee must be zero. It replaces the calculated balance at that point in the journal; it is not an extra deposit and does not reconstruct missing earlier transactions. Later movements continue from the reconciled balance.</source>
+        <target state="translated">Wybierz Uzgodnienie i wprowadź rzeczywiste saldo środków pieniężnych, także zero lub saldo ujemne. Opłata musi wynosić zero. Wartość zastępuje obliczone saldo w danym miejscu dziennika; nie jest dodatkową wpłatą ani nie odtwarza brakujących wcześniejszych transakcji. Późniejsze operacje są liczone od uzgodnionego salda.</target>
+      </trans-unit>
+      <trans-unit id="ngGuideCashCorrections" datatype="html">
+        <source>Review the running balance in the journal. Use the movement’s Actions menu to edit or delete a manual entry. For linked investment movements, open and correct the original financial activity. A newly negative or worsened negative balance requires confirmation; review the warning rather than using reconciliation to conceal an error.</source>
+        <target state="translated">Sprawdź saldo narastające w dzienniku. Użyj menu Akcje przy operacji, aby edytować lub usunąć wpis ręczny. W przypadku przepływów powiązanych z inwestycjami otwórz i popraw pierwotną operację finansową. Nowe saldo ujemne lub pogłębienie salda ujemnego wymaga potwierdzenia; przeanalizuj ostrzeżenie zamiast ukrywać błąd przez uzgodnienie.</target>
+      </trans-unit>
+      <trans-unit id="ngGuideCashTransferSteps" datatype="html">
+        <source>From Accounts, choose Transfer Cash Balance, select From and To, enter a positive Value in the source account’s currency and confirm Transfer. The transfer uses today’s date. For different currencies, the application converts the destination amount with the available exchange rate for today; this dialog has no historical date or custom destination-amount control. Review both balances afterward.</source>
+        <target state="translated">W sekcji Rachunki wybierz Przenieś saldo gotówkowe, wskaż rachunki Z i Do, wprowadź dodatnią Wartość w walucie rachunku źródłowego i potwierdź transfer. Transfer używa dzisiejszej daty. Przy różnych walutach aplikacja przelicza kwotę docelową według dostępnego kursu z dziś; okno nie pozwala wybrać daty historycznej ani własnej kwoty docelowej. Następnie sprawdź oba salda.</target>
+      </trans-unit>
+      <trans-unit id="ngGuideCashTransferLimits" datatype="html">
+        <source>A transfer between your accounts is an internal movement, not a new deposit from outside your portfolio. Managed accounts retain linked counterpart entries; legacy accounts remain supported. Transfer entries cannot be edited or deleted separately: use a new reverse transfer if needed. This version has no separate source-fee or destination-fee fields in the transfer dialog; do not assume a bank’s two fees have been recorded automatically.</source>
+        <target state="translated">Transfer między własnymi rachunkami jest przepływem wewnętrznym, a nie nową wpłatą spoza portfela. Rachunki zarządzane zachowują powiązane zapisy przeciwstawne; starsze rachunki nadal są obsługiwane. Wpisów transferu nie można osobno edytować ani usuwać: w razie potrzeby wykonaj nowy transfer odwrotny. W tej wersji okno transferu nie ma osobnych pól opłat dla rachunku źródłowego i docelowego; nie zakładaj, że obie opłaty bankowe zapisano automatycznie.</target>
+      </trans-unit>
+      <trans-unit id="ngGuideCashBoundary" datatype="html">
+        <source>Deposits, withdrawals and reconciliations change recorded wealth, not investment gains. Base-currency cash is outside the investment-return boundary; foreign-currency cash can contribute currency effects. Cash visibility and inclusion settings are separate from the selected return method. Cash fees reduce cash and appear in fee totals, but the ROI/ROAI investment-only result excludes standalone fee activities: the change in total wealth need not equal the investment-only result.</source>
+        <target state="translated">Wpłaty, wypłaty i uzgodnienia zmieniają zarejestrowaną wartość majątku, a nie zysk z inwestycji. Gotówka w walucie bazowej nie jest uwzględniana przy obliczaniu stopy zwrotu z inwestycji; gotówka w walutach obcych może powodować skutki kursowe. Ustawienia widoczności i uwzględniania gotówki są niezależne od wybranej metody obliczania stopy zwrotu. Opłaty związane z gotówką zmniejszają saldo i są ujmowane w sumie opłat, ale wynik ROI/ROAI dotyczący wyłącznie inwestycji pomija odrębne operacje opłat: zmiana łącznego majątku nie musi odpowiadać wynikowi inwestycyjnemu.</target>
+      </trans-unit>
+      <trans-unit id="ngGuideCashExample" datatype="html">
+        <source>Example in EUR: deposit 1,000 with a fee of 2 → cash 998; withdraw 100 with a fee of 1 → cash 897; reconcile to the bank’s actual 880 → cash 880, not 1,777. A later internal transfer of 200 to another EUR account leaves 680 here and adds 200 there. With no transfer fees or exchange effects, the transfer itself leaves total wealth unchanged. None of these amounts is an investment gain.</source>
+        <target state="translated">Przykład w EUR: wpłata 1,000 z opłatą 2 → saldo gotówki 998; wypłata 100 z opłatą 1 → saldo 897; uzgodnienie z rzeczywistym saldem bankowym 880 → saldo 880, a nie 1,777. Późniejszy przelew wewnętrzny 200 na inne konto w EUR pozostawia tutaj 680 i dodaje tam 200. Bez opłat za przelew i różnic kursowych sam przelew nie zmienia łącznego majątku. Żadna z tych kwot nie stanowi zysku z inwestycji.</target>
+      </trans-unit>
+      <trans-unit id="ngGuideCashCsvStep1" datatype="html">
+        <source>Use Export CSV in Cash Balances for the whole account journal. To import, use Import CSV there or on Accounts, select the destination account or create a new one, and inspect the preview. Previewing and cancelling do not create an account or save movements.</source>
+        <target state="translated">Użyj Export CSV w Cash Balances, aby wyeksportować cały dziennik konta. Aby zaimportować dane, wybierz Import CSV w tym widoku lub w Accounts, wskaż konto docelowe albo utwórz nowe i sprawdź podgląd. Sam podgląd i anulowanie nie tworzą konta ani nie zapisują operacji.</target>
+      </trans-unit>
+      <trans-unit id="ngGuideCashCsvStep2" datatype="html">
+        <source>Required columns: Date, Operation, Amount, Currency. Optional: Fee, Sequence, Note, Reference. Use UTF-8, comma or semicolon separators, YYYY-MM-DD dates, a decimal point and no thousands separator. The currency must match the destination account: CSV import does not exchange currencies. Italian column headings are accepted too.</source>
+        <target state="translated">Kolumny wymagane: Date, Operation, Amount, Currency. Opcjonalne: Fee, Sequence, Note, Reference. Używaj UTF-8, separatorów w postaci przecinka lub średnika, dat YYYY-MM-DD, kropki dziesiętnej i bez separatorów tysięcy. Waluta musi odpowiadać walucie konta docelowego: import CSV nie przelicza walut. Akceptowane są również włoskie nagłówki kolumn.</target>
+      </trans-unit>
+      <trans-unit id="ngGuideCashCsvStep3" datatype="html">
+        <source>For hand-written files use DEPOSIT, WITHDRAWAL or RECONCILIATION. Deposit and withdrawal amounts are positive; reconciliation uses the actual balance and Fee 0. Supply Sequence to order same-day movements, especially around a reconciliation. The example below ends at 880 EUR.</source>
+        <target state="translated">W plikach tworzonych ręcznie używaj DEPOSIT, WITHDRAWAL lub RECONCILIATION. Kwoty wpłat i wypłat muszą być dodatnie; uzgodnienie wykorzystuje rzeczywiste saldo i Fee 0. Podaj Sequence, aby ustalić kolejność operacji z tego samego dnia, szczególnie w pobliżu uzgodnienia. Poniższy przykład kończy się saldem 880 EUR.</target>
+      </trans-unit>
+      <trans-unit id="ngGuideCashCsvPreview" datatype="html">
+        <source>Check new and existing rows, final and minimum balances, currency and warnings before confirming Insert movements. An identical Reference in the same account is skipped; changed contents under the same reference are a conflict. Possible duplicates without references need review. Errors block the whole import; existing entries are not overwritten. If the journal changes after previewing, preview again.</source>
+        <target state="translated">Przed zatwierdzeniem dodania operacji sprawdź nowe i istniejące wiersze, saldo końcowe i minimalne, walutę oraz ostrzeżenia. Identyczny identyfikator Reference na tym samym koncie powoduje pominięcie wiersza; zmiana danych przy tym samym identyfikatorze powoduje konflikt. Sprawdź możliwe duplikaty bez identyfikatorów. Błędy blokują cały import, a istniejące wpisy nie są nadpisywane. Jeśli dziennik zmieni się po podglądzie, wygeneruj podgląd ponownie.</target>
+      </trans-unit>
+      <trans-unit id="ngGuideCashCsvLimits" datatype="html">
+        <source>Cash CSV does not create financial activities. Import those first, then match linked cash rows to the correct existing activities; ambiguous matches need your selection. Keep exported metadata and linked-activity columns unchanged. Files are limited to 2 MB and 5,000 records including metadata. A new transfer cannot be reconstructed from one side alone: use the complete JSON restore for both accounts. Cash CSV is not a full portfolio backup.</source>
+        <target state="translated">Plik CSV środków pieniężnych nie tworzy operacji inwestycyjnych. Najpierw zaimportuj te operacje, a następnie dopasuj powiązane wiersze środków pieniężnych do właściwych istniejących operacji; niejednoznaczne dopasowania wymagają wyboru. Nie zmieniaj wyeksportowanych metadanych ani kolumn powiązanych operacji. Limit pliku wynosi 2 MB i 5 000 rekordów wraz z metadanymi. Nie można odtworzyć nowego przelewu na podstawie tylko jednej strony: użyj pełnego przywracania JSON dla obu kont. CSV środków pieniężnych nie jest pełną kopią zapasową portfela.</target>
+      </trans-unit>
+      <trans-unit id="ngGuideTaxIntro" datatype="html">
+        <source>Record actual tax amounts separately from investment values and fees. This feature tracks taxes you enter; it does not calculate tax rates, choose a jurisdiction, generate a tax return or file it for you.</source>
+        <target state="translated">Rejestruj rzeczywiste kwoty podatków oddzielnie od wartości inwestycji i opłat. Funkcja ewidencjonuje wprowadzone podatki; nie oblicza stawek podatkowych, nie wybiera jurysdykcji, nie przygotowuje deklaracji podatkowej ani nie składa jej w Twoim imieniu.</target>
+      </trans-unit>
+      <trans-unit id="ngGuideTaxEntry" datatype="html">
+        <source>Open Activities and create or edit a Buy, Sell, Dividend or Interest activity. Enter its date, account, instrument or currency, quantity and unit price as usual, then enter the monetary Tax amount separately from Fee. Tax uses the currency displayed beside the field; it is an amount, not a percentage.</source>
+        <target state="translated">Otwórz Operacje i utwórz lub edytuj zakup, sprzedaż, dywidendę albo odsetki. Jak zwykle podaj datę, konto, instrument lub walutę, ilość i cenę jednostkową, a następnie wprowadź kwotę podatku oddzielnie od opłaty. Podatek jest wyrażony w walucie pokazanej obok pola; to kwota, a nie procent.</target>
+      </trans-unit>
+      <trans-unit id="ngGuideTaxReview" datatype="html">
+        <source>Review Tax in the activities table and edit the original activity to correct the amount, date, currency or account. Do not duplicate the same tax as a standalone fee or cash withdrawal. JSON import/export preserves tax; activity CSV import accepts Tax and Withholding Tax columns. Older entries without a tax amount use zero.</source>
+        <target state="translated">Sprawdź podatek w tabeli operacji i edytuj pierwotną operację, aby poprawić kwotę, datę, walutę lub konto. Nie księguj tego samego podatku ponownie jako osobnej opłaty ani wypłaty gotówki. Import i eksport JSON zachowują podatki; import operacji z CSV obsługuje kolumny Tax i Withholding Tax. Starsze wpisy bez kwoty podatku mają wartość zero.</target>
+      </trans-unit>
+      <trans-unit id="ngGuideTaxCash" datatype="html">
+        <source>Financially, a buy costs gross value plus fee and tax, while a sell, dividend or interest payment yields gross value minus fee and tax. Check the linked account cash movement after saving: in this integrated version, automatic cash updating subtracts fees but omits the Tax field. This also affects cash amounts for non-managed accounts handled by the cash service. Do not assume the account balance is already net of tax. Check the statement and, if needed, reconcile to the verified actual balance without recording the same tax twice.</source>
+        <target state="translated">Z finansowego punktu widzenia zakup kosztuje wartość brutto powiększoną o opłatę i podatek, natomiast sprzedaż, dywidenda lub odsetki przynoszą wartość brutto pomniejszoną o opłatę i podatek. Po zapisaniu sprawdź powiązany ruch środków pieniężnych na rachunku: w tej zintegrowanej wersji automatyczna aktualizacja salda odejmuje opłaty, ale pomija pole Tax. Dotyczy to również kwot gotówkowych na rachunkach niezarządzanych obsługiwanych przez usługę środków pieniężnych. Nie zakładaj, że saldo rachunku uwzględnia już podatek. Sprawdź wyciąg i w razie potrzeby uzgodnij zweryfikowane saldo rzeczywiste, nie księgując tego samego podatku dwukrotnie.</target>
+      </trans-unit>
+      <trans-unit id="ngGuideTaxPerformance" datatype="html">
+        <source>Tax reduces monetary net investment performance while gross performance and gross dividend/interest amounts remain distinct. ROAI and ROI use this net result. The current TWR and MWR percentage routines have no explicit tax adjustment: do not interpret those percentages as after-tax returns. Use ROAI or ROI when reviewing the net result after recorded taxes.</source>
+        <target state="translated">Podatek obniża pieniężny wynik inwestycji netto, natomiast wynik brutto oraz kwoty dywidend i odsetek brutto pozostają odrębne. ROAI i ROI korzystają z wyniku netto. Obecne obliczenia procentowe TWR i MWR nie uwzględniają jawnej korekty podatkowej: nie interpretuj tych wartości jako stóp zwrotu po opodatkowaniu. Do oceny wyniku netto po zarejestrowanych podatkach używaj ROAI lub ROI.</target>
+      </trans-unit>
+      <trans-unit id="ngGuideTaxExample" datatype="html">
+        <source>Example: a dividend of 100 EUR with Tax 26 EUR and Fee 0 remains a gross dividend of 100 EUR; the economic net receipt is 74 EUR. The current automatic linked cash movement credits 100 EUR, not 74: verify the 26 EUR discrepancy against the statement before reconciling. Monetary net investment performance does deduct the recorded 26 EUR tax. Do not change the gross dividend to 74 and subtract tax again.</source>
+        <target state="translated">Przykład: dywidenda 100 EUR z Tax 26 EUR i Fee 0 pozostaje dywidendą brutto 100 EUR; ekonomiczna kwota netto wynosi 74 EUR. Obecny automatyczny powiązany ruch środków pieniężnych zwiększa saldo o 100 EUR, a nie 74 EUR: przed uzgodnieniem sprawdź różnicę 26 EUR na wyciągu. Pieniężny wynik inwestycji netto uwzględnia odliczenie zarejestrowanego podatku 26 EUR. Nie zmieniaj dywidendy brutto na 74 i nie odejmuj podatku ponownie.</target>
+      </trans-unit>
+      <trans-unit id="ngGuideTaxDisclaimer" datatype="html">
+        <source>Recorded tax information is not a substitute for professional tax advice. Check your records against broker statements and consult a qualified adviser for your situation.</source>
+        <target state="translated">Zarejestrowane informacje podatkowe nie zastępują profesjonalnej porady podatkowej. Porównuj dane z wyciągami brokera i skonsultuj się z wykwalifikowanym doradcą w swojej sytuacji.</target>
+      </trans-unit>
+      <trans-unit id="ngGuideCalendarIntro" datatype="html">
+        <source>Find the calendar on Home → Overview, outside Zen Mode. It loads historical performance independently of the main overview chart’s selected range. It helps you inspect profitable and unprofitable periods without treating cash deposits as profits.</source>
+        <target state="translated">Kalendarz znajdziesz w Strona główna → Przegląd, poza trybem Zen. Ładuje on historyczne wyniki niezależnie od zakresu wybranego na głównym wykresie przeglądu. Ułatwia analizę okresów zyskownych i stratnych bez traktowania wpłat gotówki jako zysku.</target>
+      </trans-unit>
+      <trans-unit id="ngGuideCalendarControls" datatype="html">
+        <source>Choose Daily or Weekly to inspect the selected month, Monthly for the selected year, or Last 30 days for the current rolling window. Previous and Next move one month, or one year in Monthly view. Last 30 days resets to the current date and has no historical-period arrows. Weeks run Monday to Sunday and weekly totals use only the portion inside the selected month.</source>
+        <target state="translated">Wybierz widok Dzienny lub Tygodniowy, aby sprawdzić wybrany miesiąc, Miesięczny dla wybranego roku albo Ostatnie 30 dni dla bieżącego okresu kroczącego. Przyciski Poprzedni i Następny przesuwają widok o miesiąc, a w widoku miesięcznym o rok. Ostatnie 30 dni przywraca bieżącą datę i nie udostępnia strzałek nawigacji po okresach historycznych. Tygodnie trwają od poniedziałku do niedzieli, a sumy tygodniowe obejmują tylko część przypadającą na wybrany miesiąc.</target>
+      </trans-unit>
+      <trans-unit id="ngGuideCalendarUnits" datatype="html">
+        <source>Where your permissions and view mode allow amounts, switch between the base-currency amount and %. Restricted or hidden-value views do not expose monetary amounts. Positive and negative values use different colors and signed numbers; a dash means unavailable, not zero.</source>
+        <target state="translated">Jeśli uprawnienia i tryb widoku pozwalają wyświetlać kwoty, możesz przełączać się między kwotą w walucie bazowej a %. Widoki z ograniczeniami lub ukrytymi wartościami nie ujawniają kwot pieniężnych. Wartości dodatnie i ujemne mają różne kolory i znaki; myślnik oznacza brak danych, a nie zero.</target>
+      </trans-unit>
+      <trans-unit id="ngGuideCalendarFlows" datatype="html">
+        <source>The calendar reuses net investment performance: contributions themselves are not gains, investment dividends and applicable investment fees/taxes affect net amounts, and foreign-currency conversion affects the currency-adjusted series. It is not a bank-account balance calendar or a complete change-in-wealth statement; the cash and standalone-fee boundaries described in Cash Management still apply.</source>
+        <target state="translated">Kalendarz wykorzystuje wynik inwestycyjny netto: same wpłaty nie są zyskami, dywidendy inwestycyjne oraz odpowiednie opłaty i podatki wpływają na kwoty netto, a przeliczenia walut wpływają na serię skorygowaną o kursy. Nie jest to kalendarz salda rachunku bankowego ani pełne zestawienie zmian majątku; nadal obowiązują ograniczenia dotyczące gotówki i samodzielnych opłat opisane w sekcji Zarządzanie gotówką.</target>
+      </trans-unit>
+      <trans-unit id="ngGuideCalendarFormula" datatype="html">
+        <source>Each day’s monetary PnL is the difference between two consecutive calendar dates’ cumulative net performance including currency effects. Weekly and monthly amounts sum those daily differences. A gap in historical dates is not assigned entirely to the next day; incomplete elapsed daily data can make period totals unavailable. Non-trading days are included when valuations are available and may still reflect income, costs or currency changes.</source>
+        <target state="translated">Dzienny PnL wyrażony kwotowo to różnica między skumulowanymi wynikami netto z dwóch kolejnych dat kalendarzowych, z uwzględnieniem wpływu kursów walut. Kwoty tygodniowe i miesięczne są sumą tych dziennych różnic. Luki w danych historycznych nie przypisuje się w całości do następnego dnia; niekompletne dane dzienne mogą uniemożliwić wyświetlenie sum za okres. Dni bez sesji giełdowej są uwzględniane, jeśli dostępne są wyceny, i mogą odzwierciedlać przychody, koszty lub zmiany kursów walut.</target>
+      </trans-unit>
+      <trans-unit id="ngGuideCalendarPercentages" datatype="html">
+        <source>The % view requests a separate ROAI calculation for each period; it is not the daily monetary PnL divided by yesterday’s balance, nor the change in a cumulative percentage. In this version it is available only when ROAI is selected. With ROI, TWR or MWR, percentage cells may show a dash even when monetary PnL is available. Percentages must not be added to obtain a monthly return.</source>
+        <target state="translated">Widok % żąda osobnego obliczenia ROAI dla każdego okresu; nie jest to dzienny PnL kwotowy podzielony przez wczorajsze saldo ani zmiana skumulowanej wartości procentowej. W tej wersji jest dostępny tylko po wybraniu ROAI. Przy ROI, TWR lub MWR komórki procentowe mogą pokazywać myślnik, nawet gdy dostępny jest PnL kwotowy. Nie należy sumować wartości procentowych w celu obliczenia miesięcznej stopy zwrotu.</target>
+      </trans-unit>
+      <trans-unit id="ngGuideCalendarExample" datatype="html">
+        <source>Example: consecutive cumulative net results of 0, 12, 7 and 10 EUR produce daily PnL of +12, −5 and +3 EUR, totaling +10 EUR. A missing observation between 12 and 7 does not justify labelling −5 as a one-day result. A deposit of 500 EUR alone is not +500 EUR of PnL.</source>
+        <target state="translated">Przykład: kolejne skumulowane wyniki netto wynoszące 0, 12, 7 i 10 EUR dają dzienny PnL równy +12, −5 i +3 EUR, łącznie +10 EUR. Brak obserwacji między wartościami 12 i 7 nie pozwala przypisać −5 do jednego dnia. Sama wpłata 500 EUR nie oznacza +500 EUR PnL.</target>
+      </trans-unit>
+      <trans-unit id="ngGuideReturnsIntro" datatype="html">
+        <source>A monetary gain and a percentage return answer different questions. Always compare the same date range, currency, portfolio scope and gross/net basis. These methods reuse your recorded activities and available prices; missing data or incorrect activity dates cannot be repaired by switching the method.</source>
+        <target state="translated">Zysk wyrażony kwotowo i stopa zwrotu wyrażona procentowo odpowiadają na różne pytania. Zawsze porównuj ten sam zakres dat, walutę, zakres portfela oraz podstawę brutto lub netto. Metody te wykorzystują zarejestrowane operacje i dostępne ceny; zmiana metody nie naprawi brakujących danych ani błędnych dat operacji.</target>
+      </trans-unit>
+      <trans-unit id="ngGuideReturnsSelection" datatype="html">
+        <source>Open Settings, enable Experimental Features and choose Performance Calculation: ROAI, ROI, TWR or MWR. The selector is unavailable while impersonating another user or without permission to change settings. Review Home and Analysis after changing it. This guide explains the NG implementations; some methods and controls are experimental.</source>
+        <target state="translated">Otwórz Ustawienia, włącz Funkcje eksperymentalne i wybierz metodę obliczania wyników: ROAI, ROI, TWR lub MWR. Wybór jest niedostępny podczas działania w imieniu innego użytkownika lub bez uprawnień do zmiany ustawień. Po zmianie sprawdź strony główną i Analizę. Ten przewodnik opisuje implementacje NG; niektóre metody i elementy sterujące są eksperymentalne.</target>
+      </trans-unit>
+      <trans-unit id="ngGuideRoiDefinition" datatype="html">
+        <source>ROI divides net investment performance by invested capital, without time weighting. Net performance includes realized and unrealized investment gains and income, less applicable investment fees and taxes. At portfolio level the denominator accumulates positive net changes in remaining invested cost; a sale does not subtract from capital already counted. Same-day internal reinvestment is netted, and capital invested and released intraday is included through the daily peak adjustment. A holding’s denominator instead uses its buy amounts.</source>
+        <target state="translated">ROI dzieli wynik inwestycyjny netto przez zainwestowany kapitał, bez ważenia czasem. Wynik netto obejmuje zrealizowane i niezrealizowane zyski inwestycyjne oraz przychody, pomniejszone o odpowiednie opłaty i podatki. Na poziomie portfela mianownik sumuje dodatnie zmiany netto pozostałego kosztu inwestycji; sprzedaż nie odejmuje kapitału już uwzględnionego. Reinwestycje wewnętrzne z tego samego dnia są kompensowane, a kapitał zainwestowany i uwolniony w ciągu dnia uwzględnia korekta do dziennego maksimum. Dla pojedynczej pozycji mianownik opiera się na kwotach zakupów.</target>
+      </trans-unit>
+      <trans-unit id="ngGuideRoiRange" datatype="html">
+        <source>For a selected date range, ROI starts with the opening market value and adds positive subsequent net investment changes and the relevant intraday adjustments. Reinvestment on different dates can count capital again. It is not simply gain divided by your latest bank balance, nor by all cash deposits.</source>
+        <target state="translated">Dla wybranego zakresu dat ROI rozpoczyna obliczenia od początkowej wartości rynkowej, a następnie dodaje dodatnie zmiany netto inwestycji i odpowiednie korekty śróddzienne. Reinwestycja w różnych dniach może spowodować ponowne uwzględnienie kapitału. Nie jest to po prostu zysk podzielony przez ostatnie saldo rachunku bankowego ani przez sumę wszystkich wpłat gotówkowych.</target>
+      </trans-unit>
+      <trans-unit id="ngGuidePageIntro" datatype="html">
+        <source>Meet the team and learn how to use the additional features integrated into Ghostfolio-NG. This guide describes the application’s behavior, including its current limits.</source>
+        <target state="translated">Poznaj zespół i dowiedz się, jak korzystać z dodatkowych funkcji Ghostfolio-NG. Ten przewodnik opisuje działanie aplikacji, w tym jej obecne ograniczenia.</target>
+        <target state="translated">Conoce al equipo y aprende a utilizar las funciones adicionales integradas en Ghostfolio-NG. Esta guía describe el comportamiento de la aplicación, incluidas sus limitaciones actuales.</target>
+      </trans-unit>
+      <trans-unit id="ngGuideRoaiDefinition" datatype="html">
+        <source>ROAI divides net monetary investment performance by average invested capital. For a holding’s whole history, remaining invested cost is weighted by elapsed calendar intervals between investment activities and the terminal valuation. The portfolio sums the included holdings’ averages. For a selected date range, the calculator includes opening unrealized performance in the opening capital and counts the final valuation day in the daily average. These conventions can produce different averages in whole-history holding statistics and date-range charts. Calendar-day weighting avoids daylight-saving distortions. ROAI is neither TWR nor an annualized XIRR.</source>
+        <target state="translated">ROAI dzieli pieniężny wynik netto inwestycji przez średni zainwestowany kapitał. Dla całej historii pozycji pozostały koszt inwestycji jest ważony odstępami dni kalendarzowych między transakcjami inwestycyjnymi a wyceną końcową. Dla portfela sumowane są średnie uwzględnionych pozycji. Dla wybranego zakresu dat kalkulator uwzględnia początkowy niezrealizowany wynik w kapitale początkowym oraz wlicza ostatni dzień wyceny do średniej dziennej. Z tego powodu średnie dla całej historii pozycji mogą różnić się od średnich na wykresach wybranego okresu. Ważenie według dni kalendarzowych zapobiega zniekształceniom wynikającym ze zmiany czasu. ROAI nie jest ani TWR, ani annualizowanym XIRR.</target>
+        <target state="translated">ROAI divide la rentabilidad monetaria neta de las inversiones por el capital medio invertido. Para todo el historial de una posición, el coste invertido restante se pondera por los intervalos de calendario transcurridos entre operaciones y la valoración final. La cartera suma los promedios de las posiciones incluidas. Para un intervalo seleccionado, el cálculo incluye la rentabilidad no realizada inicial en el capital inicial y cuenta el día de valoración final en el promedio diario. Estas convenciones pueden producir promedios distintos entre las estadísticas históricas de posiciones y los gráficos por intervalo. La ponderación por días de calendario evita distorsiones debidas al horario de verano. ROAI no es TWR ni un XIRR anualizado.</target>
+      </trans-unit>
+      <trans-unit id="ngGuideTwrDefinition" datatype="html">
+        <source>TWR geometrically links daily growth factors. When the preceding value is positive, the factor is (current value − net investment cash inflow + performance adjustments) ÷ preceding value; the total return is the product of factors minus one. At this investment boundary buys add capital and sells release it; same-day flows across holdings are netted. Dividends and interest are return, and fees are negative adjustments. This reduces the effect of contribution timing rather than treating new capital as a gain.</source>
+        <target state="translated">TWR łączy geometrycznie dzienne współczynniki wzrostu. Gdy poprzednia wartość jest dodatnia, współczynnik wynosi (wartość bieżąca − napływ netto kapitału inwestycyjnego + korekty wyniku) ÷ wartość poprzednia; łączna stopa zwrotu to iloczyn współczynników minus jeden. W tych granicach inwestycji zakupy zwiększają kapitał, a sprzedaże go uwalniają; przepływy między pozycjami z tego samego dnia są kompensowane. Dywidendy i odsetki stanowią zysk, a opłaty są ujemnymi korektami. Ogranicza to wpływ momentu wpłat, zamiast traktować nowy kapitał jako zysk.</target>
+        <target state="translated">TWR encadena geométricamente los factores de crecimiento diarios. Cuando el valor anterior es positivo, el factor es (valor actual − entrada neta de capital invertido + ajustes de rentabilidad) ÷ valor anterior; la rentabilidad total es el producto de los factores menos uno. Dentro de este perímetro de inversión, las compras añaden capital y las ventas lo liberan; los flujos entre posiciones del mismo día se compensan. Los dividendos e intereses cuentan como rentabilidad y las comisiones como ajustes negativos. Esto reduce el efecto del momento de las aportaciones en lugar de tratar el capital nuevo como ganancia.</target>
+      </trans-unit>
+      <trans-unit id="ngGuideMwrDefinition" datatype="html">
+        <source>MWR solves an annualized XIRR from dated investor cash flows and the terminal investment value. Buys are negative, sells and investment income positive, fees negative and terminal value positive. Same-day flows are combined. The solver uses actual calendar days divided by 365: a short-period MWR is still annualized. Date ranges start with a negative opening market value. Base-currency cash remains outside this investment boundary; merely depositing money into that cash account is not an investment cash flow.</source>
+        <target state="translated">MWR wyznacza annualizowany XIRR na podstawie przepływów pieniężnych inwestora z przypisanymi datami oraz końcowej wartości inwestycji. Zakupy są ujemne, sprzedaże i przychody z inwestycji dodatnie, opłaty ujemne, a wartość końcowa dodatnia. Przepływy z tego samego dnia są łączone. Obliczenia wykorzystują rzeczywistą liczbę dni kalendarzowych podzieloną przez 365: MWR nawet za krótki okres jest annualizowany. Zakres dat zaczyna się od ujemnej początkowej wartości rynkowej. Gotówka w walucie bazowej pozostaje poza zakresem inwestycji; samo wpłacenie pieniędzy na taki rachunek nie jest przepływem inwestycyjnym.</target>
+        <target state="translated">MWR resuelve una XIRR anualizada a partir de los flujos de caja fechados del inversor y del valor final de la inversión. Las compras son negativas; las ventas y los ingresos de inversión, positivos; las comisiones, negativas; y el valor final, positivo. Se combinan los flujos del mismo día. El algoritmo utiliza los días naturales reales divididos por 365: incluso el MWR de un período corto está anualizado. Los intervalos comienzan con un valor de mercado inicial negativo. El efectivo en divisa base queda fuera de este perímetro de inversión; ingresar dinero en esa cuenta de efectivo no constituye por sí solo un flujo de inversión.</target>
+      </trans-unit>
+      <trans-unit id="ngGuideMwrLimits" datatype="html">
+        <source>An XIRR can have multiple solutions or no valid solution. This implementation starts its solver at zero and can return zero when it cannot determine a valid root or when dated flows are insufficient. A displayed zero therefore does not always prove that the investment broke even. TWR/MWR percentage routines do not explicitly deduct the Tax field in this baseline; use the monetary net result and ROAI/ROI for reviewing recorded taxes.</source>
+        <target state="translated">XIRR może mieć wiele rozwiązań albo nie mieć żadnego poprawnego rozwiązania. Ta implementacja rozpoczyna obliczenia od zera i może zwrócić zero, jeśli nie uda się znaleźć poprawnego pierwiastka lub przepływy z datami są niewystarczające. Wyświetlone zero nie zawsze oznacza więc, że inwestycja wyszła na zero. W tej wersji procentowe obliczenia TWR/MWR nie odejmują jawnie pola Tax; do analizy zarejestrowanych podatków używaj pieniężnego wyniku netto oraz ROAI/ROI.</target>
+        <target state="translated">Una XIRR puede tener varias soluciones o ninguna válida. Esta implementación inicia el cálculo en cero y puede devolver cero si no encuentra una raíz válida o si los flujos fechados son insuficientes. Por tanto, un cero mostrado no demuestra necesariamente que la inversión haya quedado en equilibrio. Las rutinas porcentuales TWR/MWR no descuentan explícitamente el campo Impuestos en esta versión; utiliza el resultado monetario neto y ROAI/ROI para revisar los impuestos registrados.</target>
+      </trans-unit>
+      <trans-unit id="ngGuideNoFlowsExample" datatype="html">
+        <source>No external investment flows: invest 1,000 EUR, keep the same invested capital for 365 days and end with 1,100 EUR, with no income, fees, taxes or currency effects. Profit is 100 EUR; ROI and ROAI are 10%, cumulative TWR is 10% and annualized MWR is 10%.</source>
+        <target state="translated">Bez zewnętrznych przepływów inwestycyjnych: zainwestuj 1 000 EUR, utrzymuj ten sam zainwestowany kapitał przez 365 dni i zakończ z wartością 1 100 EUR, bez przychodów, opłat, podatków ani wpływu kursów walut. Zysk wynosi 100 EUR; ROI i ROAI wynoszą 10%, skumulowany TWR wynosi 10%, a roczny MWR wynosi 10%.</target>
+      </trans-unit>
+      <trans-unit id="ngGuideBenchmarkCaution" datatype="html">
+        <source>The portfolio line uses your selected performance method; the benchmark remains a price-based comparison, not an identical investor experience. MWR is annualized while the benchmark price change is cumulative. Missing baseline prices or exchange data can limit the comparison. Check dates, currency, income and cost treatment before interpreting a gap as outperformance.</source>
+        <target state="translated">Linia portfela korzysta z wybranej metody obliczania stopy zwrotu; benchmark pozostaje porównaniem opartym na zmianie ceny, a nie identycznym doświadczeniem inwestora. MWR jest roczny, natomiast zmiana ceny benchmarku jest skumulowana. Brak cen początkowych lub danych kursowych może ograniczać porównanie. Przed uznaniem różnicy za przewagę wyników sprawdź daty, walutę, przychody i sposób uwzględniania kosztów.</target>
+      </trans-unit>
+      <trans-unit id="ngGuideRestoreExport" datatype="html">
+        <source>On the source instance, open Settings → Export Data and keep the JSON backup private. On the destination, use Import Data beside Export Data, or Accounts → Import JSON.</source>
+        <target state="translated">W instancji źródłowej otwórz Ustawienia → Eksportuj dane i zachowaj kopię zapasową JSON w poufności. W instancji docelowej użyj Importuj dane obok Eksportuj dane albo Konta → Importuj JSON.</target>
+      </trans-unit>
+      <trans-unit id="ngGuideSameDayDescription" datatype="html">
+        <source>ROI also recognizes capital invested and released before the end of a day. Buy and sell 1,000 on the same day and the capital is not zero. If you then reinvest 1,100 that day, the same-day peak is 1,100, not the sum 2,100. Dates and transaction order matter; enter the real activity sequence instead of changing dates to force a desired return.</source>
+        <target state="translated">ROI uwzględnia również kapitał zainwestowany i uwolniony przed końcem dnia. Kupno i sprzedaż za 1 000 tego samego dnia nie oznaczają zerowego kapitału. Jeśli następnie ponownie zainwestujesz tego dnia 1 100, dzienny szczyt wynosi 1 100, a nie sumę 2 100. Daty i kolejność transakcji mają znaczenie; wprowadź rzeczywistą kolejność zamiast zmieniać daty w celu uzyskania pożądanej stopy zwrotu.</target>
+      </trans-unit>
+      <trans-unit id="ngGuideFeeNamesDescription" datatype="html">
+        <source>In Activities, edit a standalone Fee activity to correct its name. A shared or administrator-owned instrument profile is separated when necessary so renaming your fee does not rename other activities. This changes the description, not the fee amount; check both fields before saving.</source>
+        <target state="translated">W sekcji Aktywności edytuj samodzielną operację opłaty, aby poprawić jej nazwę. W razie potrzeby współdzielony profil instrumentu lub profil należący do administratora zostanie rozdzielony, aby zmiana nazwy Twojej opłaty nie zmieniła innych aktywności. Zmienia to opis, a nie kwotę opłaty; sprawdź oba pola przed zapisaniem.</target>
+      </trans-unit>
+      <trans-unit id="ngGuideTimingExample" datatype="html">
+        <source>Timing matters: invest 1,000 EUR, gain 20% over 365 days to reach 1,200, then invest another 1,000. Lose 10% over the next 365 days and finish at 1,980. TWR is 1.20 × 0.90 − 1 = +8% over both periods, about +3.92% annualized for comparison. MWR solves −1,000 − 1,000 ÷ (1 + r) + 1,980 ÷ (1 + r)² = 0 and is about −0.67% annually. More money was exposed to the losing period. The application’s cumulative TWR and annualized MWR have different time bases; compare them accordingly.</source>
+        <target state="translated">Moment inwestycji ma znaczenie: zainwestuj 1 000 EUR, uzyskaj 20% zysku przez 365 dni, osiągając 1 200, a następnie zainwestuj kolejne 1 000. W następnych 365 dniach strać 10% i zakończ z wartością 1 980. TWR wynosi 1,20 × 0,90 − 1 = +8% za oba okresy, czyli dla porównania około +3,92% w ujęciu rocznym. MWR rozwiązuje równanie −1 000 − 1 000 ÷ (1 + r) + 1 980 ÷ (1 + r)² = 0 i wynosi około −0,67% rocznie. W okresie strat zaangażowany był większy kapitał. Skumulowany TWR i roczny MWR w aplikacji mają różne podstawy czasowe; uwzględnij to przy porównywaniu.</target>
+        <target state="translated">El momento importa: inviertes 1.000 EUR, ganas un 20 % durante 365 días hasta llegar a 1.200 y después inviertes otros 1.000. Pierdes un 10 % en los siguientes 365 días y terminas con 1.980. TWR es 1,20 × 0,90 − 1 = +8 % en ambos períodos, aproximadamente +3,92 % anualizado para comparar. MWR resuelve −1.000 − 1.000 ÷ (1 + r) + 1.980 ÷ (1 + r)² = 0 y es aproximadamente −0,67 % anual. Había más dinero expuesto durante el período de pérdidas. El TWR acumulado y el MWR anualizado de la aplicación tienen bases temporales distintas; tenlo en cuenta al compararlos.</target>
+      </trans-unit>
+      <trans-unit id="ngGuideDepositExample" datatype="html">
+        <source>Additional contribution: invest 1,000 EUR on day 1 and another 1,000 on day 3 at unchanged prices; the final value on day 4 is 2,100 EUR. The extra money is invested, not just left in base-currency cash. Gain is 100, not 1,100. ROI uses 2,000 of capital → 5%. In the day-1-to-day-4 chart, ROAI uses (1,000 × 2 + 2,000 × 2) ÷ 4 = 1,500 → about 6.67%. The whole-history holding average uses the three elapsed days: (1,000 × 2 + 2,000 × 1) ÷ 3 ≈ 1,333.33 → 7.5%. Compare like-for-like displays. Assume no costs, income or currency effects.</source>
+        <target state="translated">Dodatkowa wpłata: zainwestuj 1 000 EUR w dniu 1 i kolejne 1 000 w dniu 3 przy niezmienionych cenach; wartość końcowa w dniu 4 wynosi 2 100 EUR. Dodatkowe środki są inwestowane, a nie tylko pozostawione jako gotówka w walucie bazowej. Zysk wynosi 100, a nie 1 100. ROI wykorzystuje kapitał 2 000 → 5%. Na wykresie od dnia 1 do 4 ROAI wykorzystuje (1 000 × 2 + 2 000 × 2) ÷ 4 = 1 500 → około 6,67%. Średnia dla pozycji w całej historii wykorzystuje trzy dni, które upłynęły: (1 000 × 2 + 2 000 × 1) ÷ 3 ≈ 1 333,33 → 7,5%. Porównuj odpowiadające sobie widoki. Załóż brak kosztów, przychodów i wpływu kursów walut.</target>
+        <target state="translated">Aportación adicional: inviertes 1.000 EUR el día 1 y otros 1.000 el día 3 con precios sin cambios; el valor final el día 4 es de 2.100 EUR. El dinero adicional se invierte, no queda simplemente en efectivo en la divisa base. La ganancia es 100, no 1.100. ROI utiliza 2.000 de capital → 5 %. En el gráfico del día 1 al 4, ROAI utiliza (1.000 × 2 + 2.000 × 2) ÷ 4 = 1.500 → aproximadamente 6,67 %. El promedio histórico completo de la posición utiliza los tres días transcurridos: (1.000 × 2 + 2.000 × 1) ÷ 3 ≈ 1.333,33 → 7,5 %. Compara visualizaciones equivalentes. Se supone que no hay costes, ingresos ni efectos de cambio.</target>
+      </trans-unit>
+      <trans-unit id="ngGuideBenchmarksDefinition" datatype="html">
+        <source>In Analysis, choose an available benchmark in the comparator. Its line is the benchmark price change from its first available point in the portfolio range, adjusted for the benchmark currency’s change against your base currency. It is not recalculated with your deposits, fees, taxes or MWR timing, and no separate dividend reinvestment is added by the comparator. The market-data provider determines the supplied price series. For example, a price from 100 to 110 with unchanged currency gives a +10% benchmark.</source>
+        <target state="translated">W sekcji Analiza wybierz dostępny benchmark w narzędziu porównawczym. Jego linia pokazuje zmianę ceny od pierwszego dostępnego punktu w zakresie portfela, skorygowaną o zmianę kursu waluty benchmarku względem waluty bazowej. Nie jest przeliczana według Twoich wpłat, opłat, podatków ani terminów przepływów MWR; narzędzie nie dodaje też osobnej reinwestycji dywidend. Dostawca danych rynkowych określa dostarczaną serię cen. Na przykład zmiana ceny ze 100 na 110 przy niezmienionym kursie walut daje benchmarkowi +10%.</target>
+        <target state="translated">En Análisis, elige un índice de referencia disponible en el comparador. Su línea representa la variación de precio del índice desde su primer punto disponible dentro del intervalo de la cartera, ajustada por la variación de su divisa frente a tu divisa base. No se recalcula según tus depósitos, comisiones, impuestos o calendario MWR, y el comparador no añade una reinversión independiente de dividendos. El proveedor de datos de mercado determina la serie de precios disponible. Por ejemplo, pasar de 100 a 110 con divisa estable produce un índice de +10 %.</target>
+      </trans-unit>
+      <trans-unit id="ngGuideRestoreMap" datatype="html">
+        <source>For each source account, choose a new account, an existing compatible account or Exclude. Names are not matched automatically. To restore a cash ledger use a new or empty account, or a compatible account with its financial activities already imported and no existing ledger. Include both accounts of every restored transfer.</source>
+        <target state="translated">Dla każdego konta źródłowego wybierz nowe konto, istniejące zgodne konto lub Wyklucz. Nazwy nie są dopasowywane automatycznie. Aby przywrócić rejestr gotówkowy, użyj nowego lub pustego konta albo zgodnego konta z wcześniej zaimportowanymi operacjami finansowymi i bez istniejącego rejestru. Uwzględnij oba konta każdej przywracanej operacji transferu.</target>
+        <target state="translated">Para cada cuenta de origen, elige una cuenta nueva, una cuenta existente compatible o Excluir. Los nombres no se emparejan automáticamente. Para restaurar un registro de efectivo, utiliza una cuenta nueva o vacía, o una cuenta compatible con sus operaciones financieras ya importadas y sin registro de efectivo existente. Incluye ambas cuentas de cada transferencia restaurada.</target>
+      </trans-unit>
+      <trans-unit id="ngGuideRestoreConfirm" datatype="html">
+        <source>Review the preview and warnings before Import Data. Accounts, activities, exported custom-instrument data, tags, platforms and cash history are restored together; an error rolls back the restore. Existing data is retained. A complete JSON restore already includes cash, so do not import the same cash CSV again.</source>
+        <target state="translated">Przed wybraniem Importuj dane sprawdź podgląd i ostrzeżenia. Konta, operacje, wyeksportowane dane niestandardowych instrumentów, tagi, platformy i historia gotówki są przywracane razem; błąd powoduje wycofanie przywracania. Istniejące dane pozostają zachowane. Pełne przywrócenie z JSON zawiera już gotówkę, więc nie importuj ponownie tego samego pliku CSV z gotówką.</target>
+        <target state="translated">Revisa la vista previa y los avisos antes de Importar datos. Las cuentas, operaciones, datos exportados de instrumentos personalizados, etiquetas, plataformas e historial de efectivo se restauran conjuntamente; un error revierte toda la restauración. Los datos existentes se conservan. Una restauración JSON completa ya incluye el efectivo, por lo que no debes importar de nuevo el mismo CSV de efectivo.</target>
+      </trans-unit>
+      <trans-unit id="ngGuideRestoreLimits" datatype="html">
+        <source>Older exports cannot reconstruct cash history or activity links they never contained. Unmanaged legacy accounts remain unmanaged. Login credentials and server configuration are not transferred; base currency and performance method can optionally be restored only into an empty portfolio. Shared manual instruments without an owner can lack metadata or historical prices in the upstream export: verify them afterward.</source>
+        <target state="translated">Starsze eksporty nie mogą odtworzyć historii gotówki ani powiązań z operacjami, których nigdy nie zawierały. Starsze konta nieobjęte zarządzaniem pozostają niezarządzane. Dane logowania i konfiguracja serwera nie są przenoszone; walutę bazową i metodę obliczania wyników można opcjonalnie przywrócić tylko do pustego portfela. Udostępnione instrumenty ręczne bez właściciela mogą nie mieć metadanych lub historycznych cen w eksporcie źródłowym: sprawdź je później.</target>
+        <target state="translated">Las exportaciones antiguas no pueden reconstruir historiales de efectivo ni vínculos con operaciones que nunca incluyeron. Las cuentas antiguas no gestionadas siguen sin gestionarse. No se transfieren credenciales de acceso ni configuración del servidor; la divisa base y el método de rentabilidad solo pueden restaurarse opcionalmente en una cartera vacía. Los instrumentos manuales compartidos sin propietario pueden carecer de metadatos o precios históricos en la exportación original: compruébalos después.</target>
+      </trans-unit>
+      <trans-unit id="ngGuideCostBasisDescription" datatype="html">
+        <source>Realized performance uses the remaining cost basis when you sell part of a holding and later buy more. Example without fees: buy 10 at 100, sell 5 at 110, buy 5 at 200, then sell 10 at 210. Gross realized gain is 50 + 600 = 650. Previously sold quantities must not dilute the average cost of the remaining position. Review the holding’s activity history when reconciling this result with broker records.</source>
+        <target state="translated">Zrealizowany wynik wykorzystuje pozostałą podstawę kosztową, gdy sprzedajesz część pozycji, a następnie dokupujesz. Przykład bez opłat: kup 10 po 100, sprzedaj 5 po 110, kup 5 po 200, a następnie sprzedaj 10 po 210. Zrealizowany zysk brutto to 50 + 600 = 650. Wcześniej sprzedane ilości nie mogą zaniżać średniego kosztu pozostałej pozycji. Sprawdź historię operacji pozycji podczas uzgadniania wyniku z dokumentami brokera.</target>
+        <target state="translated">La rentabilidad realizada utiliza el coste restante cuando vendes parte de una posición y después compras más. Ejemplo sin comisiones: compras 10 a 100, vendes 5 a 110, compras 5 a 200 y después vendes 10 a 210. La ganancia bruta realizada es 50 + 600 = 650. Las cantidades vendidas anteriormente no deben diluir el coste medio de la posición restante. Revisa el historial de operaciones de la posición al conciliar el resultado con los datos del intermediario.</target>
+      </trans-unit>
+      <trans-unit id="ghostfolioNgBaseVersion" datatype="html">
+        <source>based on Ghostfolio <x id="INTERPOLATION" equiv-text="{{ buildInfo.upstreamVersion }}"/></source>
+        <target state="translated">na podstawie Ghostfolio <x id="INTERPOLATION" equiv-text="{{ buildInfo.upstreamVersion }}"/></target>
+        <target state="translated">basada en Ghostfolio <x id="INTERPOLATION" equiv-text="{{ buildInfo.upstreamVersion }}"/></target>
+      </trans-unit>
+      <trans-unit id="ghostfolioNgBuildVersion" datatype="html">
+        <source>Build <x id="INTERPOLATION" equiv-text="{{ buildInfo.buildNumber }}"/> — based on Ghostfolio <x id="INTERPOLATION_1" equiv-text="{{ buildInfo.upstreamVersion }}"/></source>
+        <target state="translated">Kompilacja <x id="INTERPOLATION" equiv-text="{{ buildInfo.buildNumber }}"/> — na podstawie Ghostfolio <x id="INTERPOLATION_1" equiv-text="{{ buildInfo.upstreamVersion }}"/></target>
+        <target state="translated">Compilación <x id="INTERPOLATION" equiv-text="{{ buildInfo.buildNumber }}"/> — basada en Ghostfolio <x id="INTERPOLATION_1" equiv-text="{{ buildInfo.upstreamVersion }}"/></target>
+      </trans-unit>
       </body>
   </file>
 </xliff>
