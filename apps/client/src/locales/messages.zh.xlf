@@ -11264,6 +11264,393 @@
           <context context-type="linenumber">208</context>
         </context-group>
       </trans-unit>
+      <trans-unit id="ghostfolioNgVersionLabel" datatype="html">
+        <source>Ghostfolio-NG version:</source>
+        <target state="translated">Ghostfolio-NG 版本：</target>
+        <context-group purpose="location">
+          <context context-type="sourcefile">apps/client/src/app/pages/about/overview/about-overview-page.html</context>
+        </context-group>
+      </trans-unit>
+      <trans-unit id="ghostfolioNgBuildVersion" datatype="html">
+        <source>Build <x id="INTERPOLATION" equiv-text="{{ buildInfo.buildNumber }}"/> — based on Ghostfolio <x id="INTERPOLATION_1" equiv-text="{{ buildInfo.upstreamVersion }}"/></source>
+        <target state="translated">构建 <x id="INTERPOLATION" equiv-text="{{ buildInfo.buildNumber }}"/> — 基于 Ghostfolio <x id="INTERPOLATION_1" equiv-text="{{ buildInfo.upstreamVersion }}"/></target>
+        <context-group purpose="location">
+          <context context-type="sourcefile">apps/client/src/app/pages/about/overview/about-overview-page.html</context>
+        </context-group>
+      </trans-unit>
+      <trans-unit id="ghostfolioNgBaseVersion" datatype="html">
+        <source>based on Ghostfolio <x id="INTERPOLATION" equiv-text="{{ buildInfo.upstreamVersion }}"/></source>
+        <target state="translated">基于 Ghostfolio <x id="INTERPOLATION" equiv-text="{{ buildInfo.upstreamVersion }}"/></target>
+        <context-group purpose="location">
+          <context context-type="sourcefile">apps/client/src/app/pages/about/overview/about-overview-page.html</context>
+        </context-group>
+      </trans-unit>
+      <trans-unit id="ngGuideTeam" datatype="html">
+        <source>The Ghostfolio-NG Team</source>
+        <target state="translated">Ghostfolio-NG 团队</target>
+      </trans-unit>
+      <trans-unit id="ngGuidePjRole" datatype="html">
+        <source>PJ — Project maintainer and developer</source>
+        <target state="translated">PJ — 项目维护者和开发者</target>
+      </trans-unit>
+      <trans-unit id="ngGuideCodexRole" datatype="html">
+        <source>Codex — AI development assistant</source>
+        <target state="translated">Codex — AI 开发助手</target>
+      </trans-unit>
+      <trans-unit id="ngGuideChatgptRole" datatype="html">
+        <source>ChatGPT — AI analysis and design assistant</source>
+        <target state="translated">ChatGPT — AI 分析与设计助手</target>
+      </trans-unit>
+      <trans-unit id="ngGuideUpstreamLink" datatype="html">
+        <source>Original Ghostfolio project</source>
+        <target state="translated">Ghostfolio 原始项目</target>
+      </trans-unit>
+      <trans-unit id="ngGuideProjectLink" datatype="html">
+        <source>Ghostfolio-NG project</source>
+        <target state="translated">Ghostfolio-NG 项目</target>
+      </trans-unit>
+      <trans-unit id="ngGuideCash" datatype="html">
+        <source>Cash Management</source>
+        <target state="translated">现金管理</target>
+      </trans-unit>
+      <trans-unit id="ngGuideCashAccounts" datatype="html">
+        <source>Accounts and cash balances</source>
+        <target state="translated">账户和现金余额</target>
+      </trans-unit>
+      <trans-unit id="ngGuideCashMovements" datatype="html">
+        <source>Deposits, withdrawals and reconciliation</source>
+        <target state="translated">存款、取款和余额核对</target>
+      </trans-unit>
+      <trans-unit id="ngGuideCashTransfers" datatype="html">
+        <source>Transfers between accounts</source>
+        <target state="translated">账户间转账</target>
+      </trans-unit>
+      <trans-unit id="ngGuideCashPerformance" datatype="html">
+        <source>Cash is not investment profit</source>
+        <target state="translated">现金不是投资收益</target>
+      </trans-unit>
+      <trans-unit id="ngGuideCashCsv" datatype="html">
+        <source>Cash CSV import and export</source>
+        <target state="translated">现金交易 CSV 导入与导出</target>
+      </trans-unit>
+      <trans-unit id="ngGuideCsvExampleLabel" datatype="html">
+        <source>Cash CSV example</source>
+        <target state="translated">现金交易 CSV 示例</target>
+      </trans-unit>
+      <trans-unit id="ngGuideTax" datatype="html">
+        <source>Tax Management</source>
+        <target state="translated">税务管理</target>
+      </trans-unit>
+      <trans-unit id="ngGuideCalendar" datatype="html">
+        <source>Profit and Loss Calendar</source>
+        <target state="translated">盈亏日历</target>
+      </trans-unit>
+      <trans-unit id="ngGuideCalendarAmounts" datatype="html">
+        <source>What the amounts mean</source>
+        <target state="translated">金额的含义</target>
+      </trans-unit>
+      <trans-unit id="ngGuideReturns" datatype="html">
+        <source>Financial Performance and Returns</source>
+        <target state="translated">投资表现与收益率</target>
+      </trans-unit>
+      <trans-unit id="ngGuideReturnExamples" datatype="html">
+        <source>Worked examples</source>
+        <target state="translated">计算示例</target>
+      </trans-unit>
+      <trans-unit id="ngGuideBenchmarks" datatype="html">
+        <source>Benchmarks</source>
+        <target state="translated">基准指标</target>
+      </trans-unit>
+      <trans-unit id="ngGuideImprovements" datatype="html">
+        <source>Other Ghostfolio-NG Improvements</source>
+        <target state="translated">Ghostfolio-NG 的其他改进</target>
+      </trans-unit>
+      <trans-unit id="ngGuideRestore" datatype="html">
+        <source>Complete portfolio restore</source>
+        <target state="translated">完整恢复投资组合</target>
+      </trans-unit>
+      <trans-unit id="ngGuideCostBasis" datatype="html">
+        <source>Remaining cost basis after partial sales</source>
+        <target state="translated">部分卖出后的剩余成本基础</target>
+      </trans-unit>
+      <trans-unit id="ngGuideSameDay" datatype="html">
+        <source>Same-day capital reuse</source>
+        <target state="translated">当日资金重复使用</target>
+      </trans-unit>
+      <trans-unit id="ngGuideFeeNames" datatype="html">
+        <source>Editable fee descriptions</source>
+        <target state="translated">编辑费用说明</target>
+      </trans-unit>
+      <trans-unit id="ngGuideContents" datatype="html">
+        <source>Chapters</source>
+        <target state="translated">章节目录</target>
+      </trans-unit>
+      <trans-unit id="ngGuideBackToIndex" datatype="html">
+        <source>Back to chapters</source>
+        <target state="translated">返回章节目录</target>
+      </trans-unit>
+      <trans-unit id="ngGuideIntroduction" datatype="html">
+        <source>Ghostfolio-NG is an independently maintained distribution of Ghostfolio that extends the original open-source project with additional portfolio management, financial analysis and usability features.</source>
+        <target state="translated">Ghostfolio-NG 是独立维护的 Ghostfolio 发行版本，在原始开源项目的基础上增加了投资组合管理、财务分析和易用性方面的功能。</target>
+      </trans-unit>
+      <trans-unit id="ngGuideAiCollaboration" datatype="html">
+        <source>The project combines hands-on software development with AI-assisted analysis, implementation, testing and technical review. Codex and ChatGPT are AI assistants, not human contributors.</source>
+        <target state="translated">该项目将实际软件开发与人工智能辅助的分析、实现、测试和技术审查相结合。Codex 和 ChatGPT 是人工智能助手，而非人类贡献者。</target>
+      </trans-unit>
+      <trans-unit id="ngGuidePjDescription" datatype="html">
+        <source>PJ coordinates Ghostfolio-NG development, defines requirements, designs and validates features, and oversees integration, testing and release decisions.</source>
+        <target state="translated">PJ 负责协调 Ghostfolio-NG 的开发、定义需求、设计和验证功能，并统筹集成、测试及发布决策。</target>
+      </trans-unit>
+      <trans-unit id="ngGuideCodexDescription" datatype="html">
+        <source>Codex supports implementation, code analysis, automated testing, debugging and verification of changes.</source>
+        <target state="translated">Codex 协助实现功能、分析代码、执行自动化测试、调试以及验证更改。</target>
+      </trans-unit>
+      <trans-unit id="ngGuideChatgptDescription" datatype="html">
+        <source>ChatGPT supports technical planning, architectural analysis, financial reasoning, documentation and code review.</source>
+        <target state="translated">ChatGPT 协助技术规划、架构分析、财务推理、文档编写和代码审查。</target>
+      </trans-unit>
+      <trans-unit id="ngGuideAttribution" datatype="html">
+        <source>Ghostfolio-NG builds on the original Ghostfolio open-source project and the work of its contributors. It is an independent distribution, not an official upstream edition or a replacement for the upstream project.</source>
+        <target state="translated">Ghostfolio-NG 基于原始 Ghostfolio 开源项目及其贡献者的工作成果。它是独立发行版本，并非官方上游版本，也不旨在取代原项目。</target>
+      </trans-unit>
+      <trans-unit id="ngGuideTeamImageAlt" datatype="html">
+        <source>Illustration of PJ with PJ on his shirt, Codex represented as a robot, and ChatGPT represented as a person; Codex and ChatGPT are AI assistants</source>
+        <target state="translated">插图中，PJ 的衬衫上印有“PJ”，Codex 以机器人形象出现，ChatGPT 以人物形象出现；Codex 和 ChatGPT 均为人工智能助手。</target>
+      </trans-unit>
+      <trans-unit id="ngGuideCashIntro" datatype="html">
+        <source>Cash Management records cash entering, leaving and moving between accounts alongside investment activities. Cash and holdings are distinct: positions represent investments, while total portfolio wealth also includes the cash that you choose to include.</source>
+        <target state="translated">现金管理与投资活动一起记录资金流入、流出及账户之间的转移。现金与持仓是不同的：持仓代表投资，而投资组合总资产还包括您选择纳入统计的现金。</target>
+      </trans-unit>
+      <trans-unit id="ngGuideCashAccountStep" datatype="html">
+        <source>Open Accounts, create or select an account with a currency, then open its details and Cash Balances. Creating an account alone does not create a deposit.</source>
+        <target state="translated">打开“账户”，创建或选择一个已设置币种的账户，然后进入账户详情中的“现金余额”。仅创建账户不会自动产生存款记录。</target>
+      </trans-unit>
+      <trans-unit id="ngGuideCashOpeningStep" datatype="html">
+        <source>For a new account, enter the first deposit on its actual date. For an older account, review the existing balances and reconcile to a known balance on a known date. Opening the view alone does not activate a historical account’s cash ledger; saving a movement or preference does. Existing balance snapshots are retained as dated reconciliations when management starts.</source>
+        <target state="translated">对于新账户，请按实际日期录入首笔存款。对于已有账户，请检查现有余额，并在余额已知的日期进行核对。仅打开页面不会启用历史账户的现金分类账；保存一笔交易或一项设置才会启用。开始管理时，已有余额快照将保留为带日期的余额核对记录。</target>
+      </trans-unit>
+      <trans-unit id="ngGuideCashPreferences" datatype="html">
+        <source>Review the two independent preferences: Update Cash Balance by default for new activities, and Consider this account’s cash in analyses and allocations. Check Update Cash Balance on each financial activity; changing the default is not a replay of every past activity.</source>
+        <target state="translated">检查两项独立设置：“新活动默认更新现金余额”和“在分析及资产配置中计入此账户现金”。请逐笔确认金融活动中的“更新现金余额”选项；更改默认值不会重新处理所有历史活动。</target>
+      </trans-unit>
+      <trans-unit id="ngGuideCashMovementStep" datatype="html">
+        <source>In Cash Balances, select the date and operation, enter the amount and any note, and choose Insert. The account determines the currency. Deposits and withdrawals require positive amounts; the application subtracts withdrawals automatically. Future dates are not accepted.</source>
+        <target state="translated">在“现金余额”中选择日期和操作，输入金额及可选备注，然后点击“插入”。币种由账户决定。存款和取款均须输入正数，应用会自动扣减取款金额。不允许使用未来日期。</target>
+      </trans-unit>
+      <trans-unit id="ngGuideCashFeeStep" datatype="html">
+        <source>For a deposit, cash increases by amount minus fee. For a withdrawal, cash decreases by amount plus fee. Enter a non-negative fee in the account currency. Financial activity-linked amounts already include their fees: do not add the same fee again as a manual cash movement.</source>
+        <target state="translated">存款时，现金增加金额减去手续费；取款时，现金减少金额加上手续费。手续费须以账户币种输入非负数。与金融活动关联的金额已包含其手续费，请勿再次将同一手续费记录为手动现金交易。</target>
+      </trans-unit>
+      <trans-unit id="ngGuideCashReconciliationStep" datatype="html">
+        <source>Choose Reconciliation and enter the actual cash balance, including zero or a negative balance. Its fee must be zero. It replaces the calculated balance at that point in the journal; it is not an extra deposit and does not reconstruct missing earlier transactions. Later movements continue from the reconciled balance.</source>
+        <target state="translated">选择“余额核对”，输入实际现金余额，可以为零或负数。手续费必须为零。核对会替换分类账在该时点的计算余额；它不是额外存款，也不会重建缺失的早期交易。后续交易从核对后的余额继续计算。</target>
+      </trans-unit>
+      <trans-unit id="ngGuideCashCorrections" datatype="html">
+        <source>Review the running balance in the journal. Use the movement’s Actions menu to edit or delete a manual entry. For linked investment movements, open and correct the original financial activity. A newly negative or worsened negative balance requires confirmation; review the warning rather than using reconciliation to conceal an error.</source>
+        <target state="translated">请检查流水账中的余额变化。对于手动录入的交易，可通过该交易的“操作”菜单编辑或删除。对于关联投资活动的现金变动，请打开并更正原始金融活动。如果余额首次变为负数或负余额进一步扩大，需要进行确认；请查看警告，不要通过余额核对来掩盖错误。</target>
+      </trans-unit>
+      <trans-unit id="ngGuideCashTransferSteps" datatype="html">
+        <source>From Accounts, choose Transfer Cash Balance, select From and To, enter a positive Value in the source account’s currency and confirm Transfer. The transfer uses today’s date. For different currencies, the application converts the destination amount with the available exchange rate for today; this dialog has no historical date or custom destination-amount control. Review both balances afterward.</source>
+        <target state="translated">在“账户”中选择“转移现金余额”，指定转出和转入账户，以转出账户的币种输入正数金额，然后确认转账。转账日期为今天。若币种不同，应用会使用今天可用的汇率换算转入金额。此对话框不支持历史日期，也不能自定义转入金额。完成后请检查两个账户的余额。</target>
+      </trans-unit>
+      <trans-unit id="ngGuideCashTransferLimits" datatype="html">
+        <source>A transfer between your accounts is an internal movement, not a new deposit from outside your portfolio. Managed accounts retain linked counterpart entries; legacy accounts remain supported. Transfer entries cannot be edited or deleted separately: use a new reverse transfer if needed. This version has no separate source-fee or destination-fee fields in the transfer dialog; do not assume a bank’s two fees have been recorded automatically.</source>
+        <target state="translated">您自己的账户之间的转账属于内部资金转移，并非来自投资组合外部的新存款。受管理账户会保留相互关联的对应记录，旧式账户也继续受到支持。转账记录不能单独编辑或删除一侧；如有需要，请新建一笔反向转账。此版本的转账对话框没有分别填写转出方和转入方手续费的字段，因此不要假定银行收取的两笔手续费已自动记录。</target>
+      </trans-unit>
+      <trans-unit id="ngGuideCashBoundary" datatype="html">
+        <source>Deposits, withdrawals and reconciliations change recorded wealth, not investment gains. Base-currency cash is outside the investment-return boundary; foreign-currency cash can contribute currency effects. Cash visibility and inclusion settings are separate from the selected return method. Cash fees reduce cash and appear in fee totals, but the ROI/ROAI investment-only result excludes standalone fee activities: the change in total wealth need not equal the investment-only result.</source>
+        <target state="translated">存款、取款和余额核对会改变记录的总资产，但不构成投资收益。基准货币现金不属于投资回报的计算范围；外币现金可能产生汇率影响。现金显示与纳入分析的设置独立于所选回报计算方法。现金手续费会减少现金并计入手续费总额，但仅计算投资的ROI/ROAI结果不包含独立的手续费活动。因此，总资产变化不一定等于仅投资部分的结果。</target>
+      </trans-unit>
+      <trans-unit id="ngGuideCashExample" datatype="html">
+        <source>Example in EUR: deposit 1,000 with a fee of 2 → cash 998; withdraw 100 with a fee of 1 → cash 897; reconcile to the bank’s actual 880 → cash 880, not 1,777. A later internal transfer of 200 to another EUR account leaves 680 here and adds 200 there. With no transfer fees or exchange effects, the transfer itself leaves total wealth unchanged. None of these amounts is an investment gain.</source>
+        <target state="translated">以EUR为例：存入1,000并支付手续费2后，现金为998；取出100并支付手续费1后，现金为897；与银行实际余额880核对后，现金为880，而不是1,777。之后向另一个EUR账户内部转账200，本账户剩余680，另一账户增加200。在没有转账手续费或汇率影响时，转账本身不会改变总资产。这些金额都不是投资收益。</target>
+      </trans-unit>
+      <trans-unit id="ngGuideCashCsvStep1" datatype="html">
+        <source>Use Export CSV in Cash Balances for the whole account journal. To import, use Import CSV there or on Accounts, select the destination account or create a new one, and inspect the preview. Previewing and cancelling do not create an account or save movements.</source>
+        <target state="translated">在“现金余额”中使用“导出 CSV”导出该账户的完整流水。导入时，可在此页面或“账户”页面选择“导入 CSV”，指定目标账户或创建新账户，然后检查预览。仅预览或取消不会创建账户或保存资金流水。</target>
+      </trans-unit>
+      <trans-unit id="ngGuideCashCsvStep2" datatype="html">
+        <source>Required columns: Date, Operation, Amount, Currency. Optional: Fee, Sequence, Note, Reference. Use UTF-8, comma or semicolon separators, YYYY-MM-DD dates, a decimal point and no thousands separator. The currency must match the destination account: CSV import does not exchange currencies. Italian column headings are accepted too.</source>
+        <target state="translated">必填列为 Date、Operation、Amount、Currency；可选列为 Fee、Sequence、Note、Reference。使用 UTF-8 编码、逗号或分号分隔、YYYY-MM-DD 日期格式、小数点使用句点且不使用千位分隔符。币种必须与目标账户一致：CSV 导入不会进行货币兑换。也接受意大利语列标题。</target>
+      </trans-unit>
+      <trans-unit id="ngGuideCashCsvStep3" datatype="html">
+        <source>For hand-written files use DEPOSIT, WITHDRAWAL or RECONCILIATION. Deposit and withdrawal amounts are positive; reconciliation uses the actual balance and Fee 0. Supply Sequence to order same-day movements, especially around a reconciliation. The example below ends at 880 EUR.</source>
+        <target state="translated">手动编写文件时使用 DEPOSIT、WITHDRAWAL 或 RECONCILIATION。存款和取款金额均为正数；余额核对填写实际余额且 Fee 为 0。使用 Sequence 指定同一天交易的顺序，尤其是余额核对前后的顺序。下方示例的最终余额为 880 EUR。</target>
+      </trans-unit>
+      <trans-unit id="ngGuideCashCsvPreview" datatype="html">
+        <source>Check new and existing rows, final and minimum balances, currency and warnings before confirming Insert movements. An identical Reference in the same account is skipped; changed contents under the same reference are a conflict. Possible duplicates without references need review. Errors block the whole import; existing entries are not overwritten. If the journal changes after previewing, preview again.</source>
+        <target state="translated">确认“插入流水”之前，请检查新增和现有行、最终与最低余额、币种以及警告。同一账户中 Reference 相同的记录会被跳过；若相同引用对应不同内容，则会发生冲突。没有引用的疑似重复项需要人工检查。出现错误时将阻止整批导入，且不会覆盖现有记录。如果预览后流水发生变化，请重新预览。</target>
+      </trans-unit>
+      <trans-unit id="ngGuideCashCsvLimits" datatype="html">
+        <source>Cash CSV does not create financial activities. Import those first, then match linked cash rows to the correct existing activities; ambiguous matches need your selection. Keep exported metadata and linked-activity columns unchanged. Files are limited to 2 MB and 5,000 records including metadata. A new transfer cannot be reconstructed from one side alone: use the complete JSON restore for both accounts. Cash CSV is not a full portfolio backup. Linked amounts are already net and are not taxed again. Identical stored historical rows can be recognized as existing, but new rows must match the current activity’s net cash amount. Use full JSON restore to preserve older journals whose stored amounts predate the tax correction.</source>
+        <target state="translated">现金 CSV 不会创建金融交易。请先导入金融交易，再将关联的现金记录匹配到正确的现有交易；如果存在多个可能的匹配项，需要手动选择。请勿修改导出的元数据及交易关联列。文件上限为 2 MB、5,000 条记录（含元数据）。仅凭转账的一侧记录无法重建新的账户间转账；请使用完整 JSON 恢复两个账户。现金 CSV 并非完整的投资组合备份。关联金额已是税后净额，不会再次扣税。与已保存的历史记录完全相同的行可识别为现有记录，但新行必须与当前金融交易的净现金金额一致。若要保留税款修正之前保存的旧账本金额，请使用完整 JSON 恢复。</target>
+      </trans-unit>
+      <trans-unit id="ngGuideTaxIntro" datatype="html">
+        <source>Record actual tax amounts separately from investment values and fees. This feature tracks taxes you enter; it does not calculate tax rates, choose a jurisdiction, generate a tax return or file it for you.</source>
+        <target state="translated">请将实际税额与投资金额和费用分开记录。此功能仅跟踪您输入的税款，不会计算税率、选择税务管辖区、生成纳税申报表或代为申报。</target>
+      </trans-unit>
+      <trans-unit id="ngGuideTaxEntry" datatype="html">
+        <source>Open Activities and create or edit a Buy, Sell, Dividend or Interest activity. Enter its date, account, instrument or currency, quantity and unit price as usual, then enter the monetary Tax amount separately from Fee. Tax uses the currency displayed beside the field; it is an amount, not a percentage.</source>
+        <target state="translated">打开“交易活动”，创建或编辑买入、卖出、股息或利息记录。照常输入日期、账户、证券或币种、数量和单价，然后在 Fee（费用）之外单独输入 Tax（税款）的金额。Tax 采用字段旁显示的币种，表示金额而非百分比。</target>
+      </trans-unit>
+      <trans-unit id="ngGuideTaxCash" datatype="html">
+        <source>When Update Cash Balance is enabled, a buy debits gross value plus fee and tax; a sell, dividend or interest activity credits gross value minus fee and tax. The combined net amount is calculated in the activity currency, then converted to the account currency at the activity date. There is one linked movement, not a separate tax debit. Previously saved movements keep their recorded amounts: reading, editing only a note or restoring a JSON backup does not repair earlier tax omissions. An explicit financial edit recalculates the linked amount; review any manual corrections you previously entered before changing historical activities.</source>
+        <target state="translated">启用“更新现金余额”后，买入交易将扣除总金额加手续费和税款；卖出、股息或利息交易将计入总金额减手续费和税款。合计净额先以交易币种计算，再按交易日期的汇率换算为账户币种。系统只生成一笔关联现金流水，不会另外生成税款扣款。此前保存的现金流水保留原有金额：查看记录、仅修改备注或恢复 JSON 备份，都不会自动修正过去遗漏的税款。明确修改交易金额等财务信息时，关联金额会重新计算；修改历史交易前，请检查之前手动录入的调整记录。</target>
+      </trans-unit>
+      <trans-unit id="ngGuideTaxReview" datatype="html">
+        <source>Review Tax in the activities table and edit the original activity to correct the amount, date, currency or account. Do not duplicate the same tax as a standalone fee or cash withdrawal. JSON import/export preserves tax; activity CSV import accepts Tax and Withholding Tax columns. Older entries without a tax amount use zero.</source>
+        <target state="translated">在交易活动表中查看 Tax；如需更正金额、日期、币种或账户，请编辑原始活动。不要将同一笔税款再次登记为独立费用或现金支出。JSON 导入和导出会保留税额；活动 CSV 导入支持 Tax 和 Withholding Tax 列。没有税额的旧记录按零处理。</target>
+      </trans-unit>
+      <trans-unit id="ngGuideTaxPerformance" datatype="html">
+        <source>Tax reduces monetary net investment performance while gross performance and gross dividend/interest amounts remain distinct. ROAI and ROI use this net result. The current TWR and MWR percentage routines have no explicit tax adjustment: do not interpret those percentages as after-tax returns. Use ROAI or ROI when reviewing the net result after recorded taxes.</source>
+        <target state="translated">税款会降低以金额表示的投资净收益，但总收益以及股息和利息的税前金额仍单独保留。ROAI 和 ROI 使用这一净结果。当前 TWR 和 MWR 的百分比计算没有明确的税额调整，因此不要将这些百分比视为税后收益率。查看扣除已记录税款后的净结果时，请使用 ROAI 或 ROI。</target>
+      </trans-unit>
+      <trans-unit id="ngGuideTaxExample" datatype="html">
+        <source xmlns:ns0="urn:oasis:names:tc:xliff:document:1.2">Example: a new dividend of 100 EUR with Tax 26 EUR and Fee 0 remains a gross dividend of 100 EUR and credits 74 EUR of linked cash. Tax remains recorded separately as 26 EUR. Changing Tax to 20 updates the same linked movement to 80 EUR without another tax debit. Deleting the activity removes its linked cash effect. Monetary net investment performance already deducts the recorded tax; do not change the gross dividend to 74 or enter the same tax as another cash withdrawal.</source>
+
+        <target state="translated">示例：一笔新股息的总额为 100 EUR，Tax（税款）为 26 EUR，Fee（手续费）为 0，则股息总额仍为 100 EUR，关联现金流水入账 74 EUR。26 EUR 税款仍单独记录。将 Tax 改为 20 后，同一笔关联现金流水更新为 80 EUR，不会额外扣税。删除该交易时，其关联现金影响也会被移除。投资净货币收益已扣除记录的税款，因此不要把股息总额改为 74，也不要把同一笔税款再次登记为现金提取。</target>
+      </trans-unit>
+      <trans-unit id="ngGuideTaxDisclaimer" datatype="html">
+        <source xmlns:ns0="urn:oasis:names:tc:xliff:document:1.2">Recorded tax information is not a substitute for professional tax advice. Check your records against broker statements and consult a qualified adviser for your situation.</source>
+
+        <target state="translated">已记录的税务信息不能替代专业税务建议。请将记录与券商对账单核对，并就个人情况咨询合格的专业顾问。</target>
+      </trans-unit>
+      <trans-unit id="ngGuideCalendarIntro" datatype="html">
+        <source xmlns:ns0="urn:oasis:names:tc:xliff:document:1.2">Find the calendar on Home → Overview, outside Zen Mode. It loads historical performance independently of the main overview chart’s selected range. It helps you inspect profitable and unprofitable periods without treating cash deposits as profits.</source>
+
+        <target state="translated">日历位于首页 → 概览，且不在禅模式下。它独立于主概览图表所选的时间范围加载历史业绩，帮助你查看盈利和亏损的时期，而不会把现金存入当作利润。</target>
+      </trans-unit>
+      <trans-unit id="ngGuideCalendarControls" datatype="html">
+        <source xmlns:ns0="urn:oasis:names:tc:xliff:document:1.2">Choose Daily or Weekly to inspect the selected month, Monthly for the selected year, or Last 30 days for the current rolling window. Previous and Next move one month, or one year in Monthly view. Last 30 days resets to the current date and has no historical-period arrows. Weeks run Monday to Sunday and weekly totals use only the portion inside the selected month.</source>
+
+        <target state="translated">选择“每日”或“每周”查看所选月份，“每月”查看所选年份，“最近30天”查看截至当前的滚动区间。“上一期”和“下一期”通常按月移动，在每月视图中按年移动。“最近30天”会重置为当前日期，且没有历史区间切换箭头。每周从周一到周日，周合计只包含所选月份内的日期。</target>
+      </trans-unit>
+      <trans-unit id="ngGuideCalendarUnits" datatype="html">
+        <source xmlns:ns0="urn:oasis:names:tc:xliff:document:1.2">Where your permissions and view mode allow amounts, switch between the base-currency amount and %. Restricted or hidden-value views do not expose monetary amounts. Positive and negative values use different colors and signed numbers; a dash means unavailable, not zero.</source>
+
+        <target state="translated">如果权限和视图模式允许显示金额，可在基础货币金额和%之间切换。受限视图或隐藏金额的视图不会显示货币金额。正值和负值以不同颜色和带符号的数字显示；短横线表示数据不可用，而不是零。</target>
+      </trans-unit>
+      <trans-unit id="ngGuideCalendarFormula" datatype="html">
+        <source>Each day’s monetary PnL is the difference between two consecutive calendar dates’ cumulative net performance including currency effects. Weekly and monthly amounts sum those daily differences. A gap in historical dates is not assigned entirely to the next day; incomplete elapsed daily data can make period totals unavailable. Non-trading days are included when valuations are available and may still reflect income, costs or currency changes.</source>
+
+        <target state="translated">每日金额盈亏（PnL）是连续两个日历日期之间累计净投资表现的差额，其中包含汇率影响。每周和每月金额为这些每日差额之和。历史日期存在数据缺口时，不会把全部差额归到下一天；如果已过去日期的每日数据不完整，期间合计可能无法计算。只要估值可用，非交易日也会纳入统计，并可能反映收入、费用或汇率变化。</target>
+      </trans-unit>
+      <trans-unit id="ngGuideCalendarPercentages" datatype="html">
+        <source>The % view requests a separate ROAI calculation for each period; it is not the daily monetary PnL divided by yesterday’s balance, nor the change in a cumulative percentage. In this version it is available only when ROAI is selected. With ROI, TWR or MWR, percentage cells may show a dash even when monetary PnL is available. Percentages must not be added to obtain a monthly return.</source>
+
+        <target state="translated">百分比视图会为每个期间单独计算 ROAI；它既不是每日金额 PnL 除以前一天余额，也不是累计百分比的变化。在此版本中，只有选择 ROAI 才能使用该视图。选择 ROI、TWR 或 MWR 时，即使金额 PnL 可用，百分比单元格也可能显示破折号。不能通过相加各期间的百分比来计算月度收益率。</target>
+      </trans-unit>
+      <trans-unit id="ngGuideCalendarFlows" datatype="html">
+        <source>The calendar reuses net investment performance: contributions themselves are not gains, investment dividends and applicable investment fees/taxes affect net amounts, and foreign-currency conversion affects the currency-adjusted series. It is not a bank-account balance calendar or a complete change-in-wealth statement; the cash and standalone-fee boundaries described in Cash Management still apply.</source>
+
+        <target state="translated">日历使用净投资表现：资金投入本身不属于收益，投资股息以及适用的投资费用和税款会影响净额，外币换算则会影响汇率调整后的序列。它不是银行账户余额日历，也不是完整的财富变动报表；“现金管理”中说明的现金和独立费用的计算边界仍然适用。</target>
+      </trans-unit>
+      <trans-unit id="ngGuideCalendarExample" datatype="html">
+        <source>Example: consecutive cumulative net results of 0, 12, 7 and 10 EUR produce daily PnL of +12, −5 and +3 EUR, totaling +10 EUR. A missing observation between 12 and 7 does not justify labelling −5 as a one-day result. A deposit of 500 EUR alone is not +500 EUR of PnL.</source>
+
+        <target state="translated">例如：连续的累计净结果为 0、12、7 和 10 EUR，则每日 PnL 分别为 +12、−5 和 +3 EUR，合计 +10 EUR。如果 12 和 7 之间缺少一次观测，就不能将 −5 标为单日结果。仅存入 500 EUR 并不意味着 PnL 增加 500 EUR。</target>
+      </trans-unit>
+      <trans-unit id="ngGuideReturnsIntro" datatype="html">
+        <source>A monetary gain and a percentage return answer different questions. Always compare the same date range, currency, portfolio scope and gross/net basis. These methods reuse your recorded activities and available prices; missing data or incorrect activity dates cannot be repaired by switching the method.</source>
+
+        <target state="translated">金额收益和百分比收益率回答的是不同问题。比较时务必使用相同的日期范围、币种、投资组合范围以及税费前后口径。这些方法依赖已记录的交易和可用价格；缺失的数据或错误的交易日期无法通过切换计算方法修复。</target>
+      </trans-unit>
+      <trans-unit id="ngGuideReturnsSelection" datatype="html">
+        <source>Open Settings, enable Experimental Features and choose Performance Calculation: ROAI, ROI, TWR or MWR. The selector is unavailable while impersonating another user or without permission to change settings. Review Home and Analysis after changing it. This guide explains the NG implementations; some methods and controls are experimental.</source>
+        <target state="translated">打开“设置”，启用“实验性功能”，然后在“业绩计算”中选择 ROAI、ROI、TWR 或 MWR。以其他用户身份操作或没有修改设置的权限时，无法使用该选择器。更改后请查看首页和分析页面。本指南介绍 NG 版本的实现方式；部分计算方法和控件属于实验性功能。</target>
+      </trans-unit>
+      <trans-unit id="ngGuideRoi" datatype="html">
+        <source>ROI — Return on Investment</source>
+        <target state="translated">ROI — 投资回报率</target>
+      </trans-unit>
+      <trans-unit id="ngGuideRoiDefinition" datatype="html">
+        <source>ROI divides net investment performance by invested capital, without time weighting. Net performance includes realized and unrealized investment gains and income, less applicable investment fees and taxes. At portfolio level the denominator accumulates positive net changes in remaining invested cost; a sale does not subtract from capital already counted. Same-day internal reinvestment is netted, and capital invested and released intraday is included through the daily peak adjustment. A holding’s denominator instead uses its buy amounts.</source>
+        <target state="translated">ROI 将净投资业绩除以投入资本，不按时间加权。净业绩包括已实现和未实现的投资损益及收入，并扣除适用的投资费用和税款。在投资组合层面，分母累计剩余投资成本的正向净变化；卖出不会从已计入的资本中扣减。同一天的内部再投资会相互抵销，当天投入又收回的资本通过日内峰值调整计入。单项持仓的分母则使用其买入金额。</target>
+      </trans-unit>
+      <trans-unit id="ngGuideRoiRange" datatype="html">
+        <source>For a selected date range, ROI starts with the opening market value and adds positive subsequent net investment changes and the relevant intraday adjustments. Reinvestment on different dates can count capital again. It is not simply gain divided by your latest bank balance, nor by all cash deposits.</source>
+        <target state="translated">对于选定日期范围，ROI 以期初市值为起点，加上此后净投资额的正向变化及相关日内调整。不同日期的再投资可能再次计入资本。它并非简单地用收益除以最近的银行余额或全部现金存款。</target>
+      </trans-unit>
+      <trans-unit id="ngGuideRoai" datatype="html">
+        <source>ROAI — Return on Average Investment</source>
+        <target state="translated">ROAI — 平均投资额回报率</target>
+      </trans-unit>
+      <trans-unit id="ngGuideTwr" datatype="html">
+        <source>TWR — Time-Weighted Return</source>
+        <target state="translated">TWR — 时间加权收益率</target>
+      </trans-unit>
+      <trans-unit id="ngGuideMwr" datatype="html">
+        <source>MWR — Money-Weighted Return</source>
+        <target state="translated">MWR — 资金加权收益率</target>
+      </trans-unit>
+      <trans-unit id="ngGuidePageIntro" datatype="html">
+        <source>Meet the team and learn how to use the additional features integrated into Ghostfolio-NG. This guide describes the application’s behavior, including its current limits.</source>
+        <target state="translated">了解开发团队，并学习如何使用 Ghostfolio-NG 中集成的附加功能。本指南介绍应用程序的实际行为，包括当前的限制。</target>
+      </trans-unit>
+      <trans-unit id="ngGuideNoFlowsExample" datatype="html">
+        <source>No external investment flows: invest 1,000 EUR, keep the same invested capital for 365 days and end with 1,100 EUR, with no income, fees, taxes or currency effects. Profit is 100 EUR; ROI and ROAI are 10%, cumulative TWR is 10% and annualized MWR is 10%.</source>
+        <target state="translated">无外部投资资金流动的示例：投入 1,000 EUR，在 365 天内保持投入本金不变，期末价值为 1,100 EUR，且没有收入、费用、税款或汇率影响。利润为 100 EUR；ROI 和 ROAI 均为 10%，累计 TWR 为 10%，年化 MWR 也为 10%。</target>
+      </trans-unit>
+      <trans-unit id="ngGuideBenchmarkCaution" datatype="html">
+        <source>The portfolio line uses your selected performance method; the benchmark remains a price-based comparison, not an identical investor experience. MWR is annualized while the benchmark price change is cumulative. Missing baseline prices or exchange data can limit the comparison. Check dates, currency, income and cost treatment before interpreting a gap as outperformance.</source>
+        <target state="translated">投资组合曲线使用所选的收益率计算方法，而基准仍然是基于价格变化的比较，并不代表相同的投资者实际体验。MWR 是年化值，而基准价格变化是累计值。缺少起始价格或汇率数据可能限制比较。在将差距解读为超额表现之前，请核对日期、货币、收入和成本的处理方式。</target>
+      </trans-unit>
+      <trans-unit id="ngGuideRestoreExport" datatype="html">
+        <source>On the source instance, open Settings → Export Data and keep the JSON backup private. On the destination, use Import Data beside Export Data, or Accounts → Import JSON.</source>
+        <target state="translated">在源实例中打开“设置”→“导出数据”，并妥善保管 JSON 备份，避免公开。随后在目标实例中使用“导出数据”旁的“导入数据”，或通过“账户”→“导入 JSON”进行恢复。</target>
+      </trans-unit>
+      <trans-unit id="ngGuideRestoreMap" datatype="html">
+        <source>For each source account, choose a new account, an existing compatible account or Exclude. Names are not matched automatically. To restore a cash ledger use a new or empty account, or a compatible account with its financial activities already imported and no existing ledger. Include both accounts of every restored transfer.</source>
+        <target state="translated">对于每个源账户，选择创建新账户、使用兼容的现有账户或排除。系统不会仅凭名称自动匹配。要恢复现金流水账，请使用新账户、空账户，或已导入相关投资交易且没有现有现金流水账的兼容账户。每笔要恢复的账户间转账都必须包含转出和转入两个账户。</target>
+      </trans-unit>
+      <trans-unit id="ngGuideRestoreConfirm" datatype="html">
+        <source>Review the preview and warnings before Import Data. Accounts, activities, exported custom-instrument data, tags, platforms and cash history are restored together; an error rolls back the restore. Existing data is retained. A complete JSON restore already includes cash, so do not import the same cash CSV again.</source>
+        <target state="translated">确认“导入数据”前，请检查预览和警告。账户、交易、导出的自定义金融工具数据、标签、平台及现金历史记录会一起恢复；发生错误时，整个恢复操作将回滚。现有数据会保留。完整的 JSON 恢复已包含现金数据，因此不要再次导入相同的现金 CSV 文件。</target>
+      </trans-unit>
+      <trans-unit id="ngGuideRestoreLimits" datatype="html">
+        <source>Older exports cannot reconstruct cash history or activity links they never contained. Unmanaged legacy accounts remain unmanaged. Login credentials and server configuration are not transferred; base currency and performance method can optionally be restored only into an empty portfolio. Shared manual instruments without an owner can lack metadata or historical prices in the upstream export: verify them afterward.</source>
+        <target state="translated">旧版导出文件中从未包含的现金历史记录或交易关联无法重建。未纳入管理的旧账户仍保持原状态。登录凭据和服务器配置不会迁移。只有目标投资组合为空时，才可以选择恢复基础货币和绩效计算方法。对于没有所有者的共享手动录入金融工具，上游导出文件可能缺少元数据或历史价格；恢复后请核查。</target>
+      </trans-unit>
+      <trans-unit id="ngGuideFeeNamesDescription" datatype="html">
+        <source>In Activities, edit a standalone Fee activity to correct its name. A shared or administrator-owned instrument profile is separated when necessary so renaming your fee does not rename other activities. This changes the description, not the fee amount; check both fields before saving.</source>
+        <target state="translated">在“交易”中编辑独立的手续费交易，可以修正其名称。必要时，系统会分离共享或管理员所有的金融工具资料，避免修改自己的手续费名称时连带更改其他交易。这只会修改描述，不会改变手续费金额；保存前请检查这两个字段。</target>
+      </trans-unit>
+      <trans-unit id="ngGuideRoaiDefinition" datatype="html">
+        <source>ROAI divides net monetary investment performance by average invested capital. For a holding’s whole history, remaining invested cost is weighted by elapsed calendar intervals between investment activities and the terminal valuation. The portfolio sums the included holdings’ averages. For a selected date range, the calculator includes opening unrealized performance in the opening capital and counts the final valuation day in the daily average. These conventions can produce different averages in whole-history holding statistics and date-range charts. Calendar-day weighting avoids daylight-saving distortions. ROAI is neither TWR nor an annualized XIRR.</source>
+        <target state="translated">ROAI 将净投资收益金额除以平均投入资本。对于持仓的完整历史，剩余投资成本按照投资活动之间及截至最终估值日的实际日历天数加权。投资组合汇总所包含持仓的平均值。对于选定日期范围，计算器将期初未实现损益计入期初资本，并将最终估值日纳入日均值计算。因此，持仓完整历史统计与区间图表的平均值可能不同。按日历天数加权可避免夏令时造成的偏差。ROAI 既不是 TWR，也不是年化 XIRR。</target>
+      </trans-unit>
+      <trans-unit id="ngGuideTwrDefinition" datatype="html">
+        <source>TWR geometrically links daily growth factors. When the preceding value is positive, the factor is (current value − net investment cash inflow + performance adjustments) ÷ preceding value; the total return is the product of factors minus one. At this investment boundary buys add capital and sells release it; same-day flows across holdings are netted. Dividends and interest are return, and fees are negative adjustments. This reduces the effect of contribution timing rather than treating new capital as a gain.</source>
+        <target state="translated">TWR 以几何连乘方式连接每日增长因子。当前一日价值为正时，因子为（当前价值 − 净投资现金流入 + 绩效调整）÷ 前一日价值；总收益率等于各因子的乘积减 1。在此投资范围内，买入增加资本，卖出释放资本；同一天不同持仓间的资金流相互抵消。股息和利息计入收益，费用作为负向调整。这可以降低投入时点的影响，而不会把新增资本视为利润。</target>
+      </trans-unit>
+      <trans-unit id="ngGuideMwrDefinition" datatype="html">
+        <source>MWR solves an annualized XIRR from dated investor cash flows and the terminal investment value. Buys are negative, sells and investment income positive, fees negative and terminal value positive. Same-day flows are combined. The solver uses actual calendar days divided by 365: a short-period MWR is still annualized. Date ranges start with a negative opening market value. Base-currency cash remains outside this investment boundary; merely depositing money into that cash account is not an investment cash flow.</source>
+        <target state="translated">MWR 根据带日期的投资者现金流和期末投资价值求解年化 XIRR。买入为负，卖出和投资收入为正，费用为负，期末价值为正。同日现金流合并计算。求解器使用实际日历天数除以 365，因此短期 MWR 也经过年化。日期范围从负的期初市值开始。基础货币现金不属于此投资范围；仅向该现金账户存款不构成投资现金流。</target>
+      </trans-unit>
+      <trans-unit id="ngGuideMwrLimits" datatype="html">
+        <source>An XIRR can have multiple solutions or no valid solution. This implementation starts its solver at zero and can return zero when it cannot determine a valid root or when dated flows are insufficient. A displayed zero therefore does not always prove that the investment broke even. TWR/MWR percentage routines do not explicitly deduct the Tax field in this baseline; use the monetary net result and ROAI/ROI for reviewing recorded taxes.</source>
+        <target state="translated">XIRR 可能有多个解，也可能没有有效解。此实现从零开始求解；如果无法确定有效根，或带日期的现金流不足，可能返回零。因此显示为零并不总是表示投资盈亏平衡。在当前基线中，TWR/MWR 百分比计算不会明确扣除 Tax 字段；查看已记录税款后的结果时，请使用净收益金额以及 ROAI/ROI。</target>
+      </trans-unit>
+      <trans-unit id="ngGuideDepositExample" datatype="html">
+        <source>Additional contribution: invest 1,000 EUR on day 1 and another 1,000 on day 3 at unchanged prices; the final value on day 4 is 2,100 EUR. The extra money is invested, not just left in base-currency cash. Gain is 100, not 1,100. ROI uses 2,000 of capital → 5%. In the day-1-to-day-4 chart, ROAI uses (1,000 × 2 + 2,000 × 2) ÷ 4 = 1,500 → about 6.67%. The whole-history holding average uses the three elapsed days: (1,000 × 2 + 2,000 × 1) ÷ 3 ≈ 1,333.33 → 7.5%. Compare like-for-like displays. Assume no costs, income or currency effects.</source>
+        <target state="translated">追加投入示例：第 1 天投入 1,000 EUR，第 3 天价格不变时再投入 1,000 EUR，第 4 天最终价值为 2,100 EUR。追加资金已投入投资，而非仅留在基础货币现金账户中。收益是 100，而不是 1,100。ROI 以 2,000 为投入资本，结果为 5%。在第 1 至第 4 天的图表中，ROAI 使用 (1,000 × 2 + 2,000 × 2) ÷ 4 = 1,500，约为 6.67%。持仓完整历史平均值按经过的三天计算：(1,000 × 2 + 2,000 × 1) ÷ 3 ≈ 1,333.33，对应 7.5%。请比较相同口径的数据。假设没有成本、收入或汇率影响。</target>
+      </trans-unit>
+      <trans-unit id="ngGuideTimingExample" datatype="html">
+        <source>Timing matters: invest 1,000 EUR, gain 20% over 365 days to reach 1,200, then invest another 1,000. Lose 10% over the next 365 days and finish at 1,980. TWR is 1.20 × 0.90 − 1 = +8% over both periods, about +3.92% annualized for comparison. MWR solves −1,000 − 1,000 ÷ (1 + r) + 1,980 ÷ (1 + r)² = 0 and is about −0.67% annually. More money was exposed to the losing period. The application’s cumulative TWR and annualized MWR have different time bases; compare them accordingly.</source>
+        <target state="translated">投入时点很重要：投入 1,000 EUR，365 天内上涨 20% 至 1,200，然后再投入 1,000。接下来 365 天下跌 10%，最终价值为 1,980。两个期间的 TWR 为 1.20 × 0.90 − 1 = +8%，供比较的年化值约为 +3.92%。MWR 求解 −1,000 − 1,000 ÷ (1 + r) + 1,980 ÷ (1 + r)² = 0，年化结果约为 −0.67%。亏损期间投入的资金更多。应用中的累计 TWR 与年化 MWR 采用不同时间口径，请据此比较。</target>
+      </trans-unit>
+      <trans-unit id="ngGuideBenchmarksDefinition" datatype="html">
+        <source>In Analysis, choose an available benchmark in the comparator. Its line is the benchmark price change from its first available point in the portfolio range, adjusted for the benchmark currency’s change against your base currency. It is not recalculated with your deposits, fees, taxes or MWR timing, and no separate dividend reinvestment is added by the comparator. The market-data provider determines the supplied price series. For example, a price from 100 to 110 with unchanged currency gives a +10% benchmark.</source>
+        <target state="translated">在“分析”中通过比较器选择可用的基准。基准曲线表示从投资组合区间内第一个可用价格起的价格变化，并根据基准货币相对基础货币的汇率变化进行调整。它不会根据您的存款、费用、税款或 MWR 投入时点重新计算，比较器也不会额外进行股息再投资。价格序列由市场数据提供方决定。例如，汇率不变且价格从 100 上升至 110，则基准收益为 +10%。</target>
+      </trans-unit>
+      <trans-unit id="ngGuideCostBasisDescription" datatype="html">
+        <source>Realized performance uses the remaining cost basis when you sell part of a holding and later buy more. Example without fees: buy 10 at 100, sell 5 at 110, buy 5 at 200, then sell 10 at 210. Gross realized gain is 50 + 600 = 650. Previously sold quantities must not dilute the average cost of the remaining position. Review the holding’s activity history when reconciling this result with broker records.</source>
+        <target state="translated">部分卖出后再次买入时，已实现收益按剩余持仓的成本基础计算。无费用示例：以 100 买入 10 份，以 110 卖出 5 份，以 200 买入 5 份，最后以 210 卖出 10 份。已实现毛收益为 50 + 600 = 650。此前已卖出的数量不应摊薄剩余持仓的平均成本。与券商记录核对时，请检查该持仓的交易历史。</target>
+      </trans-unit>
+      <trans-unit id="ngGuideSameDayDescription" datatype="html">
+        <source>ROI also recognizes capital invested and released before the end of a day. Buy and sell 1,000 on the same day and the capital is not zero. If you then reinvest 1,100 that day, the same-day peak is 1,100, not the sum 2,100. Dates and transaction order matter; enter the real activity sequence instead of changing dates to force a desired return.</source>
+        <target state="translated">ROI 还会识别同一天结束前投入并收回的资本。同日买入并卖出 1,000，投入资本也不会变成零。如果当天又投入 1,100，则当日峰值为 1,100，而不是相加后的 2,100。日期和交易顺序很重要；请录入真实交易顺序，不要为了得到期望的收益率而修改日期。</target>
+      </trans-unit>
       </body>
   </file>
 </xliff>

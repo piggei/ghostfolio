@@ -11264,6 +11264,393 @@
           <context context-type="linenumber">208</context>
         </context-group>
       </trans-unit>
+      <trans-unit id="ghostfolioNgVersionLabel" datatype="html">
+        <source>Ghostfolio-NG version:</source>
+        <target state="translated">Ghostfolio-NG のバージョン:</target>
+        <context-group purpose="location">
+          <context context-type="sourcefile">apps/client/src/app/pages/about/overview/about-overview-page.html</context>
+        </context-group>
+      </trans-unit>
+      <trans-unit id="ghostfolioNgBuildVersion" datatype="html">
+        <source>Build <x id="INTERPOLATION" equiv-text="{{ buildInfo.buildNumber }}"/> — based on Ghostfolio <x id="INTERPOLATION_1" equiv-text="{{ buildInfo.upstreamVersion }}"/></source>
+        <target state="translated">ビルド <x id="INTERPOLATION" equiv-text="{{ buildInfo.buildNumber }}"/> — Ghostfolio <x id="INTERPOLATION_1" equiv-text="{{ buildInfo.upstreamVersion }}"/> をベースにしています</target>
+        <context-group purpose="location">
+          <context context-type="sourcefile">apps/client/src/app/pages/about/overview/about-overview-page.html</context>
+        </context-group>
+      </trans-unit>
+      <trans-unit id="ghostfolioNgBaseVersion" datatype="html">
+        <source>based on Ghostfolio <x id="INTERPOLATION" equiv-text="{{ buildInfo.upstreamVersion }}"/></source>
+        <target state="translated">Ghostfolio <x id="INTERPOLATION" equiv-text="{{ buildInfo.upstreamVersion }}"/> をベースにしています</target>
+        <context-group purpose="location">
+          <context context-type="sourcefile">apps/client/src/app/pages/about/overview/about-overview-page.html</context>
+        </context-group>
+      </trans-unit>
+      <trans-unit id="ngGuideTeam" datatype="html">
+        <source>The Ghostfolio-NG Team</source>
+        <target state="translated">Ghostfolio-NG チーム</target>
+      </trans-unit>
+      <trans-unit id="ngGuidePjRole" datatype="html">
+        <source>PJ — Project maintainer and developer</source>
+        <target state="translated">PJ — プロジェクト管理者・開発者</target>
+      </trans-unit>
+      <trans-unit id="ngGuideCodexRole" datatype="html">
+        <source>Codex — AI development assistant</source>
+        <target state="translated">Codex — AI 開発アシスタント</target>
+      </trans-unit>
+      <trans-unit id="ngGuideChatgptRole" datatype="html">
+        <source>ChatGPT — AI analysis and design assistant</source>
+        <target state="translated">ChatGPT — AI 分析・設計アシスタント</target>
+      </trans-unit>
+      <trans-unit id="ngGuideUpstreamLink" datatype="html">
+        <source>Original Ghostfolio project</source>
+        <target state="translated">Ghostfolio オリジナルプロジェクト</target>
+      </trans-unit>
+      <trans-unit id="ngGuideProjectLink" datatype="html">
+        <source>Ghostfolio-NG project</source>
+        <target state="translated">Ghostfolio-NG プロジェクト</target>
+      </trans-unit>
+      <trans-unit id="ngGuideCash" datatype="html">
+        <source>Cash Management</source>
+        <target state="translated">現金管理</target>
+      </trans-unit>
+      <trans-unit id="ngGuideCashAccounts" datatype="html">
+        <source>Accounts and cash balances</source>
+        <target state="translated">口座と現金残高</target>
+      </trans-unit>
+      <trans-unit id="ngGuideCashMovements" datatype="html">
+        <source>Deposits, withdrawals and reconciliation</source>
+        <target state="translated">入金、出金、残高調整</target>
+      </trans-unit>
+      <trans-unit id="ngGuideCashTransfers" datatype="html">
+        <source>Transfers between accounts</source>
+        <target state="translated">口座間の振替</target>
+      </trans-unit>
+      <trans-unit id="ngGuideCashPerformance" datatype="html">
+        <source>Cash is not investment profit</source>
+        <target state="translated">現金は投資利益ではありません</target>
+      </trans-unit>
+      <trans-unit id="ngGuideCashCsv" datatype="html">
+        <source>Cash CSV import and export</source>
+        <target state="translated">現金取引 CSV のインポートとエクスポート</target>
+      </trans-unit>
+      <trans-unit id="ngGuideCsvExampleLabel" datatype="html">
+        <source>Cash CSV example</source>
+        <target state="translated">現金取引 CSV の例</target>
+      </trans-unit>
+      <trans-unit id="ngGuideTax" datatype="html">
+        <source>Tax Management</source>
+        <target state="translated">税金の管理</target>
+      </trans-unit>
+      <trans-unit id="ngGuideCalendar" datatype="html">
+        <source>Profit and Loss Calendar</source>
+        <target state="translated">損益カレンダー</target>
+      </trans-unit>
+      <trans-unit id="ngGuideCalendarAmounts" datatype="html">
+        <source>What the amounts mean</source>
+        <target state="translated">金額の意味</target>
+      </trans-unit>
+      <trans-unit id="ngGuideReturns" datatype="html">
+        <source>Financial Performance and Returns</source>
+        <target state="translated">投資パフォーマンスと収益率</target>
+      </trans-unit>
+      <trans-unit id="ngGuideReturnExamples" datatype="html">
+        <source>Worked examples</source>
+        <target state="translated">計算例</target>
+      </trans-unit>
+      <trans-unit id="ngGuideBenchmarks" datatype="html">
+        <source>Benchmarks</source>
+        <target state="translated">ベンチマーク</target>
+      </trans-unit>
+      <trans-unit id="ngGuideImprovements" datatype="html">
+        <source>Other Ghostfolio-NG Improvements</source>
+        <target state="translated">Ghostfolio-NG のその他の改善点</target>
+      </trans-unit>
+      <trans-unit id="ngGuideRestore" datatype="html">
+        <source>Complete portfolio restore</source>
+        <target state="translated">ポートフォリオ全体の復元</target>
+      </trans-unit>
+      <trans-unit id="ngGuideCostBasis" datatype="html">
+        <source>Remaining cost basis after partial sales</source>
+        <target state="translated">一部売却後の残存取得原価</target>
+      </trans-unit>
+      <trans-unit id="ngGuideSameDay" datatype="html">
+        <source>Same-day capital reuse</source>
+        <target state="translated">同日中の資金再利用</target>
+      </trans-unit>
+      <trans-unit id="ngGuideFeeNames" datatype="html">
+        <source>Editable fee descriptions</source>
+        <target state="translated">手数料の説明を編集</target>
+      </trans-unit>
+      <trans-unit id="ngGuideContents" datatype="html">
+        <source>Chapters</source>
+        <target state="translated">目次</target>
+      </trans-unit>
+      <trans-unit id="ngGuideBackToIndex" datatype="html">
+        <source>Back to chapters</source>
+        <target state="translated">目次に戻る</target>
+      </trans-unit>
+      <trans-unit id="ngGuideIntroduction" datatype="html">
+        <source>Ghostfolio-NG is an independently maintained distribution of Ghostfolio that extends the original open-source project with additional portfolio management, financial analysis and usability features.</source>
+        <target state="translated">Ghostfolio-NGは、オリジナルのオープンソースプロジェクトGhostfolioを拡張し、ポートフォリオ管理、金融分析、使いやすさを向上させる機能を追加した、独立して保守されるディストリビューションです。</target>
+      </trans-unit>
+      <trans-unit id="ngGuideAiCollaboration" datatype="html">
+        <source>The project combines hands-on software development with AI-assisted analysis, implementation, testing and technical review. Codex and ChatGPT are AI assistants, not human contributors.</source>
+        <target state="translated">このプロジェクトでは、開発者によるソフトウェア開発に加え、AIを活用した分析、実装、テスト、技術レビューを行っています。CodexとChatGPTはAIアシスタントであり、人間の貢献者ではありません。</target>
+      </trans-unit>
+      <trans-unit id="ngGuidePjDescription" datatype="html">
+        <source>PJ coordinates Ghostfolio-NG development, defines requirements, designs and validates features, and oversees integration, testing and release decisions.</source>
+        <target state="translated">PJはGhostfolio-NGの開発を統括し、要件の定義、機能の設計と検証、統合、テスト、リリースに関する判断を担当します。</target>
+      </trans-unit>
+      <trans-unit id="ngGuideCodexDescription" datatype="html">
+        <source>Codex supports implementation, code analysis, automated testing, debugging and verification of changes.</source>
+        <target state="translated">Codexは、実装、コード分析、自動テスト、デバッグ、変更内容の検証を支援します。</target>
+      </trans-unit>
+      <trans-unit id="ngGuideChatgptDescription" datatype="html">
+        <source>ChatGPT supports technical planning, architectural analysis, financial reasoning, documentation and code review.</source>
+        <target state="translated">ChatGPTは、技術計画、アーキテクチャ分析、財務面の検討、ドキュメント作成、コードレビューを支援します。</target>
+      </trans-unit>
+      <trans-unit id="ngGuideAttribution" datatype="html">
+        <source>Ghostfolio-NG builds on the original Ghostfolio open-source project and the work of its contributors. It is an independent distribution, not an official upstream edition or a replacement for the upstream project.</source>
+        <target state="translated">Ghostfolio-NGは、オリジナルのオープンソースプロジェクトGhostfolioとその貢献者の成果を基盤としています。独立したディストリビューションであり、公式の上流版でも、元のプロジェクトの代替でもありません。</target>
+      </trans-unit>
+      <trans-unit id="ngGuideTeamImageAlt" datatype="html">
+        <source>Illustration of PJ with PJ on his shirt, Codex represented as a robot, and ChatGPT represented as a person; Codex and ChatGPT are AI assistants</source>
+        <target state="translated">シャツに「PJ」と書かれたPJ、ロボットとして描かれたCodex、人物として描かれたChatGPTのイラスト。CodexとChatGPTはAIアシスタントです。</target>
+      </trans-unit>
+      <trans-unit id="ngGuideCashIntro" datatype="html">
+        <source>Cash Management records cash entering, leaving and moving between accounts alongside investment activities. Cash and holdings are distinct: positions represent investments, while total portfolio wealth also includes the cash that you choose to include.</source>
+        <target state="translated">現金管理では、投資取引と併せて、口座への入金、出金、口座間の資金移動を記録します。現金と保有資産は別のものです。ポジションは投資を表し、ポートフォリオの総資産には、集計対象として選択した現金も含まれます。</target>
+      </trans-unit>
+      <trans-unit id="ngGuideCashAccountStep" datatype="html">
+        <source>Open Accounts, create or select an account with a currency, then open its details and Cash Balances. Creating an account alone does not create a deposit.</source>
+        <target state="translated">「口座」を開き、通貨を指定して口座を作成するか既存の口座を選択します。次に口座の詳細から「現金残高」を開きます。口座を作成しただけでは入金は記録されません。</target>
+      </trans-unit>
+      <trans-unit id="ngGuideCashOpeningStep" datatype="html">
+        <source>For a new account, enter the first deposit on its actual date. For an older account, review the existing balances and reconcile to a known balance on a known date. Opening the view alone does not activate a historical account’s cash ledger; saving a movement or preference does. Existing balance snapshots are retained as dated reconciliations when management starts.</source>
+        <target state="translated">新しい口座では、最初の入金を実際の日付で入力します。以前から使用している口座では既存の残高を確認し、残高が判明している日付で照合します。画面を開くだけでは過去の口座の現金台帳は有効にならず、取引または設定を保存すると有効になります。管理を開始した時点で、既存の残高スナップショットは日付付きの残高照合として保持されます。</target>
+      </trans-unit>
+      <trans-unit id="ngGuideCashPreferences" datatype="html">
+        <source>Review the two independent preferences: Update Cash Balance by default for new activities, and Consider this account’s cash in analyses and allocations. Check Update Cash Balance on each financial activity; changing the default is not a replay of every past activity.</source>
+        <target state="translated">独立した二つの設定を確認してください。「新しい取引で現金残高を既定で更新する」と「この口座の現金を分析と資産配分に含める」です。各金融取引で「現金残高を更新」を確認してください。既定値を変更しても過去の全取引が再処理されるわけではありません。</target>
+      </trans-unit>
+      <trans-unit id="ngGuideCashMovementStep" datatype="html">
+        <source>In Cash Balances, select the date and operation, enter the amount and any note, and choose Insert. The account determines the currency. Deposits and withdrawals require positive amounts; the application subtracts withdrawals automatically. Future dates are not accepted.</source>
+        <target state="translated">「現金残高」で日付と操作を選び、金額と必要に応じてメモを入力して「挿入」を選択します。通貨は口座によって決まります。入金と出金には正の金額を入力し、出金分はアプリが自動的に差し引きます。未来の日付は指定できません。</target>
+      </trans-unit>
+      <trans-unit id="ngGuideCashFeeStep" datatype="html">
+        <source>For a deposit, cash increases by amount minus fee. For a withdrawal, cash decreases by amount plus fee. Enter a non-negative fee in the account currency. Financial activity-linked amounts already include their fees: do not add the same fee again as a manual cash movement.</source>
+        <target state="translated">入金時は金額から手数料を引いた分だけ現金が増え、出金時は金額と手数料の合計だけ現金が減ります。手数料は口座通貨で0以上の値を入力します。投資取引に連動する金額には手数料が既に含まれるため、同じ手数料を手動の現金取引として重複登録しないでください。</target>
+      </trans-unit>
+      <trans-unit id="ngGuideCashReconciliationStep" datatype="html">
+        <source>Choose Reconciliation and enter the actual cash balance, including zero or a negative balance. Its fee must be zero. It replaces the calculated balance at that point in the journal; it is not an extra deposit and does not reconstruct missing earlier transactions. Later movements continue from the reconciled balance.</source>
+        <target state="translated">「残高照合」を選択し、0やマイナスも含めた実際の現金残高を入力します。手数料は0でなければなりません。照合は台帳のその時点の計算残高を置き換えるもので、追加の入金ではなく、欠落した過去の取引を復元するものでもありません。その後の取引は照合後の残高から続きます。</target>
+      </trans-unit>
+      <trans-unit id="ngGuideCashCorrections" datatype="html">
+        <source>Review the running balance in the journal. Use the movement’s Actions menu to edit or delete a manual entry. For linked investment movements, open and correct the original financial activity. A newly negative or worsened negative balance requires confirmation; review the warning rather than using reconciliation to conceal an error.</source>
+        <target state="translated">台帳の残高推移を確認してください。手動で登録した取引は、その取引の「アクション」メニューから編集または削除できます。投資取引に連動する現金移動は、元の金融取引を開いて修正してください。新たに残高がマイナスになる場合やマイナス幅が拡大する場合は確認が必要です。照合で誤りを隠さず、警告を確認してください。</target>
+      </trans-unit>
+      <trans-unit id="ngGuideCashTransferSteps" datatype="html">
+        <source>From Accounts, choose Transfer Cash Balance, select From and To, enter a positive Value in the source account’s currency and confirm Transfer. The transfer uses today’s date. For different currencies, the application converts the destination amount with the available exchange rate for today; this dialog has no historical date or custom destination-amount control. Review both balances afterward.</source>
+        <target state="translated">「口座」から「現金残高を振替」を選び、「振替元」と「振替先」を指定し、振替元口座の通貨で正の金額を入力して振替を確定します。振替日は当日です。通貨が異なる場合、アプリは当日利用可能な為替レートで振替先の金額を換算します。この画面では過去の日付や振替先の任意の金額を指定できません。処理後に両方の残高を確認してください。</target>
+      </trans-unit>
+      <trans-unit id="ngGuideCashTransferLimits" datatype="html">
+        <source>A transfer between your accounts is an internal movement, not a new deposit from outside your portfolio. Managed accounts retain linked counterpart entries; legacy accounts remain supported. Transfer entries cannot be edited or deleted separately: use a new reverse transfer if needed. This version has no separate source-fee or destination-fee fields in the transfer dialog; do not assume a bank’s two fees have been recorded automatically.</source>
+        <target state="translated">自分の口座間の振替は内部移動であり、ポートフォリオ外部からの新規入金ではありません。管理対象口座では対応する取引が相互にリンクされ、従来型口座も引き続きサポートされます。振替の片側だけを編集・削除することはできません。必要なら逆方向の振替を新たに登録してください。このバージョンの振替画面には振替元・振替先それぞれの手数料欄がないため、銀行が課した両方の手数料が自動記録されたと考えないでください。</target>
+      </trans-unit>
+      <trans-unit id="ngGuideCashBoundary" datatype="html">
+        <source>Deposits, withdrawals and reconciliations change recorded wealth, not investment gains. Base-currency cash is outside the investment-return boundary; foreign-currency cash can contribute currency effects. Cash visibility and inclusion settings are separate from the selected return method. Cash fees reduce cash and appear in fee totals, but the ROI/ROAI investment-only result excludes standalone fee activities: the change in total wealth need not equal the investment-only result.</source>
+        <target state="translated">入金、出金、残高照合は記録上の資産総額を変えますが、投資利益ではありません。基準通貨の現金は投資リターンの計算対象外であり、外貨現金は為替変動の影響を生む場合があります。現金の表示・集計設定は、選択したリターン計算方法とは独立しています。現金取引の手数料は現金を減らし手数料合計に含まれますが、投資のみを対象とするROI/ROAIでは単独の手数料取引を除外します。そのため、資産総額の変化と投資のみの損益は一致しない場合があります。</target>
+      </trans-unit>
+      <trans-unit id="ngGuideCashExample" datatype="html">
+        <source>Example in EUR: deposit 1,000 with a fee of 2 → cash 998; withdraw 100 with a fee of 1 → cash 897; reconcile to the bank’s actual 880 → cash 880, not 1,777. A later internal transfer of 200 to another EUR account leaves 680 here and adds 200 there. With no transfer fees or exchange effects, the transfer itself leaves total wealth unchanged. None of these amounts is an investment gain.</source>
+        <target state="translated">EURでの例：手数料2を伴う1,000の入金で現金は998、手数料1を伴う100の出金で897になります。銀行の実残高880に照合すると現金は880であり、1,777ではありません。その後、別のEUR口座へ200を内部振替すると、この口座は680、振替先は200増加します。振替手数料や為替の影響がなければ、振替自体は資産総額を変えません。これらはいずれも投資利益ではありません。</target>
+      </trans-unit>
+      <trans-unit id="ngGuideCashCsvStep1" datatype="html">
+        <source>Use Export CSV in Cash Balances for the whole account journal. To import, use Import CSV there or on Accounts, select the destination account or create a new one, and inspect the preview. Previewing and cancelling do not create an account or save movements.</source>
+        <target state="translated">「現金残高」の「CSVをエクスポート」で口座の台帳全体を出力します。取り込むには同画面または「口座」の「CSVをインポート」を使用し、取り込み先の口座を選択するか新規作成して、プレビューを確認します。プレビュー表示やキャンセルだけでは口座も取引も保存されません。</target>
+      </trans-unit>
+      <trans-unit id="ngGuideCashCsvStep2" datatype="html">
+        <source>Required columns: Date, Operation, Amount, Currency. Optional: Fee, Sequence, Note, Reference. Use UTF-8, comma or semicolon separators, YYYY-MM-DD dates, a decimal point and no thousands separator. The currency must match the destination account: CSV import does not exchange currencies. Italian column headings are accepted too.</source>
+        <target state="translated">必須列は Date、Operation、Amount、Currency です。任意列は Fee、Sequence、Note、Reference です。UTF-8、カンマまたはセミコロン区切り、YYYY-MM-DD 形式の日付、小数点にはピリオドを使用し、桁区切りは付けません。通貨は取り込み先口座と一致させてください。CSV取り込み時に通貨換算は行われません。イタリア語の列見出しも使用できます。</target>
+      </trans-unit>
+      <trans-unit id="ngGuideCashCsvStep3" datatype="html">
+        <source>For hand-written files use DEPOSIT, WITHDRAWAL or RECONCILIATION. Deposit and withdrawal amounts are positive; reconciliation uses the actual balance and Fee 0. Supply Sequence to order same-day movements, especially around a reconciliation. The example below ends at 880 EUR.</source>
+        <target state="translated">手作業で作成するファイルでは DEPOSIT、WITHDRAWAL、RECONCILIATION を使用します。入金と出金の金額は正数で、照合には実際の残高と Fee 0 を指定します。同日の取引順序、特に照合前後の順序を定めるには Sequence を指定します。以下の例の最終残高は 880 EUR です。</target>
+      </trans-unit>
+      <trans-unit id="ngGuideCashCsvPreview" datatype="html">
+        <source>Check new and existing rows, final and minimum balances, currency and warnings before confirming Insert movements. An identical Reference in the same account is skipped; changed contents under the same reference are a conflict. Possible duplicates without references need review. Errors block the whole import; existing entries are not overwritten. If the journal changes after previewing, preview again.</source>
+        <target state="translated">「取引を挿入」を確定する前に、新規行と既存行、最終残高と最低残高、通貨、警告を確認してください。同一口座内で Reference が同じ行はスキップされ、同じ参照値で内容が異なる場合は競合になります。参照値のない重複候補は確認が必要です。エラーがある場合は取り込み全体が停止し、既存の記録は上書きされません。プレビュー後に台帳が変わった場合は再度プレビューしてください。</target>
+      </trans-unit>
+      <trans-unit id="ngGuideCashCsvLimits" datatype="html">
+        <source>Cash CSV does not create financial activities. Import those first, then match linked cash rows to the correct existing activities; ambiguous matches need your selection. Keep exported metadata and linked-activity columns unchanged. Files are limited to 2 MB and 5,000 records including metadata. A new transfer cannot be reconstructed from one side alone: use the complete JSON restore for both accounts. Cash CSV is not a full portfolio backup. Linked amounts are already net and are not taxed again. Identical stored historical rows can be recognized as existing, but new rows must match the current activity’s net cash amount. Use full JSON restore to preserve older journals whose stored amounts predate the tax correction.</source>
+        <target state="translated">現金CSVでは金融取引は作成されません。先に金融取引をインポートし、関連する現金行を適切な既存取引に対応付けてください。候補が複数ある場合は選択が必要です。エクスポートされたメタデータと取引の関連付け列は変更しないでください。ファイルの上限は2 MB、メタデータを含めて5,000レコードです。新しい口座間振替は片側の記録だけでは復元できません。両口座の完全なJSON復元を使用してください。現金CSVはポートフォリオ全体のバックアップではありません。関連金額はすでに税引後の正味額であり、税金が再度差し引かれることはありません。保存済みの履歴行と完全に一致する行は既存として認識されますが、新規行は現在の取引の正味現金額と一致する必要があります。税金処理の修正前に保存された金額を含む古い台帳を保持するには、完全なJSON復元を使用してください。</target>
+      </trans-unit>
+      <trans-unit id="ngGuideTaxIntro" datatype="html">
+        <source>Record actual tax amounts separately from investment values and fees. This feature tracks taxes you enter; it does not calculate tax rates, choose a jurisdiction, generate a tax return or file it for you.</source>
+        <target state="translated">実際に支払った税額は、投資額や手数料とは別に記録してください。この機能は入力された税額を管理するものであり、税率の計算、税務管轄の選択、申告書の作成や提出は行いません。</target>
+      </trans-unit>
+      <trans-unit id="ngGuideTaxEntry" datatype="html">
+        <source>Open Activities and create or edit a Buy, Sell, Dividend or Interest activity. Enter its date, account, instrument or currency, quantity and unit price as usual, then enter the monetary Tax amount separately from Fee. Tax uses the currency displayed beside the field; it is an amount, not a percentage.</source>
+        <target state="translated">「取引」を開き、購入、売却、配当、利息の取引を作成または編集します。通常どおり日付、口座、銘柄または通貨、数量、単価を入力し、Fee（手数料）とは別に Tax（税額）を金額で入力してください。Tax は欄の横に表示された通貨建ての金額であり、割合ではありません。</target>
+      </trans-unit>
+      <trans-unit id="ngGuideTaxCash" datatype="html">
+        <source>When Update Cash Balance is enabled, a buy debits gross value plus fee and tax; a sell, dividend or interest activity credits gross value minus fee and tax. The combined net amount is calculated in the activity currency, then converted to the account currency at the activity date. There is one linked movement, not a separate tax debit. Previously saved movements keep their recorded amounts: reading, editing only a note or restoring a JSON backup does not repair earlier tax omissions. An explicit financial edit recalculates the linked amount; review any manual corrections you previously entered before changing historical activities.</source>
+        <target state="translated">「現金残高を更新」が有効な場合、購入では総額に手数料と税金を加えた金額が引き落とされ、売却・配当・利息では総額から手数料と税金を差し引いた金額が入金されます。正味金額はまず取引の通貨で計算され、取引日の為替レートで口座通貨に換算されます。税金を別途引き落とすのではなく、関連する現金移動は1件だけです。過去に保存した移動の金額は維持されます。閲覧、メモのみの変更、JSONバックアップの復元では、以前の税金の計上漏れは修正されません。金額などの財務情報を明示的に変更すると関連金額が再計算されるため、過去の取引を編集する前に、手動で入力した調整を確認してください。</target>
+      </trans-unit>
+      <trans-unit id="ngGuideTaxReview" datatype="html">
+        <source>Review Tax in the activities table and edit the original activity to correct the amount, date, currency or account. Do not duplicate the same tax as a standalone fee or cash withdrawal. JSON import/export preserves tax; activity CSV import accepts Tax and Withholding Tax columns. Older entries without a tax amount use zero.</source>
+        <target state="translated">取引一覧で Tax を確認し、金額、日付、通貨または口座を修正する場合は元の取引を編集してください。同じ税金を独立した手数料や現金出金として重複登録しないでください。JSON のインポートとエクスポートでは税額が保持され、取引CSVのインポートでは Tax と Withholding Tax の列を受け付けます。税額がない古い取引はゼロとして扱われます。</target>
+      </trans-unit>
+      <trans-unit id="ngGuideTaxPerformance" datatype="html">
+        <source>Tax reduces monetary net investment performance while gross performance and gross dividend/interest amounts remain distinct. ROAI and ROI use this net result. The current TWR and MWR percentage routines have no explicit tax adjustment: do not interpret those percentages as after-tax returns. Use ROAI or ROI when reviewing the net result after recorded taxes.</source>
+        <target state="translated">税金は投資の金銭的な純損益を減らしますが、総損益や配当・利息の総額は別に保持されます。ROAI と ROI はこの純損益を使用します。現行の TWR と MWR のパーセント計算には税額の明示的な調整がないため、これらを税引後利回りと解釈しないでください。記録済み税額を反映した純損益を確認するには ROAI または ROI を使用してください。</target>
+      </trans-unit>
+      <trans-unit id="ngGuideTaxExample" datatype="html">
+        <source xmlns:ns0="urn:oasis:names:tc:xliff:document:1.2">Example: a new dividend of 100 EUR with Tax 26 EUR and Fee 0 remains a gross dividend of 100 EUR and credits 74 EUR of linked cash. Tax remains recorded separately as 26 EUR. Changing Tax to 20 updates the same linked movement to 80 EUR without another tax debit. Deleting the activity removes its linked cash effect. Monetary net investment performance already deducts the recorded tax; do not change the gross dividend to 74 or enter the same tax as another cash withdrawal.</source>
+
+        <target state="translated">例：新しい配当が100 EUR、Tax（税金）が26 EUR、Fee（手数料）が0の場合、配当総額は100 EURのままで、関連する現金残高には74 EURが入金されます。税金26 EURは別項目として記録されます。Taxを20に変更すると、追加の税金引き落としを作成せずに、同じ関連現金移動が80 EURに更新されます。取引を削除すると、関連する現金への影響も削除されます。投資の正味金銭損益には記録済みの税金がすでに反映されているため、配当総額を74に変更したり、同じ税金を別の現金引き出しとして記録したりしないでください。</target>
+      </trans-unit>
+      <trans-unit id="ngGuideTaxDisclaimer" datatype="html">
+        <source xmlns:ns0="urn:oasis:names:tc:xliff:document:1.2">Recorded tax information is not a substitute for professional tax advice. Check your records against broker statements and consult a qualified adviser for your situation.</source>
+
+        <target state="translated">記録した税務情報は、専門家による税務助言の代わりにはなりません。証券会社の明細書と記録を照合し、ご自身の状況について有資格の専門家に相談してください。</target>
+      </trans-unit>
+      <trans-unit id="ngGuideCalendarIntro" datatype="html">
+        <source xmlns:ns0="urn:oasis:names:tc:xliff:document:1.2">Find the calendar on Home → Overview, outside Zen Mode. It loads historical performance independently of the main overview chart’s selected range. It helps you inspect profitable and unprofitable periods without treating cash deposits as profits.</source>
+
+        <target state="translated">カレンダーはホーム → 概要の、Zenモード以外の画面にあります。メインの概要グラフで選択した期間とは独立して過去のパフォーマンスを読み込みます。現金の入金を利益とみなさずに、利益や損失が発生した期間を確認できます。</target>
+      </trans-unit>
+      <trans-unit id="ngGuideCalendarControls" datatype="html">
+        <source xmlns:ns0="urn:oasis:names:tc:xliff:document:1.2">Choose Daily or Weekly to inspect the selected month, Monthly for the selected year, or Last 30 days for the current rolling window. Previous and Next move one month, or one year in Monthly view. Last 30 days resets to the current date and has no historical-period arrows. Weeks run Monday to Sunday and weekly totals use only the portion inside the selected month.</source>
+
+        <target state="translated">日次または週次では選択した月を、月次では選択した年を、過去30日では現在までの移動期間を確認できます。「前へ」「次へ」は月次表示では1年、それ以外では1か月移動します。「過去30日」は現在の日付に戻り、過去期間への移動矢印はありません。週は月曜日から日曜日までで、週次合計には選択月に含まれる日だけを使用します。</target>
+      </trans-unit>
+      <trans-unit id="ngGuideCalendarUnits" datatype="html">
+        <source xmlns:ns0="urn:oasis:names:tc:xliff:document:1.2">Where your permissions and view mode allow amounts, switch between the base-currency amount and %. Restricted or hidden-value views do not expose monetary amounts. Positive and negative values use different colors and signed numbers; a dash means unavailable, not zero.</source>
+
+        <target state="translated">権限と表示モードで金額の表示が許可されている場合は、基準通貨の金額と%を切り替えられます。制限付き表示や金額非表示モードでは金額は表示されません。正負の値は異なる色と符号付きの数値で示され、ダッシュはゼロではなくデータが利用できないことを意味します。</target>
+      </trans-unit>
+      <trans-unit id="ngGuideCalendarFormula" datatype="html">
+        <source>Each day’s monetary PnL is the difference between two consecutive calendar dates’ cumulative net performance including currency effects. Weekly and monthly amounts sum those daily differences. A gap in historical dates is not assigned entirely to the next day; incomplete elapsed daily data can make period totals unavailable. Non-trading days are included when valuations are available and may still reflect income, costs or currency changes.</source>
+
+        <target state="translated">各日の金額ベースのPnLは、為替の影響を含む累積純損益について、連続する2つの暦日の値の差です。週次・月次の金額は、その日次差額を合計します。過去の日付に欠損がある場合、その差額をすべて次の日に割り当てることはありません。日次データが不完全な期間では、期間合計が表示できないことがあります。評価額が取得できる場合、取引のない日も対象となり、収益、費用、為替変動が反映される場合があります。</target>
+      </trans-unit>
+      <trans-unit id="ngGuideCalendarPercentages" datatype="html">
+        <source>The % view requests a separate ROAI calculation for each period; it is not the daily monetary PnL divided by yesterday’s balance, nor the change in a cumulative percentage. In this version it is available only when ROAI is selected. With ROI, TWR or MWR, percentage cells may show a dash even when monetary PnL is available. Percentages must not be added to obtain a monthly return.</source>
+
+        <target state="translated">%表示では各期間についてROAIを個別に計算します。日次の金額PnLを前日の残高で割った値でも、累積パーセンテージの変化でもありません。このバージョンではROAIを選択した場合にのみ利用できます。ROI、TWR、MWRでは、金額PnLが表示できてもパーセンテージ欄がダッシュになることがあります。月間リターンを求めるために各期間のパーセンテージを足してはいけません。</target>
+      </trans-unit>
+      <trans-unit id="ngGuideCalendarFlows" datatype="html">
+        <source>The calendar reuses net investment performance: contributions themselves are not gains, investment dividends and applicable investment fees/taxes affect net amounts, and foreign-currency conversion affects the currency-adjusted series. It is not a bank-account balance calendar or a complete change-in-wealth statement; the cash and standalone-fee boundaries described in Cash Management still apply.</source>
+
+        <target state="translated">カレンダーは投資の純損益を再利用します。拠出金そのものは利益ではありません。投資からの配当、対象となる手数料や税金は純額に影響し、外貨換算は為替調整後の系列に影響します。これは銀行口座の残高カレンダーでも、総資産の変化を完全に示す明細でもありません。「現金管理」で説明した現金および独立した手数料の対象範囲が引き続き適用されます。</target>
+      </trans-unit>
+      <trans-unit id="ngGuideCalendarExample" datatype="html">
+        <source>Example: consecutive cumulative net results of 0, 12, 7 and 10 EUR produce daily PnL of +12, −5 and +3 EUR, totaling +10 EUR. A missing observation between 12 and 7 does not justify labelling −5 as a one-day result. A deposit of 500 EUR alone is not +500 EUR of PnL.</source>
+
+        <target state="translated">例：累積純損益が連続して0、12、7、10 EURの場合、日次PnLは+12、−5、+3 EURで、合計は+10 EURです。12と7の間の観測値が欠けている場合、−5を1日分の損益とみなすことはできません。500 EURの入金だけでPnLが+500 EURになるわけではありません。</target>
+      </trans-unit>
+      <trans-unit id="ngGuideReturnsIntro" datatype="html">
+        <source>A monetary gain and a percentage return answer different questions. Always compare the same date range, currency, portfolio scope and gross/net basis. These methods reuse your recorded activities and available prices; missing data or incorrect activity dates cannot be repaired by switching the method.</source>
+
+        <target state="translated">金額で表した利益とパーセンテージの収益率は、異なる問いに答えます。比較する際は、日付範囲、通貨、対象ポートフォリオ、総額・純額の基準をそろえてください。これらの計算方法は記録済みの取引と利用可能な価格を使用します。データの欠損や取引日付の誤りは、計算方法を切り替えても修正されません。</target>
+      </trans-unit>
+      <trans-unit id="ngGuideReturnsSelection" datatype="html">
+        <source>Open Settings, enable Experimental Features and choose Performance Calculation: ROAI, ROI, TWR or MWR. The selector is unavailable while impersonating another user or without permission to change settings. Review Home and Analysis after changing it. This guide explains the NG implementations; some methods and controls are experimental.</source>
+        <target state="translated">設定を開き、「実験的な機能」を有効にして、「パフォーマンス計算」から ROAI、ROI、TWR、MWR のいずれかを選択します。他のユーザーとして操作している場合や設定変更の権限がない場合、この選択項目は使用できません。変更後はホームと分析を確認してください。このガイドでは NG 版の実装を説明します。一部の計算方法や操作項目は実験的な機能です。</target>
+      </trans-unit>
+      <trans-unit id="ngGuideRoi" datatype="html">
+        <source>ROI — Return on Investment</source>
+        <target state="translated">ROI — 投資収益率</target>
+      </trans-unit>
+      <trans-unit id="ngGuideRoiDefinition" datatype="html">
+        <source>ROI divides net investment performance by invested capital, without time weighting. Net performance includes realized and unrealized investment gains and income, less applicable investment fees and taxes. At portfolio level the denominator accumulates positive net changes in remaining invested cost; a sale does not subtract from capital already counted. Same-day internal reinvestment is netted, and capital invested and released intraday is included through the daily peak adjustment. A holding’s denominator instead uses its buy amounts.</source>
+        <target state="translated">ROI は、時間による加重を行わず、投資の純損益を投下資本で割って算出します。純損益には実現・未実現の投資損益と収入が含まれ、該当する投資手数料と税金が差し引かれます。ポートフォリオ全体では、残存する投資原価の正味増加分を分母に累積します。売却しても、すでに計上した資本は差し引かれません。同日の内部再投資は相殺され、日中に投資して回収した資本は日中のピーク値による調整に含まれます。一方、個別保有銘柄の分母には購入金額を使用します。</target>
+      </trans-unit>
+      <trans-unit id="ngGuideRoiRange" datatype="html">
+        <source>For a selected date range, ROI starts with the opening market value and adds positive subsequent net investment changes and the relevant intraday adjustments. Reinvestment on different dates can count capital again. It is not simply gain divided by your latest bank balance, nor by all cash deposits.</source>
+        <target state="translated">指定期間の ROI は、期間開始時の時価を基準とし、その後の投資額の正味増加分と該当する日中調整額を加算します。異なる日に再投資した資本は、再び計上される場合があります。単に利益を直近の銀行残高やすべての現金入金額で割ったものではありません。</target>
+      </trans-unit>
+      <trans-unit id="ngGuideRoai" datatype="html">
+        <source>ROAI — Return on Average Investment</source>
+        <target state="translated">ROAI — 平均投資額に対する収益率</target>
+      </trans-unit>
+      <trans-unit id="ngGuideTwr" datatype="html">
+        <source>TWR — Time-Weighted Return</source>
+        <target state="translated">TWR — 時間加重収益率</target>
+      </trans-unit>
+      <trans-unit id="ngGuideMwr" datatype="html">
+        <source>MWR — Money-Weighted Return</source>
+        <target state="translated">MWR — 金額加重収益率</target>
+      </trans-unit>
+      <trans-unit id="ngGuidePageIntro" datatype="html">
+        <source>Meet the team and learn how to use the additional features integrated into Ghostfolio-NG. This guide describes the application’s behavior, including its current limits.</source>
+        <target state="translated">チームの紹介と、Ghostfolio-NG に統合された追加機能の使い方をご案内します。このガイドでは、現在の制限事項も含め、アプリケーションの動作を説明します。</target>
+      </trans-unit>
+      <trans-unit id="ngGuideNoFlowsExample" datatype="html">
+        <source>No external investment flows: invest 1,000 EUR, keep the same invested capital for 365 days and end with 1,100 EUR, with no income, fees, taxes or currency effects. Profit is 100 EUR; ROI and ROAI are 10%, cumulative TWR is 10% and annualized MWR is 10%.</source>
+        <target state="translated">外部からの追加投資がない例：1,000 EUR を投資し、365 日間投資元本を変えず、最終評価額が 1,100 EUR になったとします。収入、手数料、税金、為替の影響はありません。利益は 100 EUR で、ROI と ROAI は 10%、累積 TWR は 10%、年率換算 MWR も 10% です。</target>
+      </trans-unit>
+      <trans-unit id="ngGuideBenchmarkCaution" datatype="html">
+        <source>The portfolio line uses your selected performance method; the benchmark remains a price-based comparison, not an identical investor experience. MWR is annualized while the benchmark price change is cumulative. Missing baseline prices or exchange data can limit the comparison. Check dates, currency, income and cost treatment before interpreting a gap as outperformance.</source>
+        <target state="translated">ポートフォリオの線は選択した収益率計算方法に基づきますが、ベンチマークは価格変動に基づく比較であり、投資家が実際に得た収益と同一ではありません。MWR は年率換算値である一方、ベンチマークの価格変動は累積値です。開始時点の価格や為替データが不足すると、比較が制限される場合があります。差を超過収益と判断する前に、日付、通貨、収入、費用の扱いを確認してください。</target>
+      </trans-unit>
+      <trans-unit id="ngGuideRestoreExport" datatype="html">
+        <source>On the source instance, open Settings → Export Data and keep the JSON backup private. On the destination, use Import Data beside Export Data, or Accounts → Import JSON.</source>
+        <target state="translated">元のインスタンスで「設定」→「データのエクスポート」を開き、JSON バックアップを第三者に公開せず安全に保管してください。移行先では「データのエクスポート」の隣にある「データのインポート」、または「口座」→「JSON のインポート」を使用します。</target>
+      </trans-unit>
+      <trans-unit id="ngGuideRestoreMap" datatype="html">
+        <source>For each source account, choose a new account, an existing compatible account or Exclude. Names are not matched automatically. To restore a cash ledger use a new or empty account, or a compatible account with its financial activities already imported and no existing ledger. Include both accounts of every restored transfer.</source>
+        <target state="translated">移行元の各口座について、新しい口座、互換性のある既存口座、または「除外」を選択します。名前による自動照合は行われません。現金台帳を復元するには、新規または空の口座を使用するか、金融取引が既にインポートされ、既存の台帳がない互換性のある口座を使用してください。復元する各振替について、送金元と送金先の両方の口座を含めてください。</target>
+      </trans-unit>
+      <trans-unit id="ngGuideRestoreConfirm" datatype="html">
+        <source>Review the preview and warnings before Import Data. Accounts, activities, exported custom-instrument data, tags, platforms and cash history are restored together; an error rolls back the restore. Existing data is retained. A complete JSON restore already includes cash, so do not import the same cash CSV again.</source>
+        <target state="translated">「データのインポート」を確定する前に、プレビューと警告を確認してください。口座、取引、エクスポートされたカスタム金融商品のデータ、タグ、プラットフォーム、現金履歴はまとめて復元されます。エラーが発生した場合、復元処理はロールバックされます。既存のデータは保持されます。完全な JSON 復元には現金データも含まれるため、同じ現金 CSV を再度インポートしないでください。</target>
+      </trans-unit>
+      <trans-unit id="ngGuideRestoreLimits" datatype="html">
+        <source>Older exports cannot reconstruct cash history or activity links they never contained. Unmanaged legacy accounts remain unmanaged. Login credentials and server configuration are not transferred; base currency and performance method can optionally be restored only into an empty portfolio. Shared manual instruments without an owner can lack metadata or historical prices in the upstream export: verify them afterward.</source>
+        <target state="translated">古いエクスポートに含まれていなかった現金履歴や取引との関連付けは復元できません。管理対象外の従来の口座は引き続き管理対象外です。ログイン認証情報とサーバー設定は移行されません。基準通貨とパフォーマンス計算方法は、空のポートフォリオに限り任意で復元できます。所有者が設定されていない共有の手動登録金融商品は、upstream のエクスポートでメタデータや過去の価格が欠ける場合があります。復元後に確認してください。</target>
+      </trans-unit>
+      <trans-unit id="ngGuideFeeNamesDescription" datatype="html">
+        <source>In Activities, edit a standalone Fee activity to correct its name. A shared or administrator-owned instrument profile is separated when necessary so renaming your fee does not rename other activities. This changes the description, not the fee amount; check both fields before saving.</source>
+        <target state="translated">「取引」で独立した「手数料」取引を編集すると、その名前を修正できます。必要に応じて、共有または管理者所有の金融商品プロファイルが分離されるため、自分の手数料名を変更しても他の取引名は変わりません。変更されるのは説明であり、手数料額ではありません。保存前に両方の項目を確認してください。</target>
+      </trans-unit>
+      <trans-unit id="ngGuideRoaiDefinition" datatype="html">
+        <source>ROAI divides net monetary investment performance by average invested capital. For a holding’s whole history, remaining invested cost is weighted by elapsed calendar intervals between investment activities and the terminal valuation. The portfolio sums the included holdings’ averages. For a selected date range, the calculator includes opening unrealized performance in the opening capital and counts the final valuation day in the daily average. These conventions can produce different averages in whole-history holding statistics and date-range charts. Calendar-day weighting avoids daylight-saving distortions. ROAI is neither TWR nor an annualized XIRR.</source>
+        <target state="translated">ROAIは投資の純損益額を平均投下資本で割った値です。保有銘柄の全期間では、投資取引間および最終評価日までの経過暦日数に応じて残存取得原価を加重平均します。ポートフォリオでは対象銘柄の平均値を合計します。指定期間では、期首の未実現損益を期首資本に含め、最終評価日も日次平均の計算に含めます。この違いにより、保有銘柄の全期間統計と期間指定チャートの平均値が異なる場合があります。暦日による加重は夏時間の影響を避けます。ROAIはTWRでも年率換算XIRRでもありません。</target>
+      </trans-unit>
+      <trans-unit id="ngGuideTwrDefinition" datatype="html">
+        <source>TWR geometrically links daily growth factors. When the preceding value is positive, the factor is (current value − net investment cash inflow + performance adjustments) ÷ preceding value; the total return is the product of factors minus one. At this investment boundary buys add capital and sells release it; same-day flows across holdings are netted. Dividends and interest are return, and fees are negative adjustments. This reduces the effect of contribution timing rather than treating new capital as a gain.</source>
+        <target state="translated">TWRは日々の成長係数を幾何学的に連結します。前日の価値が正の場合、係数は（当日の価値 − 投資への純資金流入 + パフォーマンス調整額）÷ 前日の価値です。全期間のリターンは係数の積から1を引いた値です。この投資範囲では購入は資本の追加、売却は資本の回収とし、同日の銘柄間資金移動を相殺します。配当と利息は収益、手数料はマイナスの調整です。新規投資を利益と見なさず、入金時期の影響を抑えます。</target>
+      </trans-unit>
+      <trans-unit id="ngGuideMwrDefinition" datatype="html">
+        <source>MWR solves an annualized XIRR from dated investor cash flows and the terminal investment value. Buys are negative, sells and investment income positive, fees negative and terminal value positive. Same-day flows are combined. The solver uses actual calendar days divided by 365: a short-period MWR is still annualized. Date ranges start with a negative opening market value. Base-currency cash remains outside this investment boundary; merely depositing money into that cash account is not an investment cash flow.</source>
+        <target state="translated">MWRは日付付きの投資家キャッシュフローと期末投資価値から年率換算XIRRを求めます。購入は負、売却と投資収入は正、手数料は負、期末価値は正として扱います。同日のフローは合算します。計算には実際の暦日数を365で割った値を使うため、短期間のMWRも年率換算です。期間指定では期首時価を負のフローとして開始します。基準通貨の現金はこの投資範囲の対象外であり、その現金口座への単なる入金は投資キャッシュフローではありません。</target>
+      </trans-unit>
+      <trans-unit id="ngGuideMwrLimits" datatype="html">
+        <source>An XIRR can have multiple solutions or no valid solution. This implementation starts its solver at zero and can return zero when it cannot determine a valid root or when dated flows are insufficient. A displayed zero therefore does not always prove that the investment broke even. TWR/MWR percentage routines do not explicitly deduct the Tax field in this baseline; use the monetary net result and ROAI/ROI for reviewing recorded taxes.</source>
+        <target state="translated">XIRRには複数の解が存在する場合や、有効な解が存在しない場合があります。この実装は初期値0から解を探索し、有効な解を特定できない場合や日付付きフローが不足する場合には0を返すことがあります。表示値0は必ずしも損益がゼロであることを意味しません。このベースラインではTWR/MWRのパーセンテージ計算でTaxフィールドを明示的に控除しません。記録済みの税金を確認するには純損益額とROAI/ROIを使用してください。</target>
+      </trans-unit>
+      <trans-unit id="ngGuideDepositExample" datatype="html">
+        <source>Additional contribution: invest 1,000 EUR on day 1 and another 1,000 on day 3 at unchanged prices; the final value on day 4 is 2,100 EUR. The extra money is invested, not just left in base-currency cash. Gain is 100, not 1,100. ROI uses 2,000 of capital → 5%. In the day-1-to-day-4 chart, ROAI uses (1,000 × 2 + 2,000 × 2) ÷ 4 = 1,500 → about 6.67%. The whole-history holding average uses the three elapsed days: (1,000 × 2 + 2,000 × 1) ÷ 3 ≈ 1,333.33 → 7.5%. Compare like-for-like displays. Assume no costs, income or currency effects.</source>
+        <target state="translated">追加投資の例：1日目に1,000 EURを投資し、価格が変わらない3日目にさらに1,000 EURを投資します。4日目の最終価値は2,100 EURです。追加資金は基準通貨の現金口座に置かず、投資しています。利益は1,100ではなく100です。ROIは投下資本2,000に対して5%です。1日目から4日目までのチャートでROAIは (1,000 × 2 + 2,000 × 2) ÷ 4 = 1,500 を使い、約6.67%です。保有銘柄の全期間平均では経過3日間を使い、(1,000 × 2 + 2,000 × 1) ÷ 3 ≈ 1,333.33 となり、7.5%です。同じ条件の表示同士を比較してください。費用、収入、為替の影響はないものとします。</target>
+      </trans-unit>
+      <trans-unit id="ngGuideTimingExample" datatype="html">
+        <source>Timing matters: invest 1,000 EUR, gain 20% over 365 days to reach 1,200, then invest another 1,000. Lose 10% over the next 365 days and finish at 1,980. TWR is 1.20 × 0.90 − 1 = +8% over both periods, about +3.92% annualized for comparison. MWR solves −1,000 − 1,000 ÷ (1 + r) + 1,980 ÷ (1 + r)² = 0 and is about −0.67% annually. More money was exposed to the losing period. The application’s cumulative TWR and annualized MWR have different time bases; compare them accordingly.</source>
+        <target state="translated">投資時期の例：1,000 EURを投資し、365日で20%増えて1,200になった後、さらに1,000を投資します。次の365日で10%下落し、最終価値は1,980です。TWRは両期間で 1.20 × 0.90 − 1 = +8%、比較用の年率換算では約+3.92%です。MWRは −1,000 − 1,000 ÷ (1 + r) + 1,980 ÷ (1 + r)² = 0 を解き、年率約−0.67%となります。損失が発生した期間により多くの資金が投じられていました。アプリの累積TWRと年率MWRは時間基準が異なるため、その点を考慮して比較してください。</target>
+      </trans-unit>
+      <trans-unit id="ngGuideBenchmarksDefinition" datatype="html">
+        <source>In Analysis, choose an available benchmark in the comparator. Its line is the benchmark price change from its first available point in the portfolio range, adjusted for the benchmark currency’s change against your base currency. It is not recalculated with your deposits, fees, taxes or MWR timing, and no separate dividend reinvestment is added by the comparator. The market-data provider determines the supplied price series. For example, a price from 100 to 110 with unchanged currency gives a +10% benchmark.</source>
+        <target state="translated">「分析」で比較対象として利用可能なベンチマークを選択します。その線は、ポートフォリオの対象期間で最初に利用可能な価格からのベンチマーク価格変化を示し、ベンチマーク通貨と基準通貨の為替変動を反映します。入金、手数料、税金、MWRの投資時期に合わせて再計算されず、比較機能による配当の追加再投資も行われません。価格系列は市場データ提供元によって決まります。例えば為替変動がなく価格が100から110になれば、ベンチマークは+10%です。</target>
+      </trans-unit>
+      <trans-unit id="ngGuideCostBasisDescription" datatype="html">
+        <source>Realized performance uses the remaining cost basis when you sell part of a holding and later buy more. Example without fees: buy 10 at 100, sell 5 at 110, buy 5 at 200, then sell 10 at 210. Gross realized gain is 50 + 600 = 650. Previously sold quantities must not dilute the average cost of the remaining position. Review the holding’s activity history when reconciling this result with broker records.</source>
+        <target state="translated">一部売却後に追加購入した場合、実現損益の計算には残存持分の取得原価を使用します。手数料なしの例：100で10単位購入し、110で5単位売却、200で5単位購入、210で10単位売却します。実現利益の総額は50 + 600 = 650です。すでに売却した数量によって残存持分の平均取得単価を薄めてはいけません。証券会社の記録と照合する際は保有銘柄の取引履歴を確認してください。</target>
+      </trans-unit>
+      <trans-unit id="ngGuideSameDayDescription" datatype="html">
+        <source>ROI also recognizes capital invested and released before the end of a day. Buy and sell 1,000 on the same day and the capital is not zero. If you then reinvest 1,100 that day, the same-day peak is 1,100, not the sum 2,100. Dates and transaction order matter; enter the real activity sequence instead of changing dates to force a desired return.</source>
+        <target state="translated">ROIは当日中に投資・回収した資本も認識します。同日に1,000を購入して売却しても投下資本はゼロになりません。その日にさらに1,100を再投資した場合、当日のピークは合計2,100ではなく1,100です。日付と取引順序が重要です。望む利回りに合わせて日付を変更せず、実際の取引順序を入力してください。</target>
+      </trans-unit>
       </body>
   </file>
 </xliff>

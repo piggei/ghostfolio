@@ -11263,6 +11263,393 @@
           <context context-type="linenumber">208</context>
         </context-group>
       </trans-unit>
+      <trans-unit id="ghostfolioNgVersionLabel" datatype="html">
+        <source>Ghostfolio-NG version:</source>
+        <target state="translated">Версія Ghostfolio-NG:</target>
+        <context-group purpose="location">
+          <context context-type="sourcefile">apps/client/src/app/pages/about/overview/about-overview-page.html</context>
+        </context-group>
+      </trans-unit>
+      <trans-unit id="ghostfolioNgBuildVersion" datatype="html">
+        <source>Build <x id="INTERPOLATION" equiv-text="{{ buildInfo.buildNumber }}"/> — based on Ghostfolio <x id="INTERPOLATION_1" equiv-text="{{ buildInfo.upstreamVersion }}"/></source>
+        <target state="translated">Збірка <x id="INTERPOLATION" equiv-text="{{ buildInfo.buildNumber }}"/> — на основі Ghostfolio <x id="INTERPOLATION_1" equiv-text="{{ buildInfo.upstreamVersion }}"/></target>
+        <context-group purpose="location">
+          <context context-type="sourcefile">apps/client/src/app/pages/about/overview/about-overview-page.html</context>
+        </context-group>
+      </trans-unit>
+      <trans-unit id="ghostfolioNgBaseVersion" datatype="html">
+        <source>based on Ghostfolio <x id="INTERPOLATION" equiv-text="{{ buildInfo.upstreamVersion }}"/></source>
+        <target state="translated">на основі Ghostfolio <x id="INTERPOLATION" equiv-text="{{ buildInfo.upstreamVersion }}"/></target>
+        <context-group purpose="location">
+          <context context-type="sourcefile">apps/client/src/app/pages/about/overview/about-overview-page.html</context>
+        </context-group>
+      </trans-unit>
+      <trans-unit id="ngGuideTeam" datatype="html">
+        <source>The Ghostfolio-NG Team</source>
+        <target state="translated">Команда Ghostfolio-NG</target>
+      </trans-unit>
+      <trans-unit id="ngGuidePjRole" datatype="html">
+        <source>PJ — Project maintainer and developer</source>
+        <target state="translated">PJ — супровідник проєкту та розробник</target>
+      </trans-unit>
+      <trans-unit id="ngGuideCodexRole" datatype="html">
+        <source>Codex — AI development assistant</source>
+        <target state="translated">Codex — ШІ-помічник із розробки</target>
+      </trans-unit>
+      <trans-unit id="ngGuideChatgptRole" datatype="html">
+        <source>ChatGPT — AI analysis and design assistant</source>
+        <target state="translated">ChatGPT — ШІ-помічник з аналізу та проєктування</target>
+      </trans-unit>
+      <trans-unit id="ngGuideUpstreamLink" datatype="html">
+        <source>Original Ghostfolio project</source>
+        <target state="translated">Оригінальний проєкт Ghostfolio</target>
+      </trans-unit>
+      <trans-unit id="ngGuideProjectLink" datatype="html">
+        <source>Ghostfolio-NG project</source>
+        <target state="translated">Проєкт Ghostfolio-NG</target>
+      </trans-unit>
+      <trans-unit id="ngGuideCash" datatype="html">
+        <source>Cash Management</source>
+        <target state="translated">Управління коштами</target>
+      </trans-unit>
+      <trans-unit id="ngGuideCashAccounts" datatype="html">
+        <source>Accounts and cash balances</source>
+        <target state="translated">Рахунки та залишки коштів</target>
+      </trans-unit>
+      <trans-unit id="ngGuideCashMovements" datatype="html">
+        <source>Deposits, withdrawals and reconciliation</source>
+        <target state="translated">Поповнення, зняття та звірка залишків</target>
+      </trans-unit>
+      <trans-unit id="ngGuideCashTransfers" datatype="html">
+        <source>Transfers between accounts</source>
+        <target state="translated">Перекази між рахунками</target>
+      </trans-unit>
+      <trans-unit id="ngGuideCashPerformance" datatype="html">
+        <source>Cash is not investment profit</source>
+        <target state="translated">Кошти не є інвестиційним прибутком</target>
+      </trans-unit>
+      <trans-unit id="ngGuideCashCsv" datatype="html">
+        <source>Cash CSV import and export</source>
+        <target state="translated">Імпорт та експорт операцій із коштами у CSV</target>
+      </trans-unit>
+      <trans-unit id="ngGuideCsvExampleLabel" datatype="html">
+        <source>Cash CSV example</source>
+        <target state="translated">Приклад CSV для грошових операцій</target>
+      </trans-unit>
+      <trans-unit id="ngGuideTax" datatype="html">
+        <source>Tax Management</source>
+        <target state="translated">Облік податків</target>
+      </trans-unit>
+      <trans-unit id="ngGuideCalendar" datatype="html">
+        <source>Profit and Loss Calendar</source>
+        <target state="translated">Календар прибутків і збитків</target>
+      </trans-unit>
+      <trans-unit id="ngGuideCalendarAmounts" datatype="html">
+        <source>What the amounts mean</source>
+        <target state="translated">Що означають суми</target>
+      </trans-unit>
+      <trans-unit id="ngGuideReturns" datatype="html">
+        <source>Financial Performance and Returns</source>
+        <target state="translated">Фінансові результати та дохідність</target>
+      </trans-unit>
+      <trans-unit id="ngGuideReturnExamples" datatype="html">
+        <source>Worked examples</source>
+        <target state="translated">Приклади розрахунків</target>
+      </trans-unit>
+      <trans-unit id="ngGuideBenchmarks" datatype="html">
+        <source>Benchmarks</source>
+        <target state="translated">Порівняльні індекси</target>
+      </trans-unit>
+      <trans-unit id="ngGuideImprovements" datatype="html">
+        <source>Other Ghostfolio-NG Improvements</source>
+        <target state="translated">Інші вдосконалення Ghostfolio-NG</target>
+      </trans-unit>
+      <trans-unit id="ngGuideRestore" datatype="html">
+        <source>Complete portfolio restore</source>
+        <target state="translated">Повне відновлення портфеля</target>
+      </trans-unit>
+      <trans-unit id="ngGuideCostBasis" datatype="html">
+        <source>Remaining cost basis after partial sales</source>
+        <target state="translated">Залишкова собівартість після часткового продажу</target>
+      </trans-unit>
+      <trans-unit id="ngGuideSameDay" datatype="html">
+        <source>Same-day capital reuse</source>
+        <target state="translated">Повторне використання капіталу протягом дня</target>
+      </trans-unit>
+      <trans-unit id="ngGuideFeeNames" datatype="html">
+        <source>Editable fee descriptions</source>
+        <target state="translated">Редагування описів комісій</target>
+      </trans-unit>
+      <trans-unit id="ngGuideContents" datatype="html">
+        <source>Chapters</source>
+        <target state="translated">Розділи</target>
+      </trans-unit>
+      <trans-unit id="ngGuideBackToIndex" datatype="html">
+        <source>Back to chapters</source>
+        <target state="translated">Повернутися до розділів</target>
+      </trans-unit>
+      <trans-unit id="ngGuideIntroduction" datatype="html">
+        <source>Ghostfolio-NG is an independently maintained distribution of Ghostfolio that extends the original open-source project with additional portfolio management, financial analysis and usability features.</source>
+        <target state="translated">Ghostfolio-NG — це незалежно підтримувана збірка Ghostfolio, яка розширює оригінальний проєкт із відкритим кодом додатковими можливостями керування портфелем, фінансового аналізу та зручності використання.</target>
+      </trans-unit>
+      <trans-unit id="ngGuideAiCollaboration" datatype="html">
+        <source>The project combines hands-on software development with AI-assisted analysis, implementation, testing and technical review. Codex and ChatGPT are AI assistants, not human contributors.</source>
+        <target state="translated">Проєкт поєднує безпосередню розробку програмного забезпечення з аналізом, реалізацією, тестуванням і технічним оглядом за допомогою ШІ. Codex і ChatGPT — помічники зі штучним інтелектом, а не люди-учасники.</target>
+      </trans-unit>
+      <trans-unit id="ngGuidePjDescription" datatype="html">
+        <source>PJ coordinates Ghostfolio-NG development, defines requirements, designs and validates features, and oversees integration, testing and release decisions.</source>
+        <target state="translated">PJ координує розробку Ghostfolio-NG, визначає вимоги, проєктує та перевіряє функції, а також відповідає за рішення щодо інтеграції, тестування й випусків.</target>
+      </trans-unit>
+      <trans-unit id="ngGuideCodexDescription" datatype="html">
+        <source>Codex supports implementation, code analysis, automated testing, debugging and verification of changes.</source>
+        <target state="translated">Codex допомагає з реалізацією, аналізом коду, автоматизованим тестуванням, налагодженням і перевіркою змін.</target>
+      </trans-unit>
+      <trans-unit id="ngGuideChatgptDescription" datatype="html">
+        <source>ChatGPT supports technical planning, architectural analysis, financial reasoning, documentation and code review.</source>
+        <target state="translated">ChatGPT допомагає з технічним плануванням, аналізом архітектури, фінансовими розрахунками, документацією та перевіркою коду.</target>
+      </trans-unit>
+      <trans-unit id="ngGuideAttribution" datatype="html">
+        <source>Ghostfolio-NG builds on the original Ghostfolio open-source project and the work of its contributors. It is an independent distribution, not an official upstream edition or a replacement for the upstream project.</source>
+        <target state="translated">Ghostfolio-NG ґрунтується на оригінальному проєкті Ghostfolio з відкритим кодом і праці його учасників. Це незалежна збірка, а не офіційна версія основного проєкту чи його заміна.</target>
+      </trans-unit>
+      <trans-unit id="ngGuideTeamImageAlt" datatype="html">
+        <source>Illustration of PJ with PJ on his shirt, Codex represented as a robot, and ChatGPT represented as a person; Codex and ChatGPT are AI assistants</source>
+        <target state="translated">Ілюстрація: PJ у футболці з написом «PJ», Codex у вигляді робота та ChatGPT у вигляді людини; Codex і ChatGPT — помічники зі штучним інтелектом.</target>
+      </trans-unit>
+      <trans-unit id="ngGuideCashIntro" datatype="html">
+        <source>Cash Management records cash entering, leaving and moving between accounts alongside investment activities. Cash and holdings are distinct: positions represent investments, while total portfolio wealth also includes the cash that you choose to include.</source>
+        <target state="translated">Управління коштами обліковує надходження, вибуття та перекази між рахунками поряд з інвестиційними операціями. Кошти й інвестиційні позиції — різні складові: позиції відображають інвестиції, а загальна вартість портфеля також включає кошти, які ви вирішили враховувати.</target>
+      </trans-unit>
+      <trans-unit id="ngGuideCashAccountStep" datatype="html">
+        <source>Open Accounts, create or select an account with a currency, then open its details and Cash Balances. Creating an account alone does not create a deposit.</source>
+        <target state="translated">Відкрийте «Рахунки», створіть або виберіть рахунок із визначеною валютою, потім відкрийте його деталі та «Залишки коштів». Саме створення рахунку не створює поповнення.</target>
+      </trans-unit>
+      <trans-unit id="ngGuideCashOpeningStep" datatype="html">
+        <source>For a new account, enter the first deposit on its actual date. For an older account, review the existing balances and reconcile to a known balance on a known date. Opening the view alone does not activate a historical account’s cash ledger; saving a movement or preference does. Existing balance snapshots are retained as dated reconciliations when management starts.</source>
+        <target state="translated">Для нового рахунку внесіть перше поповнення за фактичною датою. Для давнішого рахунку перевірте наявні залишки й виконайте звірку на дату з відомим залишком. Саме відкриття сторінки не активує грошовий журнал історичного рахунку: для цього потрібно зберегти операцію або налаштування. Наявні знімки залишків зберігаються як датовані звірки під час початку обліку.</target>
+      </trans-unit>
+      <trans-unit id="ngGuideCashPreferences" datatype="html">
+        <source>Review the two independent preferences: Update Cash Balance by default for new activities, and Consider this account’s cash in analyses and allocations. Check Update Cash Balance on each financial activity; changing the default is not a replay of every past activity.</source>
+        <target state="translated">Перевірте два незалежні налаштування: «Оновлювати залишок коштів за замовчуванням для нових операцій» і «Враховувати кошти цього рахунку в аналізі та розподілі активів». Для кожної фінансової операції перевіряйте параметр «Оновлювати залишок коштів». Зміна типового значення не запускає повторне опрацювання всіх минулих операцій.</target>
+      </trans-unit>
+      <trans-unit id="ngGuideCashMovementStep" datatype="html">
+        <source>In Cash Balances, select the date and operation, enter the amount and any note, and choose Insert. The account determines the currency. Deposits and withdrawals require positive amounts; the application subtracts withdrawals automatically. Future dates are not accepted.</source>
+        <target state="translated">У розділі «Залишки коштів» виберіть дату й тип операції, введіть суму та, за потреби, примітку, після чого натисніть «Додати». Валюту визначає рахунок. Для поповнення і зняття потрібні додатні суми; застосунок автоматично віднімає зняття. Майбутні дати не допускаються.</target>
+      </trans-unit>
+      <trans-unit id="ngGuideCashFeeStep" datatype="html">
+        <source>For a deposit, cash increases by amount minus fee. For a withdrawal, cash decreases by amount plus fee. Enter a non-negative fee in the account currency. Financial activity-linked amounts already include their fees: do not add the same fee again as a manual cash movement.</source>
+        <target state="translated">Під час поповнення залишок збільшується на суму за вирахуванням комісії. Під час зняття він зменшується на суму разом із комісією. Вказуйте невід’ємну комісію у валюті рахунку. Суми, пов’язані з інвестиційними операціями, вже враховують їхні комісії: не додавайте ту саму комісію повторно як ручну грошову операцію.</target>
+      </trans-unit>
+      <trans-unit id="ngGuideCashReconciliationStep" datatype="html">
+        <source>Choose Reconciliation and enter the actual cash balance, including zero or a negative balance. Its fee must be zero. It replaces the calculated balance at that point in the journal; it is not an extra deposit and does not reconstruct missing earlier transactions. Later movements continue from the reconciled balance.</source>
+        <target state="translated">Виберіть «Звірка» й введіть фактичний залишок коштів, зокрема нульовий або від’ємний. Комісія має дорівнювати нулю. Звірка замінює розрахований залишок у відповідній точці журналу; це не додаткове поповнення і не відновлення пропущених попередніх операцій. Наступні рухи коштів обчислюються від звіреного залишку.</target>
+      </trans-unit>
+      <trans-unit id="ngGuideCashCorrections" datatype="html">
+        <source>Review the running balance in the journal. Use the movement’s Actions menu to edit or delete a manual entry. For linked investment movements, open and correct the original financial activity. A newly negative or worsened negative balance requires confirmation; review the warning rather than using reconciliation to conceal an error.</source>
+        <target state="translated">Перевіряйте поточний залишок у журналі. Щоб змінити або видалити запис, доданий вручну, скористайтеся меню дій цього руху коштів. Для рухів, пов’язаних з інвестиційними операціями, відкрийте й виправте початкову фінансову операцію. Якщо залишок уперше стає від’ємним або від’ємне значення збільшується, потрібне підтвердження. Перевірте попередження, а не приховуйте помилку звірянням.</target>
+      </trans-unit>
+      <trans-unit id="ngGuideCashTransferSteps" datatype="html">
+        <source>From Accounts, choose Transfer Cash Balance, select From and To, enter a positive Value in the source account’s currency and confirm Transfer. The transfer uses today’s date. For different currencies, the application converts the destination amount with the available exchange rate for today; this dialog has no historical date or custom destination-amount control. Review both balances afterward.</source>
+        <target state="translated">У розділі «Рахунки» виберіть переказ залишку коштів, зазначте рахунки «З» і «На», введіть додатну суму у валюті рахунку відправника та підтвердьте переказ. Датою переказу буде сьогоднішня дата. Якщо валюти різні, застосунок конвертує суму для рахунку отримувача за доступним курсом на сьогодні. У цьому вікні не можна вибрати минулу дату чи вручну задати суму зарахування. Після операції перевірте обидва залишки.</target>
+      </trans-unit>
+      <trans-unit id="ngGuideCashTransferLimits" datatype="html">
+        <source>A transfer between your accounts is an internal movement, not a new deposit from outside your portfolio. Managed accounts retain linked counterpart entries; legacy accounts remain supported. Transfer entries cannot be edited or deleted separately: use a new reverse transfer if needed. This version has no separate source-fee or destination-fee fields in the transfer dialog; do not assume a bank’s two fees have been recorded automatically.</source>
+        <target state="translated">Переказ між вашими рахунками є внутрішнім переміщенням коштів, а не новим надходженням ззовні портфеля. Для керованих рахунків зберігаються пов’язані зустрічні записи; застарілі типи рахунків також підтримуються. Записи переказу не можна редагувати чи видаляти окремо: за потреби створіть новий зворотний переказ. У цій версії вікно переказу не має окремих полів комісій відправника й отримувача. Не вважайте, що обидві банківські комісії записано автоматично.</target>
+      </trans-unit>
+      <trans-unit id="ngGuideCashBoundary" datatype="html">
+        <source>Deposits, withdrawals and reconciliations change recorded wealth, not investment gains. Base-currency cash is outside the investment-return boundary; foreign-currency cash can contribute currency effects. Cash visibility and inclusion settings are separate from the selected return method. Cash fees reduce cash and appear in fee totals, but the ROI/ROAI investment-only result excludes standalone fee activities: the change in total wealth need not equal the investment-only result.</source>
+        <target state="translated">Поповнення, зняття коштів і звіряння змінюють обліковану вартість майна, але не є інвестиційним прибутком. Готівка в базовій валюті не входить до розрахунку інвестиційної дохідності, тоді як кошти в іноземній валюті можуть створювати курсові ефекти. Налаштування відображення та включення коштів не залежать від вибраного методу розрахунку дохідності. Комісії за рух коштів зменшують залишок і входять до загальної суми комісій, але результат ROI/ROAI лише для інвестицій виключає окремі операції з комісіями. Тому зміна загальної вартості майна може не дорівнювати результату лише інвестицій.</target>
+      </trans-unit>
+      <trans-unit id="ngGuideCashExample" datatype="html">
+        <source>Example in EUR: deposit 1,000 with a fee of 2 → cash 998; withdraw 100 with a fee of 1 → cash 897; reconcile to the bank’s actual 880 → cash 880, not 1,777. A later internal transfer of 200 to another EUR account leaves 680 here and adds 200 there. With no transfer fees or exchange effects, the transfer itself leaves total wealth unchanged. None of these amounts is an investment gain.</source>
+        <target state="translated">Приклад у EUR: поповнення на 1,000 з комісією 2 дає залишок 998; зняття 100 з комісією 1 зменшує його до 897; звіряння з фактичним банківським залишком 880 встановлює 880, а не 1,777. Подальший внутрішній переказ 200 на інший рахунок у EUR залишає тут 680 і додає там 200. Без комісій за переказ і курсових ефектів сам переказ не змінює загальну вартість майна. Жодна з цих сум не є інвестиційним прибутком.</target>
+      </trans-unit>
+      <trans-unit id="ngGuideCashCsvStep1" datatype="html">
+        <source>Use Export CSV in Cash Balances for the whole account journal. To import, use Import CSV there or on Accounts, select the destination account or create a new one, and inspect the preview. Previewing and cancelling do not create an account or save movements.</source>
+        <target state="translated">У розділі «Залишки коштів» скористайтеся «Експорт CSV», щоб вивантажити весь журнал рахунку. Для імпорту виберіть «Імпорт CSV» там або в розділі «Рахунки», укажіть рахунок призначення чи створіть новий і перегляньте попередній результат. Перегляд і скасування не створюють рахунок та не зберігають рухів коштів.</target>
+      </trans-unit>
+      <trans-unit id="ngGuideCashCsvStep2" datatype="html">
+        <source>Required columns: Date, Operation, Amount, Currency. Optional: Fee, Sequence, Note, Reference. Use UTF-8, comma or semicolon separators, YYYY-MM-DD dates, a decimal point and no thousands separator. The currency must match the destination account: CSV import does not exchange currencies. Italian column headings are accepted too.</source>
+        <target state="translated">Обов’язкові стовпці: Date, Operation, Amount, Currency. Необов’язкові: Fee, Sequence, Note, Reference. Використовуйте UTF-8, роздільник кому або крапку з комою, дати YYYY-MM-DD, крапку як десятковий роздільник і без роздільників тисяч. Валюта має збігатися з валютою рахунку призначення: імпорт CSV не конвертує валюти. Також приймаються італійські назви стовпців.</target>
+      </trans-unit>
+      <trans-unit id="ngGuideCashCsvStep3" datatype="html">
+        <source>For hand-written files use DEPOSIT, WITHDRAWAL or RECONCILIATION. Deposit and withdrawal amounts are positive; reconciliation uses the actual balance and Fee 0. Supply Sequence to order same-day movements, especially around a reconciliation. The example below ends at 880 EUR.</source>
+        <target state="translated">Для файлів, створених вручну, використовуйте DEPOSIT, WITHDRAWAL або RECONCILIATION. Суми поповнень і зняття мають бути додатними; для звірки вкажіть фактичний залишок і Fee 0. Задавайте Sequence для впорядкування операцій за один день, особливо біля звірки. У наведеному нижче прикладі кінцевий залишок становить 880 EUR.</target>
+      </trans-unit>
+      <trans-unit id="ngGuideCashCsvPreview" datatype="html">
+        <source>Check new and existing rows, final and minimum balances, currency and warnings before confirming Insert movements. An identical Reference in the same account is skipped; changed contents under the same reference are a conflict. Possible duplicates without references need review. Errors block the whole import; existing entries are not overwritten. If the journal changes after previewing, preview again.</source>
+        <target state="translated">Перед підтвердженням «Додати рухи» перевірте нові та наявні рядки, кінцевий і мінімальний залишки, валюту й попередження. Запис із тим самим Reference на тому самому рахунку пропускається; інший вміст із тим самим посиланням спричиняє конфлікт. Можливі дублікати без посилань потребують перевірки. Помилки блокують увесь імпорт, а наявні записи не перезаписуються. Якщо після попереднього перегляду журнал змінився, перегляньте його знову.</target>
+      </trans-unit>
+      <trans-unit id="ngGuideCashCsvLimits" datatype="html">
+        <source>Cash CSV does not create financial activities. Import those first, then match linked cash rows to the correct existing activities; ambiguous matches need your selection. Keep exported metadata and linked-activity columns unchanged. Files are limited to 2 MB and 5,000 records including metadata. A new transfer cannot be reconstructed from one side alone: use the complete JSON restore for both accounts. Cash CSV is not a full portfolio backup. Linked amounts are already net and are not taxed again. Identical stored historical rows can be recognized as existing, but new rows must match the current activity’s net cash amount. Use full JSON restore to preserve older journals whose stored amounts predate the tax correction.</source>
+        <target state="translated">CSV-файл руху коштів не створює фінансових операцій. Спочатку імпортуйте фінансові операції, а потім зіставте пов’язані рядки руху коштів із відповідними наявними операціями; неоднозначні збіги потребують вашого вибору. Не змінюйте експортовані метадані та стовпці зв’язків з операціями. Обмеження файлу — 2 МБ і 5 000 записів разом із метаданими. Новий переказ між рахунками неможливо відновити лише за однією його стороною: скористайтеся повним відновленням JSON для обох рахунків. CSV руху коштів не є повною резервною копією портфеля. Пов’язані суми вже є чистими, тому податок повторно не віднімається. Ідентичні раніше збережені історичні рядки можуть бути розпізнані як наявні, але нові рядки мають відповідати поточній чистій сумі операції. Щоб зберегти старі журнали із сумами, записаними до виправлення обліку податків, використовуйте повне відновлення JSON.</target>
+      </trans-unit>
+      <trans-unit id="ngGuideTaxIntro" datatype="html">
+        <source>Record actual tax amounts separately from investment values and fees. This feature tracks taxes you enter; it does not calculate tax rates, choose a jurisdiction, generate a tax return or file it for you.</source>
+        <target state="translated">Записуйте фактичні суми податків окремо від вартості інвестицій і комісій. Ця функція відстежує введені вами податки, але не розраховує ставки, не визначає податкову юрисдикцію, не формує та не подає декларації.</target>
+      </trans-unit>
+      <trans-unit id="ngGuideTaxEntry" datatype="html">
+        <source>Open Activities and create or edit a Buy, Sell, Dividend or Interest activity. Enter its date, account, instrument or currency, quantity and unit price as usual, then enter the monetary Tax amount separately from Fee. Tax uses the currency displayed beside the field; it is an amount, not a percentage.</source>
+        <target state="translated">Відкрийте «Операції» та створіть або відредагуйте купівлю, продаж, дивіденд чи відсотковий дохід. Як зазвичай, укажіть дату, рахунок, інструмент або валюту, кількість і ціну за одиницю, а потім введіть грошову суму Tax окремо від Fee. Tax зазначається у валюті, показаній поруч із полем, і є сумою, а не відсотком.</target>
+      </trans-unit>
+      <trans-unit id="ngGuideTaxCash" datatype="html">
+        <source>When Update Cash Balance is enabled, a buy debits gross value plus fee and tax; a sell, dividend or interest activity credits gross value minus fee and tax. The combined net amount is calculated in the activity currency, then converted to the account currency at the activity date. There is one linked movement, not a separate tax debit. Previously saved movements keep their recorded amounts: reading, editing only a note or restoring a JSON backup does not repair earlier tax omissions. An explicit financial edit recalculates the linked amount; review any manual corrections you previously entered before changing historical activities.</source>
+        <target state="translated">Коли ввімкнено параметр «Оновлювати залишок коштів», купівля списує валову суму разом із комісією та податком, а продаж, дивіденд або відсотки зараховують валову суму за вирахуванням комісії та податку. Сукупна чиста сума спочатку обчислюється у валюті операції, а потім конвертується у валюту рахунку за курсом на дату операції. Створюється один пов’язаний рух коштів, а не окреме списання податку. Раніше збережені рухи зберігають свої суми: перегляд, зміна лише примітки або відновлення резервної копії JSON не виправляють попередніх пропусків податку. Явне редагування фінансових даних перераховує пов’язану суму; перш ніж змінювати історичні операції, перевірте раніше внесені вручну коригування.</target>
+      </trans-unit>
+      <trans-unit id="ngGuideTaxReview" datatype="html">
+        <source>Review Tax in the activities table and edit the original activity to correct the amount, date, currency or account. Do not duplicate the same tax as a standalone fee or cash withdrawal. JSON import/export preserves tax; activity CSV import accepts Tax and Withholding Tax columns. Older entries without a tax amount use zero.</source>
+        <target state="translated">Перевіряйте Tax у таблиці операцій, а для виправлення суми, дати, валюти або рахунку редагуйте початкову операцію. Не дублюйте той самий податок як окрему комісію чи зняття коштів. Імпорт та експорт JSON зберігають податок; імпорт CSV операцій підтримує стовпці Tax і Withholding Tax. Для старих записів без суми податку використовується нуль.</target>
+      </trans-unit>
+      <trans-unit id="ngGuideTaxPerformance" datatype="html">
+        <source>Tax reduces monetary net investment performance while gross performance and gross dividend/interest amounts remain distinct. ROAI and ROI use this net result. The current TWR and MWR percentage routines have no explicit tax adjustment: do not interpret those percentages as after-tax returns. Use ROAI or ROI when reviewing the net result after recorded taxes.</source>
+        <target state="translated">Податок зменшує чистий інвестиційний результат у грошовому вираженні, тоді як валовий результат і валові суми дивідендів та відсотків залишаються окремими. ROAI та ROI використовують цей чистий результат. Поточні розрахунки відсоткових показників TWR і MWR не містять явного коригування на податок: не тлумачте ці показники як дохідність після оподаткування. Для перегляду чистого результату з урахуванням записаних податків використовуйте ROAI або ROI.</target>
+      </trans-unit>
+      <trans-unit id="ngGuideTaxExample" datatype="html">
+        <source xmlns:ns0="urn:oasis:names:tc:xliff:document:1.2">Example: a new dividend of 100 EUR with Tax 26 EUR and Fee 0 remains a gross dividend of 100 EUR and credits 74 EUR of linked cash. Tax remains recorded separately as 26 EUR. Changing Tax to 20 updates the same linked movement to 80 EUR without another tax debit. Deleting the activity removes its linked cash effect. Monetary net investment performance already deducts the recorded tax; do not change the gross dividend to 74 or enter the same tax as another cash withdrawal.</source>
+
+        <target state="translated">Приклад: новий дивіденд у розмірі 100 EUR із Tax (податком) 26 EUR та Fee (комісією) 0 залишається валовим дивідендом 100 EUR, а пов’язаний рух коштів зараховує 74 EUR. Податок 26 EUR обліковується окремо. Якщо змінити Tax на 20, той самий пов’язаний рух оновиться до 80 EUR без додаткового списання податку. Видалення операції також прибирає її вплив на пов’язані кошти. Чистий грошовий результат інвестицій уже враховує записаний податок; не змінюйте валовий дивіденд на 74 і не реєструйте той самий податок ще раз як окреме зняття коштів.</target>
+      </trans-unit>
+      <trans-unit id="ngGuideTaxDisclaimer" datatype="html">
+        <source xmlns:ns0="urn:oasis:names:tc:xliff:document:1.2">Recorded tax information is not a substitute for professional tax advice. Check your records against broker statements and consult a qualified adviser for your situation.</source>
+
+        <target state="translated">Записана податкова інформація не замінює професійної податкової консультації. Звіряйте свої записи з виписками брокера та звертайтеся до кваліфікованого фахівця щодо власної ситуації.</target>
+      </trans-unit>
+      <trans-unit id="ngGuideCalendarIntro" datatype="html">
+        <source xmlns:ns0="urn:oasis:names:tc:xliff:document:1.2">Find the calendar on Home → Overview, outside Zen Mode. It loads historical performance independently of the main overview chart’s selected range. It helps you inspect profitable and unprofitable periods without treating cash deposits as profits.</source>
+
+        <target state="translated">Календар розташовано в Головна → Огляд поза режимом Zen. Він завантажує історичні результати незалежно від діапазону, вибраного на головному графіку огляду. Це допомагає знаходити прибуткові та збиткові періоди, не вважаючи внесення коштів прибутком.</target>
+      </trans-unit>
+      <trans-unit id="ngGuideCalendarControls" datatype="html">
+        <source xmlns:ns0="urn:oasis:names:tc:xliff:document:1.2">Choose Daily or Weekly to inspect the selected month, Monthly for the selected year, or Last 30 days for the current rolling window. Previous and Next move one month, or one year in Monthly view. Last 30 days resets to the current date and has no historical-period arrows. Weeks run Monday to Sunday and weekly totals use only the portion inside the selected month.</source>
+
+        <target state="translated">Виберіть «Щодня» або «Щотижня», щоб переглянути вибраний місяць, «Щомісяця» — вибраний рік, або «Останні 30 днів» — поточний ковзний період. Кнопки «Назад» і «Далі» переміщують на місяць, а в місячному режимі — на рік. «Останні 30 днів» повертає до поточної дати й не має стрілок для переходу між історичними періодами. Тиждень триває з понеділка до неділі; тижневі підсумки враховують лише дні вибраного місяця.</target>
+      </trans-unit>
+      <trans-unit id="ngGuideCalendarUnits" datatype="html">
+        <source xmlns:ns0="urn:oasis:names:tc:xliff:document:1.2">Where your permissions and view mode allow amounts, switch between the base-currency amount and %. Restricted or hidden-value views do not expose monetary amounts. Positive and negative values use different colors and signed numbers; a dash means unavailable, not zero.</source>
+
+        <target state="translated">Якщо права доступу та режим перегляду дозволяють показ сум, можна перемикатися між сумою в базовій валюті та %. У режимах з обмеженням або прихованими значеннями грошові суми не відображаються. Додатні й від’ємні значення мають різні кольори та знаки; риска означає відсутність даних, а не нуль.</target>
+      </trans-unit>
+      <trans-unit id="ngGuideCalendarFormula" datatype="html">
+        <source>Each day’s monetary PnL is the difference between two consecutive calendar dates’ cumulative net performance including currency effects. Weekly and monthly amounts sum those daily differences. A gap in historical dates is not assigned entirely to the next day; incomplete elapsed daily data can make period totals unavailable. Non-trading days are included when valuations are available and may still reflect income, costs or currency changes.</source>
+
+        <target state="translated">Грошовий PnL за кожен день — це різниця між накопиченими чистими результатами на дві послідовні календарні дати з урахуванням валютних ефектів. Тижневі й місячні суми є сумою таких щоденних різниць. Пропуск в історичних датах не відноситься повністю на наступний день; якщо щоденні дані за минулий період неповні, підсумок за період може бути недоступним. Дні без торгів також враховуються за наявності оцінки й можуть відображати доходи, витрати або курсові зміни.</target>
+      </trans-unit>
+      <trans-unit id="ngGuideCalendarPercentages" datatype="html">
+        <source>The % view requests a separate ROAI calculation for each period; it is not the daily monetary PnL divided by yesterday’s balance, nor the change in a cumulative percentage. In this version it is available only when ROAI is selected. With ROI, TWR or MWR, percentage cells may show a dash even when monetary PnL is available. Percentages must not be added to obtain a monthly return.</source>
+
+        <target state="translated">У режимі % для кожного періоду окремо обчислюється ROAI. Це не щоденний грошовий PnL, поділений на вчорашній залишок, і не зміна накопиченого відсотка. У цій версії режим доступний лише за вибраного ROAI. Для ROI, TWR або MWR у відсоткових комірках може бути прочерк, навіть якщо грошовий PnL доступний. Відсотки за періоди не можна додавати для отримання місячної дохідності.</target>
+      </trans-unit>
+      <trans-unit id="ngGuideCalendarFlows" datatype="html">
+        <source>The calendar reuses net investment performance: contributions themselves are not gains, investment dividends and applicable investment fees/taxes affect net amounts, and foreign-currency conversion affects the currency-adjusted series. It is not a bank-account balance calendar or a complete change-in-wealth statement; the cash and standalone-fee boundaries described in Cash Management still apply.</source>
+
+        <target state="translated">Календар використовує чистий інвестиційний результат: внески самі по собі не є прибутком; інвестиційні дивіденди, відповідні комісії та податки впливають на чисті суми, а конвертація іноземної валюти — на ряд із валютним коригуванням. Це не календар залишків банківських рахунків і не повний звіт про зміну статків. Межі врахування готівкових коштів та окремих комісій, описані в розділі «Управління коштами», залишаються чинними.</target>
+      </trans-unit>
+      <trans-unit id="ngGuideCalendarExample" datatype="html">
+        <source>Example: consecutive cumulative net results of 0, 12, 7 and 10 EUR produce daily PnL of +12, −5 and +3 EUR, totaling +10 EUR. A missing observation between 12 and 7 does not justify labelling −5 as a one-day result. A deposit of 500 EUR alone is not +500 EUR of PnL.</source>
+
+        <target state="translated">Приклад: послідовні накопичені чисті результати 0, 12, 7 і 10 EUR дають щоденний PnL +12, −5 і +3 EUR, разом +10 EUR. Якщо між 12 і 7 немає спостереження, це не дає підстав вважати −5 результатом одного дня. Сам по собі депозит 500 EUR не є PnL +500 EUR.</target>
+      </trans-unit>
+      <trans-unit id="ngGuideReturnsIntro" datatype="html">
+        <source>A monetary gain and a percentage return answer different questions. Always compare the same date range, currency, portfolio scope and gross/net basis. These methods reuse your recorded activities and available prices; missing data or incorrect activity dates cannot be repaired by switching the method.</source>
+
+        <target state="translated">Грошовий прибуток і відсоткова дохідність відповідають на різні запитання. Завжди порівнюйте однакові діапазони дат, валюти, склад портфеля та базу розрахунку до або після витрат. Ці методи використовують записані операції й доступні ціни; пропущені дані або неправильні дати операцій неможливо виправити простим перемиканням методу.</target>
+      </trans-unit>
+      <trans-unit id="ngGuideReturnsSelection" datatype="html">
+        <source>Open Settings, enable Experimental Features and choose Performance Calculation: ROAI, ROI, TWR or MWR. The selector is unavailable while impersonating another user or without permission to change settings. Review Home and Analysis after changing it. This guide explains the NG implementations; some methods and controls are experimental.</source>
+        <target state="translated">Відкрийте Налаштування, увімкніть Експериментальні функції та виберіть метод розрахунку результативності: ROAI, ROI, TWR або MWR. Цей перемикач недоступний під час роботи від імені іншого користувача або без дозволу змінювати налаштування. Після зміни перевірте головну сторінку й розділ аналізу. Цей посібник описує реалізації NG; деякі методи та елементи керування є експериментальними.</target>
+      </trans-unit>
+      <trans-unit id="ngGuideRoi" datatype="html">
+        <source>ROI — Return on Investment</source>
+        <target state="translated">ROI — рентабельність інвестицій</target>
+      </trans-unit>
+      <trans-unit id="ngGuideRoiDefinition" datatype="html">
+        <source>ROI divides net investment performance by invested capital, without time weighting. Net performance includes realized and unrealized investment gains and income, less applicable investment fees and taxes. At portfolio level the denominator accumulates positive net changes in remaining invested cost; a sale does not subtract from capital already counted. Same-day internal reinvestment is netted, and capital invested and released intraday is included through the daily peak adjustment. A holding’s denominator instead uses its buy amounts.</source>
+        <target state="translated">ROI — це чистий інвестиційний результат, поділений на вкладений капітал, без зважування за часом. Чистий результат охоплює реалізовані й нереалізовані прибутки та збитки, а також доходи, за вирахуванням відповідних інвестиційних комісій і податків. На рівні портфеля знаменник накопичує додатні чисті зміни залишкової собівартості інвестицій; продаж не віднімає капітал, уже врахований раніше. Внутрішнє реінвестування протягом одного дня взаємно зараховується, а капітал, вкладений і вивільнений упродовж дня, враховується через коригування за денним максимумом. Для окремої позиції знаменник натомість ґрунтується на сумах купівель.</target>
+      </trans-unit>
+      <trans-unit id="ngGuideRoiRange" datatype="html">
+        <source>For a selected date range, ROI starts with the opening market value and adds positive subsequent net investment changes and the relevant intraday adjustments. Reinvestment on different dates can count capital again. It is not simply gain divided by your latest bank balance, nor by all cash deposits.</source>
+        <target state="translated">Для вибраного діапазону дат ROI починається з ринкової вартості на початку періоду та додає наступні додатні чисті зміни інвестованого капіталу й відповідні внутрішньоденні коригування. Реінвестування в різні дні може призвести до повторного врахування капіталу. Це не просто прибуток, поділений на останній залишок банківського рахунку чи на всі грошові внески.</target>
+      </trans-unit>
+      <trans-unit id="ngGuideRoai" datatype="html">
+        <source>ROAI — Return on Average Investment</source>
+        <target state="translated">ROAI — дохідність від середнього обсягу інвестицій</target>
+      </trans-unit>
+      <trans-unit id="ngGuideTwr" datatype="html">
+        <source>TWR — Time-Weighted Return</source>
+        <target state="translated">TWR — дохідність, зважена за часом</target>
+      </trans-unit>
+      <trans-unit id="ngGuideMwr" datatype="html">
+        <source>MWR — Money-Weighted Return</source>
+        <target state="translated">MWR — дохідність, зважена за грошовими потоками</target>
+      </trans-unit>
+      <trans-unit id="ngGuidePageIntro" datatype="html">
+        <source>Meet the team and learn how to use the additional features integrated into Ghostfolio-NG. This guide describes the application’s behavior, including its current limits.</source>
+        <target state="translated">Познайомтеся з командою та дізнайтеся, як користуватися додатковими функціями, інтегрованими в Ghostfolio-NG. Цей посібник описує роботу застосунку, зокрема його поточні обмеження.</target>
+      </trans-unit>
+      <trans-unit id="ngGuideNoFlowsExample" datatype="html">
+        <source>No external investment flows: invest 1,000 EUR, keep the same invested capital for 365 days and end with 1,100 EUR, with no income, fees, taxes or currency effects. Profit is 100 EUR; ROI and ROAI are 10%, cumulative TWR is 10% and annualized MWR is 10%.</source>
+        <target state="translated">Приклад без зовнішніх інвестиційних потоків: інвестуйте 1 000 EUR, зберігайте той самий вкладений капітал протягом 365 днів і завершіть період із вартістю 1 100 EUR, без доходів, комісій, податків або валютних ефектів. Прибуток становить 100 EUR; ROI та ROAI дорівнюють 10%, сукупний TWR — 10%, а річний MWR — також 10%.</target>
+      </trans-unit>
+      <trans-unit id="ngGuideBenchmarkCaution" datatype="html">
+        <source>The portfolio line uses your selected performance method; the benchmark remains a price-based comparison, not an identical investor experience. MWR is annualized while the benchmark price change is cumulative. Missing baseline prices or exchange data can limit the comparison. Check dates, currency, income and cost treatment before interpreting a gap as outperformance.</source>
+        <target state="translated">Лінія портфеля використовує вибраний метод розрахунку дохідності, тоді як бенчмарк залишається порівнянням на основі зміни ціни, а не тотожним досвідом інвестора. MWR обчислюється в річному вимірі, а зміна ціни бенчмарка є накопиченою. Відсутність початкових цін або валютних даних може обмежувати порівняння. Перш ніж трактувати різницю як випередження бенчмарка, перевірте дати, валюту та облік доходів і витрат.</target>
+      </trans-unit>
+      <trans-unit id="ngGuideRestoreExport" datatype="html">
+        <source>On the source instance, open Settings → Export Data and keep the JSON backup private. On the destination, use Import Data beside Export Data, or Accounts → Import JSON.</source>
+        <target state="translated">У вихідному екземплярі відкрийте Налаштування → Експорт даних і зберігайте резервну копію JSON конфіденційно. У цільовому екземплярі скористайтеся Імпортом даних поруч з Експортом даних або пунктом Рахунки → Імпорт JSON.</target>
+      </trans-unit>
+      <trans-unit id="ngGuideRestoreMap" datatype="html">
+        <source>For each source account, choose a new account, an existing compatible account or Exclude. Names are not matched automatically. To restore a cash ledger use a new or empty account, or a compatible account with its financial activities already imported and no existing ledger. Include both accounts of every restored transfer.</source>
+        <target state="translated">Для кожного вихідного рахунку виберіть новий рахунок, сумісний наявний рахунок або Виключити. Автоматичного зіставлення за назвою немає. Щоб відновити журнал руху коштів, використайте новий чи порожній рахунок або сумісний рахунок, для якого фінансові операції вже імпортовано, але журналу ще немає. Для кожного переказу, який відновлюється, включіть обидва рахунки.</target>
+      </trans-unit>
+      <trans-unit id="ngGuideRestoreConfirm" datatype="html">
+        <source>Review the preview and warnings before Import Data. Accounts, activities, exported custom-instrument data, tags, platforms and cash history are restored together; an error rolls back the restore. Existing data is retained. A complete JSON restore already includes cash, so do not import the same cash CSV again.</source>
+        <target state="translated">Перед підтвердженням Імпорту даних перегляньте попередній перегляд і попередження. Рахунки, операції, експортовані дані власних фінансових інструментів, теги, платформи та історія руху коштів відновлюються разом; у разі помилки відновлення відкочується. Наявні дані зберігаються. Повне відновлення з JSON уже містить дані про кошти, тому не імпортуйте той самий CSV руху коштів повторно.</target>
+      </trans-unit>
+      <trans-unit id="ngGuideRestoreLimits" datatype="html">
+        <source>Older exports cannot reconstruct cash history or activity links they never contained. Unmanaged legacy accounts remain unmanaged. Login credentials and server configuration are not transferred; base currency and performance method can optionally be restored only into an empty portfolio. Shared manual instruments without an owner can lack metadata or historical prices in the upstream export: verify them afterward.</source>
+        <target state="translated">Старі експорти не можуть відновити історію руху коштів або зв’язки з операціями, яких у них ніколи не було. Старі рахунки без керованого обліку коштів залишаються такими. Облікові дані для входу та конфігурація сервера не переносяться; базову валюту й метод розрахунку дохідності можна за бажанням відновити лише в порожньому портфелі. Для спільних фінансових інструментів, створених вручну без власника, в експорті оригінального Ghostfolio можуть бути відсутні метадані або історичні ціни: перевірте їх після відновлення.</target>
+      </trans-unit>
+      <trans-unit id="ngGuideFeeNamesDescription" datatype="html">
+        <source>In Activities, edit a standalone Fee activity to correct its name. A shared or administrator-owned instrument profile is separated when necessary so renaming your fee does not rename other activities. This changes the description, not the fee amount; check both fields before saving.</source>
+        <target state="translated">У розділі Операції відредагуйте окрему операцію Комісія, щоб виправити її назву. За потреби профіль фінансового інструмента, спільний або належний адміністратору, відокремлюється, щоб перейменування вашої комісії не змінювало інші операції. Це змінює опис, а не суму комісії; перевірте обидва поля перед збереженням.</target>
+      </trans-unit>
+      <trans-unit id="ngGuideRoaiDefinition" datatype="html">
+        <source>ROAI divides net monetary investment performance by average invested capital. For a holding’s whole history, remaining invested cost is weighted by elapsed calendar intervals between investment activities and the terminal valuation. The portfolio sums the included holdings’ averages. For a selected date range, the calculator includes opening unrealized performance in the opening capital and counts the final valuation day in the daily average. These conventions can produce different averages in whole-history holding statistics and date-range charts. Calendar-day weighting avoids daylight-saving distortions. ROAI is neither TWR nor an annualized XIRR.</source>
+        <target state="translated">ROAI ділить чистий грошовий результат інвестицій на середній інвестований капітал. Для всієї історії позиції залишкова собівартість зважується за календарними інтервалами між інвестиційними операціями та кінцевою оцінкою. Портфель підсумовує середні значення включених позицій. Для вибраного діапазону дат калькулятор додає початковий нереалізований результат до початкового капіталу й включає день кінцевої оцінки до щоденного середнього. Через ці правила середні значення у статистиці позиції за весь період і на графіках вибраного діапазону можуть відрізнятися. Зважування за календарними днями усуває спотворення через перехід на літній час. ROAI — це не TWR і не річний XIRR.</target>
+      </trans-unit>
+      <trans-unit id="ngGuideTwrDefinition" datatype="html">
+        <source>TWR geometrically links daily growth factors. When the preceding value is positive, the factor is (current value − net investment cash inflow + performance adjustments) ÷ preceding value; the total return is the product of factors minus one. At this investment boundary buys add capital and sells release it; same-day flows across holdings are netted. Dividends and interest are return, and fees are negative adjustments. This reduces the effect of contribution timing rather than treating new capital as a gain.</source>
+        <target state="translated">TWR геометрично поєднує щоденні коефіцієнти зростання. Якщо попередня вартість додатна, коефіцієнт дорівнює (поточна вартість − чистий приплив інвестиційних коштів + коригування результату) ÷ попередня вартість; загальна дохідність — добуток коефіцієнтів мінус один. У цих межах інвестування купівлі додають капітал, а продажі вивільняють його; потоки між позиціями за один день взаємно зараховуються. Дивіденди та відсотки є доходом, а комісії — від’ємними коригуваннями. Це зменшує вплив часу внесків і не вважає новий капітал прибутком.</target>
+      </trans-unit>
+      <trans-unit id="ngGuideMwrDefinition" datatype="html">
+        <source>MWR solves an annualized XIRR from dated investor cash flows and the terminal investment value. Buys are negative, sells and investment income positive, fees negative and terminal value positive. Same-day flows are combined. The solver uses actual calendar days divided by 365: a short-period MWR is still annualized. Date ranges start with a negative opening market value. Base-currency cash remains outside this investment boundary; merely depositing money into that cash account is not an investment cash flow.</source>
+        <target state="translated">MWR визначає річний XIRR за датованими грошовими потоками інвестора та кінцевою вартістю інвестицій. Купівлі мають від’ємний знак, продажі та інвестиційні надходження — додатний, комісії — від’ємний, кінцева вартість — додатний. Потоки за один день об’єднуються. Розрахунок використовує фактичні календарні дні, поділені на 365, тому MWR навіть за короткий період є річним показником. Діапазон дат починається з від’ємної початкової ринкової вартості. Готівка в базовій валюті перебуває поза цими межами інвестування; просте поповнення такого рахунку не є інвестиційним грошовим потоком.</target>
+      </trans-unit>
+      <trans-unit id="ngGuideMwrLimits" datatype="html">
+        <source>An XIRR can have multiple solutions or no valid solution. This implementation starts its solver at zero and can return zero when it cannot determine a valid root or when dated flows are insufficient. A displayed zero therefore does not always prove that the investment broke even. TWR/MWR percentage routines do not explicitly deduct the Tax field in this baseline; use the monetary net result and ROAI/ROI for reviewing recorded taxes.</source>
+        <target state="translated">XIRR може мати кілька розв’язків або не мати жодного коректного. Ця реалізація починає пошук із нуля й може повернути нуль, якщо не вдається знайти допустимий корінь або бракує датованих потоків. Тому показаний нуль не завжди означає беззбитковість. У цій базовій версії відсоткові розрахунки TWR/MWR явно не віднімають поле Tax; для аналізу врахованих податків використовуйте чистий грошовий результат і ROAI/ROI.</target>
+      </trans-unit>
+      <trans-unit id="ngGuideDepositExample" datatype="html">
+        <source>Additional contribution: invest 1,000 EUR on day 1 and another 1,000 on day 3 at unchanged prices; the final value on day 4 is 2,100 EUR. The extra money is invested, not just left in base-currency cash. Gain is 100, not 1,100. ROI uses 2,000 of capital → 5%. In the day-1-to-day-4 chart, ROAI uses (1,000 × 2 + 2,000 × 2) ÷ 4 = 1,500 → about 6.67%. The whole-history holding average uses the three elapsed days: (1,000 × 2 + 2,000 × 1) ÷ 3 ≈ 1,333.33 → 7.5%. Compare like-for-like displays. Assume no costs, income or currency effects.</source>
+        <target state="translated">Додатковий внесок: інвестуйте 1,000 EUR у день 1 і ще 1,000 у день 3 за незмінних цін; кінцева вартість у день 4 становить 2,100 EUR. Додаткові гроші інвестовано, а не просто залишено готівкою в базовій валюті. Прибуток становить 100, а не 1,100. ROI використовує капітал 2,000 → 5%. На графіку за дні 1–4 ROAI використовує (1,000 × 2 + 2,000 × 2) ÷ 4 = 1,500 → приблизно 6.67%. Середнє для всієї історії позиції використовує три минулі дні: (1,000 × 2 + 2,000 × 1) ÷ 3 ≈ 1,333.33 → 7.5%. Порівнюйте показники за однакових умов. Припустімо, що витрат, доходів і валютних ефектів немає.</target>
+      </trans-unit>
+      <trans-unit id="ngGuideTimingExample" datatype="html">
+        <source>Timing matters: invest 1,000 EUR, gain 20% over 365 days to reach 1,200, then invest another 1,000. Lose 10% over the next 365 days and finish at 1,980. TWR is 1.20 × 0.90 − 1 = +8% over both periods, about +3.92% annualized for comparison. MWR solves −1,000 − 1,000 ÷ (1 + r) + 1,980 ÷ (1 + r)² = 0 and is about −0.67% annually. More money was exposed to the losing period. The application’s cumulative TWR and annualized MWR have different time bases; compare them accordingly.</source>
+        <target state="translated">Час інвестування має значення: інвестуйте 1,000 EUR, отримайте зростання 20% за 365 днів до 1,200, потім додайте ще 1,000. За наступні 365 днів втратьте 10% і завершіть із 1,980. TWR за обидва періоди дорівнює 1.20 × 0.90 − 1 = +8%, або приблизно +3.92% річних для порівняння. MWR розв’язує −1,000 − 1,000 ÷ (1 + r) + 1,980 ÷ (1 + r)² = 0 і становить приблизно −0.67% річних. У збитковий період було вкладено більше грошей. Сукупний TWR і річний MWR у застосунку мають різну часову основу; враховуйте це під час порівняння.</target>
+      </trans-unit>
+      <trans-unit id="ngGuideBenchmarksDefinition" datatype="html">
+        <source>In Analysis, choose an available benchmark in the comparator. Its line is the benchmark price change from its first available point in the portfolio range, adjusted for the benchmark currency’s change against your base currency. It is not recalculated with your deposits, fees, taxes or MWR timing, and no separate dividend reinvestment is added by the comparator. The market-data provider determines the supplied price series. For example, a price from 100 to 110 with unchanged currency gives a +10% benchmark.</source>
+        <target state="translated">У розділі «Аналіз» виберіть доступний бенчмарк у засобі порівняння. Його лінія показує зміну ціни від першої доступної точки в діапазоні портфеля з поправкою на зміну курсу валюти бенчмарка відносно базової валюти. Вона не перераховується з урахуванням ваших внесків, комісій, податків або часу потоків MWR; засіб порівняння також не додає окремого реінвестування дивідендів. Ряд цін визначає постачальник ринкових даних. Наприклад, зміна ціни зі 100 до 110 за незмінного курсу дає +10% для бенчмарка.</target>
+      </trans-unit>
+      <trans-unit id="ngGuideCostBasisDescription" datatype="html">
+        <source>Realized performance uses the remaining cost basis when you sell part of a holding and later buy more. Example without fees: buy 10 at 100, sell 5 at 110, buy 5 at 200, then sell 10 at 210. Gross realized gain is 50 + 600 = 650. Previously sold quantities must not dilute the average cost of the remaining position. Review the holding’s activity history when reconciling this result with broker records.</source>
+        <target state="translated">Реалізований результат використовує залишкову собівартість, коли ви продаєте частину позиції, а потім докуповуєте. Приклад без комісій: купіть 10 за ціною 100, продайте 5 за 110, купіть 5 за 200, потім продайте 10 за 210. Валовий реалізований прибуток дорівнює 50 + 600 = 650. Раніше продані одиниці не повинні занижувати середню собівартість залишкової позиції. Під час звіряння з даними брокера перевіряйте історію операцій за позицією.</target>
+      </trans-unit>
+      <trans-unit id="ngGuideSameDayDescription" datatype="html">
+        <source>ROI also recognizes capital invested and released before the end of a day. Buy and sell 1,000 on the same day and the capital is not zero. If you then reinvest 1,100 that day, the same-day peak is 1,100, not the sum 2,100. Dates and transaction order matter; enter the real activity sequence instead of changing dates to force a desired return.</source>
+        <target state="translated">ROI також враховує капітал, інвестований і вивільнений до завершення дня. Якщо купити й продати на 1,000 того самого дня, капітал не дорівнює нулю. Якщо потім реінвестувати 1,100 цього дня, денний максимум становить 1,100, а не суму 2,100. Дати й порядок операцій важливі: вводьте фактичну послідовність, а не змінюйте дати заради бажаної дохідності.</target>
+      </trans-unit>
       </body>
   </file>
 </xliff>
