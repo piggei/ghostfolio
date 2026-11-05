@@ -11264,6 +11264,374 @@
           <context context-type="linenumber">208</context>
         </context-group>
       </trans-unit>
-      </body>
+        <trans-unit id="ghostfolioNgVersionLabel" datatype="html">
+        <source>Ghostfolio-NG version:</source>
+        <target state="translated">Versión de Ghostfolio-NG:</target>
+      </trans-unit>
+      <trans-unit id="ghostfolioNgBuildVersion" datatype="html">
+        <source>Build <x id="INTERPOLATION" equiv-text="{{ buildInfo.buildNumber }}"/> — based on Ghostfolio <x id="INTERPOLATION_1" equiv-text="{{ buildInfo.upstreamVersion }}"/></source>
+        <target state="translated">Compilación <x id="INTERPOLATION" equiv-text="{{ buildInfo.buildNumber }}"/> — basada en Ghostfolio <x id="INTERPOLATION_1" equiv-text="{{ buildInfo.upstreamVersion }}"/></target>
+      </trans-unit>
+      <trans-unit id="ghostfolioNgBaseVersion" datatype="html">
+        <source>based on Ghostfolio <x id="INTERPOLATION" equiv-text="{{ buildInfo.upstreamVersion }}"/></source>
+        <target state="translated">basada en Ghostfolio <x id="INTERPOLATION" equiv-text="{{ buildInfo.upstreamVersion }}"/></target>
+      </trans-unit>
+      <trans-unit id="ngGuideTeam" datatype="html">
+        <source>The Ghostfolio-NG Team</source>
+        <target state="translated">El equipo de Ghostfolio-NG</target>
+      </trans-unit>
+      <trans-unit id="ngGuideIntroduction" datatype="html">
+        <source>Ghostfolio-NG is an independently maintained distribution of Ghostfolio that extends the original open-source project with additional portfolio management, financial analysis and usability features.</source>
+        <target state="translated">Ghostfolio-NG es una distribución de Ghostfolio mantenida de forma independiente que amplía el proyecto original de código abierto con funciones adicionales de gestión de carteras, análisis financiero y facilidad de uso.</target>
+      </trans-unit>
+      <trans-unit id="ngGuideAiCollaboration" datatype="html">
+        <source>The project combines hands-on software development with AI-assisted analysis, implementation, testing and technical review. Codex and ChatGPT are AI assistants, not human contributors.</source>
+        <target state="translated">El proyecto combina el desarrollo práctico de software con análisis, implementación, pruebas y revisión técnica asistidos por IA. Codex y ChatGPT son asistentes de IA, no colaboradores humanos.</target>
+      </trans-unit>
+      <trans-unit id="ngGuidePjRole" datatype="html">
+        <source>PJ — Project maintainer and developer</source>
+        <target state="translated">PJ — Responsable del proyecto y desarrollador</target>
+      </trans-unit>
+      <trans-unit id="ngGuidePjDescription" datatype="html">
+        <source>PJ coordinates Ghostfolio-NG development, defines requirements, designs and validates features, and oversees integration, testing and release decisions.</source>
+        <target state="translated">PJ coordina el desarrollo de Ghostfolio-NG, define los requisitos, diseña y valida las funciones y supervisa la integración, las pruebas y las decisiones de publicación.</target>
+      </trans-unit>
+      <trans-unit id="ngGuideCodexRole" datatype="html">
+        <source>Codex — AI development assistant</source>
+        <target state="translated">Codex — Asistente de IA para el desarrollo</target>
+      </trans-unit>
+      <trans-unit id="ngGuideCodexDescription" datatype="html">
+        <source>Codex supports implementation, code analysis, automated testing, debugging and verification of changes.</source>
+        <target state="translated">Codex ayuda con la implementación, el análisis de código, las pruebas automatizadas, la depuración y la verificación de los cambios.</target>
+      </trans-unit>
+      <trans-unit id="ngGuideChatgptRole" datatype="html">
+        <source>ChatGPT — AI analysis and design assistant</source>
+        <target state="translated">ChatGPT — Asistente de IA para el análisis y el diseño</target>
+      </trans-unit>
+      <trans-unit id="ngGuideChatgptDescription" datatype="html">
+        <source>ChatGPT supports technical planning, architectural analysis, financial reasoning, documentation and code review.</source>
+        <target state="translated">ChatGPT ayuda con la planificación técnica, el análisis de arquitectura, el razonamiento financiero, la documentación y la revisión de código.</target>
+      </trans-unit>
+      <trans-unit id="ngGuideAttribution" datatype="html">
+        <source>Ghostfolio-NG builds on the original Ghostfolio open-source project and the work of its contributors. It is an independent distribution, not an official upstream edition or a replacement for the upstream project.</source>
+        <target state="translated">Ghostfolio-NG se basa en el proyecto original de código abierto Ghostfolio y en el trabajo de sus colaboradores. Es una distribución independiente, no una edición oficial del proyecto original ni un sustituto de este.</target>
+      </trans-unit>
+      <trans-unit id="ngGuideTeamImageAlt" datatype="html">
+        <source>Illustration of PJ with PJ on his shirt, Codex represented as a robot, and ChatGPT represented as a person; Codex and ChatGPT are AI assistants</source>
+        <target state="translated">Ilustración de PJ con las letras PJ en su camiseta, Codex representado como un robot y ChatGPT como una persona; Codex y ChatGPT son asistentes de IA.</target>
+      </trans-unit>
+      <trans-unit id="ngGuideUpstreamLink" datatype="html">
+        <source>Original Ghostfolio project</source>
+        <target state="translated">Proyecto original Ghostfolio</target>
+      </trans-unit>
+      <trans-unit id="ngGuideProjectLink" datatype="html">
+        <source>Ghostfolio-NG project</source>
+        <target state="translated">Proyecto Ghostfolio-NG</target>
+      </trans-unit>
+      <trans-unit id="ngGuidePageIntro" datatype="html">
+        <source>Meet the team and learn how to use the additional features integrated into Ghostfolio-NG. This guide describes the application’s behavior, including its current limits.</source>
+        <target state="translated">Conoce al equipo y aprende a utilizar las funciones adicionales integradas en Ghostfolio-NG. Esta guía describe el comportamiento de la aplicación, incluidas sus limitaciones actuales.</target>
+      </trans-unit>
+      <trans-unit id="ngGuideContents" datatype="html">
+        <source>Chapters</source>
+        <target state="translated">Capítulos</target>
+      </trans-unit>
+      <trans-unit id="ngGuideBackToIndex" datatype="html">
+        <source>Back to chapters</source>
+        <target state="translated">Volver a los capítulos</target>
+      </trans-unit>
+      <trans-unit id="ngGuideCash" datatype="html">
+        <source>Cash Management</source>
+        <target state="translated">Gestión de efectivo</target>
+      </trans-unit>
+      <trans-unit id="ngGuideCashAccounts" datatype="html">
+        <source>Accounts and cash balances</source>
+        <target state="translated">Cuentas y saldos de efectivo</target>
+      </trans-unit>
+      <trans-unit id="ngGuideCashMovements" datatype="html">
+        <source>Deposits, withdrawals and reconciliation</source>
+        <target state="translated">Depósitos, retiradas y conciliación</target>
+      </trans-unit>
+      <trans-unit id="ngGuideCashTransfers" datatype="html">
+        <source>Transfers between accounts</source>
+        <target state="translated">Transferencias entre cuentas</target>
+      </trans-unit>
+      <trans-unit id="ngGuideCashPerformance" datatype="html">
+        <source>Cash is not investment profit</source>
+        <target state="translated">El efectivo no es beneficio de inversión</target>
+      </trans-unit>
+      <trans-unit id="ngGuideCashCsv" datatype="html">
+        <source>Cash CSV import and export</source>
+        <target state="translated">Importación y exportación CSV de efectivo</target>
+      </trans-unit>
+      <trans-unit id="ngGuideCsvExampleLabel" datatype="html">
+        <source>Cash CSV example</source>
+        <target state="translated">Ejemplo de CSV de efectivo</target>
+      </trans-unit>
+      <trans-unit id="ngGuideTax" datatype="html">
+        <source>Tax Management</source>
+        <target state="translated">Gestión de impuestos</target>
+      </trans-unit>
+      <trans-unit id="ngGuideCalendar" datatype="html">
+        <source>Profit and Loss Calendar</source>
+        <target state="translated">Calendario de ganancias y pérdidas</target>
+      </trans-unit>
+      <trans-unit id="ngGuideCalendarAmounts" datatype="html">
+        <source>What the amounts mean</source>
+        <target state="translated">Qué significan los importes</target>
+      </trans-unit>
+      <trans-unit id="ngGuideReturns" datatype="html">
+        <source>Financial Performance and Returns</source>
+        <target state="translated">Rentabilidad y rendimientos financieros</target>
+      </trans-unit>
+      <trans-unit id="ngGuideRoi" datatype="html">
+        <source>ROI — Return on Investment</source>
+        <target state="translated">ROI — Rendimiento de la inversión</target>
+      </trans-unit>
+      <trans-unit id="ngGuideRoai" datatype="html">
+        <source>ROAI — Return on Average Investment</source>
+        <target state="translated">ROAI — Rendimiento de la inversión media</target>
+      </trans-unit>
+      <trans-unit id="ngGuideTwr" datatype="html">
+        <source>TWR — Time-Weighted Return</source>
+        <target state="translated">TWR — Rendimiento ponderado por tiempo</target>
+      </trans-unit>
+      <trans-unit id="ngGuideMwr" datatype="html">
+        <source>MWR — Money-Weighted Return</source>
+        <target state="translated">MWR — Rendimiento ponderado por dinero</target>
+      </trans-unit>
+      <trans-unit id="ngGuideReturnExamples" datatype="html">
+        <source>Worked examples</source>
+        <target state="translated">Ejemplos de cálculo</target>
+      </trans-unit>
+      <trans-unit id="ngGuideBenchmarks" datatype="html">
+        <source>Benchmarks</source>
+        <target state="translated">Índices de referencia</target>
+      </trans-unit>
+      <trans-unit id="ngGuideImprovements" datatype="html">
+        <source>Other Ghostfolio-NG Improvements</source>
+        <target state="translated">Otras mejoras de Ghostfolio-NG</target>
+      </trans-unit>
+      <trans-unit id="ngGuideRestore" datatype="html">
+        <source>Complete portfolio restore</source>
+        <target state="translated">Restauración completa de la cartera</target>
+      </trans-unit>
+      <trans-unit id="ngGuideCostBasis" datatype="html">
+        <source>Remaining cost basis after partial sales</source>
+        <target state="translated">Coste restante tras ventas parciales</target>
+      </trans-unit>
+      <trans-unit id="ngGuideSameDay" datatype="html">
+        <source>Same-day capital reuse</source>
+        <target state="translated">Reutilización del capital en el mismo día</target>
+      </trans-unit>
+      <trans-unit id="ngGuideFeeNames" datatype="html">
+        <source>Editable fee descriptions</source>
+        <target state="translated">Descripciones de comisiones editables</target>
+      </trans-unit>
+      <trans-unit id="ngGuideCashIntro" datatype="html">
+        <source>Cash Management records cash entering, leaving and moving between accounts alongside investment activities. Cash and holdings are distinct: positions represent investments, while total portfolio wealth also includes the cash that you choose to include.</source>
+        <target state="translated">La gestión del efectivo registra las entradas, salidas y transferencias entre cuentas junto con las operaciones de inversión. El efectivo y las posiciones son distintos: las posiciones representan inversiones, mientras que el patrimonio total de la cartera también incluye el efectivo que decidas contabilizar.</target>
+      </trans-unit>
+      <trans-unit id="ngGuideCashAccountStep" datatype="html">
+        <source>Open Accounts, create or select an account with a currency, then open its details and Cash Balances. Creating an account alone does not create a deposit.</source>
+        <target state="translated">Abre Cuentas, crea o selecciona una cuenta con su divisa y entra en sus detalles y en Saldos de efectivo. Crear una cuenta no genera por sí solo un depósito.</target>
+      </trans-unit>
+      <trans-unit id="ngGuideCashOpeningStep" datatype="html">
+        <source>For a new account, enter the first deposit on its actual date. For an older account, review the existing balances and reconcile to a known balance on a known date. Opening the view alone does not activate a historical account’s cash ledger; saving a movement or preference does. Existing balance snapshots are retained as dated reconciliations when management starts.</source>
+        <target state="translated">Para una cuenta nueva, registra el primer depósito con su fecha real. Para una cuenta antigua, revisa los saldos existentes y concilia un saldo conocido en una fecha conocida. Abrir la vista no activa por sí solo el libro de efectivo histórico de una cuenta; guardar un movimiento o una preferencia sí lo hace. Los saldos históricos existentes se conservan como conciliaciones fechadas al iniciar la gestión.</target>
+      </trans-unit>
+      <trans-unit id="ngGuideCashPreferences" datatype="html">
+        <source>Review the two independent preferences: Update Cash Balance by default for new activities, and Consider this account’s cash in analyses and allocations. Check Update Cash Balance on each financial activity; changing the default is not a replay of every past activity.</source>
+        <target state="translated">Revisa las dos preferencias independientes: Actualizar saldo de efectivo de forma predeterminada para nuevas operaciones y Tener en cuenta el efectivo de esta cuenta en los análisis y asignaciones. Comprueba Actualizar saldo de efectivo en cada operación financiera; cambiar el valor predeterminado no vuelve a procesar todas las operaciones anteriores.</target>
+      </trans-unit>
+      <trans-unit id="ngGuideCashMovementStep" datatype="html">
+        <source>In Cash Balances, select the date and operation, enter the amount and any note, and choose Insert. The account determines the currency. Deposits and withdrawals require positive amounts; the application subtracts withdrawals automatically. Future dates are not accepted.</source>
+        <target state="translated">En Saldos de efectivo, selecciona la fecha y la operación, introduce el importe y una nota opcional y pulsa Insertar. La cuenta determina la divisa. Los depósitos y las retiradas requieren importes positivos; la aplicación descuenta automáticamente las retiradas. No se admiten fechas futuras.</target>
+      </trans-unit>
+      <trans-unit id="ngGuideCashFeeStep" datatype="html">
+        <source>For a deposit, cash increases by amount minus fee. For a withdrawal, cash decreases by amount plus fee. Enter a non-negative fee in the account currency. Financial activity-linked amounts already include their fees: do not add the same fee again as a manual cash movement.</source>
+        <target state="translated">En un depósito, el efectivo aumenta en el importe menos la comisión. En una retirada, disminuye en el importe más la comisión. Introduce una comisión no negativa en la divisa de la cuenta. Los importes vinculados a operaciones financieras ya incluyen sus comisiones: no vuelvas a registrar la misma comisión como movimiento manual de efectivo.</target>
+      </trans-unit>
+      <trans-unit id="ngGuideCashReconciliationStep" datatype="html">
+        <source>Choose Reconciliation and enter the actual cash balance, including zero or a negative balance. Its fee must be zero. It replaces the calculated balance at that point in the journal; it is not an extra deposit and does not reconstruct missing earlier transactions. Later movements continue from the reconciled balance.</source>
+        <target state="translated">Selecciona Conciliación e introduce el saldo real de efectivo, incluso si es cero o negativo. Su comisión debe ser cero. Sustituye el saldo calculado en ese punto del registro; no es otro depósito ni reconstruye transacciones anteriores ausentes. Los movimientos posteriores parten del saldo conciliado.</target>
+      </trans-unit>
+      <trans-unit id="ngGuideCashCorrections" datatype="html">
+        <source>Review the running balance in the journal. Use the movement’s Actions menu to edit or delete a manual entry. For linked investment movements, open and correct the original financial activity. A newly negative or worsened negative balance requires confirmation; review the warning rather than using reconciliation to conceal an error.</source>
+        <target state="translated">Revisa el saldo acumulado del registro. Utiliza el menú Acciones del movimiento para editar o eliminar una entrada manual. Para movimientos de inversión vinculados, abre y corrige la operación financiera original. Un saldo que pase a ser negativo o cuyo valor negativo empeore requiere confirmación; revisa el aviso en lugar de usar una conciliación para ocultar un error.</target>
+      </trans-unit>
+      <trans-unit id="ngGuideCashTransferSteps" datatype="html">
+        <source>From Accounts, choose Transfer Cash Balance, select From and To, enter a positive Value in the source account’s currency and confirm Transfer. The transfer uses today’s date. For different currencies, the application converts the destination amount with the available exchange rate for today; this dialog has no historical date or custom destination-amount control. Review both balances afterward.</source>
+        <target state="translated">En Cuentas, selecciona Transferir saldo de efectivo, elige Origen y Destino, introduce un Valor positivo en la divisa de la cuenta de origen y confirma Transferir. La transferencia utiliza la fecha de hoy. Entre divisas diferentes, la aplicación convierte el importe de destino usando el tipo de cambio disponible para hoy; este cuadro no permite elegir una fecha histórica ni fijar un importe de destino personalizado. Comprueba después ambos saldos.</target>
+      </trans-unit>
+      <trans-unit id="ngGuideCashTransferLimits" datatype="html">
+        <source>A transfer between your accounts is an internal movement, not a new deposit from outside your portfolio. Managed accounts retain linked counterpart entries; legacy accounts remain supported. Transfer entries cannot be edited or deleted separately: use a new reverse transfer if needed. This version has no separate source-fee or destination-fee fields in the transfer dialog; do not assume a bank’s two fees have been recorded automatically.</source>
+        <target state="translated">Una transferencia entre tus cuentas es un movimiento interno, no un depósito nuevo desde fuera de la cartera. Las cuentas gestionadas conservan asientos de contrapartida vinculados; las cuentas antiguas siguen siendo compatibles. Los asientos de transferencia no pueden editarse ni eliminarse por separado: realiza una transferencia inversa si es necesario. Esta versión no ofrece campos de comisión separados para origen y destino en el cuadro de transferencia; no des por hecho que se hayan registrado automáticamente ambas comisiones bancarias.</target>
+      </trans-unit>
+      <trans-unit id="ngGuideCashBoundary" datatype="html">
+        <source>Deposits, withdrawals and reconciliations change recorded wealth, not investment gains. Base-currency cash is outside the investment-return boundary; foreign-currency cash can contribute currency effects. Cash visibility and inclusion settings are separate from the selected return method. Cash fees reduce cash and appear in fee totals, but the ROI/ROAI investment-only result excludes standalone fee activities: the change in total wealth need not equal the investment-only result.</source>
+        <target state="translated">Los depósitos, las retiradas y las conciliaciones modifican el patrimonio registrado, no las ganancias de inversión. El efectivo en la divisa base queda fuera del cálculo de rentabilidad de las inversiones; el efectivo en divisas extranjeras puede generar efectos de cambio. Las opciones de visibilidad e inclusión del efectivo son independientes del método de rentabilidad seleccionado. Las comisiones de efectivo reducen el saldo y aparecen en los totales de comisiones, pero el resultado ROI/ROAI limitado a inversiones excluye las operaciones de comisión independientes: la variación del patrimonio total no tiene por qué coincidir con el resultado de las inversiones.</target>
+      </trans-unit>
+      <trans-unit id="ngGuideCashExample" datatype="html">
+        <source>Example in EUR: deposit 1,000 with a fee of 2 → cash 998; withdraw 100 with a fee of 1 → cash 897; reconcile to the bank’s actual 880 → cash 880, not 1,777. A later internal transfer of 200 to another EUR account leaves 680 here and adds 200 there. With no transfer fees or exchange effects, the transfer itself leaves total wealth unchanged. None of these amounts is an investment gain.</source>
+        <target state="translated">Ejemplo en EUR: depósito de 1.000 con comisión de 2 → efectivo 998; retirada de 100 con comisión de 1 → efectivo 897; conciliación con el saldo bancario real de 880 → efectivo 880, no 1.777. Una transferencia interna posterior de 200 a otra cuenta en EUR deja 680 aquí y añade 200 allí. Sin comisiones de transferencia ni efectos de cambio, la transferencia no modifica el patrimonio total. Ninguno de estos importes constituye una ganancia de inversión.</target>
+      </trans-unit>
+      <trans-unit id="ngGuideCashCsvStep1" datatype="html">
+        <source>Use Export CSV in Cash Balances for the whole account journal. To import, use Import CSV there or on Accounts, select the destination account or create a new one, and inspect the preview. Previewing and cancelling do not create an account or save movements.</source>
+        <target state="translated">Usa Exportar CSV en Saldos de efectivo para obtener todo el registro de la cuenta. Para importar, utiliza Importar CSV allí o en Cuentas, selecciona la cuenta de destino o crea una nueva y revisa la vista previa. Previsualizar y cancelar no crean cuentas ni guardan movimientos.</target>
+      </trans-unit>
+      <trans-unit id="ngGuideCashCsvStep2" datatype="html">
+        <source>Required columns: Date, Operation, Amount, Currency. Optional: Fee, Sequence, Note, Reference. Use UTF-8, comma or semicolon separators, YYYY-MM-DD dates, a decimal point and no thousands separator. The currency must match the destination account: CSV import does not exchange currencies. Italian column headings are accepted too.</source>
+        <target state="translated">Columnas obligatorias: Date, Operation, Amount, Currency. Opcionales: Fee, Sequence, Note, Reference. Utiliza UTF-8, separadores de coma o punto y coma, fechas YYYY-MM-DD, punto decimal y ningún separador de millares. La divisa debe coincidir con la de la cuenta de destino: la importación CSV no convierte divisas. También se aceptan encabezados de columna en italiano.</target>
+      </trans-unit>
+      <trans-unit id="ngGuideCashCsvStep3" datatype="html">
+        <source>For hand-written files use DEPOSIT, WITHDRAWAL or RECONCILIATION. Deposit and withdrawal amounts are positive; reconciliation uses the actual balance and Fee 0. Supply Sequence to order same-day movements, especially around a reconciliation. The example below ends at 880 EUR.</source>
+        <target state="translated">En archivos escritos manualmente utiliza DEPOSIT, WITHDRAWAL o RECONCILIATION. Los importes de depósitos y retiradas son positivos; la conciliación utiliza el saldo real y Fee 0. Indica Sequence para ordenar movimientos del mismo día, especialmente alrededor de una conciliación. El ejemplo siguiente termina con 880 EUR.</target>
+      </trans-unit>
+      <trans-unit id="ngGuideCashCsvPreview" datatype="html">
+        <source>Check new and existing rows, final and minimum balances, currency and warnings before confirming Insert movements. An identical Reference in the same account is skipped; changed contents under the same reference are a conflict. Possible duplicates without references need review. Errors block the whole import; existing entries are not overwritten. If the journal changes after previewing, preview again.</source>
+        <target state="translated">Comprueba las filas nuevas y existentes, los saldos final y mínimo, la divisa y los avisos antes de confirmar Insertar movimientos. Una Reference idéntica en la misma cuenta se omite; un contenido diferente con la misma referencia provoca un conflicto. Los posibles duplicados sin referencia deben revisarse. Los errores bloquean toda la importación; las entradas existentes no se sobrescriben. Si el registro cambia después de la vista previa, vuelve a generarla.</target>
+      </trans-unit>
+      <trans-unit id="ngGuideCashCsvLimits" datatype="html">
+        <source>Cash CSV does not create financial activities. Import those first, then match linked cash rows to the correct existing activities; ambiguous matches need your selection. Keep exported metadata and linked-activity columns unchanged. Files are limited to 2 MB and 5,000 records including metadata. A new transfer cannot be reconstructed from one side alone: use the complete JSON restore for both accounts. Cash CSV is not a full portfolio backup.</source>
+        <target state="translated">El CSV de efectivo no crea operaciones financieras. Impórtalas primero y después vincula las filas de efectivo con las operaciones existentes correctas; las coincidencias ambiguas requieren tu selección. Conserva sin cambios los metadatos exportados y las columnas de operaciones vinculadas. Los archivos tienen un límite de 2 MB y 5.000 registros, incluidos los metadatos. Una transferencia nueva no puede reconstruirse a partir de un solo lado: utiliza la restauración JSON completa de ambas cuentas. El CSV de efectivo no es una copia de seguridad completa de la cartera.</target>
+      </trans-unit>
+      <trans-unit id="ngGuideTaxIntro" datatype="html">
+        <source>Record actual tax amounts separately from investment values and fees. This feature tracks taxes you enter; it does not calculate tax rates, choose a jurisdiction, generate a tax return or file it for you.</source>
+        <target state="translated">Registra los importes reales de impuestos por separado de los valores de inversión y las comisiones. Esta función controla los impuestos que introduces; no calcula tipos impositivos, no elige una jurisdicción ni prepara o presenta declaraciones fiscales.</target>
+      </trans-unit>
+      <trans-unit id="ngGuideTaxEntry" datatype="html">
+        <source>Open Activities and create or edit a Buy, Sell, Dividend or Interest activity. Enter its date, account, instrument or currency, quantity and unit price as usual, then enter the monetary Tax amount separately from Fee. Tax uses the currency displayed beside the field; it is an amount, not a percentage.</source>
+        <target state="translated">Abre Operaciones y crea o edita una Compra, Venta, Dividendo o Interés. Introduce como de costumbre la fecha, cuenta, instrumento o divisa, cantidad y precio unitario; después indica el importe monetario de Impuestos por separado de Comisión. Los impuestos utilizan la divisa mostrada junto al campo: son un importe, no un porcentaje.</target>
+      </trans-unit>
+      <trans-unit id="ngGuideTaxCash" datatype="html">
+        <source>Financially, a buy costs gross value plus fee and tax, while a sell, dividend or interest payment yields gross value minus fee and tax. Check the linked account cash movement after saving: in this integrated version, automatic cash updating subtracts fees but omits the Tax field. This also affects cash amounts for non-managed accounts handled by the cash service. Do not assume the account balance is already net of tax. Check the statement and, if needed, reconcile to the verified actual balance without recording the same tax twice.</source>
+        <target state="translated">Financieramente, una compra cuesta el valor bruto más la comisión y los impuestos, mientras que una venta, un dividendo o un interés produce el valor bruto menos la comisión y los impuestos. Comprueba el movimiento de efectivo vinculado tras guardar: en esta versión integrada, la actualización automática del efectivo descuenta las comisiones, pero omite el campo Impuestos. Esto también afecta a los importes de efectivo de cuentas no gestionadas procesadas por el servicio de efectivo. No presupongas que el saldo ya está neto de impuestos. Comprueba el extracto y, si es necesario, concilia el saldo real verificado sin registrar dos veces el mismo impuesto.</target>
+      </trans-unit>
+      <trans-unit id="ngGuideTaxReview" datatype="html">
+        <source>Review Tax in the activities table and edit the original activity to correct the amount, date, currency or account. Do not duplicate the same tax as a standalone fee or cash withdrawal. JSON import/export preserves tax; activity CSV import accepts Tax and Withholding Tax columns. Older entries without a tax amount use zero.</source>
+        <target state="translated">Revisa Impuestos en la tabla de operaciones y edita la operación original para corregir importe, fecha, divisa o cuenta. No dupliques el mismo impuesto como comisión independiente o retirada de efectivo. La importación y exportación JSON conserva los impuestos; la importación CSV de operaciones acepta las columnas Tax y Withholding Tax. Las entradas antiguas sin importe de impuestos utilizan cero.</target>
+      </trans-unit>
+      <trans-unit id="ngGuideTaxPerformance" datatype="html">
+        <source>Tax reduces monetary net investment performance while gross performance and gross dividend/interest amounts remain distinct. ROAI and ROI use this net result. The current TWR and MWR percentage routines have no explicit tax adjustment: do not interpret those percentages as after-tax returns. Use ROAI or ROI when reviewing the net result after recorded taxes.</source>
+        <target state="translated">Los impuestos reducen la rentabilidad monetaria neta de las inversiones, mientras que la rentabilidad bruta y los importes brutos de dividendos e intereses permanecen separados. ROAI y ROI utilizan este resultado neto. Las rutinas porcentuales actuales de TWR y MWR no aplican un ajuste explícito por impuestos: no interpretes esos porcentajes como rentabilidades después de impuestos. Utiliza ROAI o ROI al revisar el resultado neto tras los impuestos registrados.</target>
+      </trans-unit>
+      <trans-unit id="ngGuideTaxExample" datatype="html">
+        <source>Example: a dividend of 100 EUR with Tax 26 EUR and Fee 0 remains a gross dividend of 100 EUR; the economic net receipt is 74 EUR. The current automatic linked cash movement credits 100 EUR, not 74: verify the 26 EUR discrepancy against the statement before reconciling. Monetary net investment performance does deduct the recorded 26 EUR tax. Do not change the gross dividend to 74 and subtract tax again.</source>
+        <target state="translated">Ejemplo: un dividendo de 100 EUR con Impuestos de 26 EUR y Comisión de 0 sigue siendo un dividendo bruto de 100 EUR; el cobro neto económico es de 74 EUR. El movimiento automático de efectivo vinculado actual abona 100 EUR, no 74: comprueba la diferencia de 26 EUR con el extracto antes de conciliar. La rentabilidad monetaria neta de las inversiones sí descuenta los 26 EUR de impuestos registrados. No reduzcas el dividendo bruto a 74 para volver a descontar después los impuestos.</target>
+      </trans-unit>
+      <trans-unit id="ngGuideTaxDisclaimer" datatype="html">
+        <source>Recorded tax information is not a substitute for professional tax advice. Check your records against broker statements and consult a qualified adviser for your situation.</source>
+        <target state="translated">La información fiscal registrada no sustituye el asesoramiento fiscal profesional. Contrasta tus datos con los extractos del intermediario y consulta a un asesor cualificado para tu situación.</target>
+      </trans-unit>
+      <trans-unit id="ngGuideCalendarIntro" datatype="html">
+        <source>Find the calendar on Home → Overview, outside Zen Mode. It loads historical performance independently of the main overview chart’s selected range. It helps you inspect profitable and unprofitable periods without treating cash deposits as profits.</source>
+        <target state="translated">Encuentra el calendario en Inicio → Resumen, fuera del modo Zen. Carga la rentabilidad histórica con independencia del intervalo seleccionado en el gráfico principal. Permite revisar períodos con ganancias y pérdidas sin considerar los depósitos de efectivo como beneficios.</target>
+      </trans-unit>
+      <trans-unit id="ngGuideCalendarControls" datatype="html">
+        <source>Choose Daily or Weekly to inspect the selected month, Monthly for the selected year, or Last 30 days for the current rolling window. Previous and Next move one month, or one year in Monthly view. Last 30 days resets to the current date and has no historical-period arrows. Weeks run Monday to Sunday and weekly totals use only the portion inside the selected month.</source>
+        <target state="translated">Elige Diario o Semanal para consultar el mes seleccionado, Mensual para el año seleccionado o Últimos 30 días para la ventana móvil actual. Anterior y Siguiente avanzan o retroceden un mes, o un año en la vista Mensual. Últimos 30 días vuelve a la fecha actual y no tiene flechas para períodos históricos. Las semanas van de lunes a domingo y los totales semanales incluyen solo la parte comprendida en el mes seleccionado.</target>
+      </trans-unit>
+      <trans-unit id="ngGuideCalendarUnits" datatype="html">
+        <source>Where your permissions and view mode allow amounts, switch between the base-currency amount and %. Restricted or hidden-value views do not expose monetary amounts. Positive and negative values use different colors and signed numbers; a dash means unavailable, not zero.</source>
+        <target state="translated">Cuando los permisos y el modo de visualización permiten mostrar importes, alterna entre el importe en la divisa base y el porcentaje %. Las vistas restringidas o con valores ocultos no muestran importes monetarios. Los valores positivos y negativos utilizan colores distintos y números con signo; un guion significa que el dato no está disponible, no que sea cero.</target>
+      </trans-unit>
+      <trans-unit id="ngGuideCalendarFormula" datatype="html">
+        <source>Each day’s monetary PnL is the difference between two consecutive calendar dates’ cumulative net performance including currency effects. Weekly and monthly amounts sum those daily differences. A gap in historical dates is not assigned entirely to the next day; incomplete elapsed daily data can make period totals unavailable. Non-trading days are included when valuations are available and may still reflect income, costs or currency changes.</source>
+        <target state="translated">El PnL monetario de cada día es la diferencia entre los resultados netos acumulados de dos fechas de calendario consecutivas, incluidos los efectos de cambio. Los importes semanales y mensuales suman esas diferencias diarias. Una laguna en las fechas históricas no se asigna íntegramente al día siguiente; los datos diarios incompletos pueden hacer que los totales del período no estén disponibles. Se incluyen los días sin negociación cuando existen valoraciones, y aun así pueden reflejar ingresos, costes o variaciones de divisa.</target>
+      </trans-unit>
+      <trans-unit id="ngGuideCalendarPercentages" datatype="html">
+        <source>The % view requests a separate ROAI calculation for each period; it is not the daily monetary PnL divided by yesterday’s balance, nor the change in a cumulative percentage. In this version it is available only when ROAI is selected. With ROI, TWR or MWR, percentage cells may show a dash even when monetary PnL is available. Percentages must not be added to obtain a monthly return.</source>
+        <target state="translated">La vista % solicita un cálculo ROAI independiente para cada período; no es el PnL monetario diario dividido por el saldo de ayer ni la variación de un porcentaje acumulado. En esta versión solo está disponible cuando se selecciona ROAI. Con ROI, TWR o MWR, las celdas porcentuales pueden mostrar un guion aunque exista PnL monetario. No sumes porcentajes para obtener la rentabilidad mensual.</target>
+      </trans-unit>
+      <trans-unit id="ngGuideCalendarFlows" datatype="html">
+        <source>The calendar reuses net investment performance: contributions themselves are not gains, investment dividends and applicable investment fees/taxes affect net amounts, and foreign-currency conversion affects the currency-adjusted series. It is not a bank-account balance calendar or a complete change-in-wealth statement; the cash and standalone-fee boundaries described in Cash Management still apply.</source>
+        <target state="translated">El calendario reutiliza la rentabilidad neta de las inversiones: las aportaciones no son ganancias por sí mismas; los dividendos y las comisiones e impuestos aplicables a inversiones afectan a los importes netos, y la conversión de divisas afecta a la serie ajustada por tipo de cambio. No es un calendario de saldos bancarios ni un estado completo de variación patrimonial; siguen vigentes los límites relativos al efectivo y a las comisiones independientes descritos en Gestión de efectivo.</target>
+      </trans-unit>
+      <trans-unit id="ngGuideCalendarExample" datatype="html">
+        <source>Example: consecutive cumulative net results of 0, 12, 7 and 10 EUR produce daily PnL of +12, −5 and +3 EUR, totaling +10 EUR. A missing observation between 12 and 7 does not justify labelling −5 as a one-day result. A deposit of 500 EUR alone is not +500 EUR of PnL.</source>
+        <target state="translated">Ejemplo: resultados netos acumulados consecutivos de 0, 12, 7 y 10 EUR producen PnL diarios de +12, −5 y +3 EUR, que suman +10 EUR. Si falta una observación entre 12 y 7, no es correcto atribuir −5 a un solo día. Un depósito de 500 EUR, por sí solo, no es un PnL de +500 EUR.</target>
+      </trans-unit>
+      <trans-unit id="ngGuideReturnsIntro" datatype="html">
+        <source>A monetary gain and a percentage return answer different questions. Always compare the same date range, currency, portfolio scope and gross/net basis. These methods reuse your recorded activities and available prices; missing data or incorrect activity dates cannot be repaired by switching the method.</source>
+        <target state="translated">Una ganancia monetaria y una rentabilidad porcentual responden a preguntas distintas. Compara siempre el mismo intervalo de fechas, divisa, alcance de la cartera y criterio bruto o neto. Estos métodos utilizan las operaciones registradas y los precios disponibles; cambiar de método no corrige datos ausentes ni fechas incorrectas.</target>
+      </trans-unit>
+      <trans-unit id="ngGuideReturnsSelection" datatype="html">
+        <source>Open Settings, enable Experimental Features and choose Performance Calculation: ROAI, ROI, TWR or MWR. The selector is unavailable while impersonating another user or without permission to change settings. Review Home and Analysis after changing it. This guide explains the NG implementations; some methods and controls are experimental.</source>
+        <target state="translated">Abre Configuración, activa Funciones experimentales y elige Cálculo de rentabilidad: ROAI, ROI, TWR o MWR. El selector no está disponible cuando se suplanta a otro usuario o no se tienen permisos para cambiar la configuración. Revisa Inicio y Análisis después del cambio. Esta guía describe las implementaciones NG; algunos métodos y controles son experimentales.</target>
+      </trans-unit>
+      <trans-unit id="ngGuideRoiDefinition" datatype="html">
+        <source>ROI divides net investment performance by invested capital, without time weighting. Net performance includes realized and unrealized investment gains and income, less applicable investment fees and taxes. At portfolio level the denominator accumulates positive net changes in remaining invested cost; a sale does not subtract from capital already counted. Same-day internal reinvestment is netted, and capital invested and released intraday is included through the daily peak adjustment. A holding’s denominator instead uses its buy amounts.</source>
+        <target state="translated">ROI divide la rentabilidad neta de las inversiones por el capital invertido, sin ponderación temporal. La rentabilidad neta incluye ganancias realizadas y no realizadas e ingresos de inversión, menos las comisiones e impuestos aplicables. A nivel de cartera, el denominador acumula los cambios netos positivos del coste invertido restante; una venta no resta capital ya contabilizado. La reinversión interna del mismo día se compensa y el capital invertido y liberado durante el día se incorpora mediante el ajuste del máximo diario. En cambio, el denominador de una posición utiliza sus importes de compra.</target>
+      </trans-unit>
+      <trans-unit id="ngGuideRoiRange" datatype="html">
+        <source>For a selected date range, ROI starts with the opening market value and adds positive subsequent net investment changes and the relevant intraday adjustments. Reinvestment on different dates can count capital again. It is not simply gain divided by your latest bank balance, nor by all cash deposits.</source>
+        <target state="translated">Para un intervalo seleccionado, ROI comienza con el valor de mercado inicial y añade los cambios netos positivos posteriores de la inversión y los ajustes intradía pertinentes. Reinvertir en fechas diferentes puede contabilizar de nuevo el capital. No es simplemente la ganancia dividida por el último saldo bancario ni por todos los depósitos de efectivo.</target>
+      </trans-unit>
+      <trans-unit id="ngGuideRoaiDefinition" datatype="html">
+        <source>ROAI divides net monetary investment performance by average invested capital. For a holding’s whole history, remaining invested cost is weighted by elapsed calendar intervals between investment activities and the terminal valuation. The portfolio sums the included holdings’ averages. For a selected date range, the calculator includes opening unrealized performance in the opening capital and counts the final valuation day in the daily average. These conventions can produce different averages in whole-history holding statistics and date-range charts. Calendar-day weighting avoids daylight-saving distortions. ROAI is neither TWR nor an annualized XIRR.</source>
+        <target state="translated">ROAI divide la rentabilidad monetaria neta de las inversiones por el capital medio invertido. Para todo el historial de una posición, el coste invertido restante se pondera por los intervalos de calendario transcurridos entre operaciones y la valoración final. La cartera suma los promedios de las posiciones incluidas. Para un intervalo seleccionado, el cálculo incluye la rentabilidad no realizada inicial en el capital inicial y cuenta el día de valoración final en el promedio diario. Estas convenciones pueden producir promedios distintos entre las estadísticas históricas de posiciones y los gráficos por intervalo. La ponderación por días de calendario evita distorsiones debidas al horario de verano. ROAI no es TWR ni un XIRR anualizado.</target>
+      </trans-unit>
+      <trans-unit id="ngGuideTwrDefinition" datatype="html">
+        <source>TWR geometrically links daily growth factors. When the preceding value is positive, the factor is (current value − net investment cash inflow + performance adjustments) ÷ preceding value; the total return is the product of factors minus one. At this investment boundary buys add capital and sells release it; same-day flows across holdings are netted. Dividends and interest are return, and fees are negative adjustments. This reduces the effect of contribution timing rather than treating new capital as a gain.</source>
+        <target state="translated">TWR encadena geométricamente los factores de crecimiento diarios. Cuando el valor anterior es positivo, el factor es (valor actual − entrada neta de capital invertido + ajustes de rentabilidad) ÷ valor anterior; la rentabilidad total es el producto de los factores menos uno. Dentro de este perímetro de inversión, las compras añaden capital y las ventas lo liberan; los flujos entre posiciones del mismo día se compensan. Los dividendos e intereses cuentan como rentabilidad y las comisiones como ajustes negativos. Esto reduce el efecto del momento de las aportaciones en lugar de tratar el capital nuevo como ganancia.</target>
+      </trans-unit>
+      <trans-unit id="ngGuideMwrDefinition" datatype="html">
+        <source>MWR solves an annualized XIRR from dated investor cash flows and the terminal investment value. Buys are negative, sells and investment income positive, fees negative and terminal value positive. Same-day flows are combined. The solver uses actual calendar days divided by 365: a short-period MWR is still annualized. Date ranges start with a negative opening market value. Base-currency cash remains outside this investment boundary; merely depositing money into that cash account is not an investment cash flow.</source>
+        <target state="translated">MWR resuelve una XIRR anualizada a partir de los flujos de caja fechados del inversor y del valor final de la inversión. Las compras son negativas; las ventas y los ingresos de inversión, positivos; las comisiones, negativas; y el valor final, positivo. Se combinan los flujos del mismo día. El algoritmo utiliza los días naturales reales divididos por 365: incluso el MWR de un período corto está anualizado. Los intervalos comienzan con un valor de mercado inicial negativo. El efectivo en divisa base queda fuera de este perímetro de inversión; ingresar dinero en esa cuenta de efectivo no constituye por sí solo un flujo de inversión.</target>
+      </trans-unit>
+      <trans-unit id="ngGuideMwrLimits" datatype="html">
+        <source>An XIRR can have multiple solutions or no valid solution. This implementation starts its solver at zero and can return zero when it cannot determine a valid root or when dated flows are insufficient. A displayed zero therefore does not always prove that the investment broke even. TWR/MWR percentage routines do not explicitly deduct the Tax field in this baseline; use the monetary net result and ROAI/ROI for reviewing recorded taxes.</source>
+        <target state="translated">Una XIRR puede tener varias soluciones o ninguna válida. Esta implementación inicia el cálculo en cero y puede devolver cero si no encuentra una raíz válida o si los flujos fechados son insuficientes. Por tanto, un cero mostrado no demuestra necesariamente que la inversión haya quedado en equilibrio. Las rutinas porcentuales TWR/MWR no descuentan explícitamente el campo Impuestos en esta versión; utiliza el resultado monetario neto y ROAI/ROI para revisar los impuestos registrados.</target>
+      </trans-unit>
+      <trans-unit id="ngGuideNoFlowsExample" datatype="html">
+        <source>No external investment flows: invest 1,000 EUR, keep the same invested capital for 365 days and end with 1,100 EUR, with no income, fees, taxes or currency effects. Profit is 100 EUR; ROI and ROAI are 10%, cumulative TWR is 10% and annualized MWR is 10%.</source>
+        <target state="translated">Sin flujos externos de inversión: inviertes 1.000 EUR, mantienes el mismo capital invertido durante 365 días y terminas con 1.100 EUR, sin ingresos, comisiones, impuestos ni efectos de cambio. La ganancia es de 100 EUR; ROI y ROAI son del 10 %, TWR acumulado es del 10 % y MWR anualizado es del 10 %.</target>
+      </trans-unit>
+      <trans-unit id="ngGuideDepositExample" datatype="html">
+        <source>Additional contribution: invest 1,000 EUR on day 1 and another 1,000 on day 3 at unchanged prices; the final value on day 4 is 2,100 EUR. The extra money is invested, not just left in base-currency cash. Gain is 100, not 1,100. ROI uses 2,000 of capital → 5%. In the day-1-to-day-4 chart, ROAI uses (1,000 × 2 + 2,000 × 2) ÷ 4 = 1,500 → about 6.67%. The whole-history holding average uses the three elapsed days: (1,000 × 2 + 2,000 × 1) ÷ 3 ≈ 1,333.33 → 7.5%. Compare like-for-like displays. Assume no costs, income or currency effects.</source>
+        <target state="translated">Aportación adicional: inviertes 1.000 EUR el día 1 y otros 1.000 el día 3 con precios sin cambios; el valor final el día 4 es de 2.100 EUR. El dinero adicional se invierte, no queda simplemente en efectivo en la divisa base. La ganancia es 100, no 1.100. ROI utiliza 2.000 de capital → 5 %. En el gráfico del día 1 al 4, ROAI utiliza (1.000 × 2 + 2.000 × 2) ÷ 4 = 1.500 → aproximadamente 6,67 %. El promedio histórico completo de la posición utiliza los tres días transcurridos: (1.000 × 2 + 2.000 × 1) ÷ 3 ≈ 1.333,33 → 7,5 %. Compara visualizaciones equivalentes. Se supone que no hay costes, ingresos ni efectos de cambio.</target>
+      </trans-unit>
+      <trans-unit id="ngGuideTimingExample" datatype="html">
+        <source>Timing matters: invest 1,000 EUR, gain 20% over 365 days to reach 1,200, then invest another 1,000. Lose 10% over the next 365 days and finish at 1,980. TWR is 1.20 × 0.90 − 1 = +8% over both periods, about +3.92% annualized for comparison. MWR solves −1,000 − 1,000 ÷ (1 + r) + 1,980 ÷ (1 + r)² = 0 and is about −0.67% annually. More money was exposed to the losing period. The application’s cumulative TWR and annualized MWR have different time bases; compare them accordingly.</source>
+        <target state="translated">El momento importa: inviertes 1.000 EUR, ganas un 20 % durante 365 días hasta llegar a 1.200 y después inviertes otros 1.000. Pierdes un 10 % en los siguientes 365 días y terminas con 1.980. TWR es 1,20 × 0,90 − 1 = +8 % en ambos períodos, aproximadamente +3,92 % anualizado para comparar. MWR resuelve −1.000 − 1.000 ÷ (1 + r) + 1.980 ÷ (1 + r)² = 0 y es aproximadamente −0,67 % anual. Había más dinero expuesto durante el período de pérdidas. El TWR acumulado y el MWR anualizado de la aplicación tienen bases temporales distintas; tenlo en cuenta al compararlos.</target>
+      </trans-unit>
+      <trans-unit id="ngGuideBenchmarksDefinition" datatype="html">
+        <source>In Analysis, choose an available benchmark in the comparator. Its line is the benchmark price change from its first available point in the portfolio range, adjusted for the benchmark currency’s change against your base currency. It is not recalculated with your deposits, fees, taxes or MWR timing, and no separate dividend reinvestment is added by the comparator. The market-data provider determines the supplied price series. For example, a price from 100 to 110 with unchanged currency gives a +10% benchmark.</source>
+        <target state="translated">En Análisis, elige un índice de referencia disponible en el comparador. Su línea representa la variación de precio del índice desde su primer punto disponible dentro del intervalo de la cartera, ajustada por la variación de su divisa frente a tu divisa base. No se recalcula según tus depósitos, comisiones, impuestos o calendario MWR, y el comparador no añade una reinversión independiente de dividendos. El proveedor de datos de mercado determina la serie de precios disponible. Por ejemplo, pasar de 100 a 110 con divisa estable produce un índice de +10 %.</target>
+      </trans-unit>
+      <trans-unit id="ngGuideBenchmarkCaution" datatype="html">
+        <source>The portfolio line uses your selected performance method; the benchmark remains a price-based comparison, not an identical investor experience. MWR is annualized while the benchmark price change is cumulative. Missing baseline prices or exchange data can limit the comparison. Check dates, currency, income and cost treatment before interpreting a gap as outperformance.</source>
+        <target state="translated">La línea de la cartera utiliza el método de rentabilidad seleccionado; el índice de referencia sigue siendo una comparación basada en precios, no una experiencia de inversión idéntica. MWR está anualizado, mientras que la variación del precio del índice es acumulada. La ausencia de precios iniciales o datos de cambio puede limitar la comparación. Comprueba fechas, divisas y tratamiento de ingresos y costes antes de interpretar una diferencia como rentabilidad superior.</target>
+      </trans-unit>
+      <trans-unit id="ngGuideRestoreExport" datatype="html">
+        <source>On the source instance, open Settings → Export Data and keep the JSON backup private. On the destination, use Import Data beside Export Data, or Accounts → Import JSON.</source>
+        <target state="translated">En la instancia de origen, abre Configuración → Exportar datos y conserva de forma privada la copia JSON. En la instancia de destino, utiliza Importar datos junto a Exportar datos, o Cuentas → Importar JSON.</target>
+      </trans-unit>
+      <trans-unit id="ngGuideRestoreMap" datatype="html">
+        <source>For each source account, choose a new account, an existing compatible account or Exclude. Names are not matched automatically. To restore a cash ledger use a new or empty account, or a compatible account with its financial activities already imported and no existing ledger. Include both accounts of every restored transfer.</source>
+        <target state="translated">Para cada cuenta de origen, elige una cuenta nueva, una cuenta existente compatible o Excluir. Los nombres no se emparejan automáticamente. Para restaurar un registro de efectivo, utiliza una cuenta nueva o vacía, o una cuenta compatible con sus operaciones financieras ya importadas y sin registro de efectivo existente. Incluye ambas cuentas de cada transferencia restaurada.</target>
+      </trans-unit>
+      <trans-unit id="ngGuideRestoreConfirm" datatype="html">
+        <source>Review the preview and warnings before Import Data. Accounts, activities, exported custom-instrument data, tags, platforms and cash history are restored together; an error rolls back the restore. Existing data is retained. A complete JSON restore already includes cash, so do not import the same cash CSV again.</source>
+        <target state="translated">Revisa la vista previa y los avisos antes de Importar datos. Las cuentas, operaciones, datos exportados de instrumentos personalizados, etiquetas, plataformas e historial de efectivo se restauran conjuntamente; un error revierte toda la restauración. Los datos existentes se conservan. Una restauración JSON completa ya incluye el efectivo, por lo que no debes importar de nuevo el mismo CSV de efectivo.</target>
+      </trans-unit>
+      <trans-unit id="ngGuideRestoreLimits" datatype="html">
+        <source>Older exports cannot reconstruct cash history or activity links they never contained. Unmanaged legacy accounts remain unmanaged. Login credentials and server configuration are not transferred; base currency and performance method can optionally be restored only into an empty portfolio. Shared manual instruments without an owner can lack metadata or historical prices in the upstream export: verify them afterward.</source>
+        <target state="translated">Las exportaciones antiguas no pueden reconstruir historiales de efectivo ni vínculos con operaciones que nunca incluyeron. Las cuentas antiguas no gestionadas siguen sin gestionarse. No se transfieren credenciales de acceso ni configuración del servidor; la divisa base y el método de rentabilidad solo pueden restaurarse opcionalmente en una cartera vacía. Los instrumentos manuales compartidos sin propietario pueden carecer de metadatos o precios históricos en la exportación original: compruébalos después.</target>
+      </trans-unit>
+      <trans-unit id="ngGuideCostBasisDescription" datatype="html">
+        <source>Realized performance uses the remaining cost basis when you sell part of a holding and later buy more. Example without fees: buy 10 at 100, sell 5 at 110, buy 5 at 200, then sell 10 at 210. Gross realized gain is 50 + 600 = 650. Previously sold quantities must not dilute the average cost of the remaining position. Review the holding’s activity history when reconciling this result with broker records.</source>
+        <target state="translated">La rentabilidad realizada utiliza el coste restante cuando vendes parte de una posición y después compras más. Ejemplo sin comisiones: compras 10 a 100, vendes 5 a 110, compras 5 a 200 y después vendes 10 a 210. La ganancia bruta realizada es 50 + 600 = 650. Las cantidades vendidas anteriormente no deben diluir el coste medio de la posición restante. Revisa el historial de operaciones de la posición al conciliar el resultado con los datos del intermediario.</target>
+      </trans-unit>
+      <trans-unit id="ngGuideSameDayDescription" datatype="html">
+        <source>ROI also recognizes capital invested and released before the end of a day. Buy and sell 1,000 on the same day and the capital is not zero. If you then reinvest 1,100 that day, the same-day peak is 1,100, not the sum 2,100. Dates and transaction order matter; enter the real activity sequence instead of changing dates to force a desired return.</source>
+        <target state="translated">ROI también reconoce el capital invertido y liberado antes de terminar el día. Si compras y vendes 1.000 el mismo día, el capital no es cero. Si después reinviertes 1.100 ese día, el máximo diario es 1.100, no la suma de 2.100. Las fechas y el orden de las operaciones importan; introduce la secuencia real en vez de cambiar fechas para forzar una rentabilidad deseada.</target>
+      </trans-unit>
+      <trans-unit id="ngGuideFeeNamesDescription" datatype="html">
+        <source>In Activities, edit a standalone Fee activity to correct its name. A shared or administrator-owned instrument profile is separated when necessary so renaming your fee does not rename other activities. This changes the description, not the fee amount; check both fields before saving.</source>
+        <target state="translated">En Operaciones, edita una operación de Comisión independiente para corregir su nombre. Cuando sea necesario, se separa un perfil de instrumento compartido o propiedad del administrador, de modo que cambiar el nombre de tu comisión no cambie el de otras operaciones. Esto modifica la descripción, no el importe de la comisión; comprueba ambos campos antes de guardar.</target>
+      </trans-unit>
+    </body>
   </file>
 </xliff>
