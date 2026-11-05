@@ -10182,273 +10182,273 @@
           <context context-type="sourcefile">apps/client/src/app/pages/about/overview/about-overview-page.html</context>
         </context-group>
       </trans-unit>
-<ns0:trans-unit xmlns:ns0="urn:oasis:names:tc:xliff:document:1.2" id="ngGuideTeam" datatype="html">
-        <ns0:source>The Ghostfolio-NG Team</ns0:source>
-      </ns0:trans-unit>
-      <ns0:trans-unit xmlns:ns0="urn:oasis:names:tc:xliff:document:1.2" id="ngGuideIntroduction" datatype="html">
-        <ns0:source>Ghostfolio-NG is an independently maintained distribution of Ghostfolio that extends the original open-source project with additional portfolio management, financial analysis and usability features.</ns0:source>
-      </ns0:trans-unit>
-      <ns0:trans-unit xmlns:ns0="urn:oasis:names:tc:xliff:document:1.2" id="ngGuideAiCollaboration" datatype="html">
-        <ns0:source>The project combines hands-on software development with AI-assisted analysis, implementation, testing and technical review. Codex and ChatGPT are AI assistants, not human contributors.</ns0:source>
-      </ns0:trans-unit>
-      <ns0:trans-unit xmlns:ns0="urn:oasis:names:tc:xliff:document:1.2" id="ngGuidePjRole" datatype="html">
-        <ns0:source>PJ — Project maintainer and developer</ns0:source>
-      </ns0:trans-unit>
-      <ns0:trans-unit xmlns:ns0="urn:oasis:names:tc:xliff:document:1.2" id="ngGuidePjDescription" datatype="html">
-        <ns0:source>PJ coordinates Ghostfolio-NG development, defines requirements, designs and validates features, and oversees integration, testing and release decisions.</ns0:source>
-      </ns0:trans-unit>
-      <ns0:trans-unit xmlns:ns0="urn:oasis:names:tc:xliff:document:1.2" id="ngGuideCodexRole" datatype="html">
-        <ns0:source>Codex — AI development assistant</ns0:source>
-      </ns0:trans-unit>
-      <ns0:trans-unit xmlns:ns0="urn:oasis:names:tc:xliff:document:1.2" id="ngGuideCodexDescription" datatype="html">
-        <ns0:source>Codex supports implementation, code analysis, automated testing, debugging and verification of changes.</ns0:source>
-      </ns0:trans-unit>
-      <ns0:trans-unit xmlns:ns0="urn:oasis:names:tc:xliff:document:1.2" id="ngGuideChatgptRole" datatype="html">
-        <ns0:source>ChatGPT — AI analysis and design assistant</ns0:source>
-      </ns0:trans-unit>
-      <ns0:trans-unit xmlns:ns0="urn:oasis:names:tc:xliff:document:1.2" id="ngGuideChatgptDescription" datatype="html">
-        <ns0:source>ChatGPT supports technical planning, architectural analysis, financial reasoning, documentation and code review.</ns0:source>
-      </ns0:trans-unit>
-      <ns0:trans-unit xmlns:ns0="urn:oasis:names:tc:xliff:document:1.2" id="ngGuideAttribution" datatype="html">
-        <ns0:source>Ghostfolio-NG builds on the original Ghostfolio open-source project and the work of its contributors. It is an independent distribution, not an official upstream edition or a replacement for the upstream project.</ns0:source>
-      </ns0:trans-unit>
-      <ns0:trans-unit xmlns:ns0="urn:oasis:names:tc:xliff:document:1.2" id="ngGuideTeamImageAlt" datatype="html">
-        <ns0:source>Illustration of PJ with PJ on his shirt, Codex represented as a robot, and ChatGPT represented as a person; Codex and ChatGPT are AI assistants</ns0:source>
-      </ns0:trans-unit>
-      <ns0:trans-unit xmlns:ns0="urn:oasis:names:tc:xliff:document:1.2" id="ngGuideUpstreamLink" datatype="html">
-        <ns0:source>Original Ghostfolio project</ns0:source>
-      </ns0:trans-unit>
-      <ns0:trans-unit xmlns:ns0="urn:oasis:names:tc:xliff:document:1.2" id="ngGuideProjectLink" datatype="html">
-        <ns0:source>Ghostfolio-NG project</ns0:source>
-      </ns0:trans-unit>
-      <ns0:trans-unit xmlns:ns0="urn:oasis:names:tc:xliff:document:1.2" id="ngGuideCash" datatype="html">
-        <ns0:source>Cash Management</ns0:source>
-      </ns0:trans-unit>
-      <ns0:trans-unit xmlns:ns0="urn:oasis:names:tc:xliff:document:1.2" id="ngGuideCashIntro" datatype="html">
-        <ns0:source>Cash Management records cash entering, leaving and moving between accounts alongside investment activities. Cash and holdings are distinct: positions represent investments, while total portfolio wealth also includes the cash that you choose to include.</ns0:source>
-      </ns0:trans-unit>
-      <ns0:trans-unit xmlns:ns0="urn:oasis:names:tc:xliff:document:1.2" id="ngGuideCashAccounts" datatype="html">
-        <ns0:source>Accounts and cash balances</ns0:source>
-      </ns0:trans-unit>
-      <ns0:trans-unit xmlns:ns0="urn:oasis:names:tc:xliff:document:1.2" id="ngGuideCashAccountStep" datatype="html">
-        <ns0:source>Open Accounts, create or select an account with a currency, then open its details and Cash Balances. Creating an account alone does not create a deposit.</ns0:source>
-      </ns0:trans-unit>
-      <ns0:trans-unit xmlns:ns0="urn:oasis:names:tc:xliff:document:1.2" id="ngGuideCashOpeningStep" datatype="html">
-        <ns0:source>For a new account, enter the first deposit on its actual date. For an older account, review the existing balances and reconcile to a known balance on a known date. Opening the view alone does not activate a historical account’s cash ledger; saving a movement or preference does. Existing balance snapshots are retained as dated reconciliations when management starts.</ns0:source>
-      </ns0:trans-unit>
-      <ns0:trans-unit xmlns:ns0="urn:oasis:names:tc:xliff:document:1.2" id="ngGuideCashPreferences" datatype="html">
-        <ns0:source>Review the two independent preferences: Update Cash Balance by default for new activities, and Consider this account’s cash in analyses and allocations. Check Update Cash Balance on each financial activity; changing the default is not a replay of every past activity.</ns0:source>
-      </ns0:trans-unit>
-      <ns0:trans-unit xmlns:ns0="urn:oasis:names:tc:xliff:document:1.2" id="ngGuideCashMovements" datatype="html">
-        <ns0:source>Deposits, withdrawals and reconciliation</ns0:source>
-      </ns0:trans-unit>
-      <ns0:trans-unit xmlns:ns0="urn:oasis:names:tc:xliff:document:1.2" id="ngGuideCashMovementStep" datatype="html">
-        <ns0:source>In Cash Balances, select the date and operation, enter the amount and any note, and choose Insert. The account determines the currency. Deposits and withdrawals require positive amounts; the application subtracts withdrawals automatically. Future dates are not accepted.</ns0:source>
-      </ns0:trans-unit>
-      <ns0:trans-unit xmlns:ns0="urn:oasis:names:tc:xliff:document:1.2" id="ngGuideCashFeeStep" datatype="html">
-        <ns0:source>For a deposit, cash increases by amount minus fee. For a withdrawal, cash decreases by amount plus fee. Enter a non-negative fee in the account currency. Financial activity-linked amounts already include their fees: do not add the same fee again as a manual cash movement.</ns0:source>
-      </ns0:trans-unit>
-      <ns0:trans-unit xmlns:ns0="urn:oasis:names:tc:xliff:document:1.2" id="ngGuideCashReconciliationStep" datatype="html">
-        <ns0:source>Choose Reconciliation and enter the actual cash balance, including zero or a negative balance. Its fee must be zero. It replaces the calculated balance at that point in the journal; it is not an extra deposit and does not reconstruct missing earlier transactions. Later movements continue from the reconciled balance.</ns0:source>
-      </ns0:trans-unit>
-      <ns0:trans-unit xmlns:ns0="urn:oasis:names:tc:xliff:document:1.2" id="ngGuideCashCorrections" datatype="html">
-        <ns0:source>Review the running balance in the journal. Use the movement’s Actions menu to edit or delete a manual entry. For linked investment movements, open and correct the original financial activity. A newly negative or worsened negative balance requires confirmation; review the warning rather than using reconciliation to conceal an error.</ns0:source>
-      </ns0:trans-unit>
-      <ns0:trans-unit xmlns:ns0="urn:oasis:names:tc:xliff:document:1.2" id="ngGuideCashTransfers" datatype="html">
-        <ns0:source>Transfers between accounts</ns0:source>
-      </ns0:trans-unit>
-      <ns0:trans-unit xmlns:ns0="urn:oasis:names:tc:xliff:document:1.2" id="ngGuideCashTransferSteps" datatype="html">
-        <ns0:source>From Accounts, choose Transfer Cash Balance, select From and To, enter a positive Value in the source account’s currency and confirm Transfer. The transfer uses today’s date. For different currencies, the application converts the destination amount with the available exchange rate for today; this dialog has no historical date or custom destination-amount control. Review both balances afterward.</ns0:source>
-      </ns0:trans-unit>
-      <ns0:trans-unit xmlns:ns0="urn:oasis:names:tc:xliff:document:1.2" id="ngGuideCashTransferLimits" datatype="html">
-        <ns0:source>A transfer between your accounts is an internal movement, not a new deposit from outside your portfolio. Managed accounts retain linked counterpart entries; legacy accounts remain supported. Transfer entries cannot be edited or deleted separately: use a new reverse transfer if needed. This version has no separate source-fee or destination-fee fields in the transfer dialog; do not assume a bank’s two fees have been recorded automatically.</ns0:source>
-      </ns0:trans-unit>
-      <ns0:trans-unit xmlns:ns0="urn:oasis:names:tc:xliff:document:1.2" id="ngGuideCashPerformance" datatype="html">
-        <ns0:source>Cash is not investment profit</ns0:source>
-      </ns0:trans-unit>
-      <ns0:trans-unit xmlns:ns0="urn:oasis:names:tc:xliff:document:1.2" id="ngGuideCashBoundary" datatype="html">
-        <ns0:source>Deposits, withdrawals and reconciliations change recorded wealth, not investment gains. Base-currency cash is outside the investment-return boundary; foreign-currency cash can contribute currency effects. Cash visibility and inclusion settings are separate from the selected return method. Cash fees reduce cash and appear in fee totals, but the ROI/ROAI investment-only result excludes standalone fee activities: the change in total wealth need not equal the investment-only result.</ns0:source>
-      </ns0:trans-unit>
-      <ns0:trans-unit xmlns:ns0="urn:oasis:names:tc:xliff:document:1.2" id="ngGuideCashExample" datatype="html">
-        <ns0:source>Example in EUR: deposit 1,000 with a fee of 2 → cash 998; withdraw 100 with a fee of 1 → cash 897; reconcile to the bank’s actual 880 → cash 880, not 1,777. A later internal transfer of 200 to another EUR account leaves 680 here and adds 200 there. With no transfer fees or exchange effects, the transfer itself leaves total wealth unchanged. None of these amounts is an investment gain.</ns0:source>
-      </ns0:trans-unit>
-      <ns0:trans-unit xmlns:ns0="urn:oasis:names:tc:xliff:document:1.2" id="ngGuideCashCsv" datatype="html">
-        <ns0:source>Cash CSV import and export</ns0:source>
-      </ns0:trans-unit>
-      <ns0:trans-unit xmlns:ns0="urn:oasis:names:tc:xliff:document:1.2" id="ngGuideCashCsvStep1" datatype="html">
-        <ns0:source>Use Export CSV in Cash Balances for the whole account journal. To import, use Import CSV there or on Accounts, select the destination account or create a new one, and inspect the preview. Previewing and cancelling do not create an account or save movements.</ns0:source>
-      </ns0:trans-unit>
-      <ns0:trans-unit xmlns:ns0="urn:oasis:names:tc:xliff:document:1.2" id="ngGuideCashCsvStep2" datatype="html">
-        <ns0:source>Required columns: Date, Operation, Amount, Currency. Optional: Fee, Sequence, Note, Reference. Use UTF-8, comma or semicolon separators, YYYY-MM-DD dates, a decimal point and no thousands separator. The currency must match the destination account: CSV import does not exchange currencies. Italian column headings are accepted too.</ns0:source>
-      </ns0:trans-unit>
-      <ns0:trans-unit xmlns:ns0="urn:oasis:names:tc:xliff:document:1.2" id="ngGuideCashCsvStep3" datatype="html">
-        <ns0:source>For hand-written files use DEPOSIT, WITHDRAWAL or RECONCILIATION. Deposit and withdrawal amounts are positive; reconciliation uses the actual balance and Fee 0. Supply Sequence to order same-day movements, especially around a reconciliation. The example below ends at 880 EUR.</ns0:source>
-      </ns0:trans-unit>
-      <ns0:trans-unit xmlns:ns0="urn:oasis:names:tc:xliff:document:1.2" id="ngGuideCashCsvPreview" datatype="html">
-        <ns0:source>Check new and existing rows, final and minimum balances, currency and warnings before confirming Insert movements. An identical Reference in the same account is skipped; changed contents under the same reference are a conflict. Possible duplicates without references need review. Errors block the whole import; existing entries are not overwritten. If the journal changes after previewing, preview again.</ns0:source>
-      </ns0:trans-unit>
-      <ns0:trans-unit xmlns:ns0="urn:oasis:names:tc:xliff:document:1.2" id="ngGuideCashCsvLimits" datatype="html">
-        <ns0:source>Cash CSV does not create financial activities. Import those first, then match linked cash rows to the correct existing activities; ambiguous matches need your selection. Keep exported metadata and linked-activity columns unchanged. Files are limited to 2 MB and 5,000 records including metadata. A new transfer cannot be reconstructed from one side alone: use the complete JSON restore for both accounts. Cash CSV is not a full portfolio backup.</ns0:source>
-      </ns0:trans-unit>
-      <ns0:trans-unit xmlns:ns0="urn:oasis:names:tc:xliff:document:1.2" id="ngGuideCsvExampleLabel" datatype="html">
-        <ns0:source>Cash CSV example</ns0:source>
-      </ns0:trans-unit>
-      <ns0:trans-unit xmlns:ns0="urn:oasis:names:tc:xliff:document:1.2" id="ngGuideTax" datatype="html">
-        <ns0:source>Tax Management</ns0:source>
-      </ns0:trans-unit>
-      <ns0:trans-unit xmlns:ns0="urn:oasis:names:tc:xliff:document:1.2" id="ngGuideTaxIntro" datatype="html">
-        <ns0:source>Record actual tax amounts separately from investment values and fees. This feature tracks taxes you enter; it does not calculate tax rates, choose a jurisdiction, generate a tax return or file it for you.</ns0:source>
-      </ns0:trans-unit>
-      <ns0:trans-unit xmlns:ns0="urn:oasis:names:tc:xliff:document:1.2" id="ngGuideTaxEntry" datatype="html">
-        <ns0:source>Open Activities and create or edit a Buy, Sell, Dividend or Interest activity. Enter its date, account, instrument or currency, quantity and unit price as usual, then enter the monetary Tax amount separately from Fee. Tax uses the currency displayed beside the field; it is an amount, not a percentage.</ns0:source>
-      </ns0:trans-unit>
-      <ns0:trans-unit xmlns:ns0="urn:oasis:names:tc:xliff:document:1.2" id="ngGuideTaxCash" datatype="html">
-        <ns0:source>Financially, a buy costs gross value plus fee and tax, while a sell, dividend or interest payment yields gross value minus fee and tax. Check the linked account cash movement after saving: in this integrated version, automatic cash updating subtracts fees but omits the Tax field. This also affects cash amounts for non-managed accounts handled by the cash service. Do not assume the account balance is already net of tax. Check the statement and, if needed, reconcile to the verified actual balance without recording the same tax twice.</ns0:source>
-      </ns0:trans-unit>
-      <ns0:trans-unit xmlns:ns0="urn:oasis:names:tc:xliff:document:1.2" id="ngGuideTaxReview" datatype="html">
-        <ns0:source>Review Tax in the activities table and edit the original activity to correct the amount, date, currency or account. Do not duplicate the same tax as a standalone fee or cash withdrawal. JSON import/export preserves tax; activity CSV import accepts Tax and Withholding Tax columns. Older entries without a tax amount use zero.</ns0:source>
-      </ns0:trans-unit>
-      <ns0:trans-unit xmlns:ns0="urn:oasis:names:tc:xliff:document:1.2" id="ngGuideTaxPerformance" datatype="html">
-        <ns0:source>Tax reduces monetary net investment performance while gross performance and gross dividend/interest amounts remain distinct. ROAI and ROI use this net result. The current TWR and MWR percentage routines have no explicit tax adjustment: do not interpret those percentages as after-tax returns. Use ROAI or ROI when reviewing the net result after recorded taxes.</ns0:source>
-      </ns0:trans-unit>
-      <ns0:trans-unit xmlns:ns0="urn:oasis:names:tc:xliff:document:1.2" id="ngGuideTaxExample" datatype="html">
-        <ns0:source>Example: a dividend of 100 EUR with Tax 26 EUR and Fee 0 remains a gross dividend of 100 EUR; the economic net receipt is 74 EUR. The current automatic linked cash movement credits 100 EUR, not 74: verify the 26 EUR discrepancy against the statement before reconciling. Monetary net investment performance does deduct the recorded 26 EUR tax. Do not change the gross dividend to 74 and subtract tax again.</ns0:source>
-      </ns0:trans-unit>
-      <ns0:trans-unit xmlns:ns0="urn:oasis:names:tc:xliff:document:1.2" id="ngGuideTaxDisclaimer" datatype="html">
-        <ns0:source>Recorded tax information is not a substitute for professional tax advice. Check your records against broker statements and consult a qualified adviser for your situation.</ns0:source>
-      </ns0:trans-unit>
-      <ns0:trans-unit xmlns:ns0="urn:oasis:names:tc:xliff:document:1.2" id="ngGuideCalendar" datatype="html">
-        <ns0:source>Profit and Loss Calendar</ns0:source>
-      </ns0:trans-unit>
-      <ns0:trans-unit xmlns:ns0="urn:oasis:names:tc:xliff:document:1.2" id="ngGuideCalendarIntro" datatype="html">
-        <ns0:source>Find the calendar on Home → Overview, outside Zen Mode. It loads historical performance independently of the main overview chart’s selected range. It helps you inspect profitable and unprofitable periods without treating cash deposits as profits.</ns0:source>
-      </ns0:trans-unit>
-      <ns0:trans-unit xmlns:ns0="urn:oasis:names:tc:xliff:document:1.2" id="ngGuideCalendarControls" datatype="html">
-        <ns0:source>Choose Daily or Weekly to inspect the selected month, Monthly for the selected year, or Last 30 days for the current rolling window. Previous and Next move one month, or one year in Monthly view. Last 30 days resets to the current date and has no historical-period arrows. Weeks run Monday to Sunday and weekly totals use only the portion inside the selected month.</ns0:source>
-      </ns0:trans-unit>
-      <ns0:trans-unit xmlns:ns0="urn:oasis:names:tc:xliff:document:1.2" id="ngGuideCalendarUnits" datatype="html">
-        <ns0:source>Where your permissions and view mode allow amounts, switch between the base-currency amount and %. Restricted or hidden-value views do not expose monetary amounts. Positive and negative values use different colors and signed numbers; a dash means unavailable, not zero.</ns0:source>
-      </ns0:trans-unit>
-      <ns0:trans-unit xmlns:ns0="urn:oasis:names:tc:xliff:document:1.2" id="ngGuideCalendarAmounts" datatype="html">
-        <ns0:source>What the amounts mean</ns0:source>
-      </ns0:trans-unit>
-      <ns0:trans-unit xmlns:ns0="urn:oasis:names:tc:xliff:document:1.2" id="ngGuideCalendarFormula" datatype="html">
-        <ns0:source>Each day’s monetary PnL is the difference between two consecutive calendar dates’ cumulative net performance including currency effects. Weekly and monthly amounts sum those daily differences. A gap in historical dates is not assigned entirely to the next day; incomplete elapsed daily data can make period totals unavailable. Non-trading days are included when valuations are available and may still reflect income, costs or currency changes.</ns0:source>
-      </ns0:trans-unit>
-      <ns0:trans-unit xmlns:ns0="urn:oasis:names:tc:xliff:document:1.2" id="ngGuideCalendarPercentages" datatype="html">
-        <ns0:source>The % view requests a separate ROAI calculation for each period; it is not the daily monetary PnL divided by yesterday’s balance, nor the change in a cumulative percentage. In this version it is available only when ROAI is selected. With ROI, TWR or MWR, percentage cells may show a dash even when monetary PnL is available. Percentages must not be added to obtain a monthly return.</ns0:source>
-      </ns0:trans-unit>
-      <ns0:trans-unit xmlns:ns0="urn:oasis:names:tc:xliff:document:1.2" id="ngGuideCalendarFlows" datatype="html">
-        <ns0:source>The calendar reuses net investment performance: contributions themselves are not gains, investment dividends and applicable investment fees/taxes affect net amounts, and foreign-currency conversion affects the currency-adjusted series. It is not a bank-account balance calendar or a complete change-in-wealth statement; the cash and standalone-fee boundaries described in Cash Management still apply.</ns0:source>
-      </ns0:trans-unit>
-      <ns0:trans-unit xmlns:ns0="urn:oasis:names:tc:xliff:document:1.2" id="ngGuideCalendarExample" datatype="html">
-        <ns0:source>Example: consecutive cumulative net results of 0, 12, 7 and 10 EUR produce daily PnL of +12, −5 and +3 EUR, totaling +10 EUR. A missing observation between 12 and 7 does not justify labelling −5 as a one-day result. A deposit of 500 EUR alone is not +500 EUR of PnL.</ns0:source>
-      </ns0:trans-unit>
-      <ns0:trans-unit xmlns:ns0="urn:oasis:names:tc:xliff:document:1.2" id="ngGuideReturns" datatype="html">
-        <ns0:source>Financial Performance and Returns</ns0:source>
-      </ns0:trans-unit>
-      <ns0:trans-unit xmlns:ns0="urn:oasis:names:tc:xliff:document:1.2" id="ngGuideReturnsIntro" datatype="html">
-        <ns0:source>A monetary gain and a percentage return answer different questions. Always compare the same date range, currency, portfolio scope and gross/net basis. These methods reuse your recorded activities and available prices; missing data or incorrect activity dates cannot be repaired by switching the method.</ns0:source>
-      </ns0:trans-unit>
-      <ns0:trans-unit xmlns:ns0="urn:oasis:names:tc:xliff:document:1.2" id="ngGuideReturnsSelection" datatype="html">
-        <ns0:source>Open Settings, enable Experimental Features and choose Performance Calculation: ROAI, ROI, TWR or MWR. The selector is unavailable while impersonating another user or without permission to change settings. Review Home and Analysis after changing it. This guide explains the NG implementations; some methods and controls are experimental.</ns0:source>
-      </ns0:trans-unit>
-      <ns0:trans-unit xmlns:ns0="urn:oasis:names:tc:xliff:document:1.2" id="ngGuideRoi" datatype="html">
-        <ns0:source>ROI — Return on Investment</ns0:source>
-      </ns0:trans-unit>
-      <ns0:trans-unit xmlns:ns0="urn:oasis:names:tc:xliff:document:1.2" id="ngGuideRoiDefinition" datatype="html">
-        <ns0:source>ROI divides net investment performance by invested capital, without time weighting. Net performance includes realized and unrealized investment gains and income, less applicable investment fees and taxes. At portfolio level the denominator accumulates positive net changes in remaining invested cost; a sale does not subtract from capital already counted. Same-day internal reinvestment is netted, and capital invested and released intraday is included through the daily peak adjustment. A holding’s denominator instead uses its buy amounts.</ns0:source>
-      </ns0:trans-unit>
-      <ns0:trans-unit xmlns:ns0="urn:oasis:names:tc:xliff:document:1.2" id="ngGuideRoiRange" datatype="html">
-        <ns0:source>For a selected date range, ROI starts with the opening market value and adds positive subsequent net investment changes and the relevant intraday adjustments. Reinvestment on different dates can count capital again. It is not simply gain divided by your latest bank balance, nor by all cash deposits.</ns0:source>
-      </ns0:trans-unit>
-      <ns0:trans-unit xmlns:ns0="urn:oasis:names:tc:xliff:document:1.2" id="ngGuideRoai" datatype="html">
-        <ns0:source>ROAI — Return on Average Investment</ns0:source>
-      </ns0:trans-unit>
-      <ns0:trans-unit xmlns:ns0="urn:oasis:names:tc:xliff:document:1.2" id="ngGuideRoaiDefinition" datatype="html">
-        <ns0:source>ROAI divides net monetary investment performance by average invested capital. For a holding’s whole history, remaining invested cost is weighted by elapsed calendar intervals between investment activities and the terminal valuation. The portfolio sums the included holdings’ averages. For a selected date range, the calculator includes opening unrealized performance in the opening capital and counts the final valuation day in the daily average. These conventions can produce different averages in whole-history holding statistics and date-range charts. Calendar-day weighting avoids daylight-saving distortions. ROAI is neither TWR nor an annualized XIRR.</ns0:source>
-      </ns0:trans-unit>
-      <ns0:trans-unit xmlns:ns0="urn:oasis:names:tc:xliff:document:1.2" id="ngGuideTwr" datatype="html">
-        <ns0:source>TWR — Time-Weighted Return</ns0:source>
-      </ns0:trans-unit>
-      <ns0:trans-unit xmlns:ns0="urn:oasis:names:tc:xliff:document:1.2" id="ngGuideTwrDefinition" datatype="html">
-        <ns0:source>TWR geometrically links daily growth factors. When the preceding value is positive, the factor is (current value − net investment cash inflow + performance adjustments) ÷ preceding value; the total return is the product of factors minus one. At this investment boundary buys add capital and sells release it; same-day flows across holdings are netted. Dividends and interest are return, and fees are negative adjustments. This reduces the effect of contribution timing rather than treating new capital as a gain.</ns0:source>
-      </ns0:trans-unit>
-      <ns0:trans-unit xmlns:ns0="urn:oasis:names:tc:xliff:document:1.2" id="ngGuideMwr" datatype="html">
-        <ns0:source>MWR — Money-Weighted Return</ns0:source>
-      </ns0:trans-unit>
-      <ns0:trans-unit xmlns:ns0="urn:oasis:names:tc:xliff:document:1.2" id="ngGuideMwrDefinition" datatype="html">
-        <ns0:source>MWR solves an annualized XIRR from dated investor cash flows and the terminal investment value. Buys are negative, sells and investment income positive, fees negative and terminal value positive. Same-day flows are combined. The solver uses actual calendar days divided by 365: a short-period MWR is still annualized. Date ranges start with a negative opening market value. Base-currency cash remains outside this investment boundary; merely depositing money into that cash account is not an investment cash flow.</ns0:source>
-      </ns0:trans-unit>
-      <ns0:trans-unit xmlns:ns0="urn:oasis:names:tc:xliff:document:1.2" id="ngGuideMwrLimits" datatype="html">
-        <ns0:source>An XIRR can have multiple solutions or no valid solution. This implementation starts its solver at zero and can return zero when it cannot determine a valid root or when dated flows are insufficient. A displayed zero therefore does not always prove that the investment broke even. TWR/MWR percentage routines do not explicitly deduct the Tax field in this baseline; use the monetary net result and ROAI/ROI for reviewing recorded taxes.</ns0:source>
-      </ns0:trans-unit>
-      <ns0:trans-unit xmlns:ns0="urn:oasis:names:tc:xliff:document:1.2" id="ngGuideReturnExamples" datatype="html">
-        <ns0:source>Worked examples</ns0:source>
-      </ns0:trans-unit>
-      <ns0:trans-unit xmlns:ns0="urn:oasis:names:tc:xliff:document:1.2" id="ngGuideNoFlowsExample" datatype="html">
-        <ns0:source>No external investment flows: invest 1,000 EUR, keep the same invested capital for 365 days and end with 1,100 EUR, with no income, fees, taxes or currency effects. Profit is 100 EUR; ROI and ROAI are 10%, cumulative TWR is 10% and annualized MWR is 10%.</ns0:source>
-      </ns0:trans-unit>
-      <ns0:trans-unit xmlns:ns0="urn:oasis:names:tc:xliff:document:1.2" id="ngGuideDepositExample" datatype="html">
-        <ns0:source>Additional contribution: invest 1,000 EUR on day 1 and another 1,000 on day 3 at unchanged prices; the final value on day 4 is 2,100 EUR. The extra money is invested, not just left in base-currency cash. Gain is 100, not 1,100. ROI uses 2,000 of capital → 5%. In the day-1-to-day-4 chart, ROAI uses (1,000 × 2 + 2,000 × 2) ÷ 4 = 1,500 → about 6.67%. The whole-history holding average uses the three elapsed days: (1,000 × 2 + 2,000 × 1) ÷ 3 ≈ 1,333.33 → 7.5%. Compare like-for-like displays. Assume no costs, income or currency effects.</ns0:source>
-      </ns0:trans-unit>
-      <ns0:trans-unit xmlns:ns0="urn:oasis:names:tc:xliff:document:1.2" id="ngGuideTimingExample" datatype="html">
-        <ns0:source>Timing matters: invest 1,000 EUR, gain 20% over 365 days to reach 1,200, then invest another 1,000. Lose 10% over the next 365 days and finish at 1,980. TWR is 1.20 × 0.90 − 1 = +8% over both periods, about +3.92% annualized for comparison. MWR solves −1,000 − 1,000 ÷ (1 + r) + 1,980 ÷ (1 + r)² = 0 and is about −0.67% annually. More money was exposed to the losing period. The application’s cumulative TWR and annualized MWR have different time bases; compare them accordingly.</ns0:source>
-      </ns0:trans-unit>
-      <ns0:trans-unit xmlns:ns0="urn:oasis:names:tc:xliff:document:1.2" id="ngGuideBenchmarks" datatype="html">
-        <ns0:source>Benchmarks</ns0:source>
-      </ns0:trans-unit>
-      <ns0:trans-unit xmlns:ns0="urn:oasis:names:tc:xliff:document:1.2" id="ngGuideBenchmarksDefinition" datatype="html">
-        <ns0:source>In Analysis, choose an available benchmark in the comparator. Its line is the benchmark price change from its first available point in the portfolio range, adjusted for the benchmark currency’s change against your base currency. It is not recalculated with your deposits, fees, taxes or MWR timing, and no separate dividend reinvestment is added by the comparator. The market-data provider determines the supplied price series. For example, a price from 100 to 110 with unchanged currency gives a +10% benchmark.</ns0:source>
-      </ns0:trans-unit>
-      <ns0:trans-unit xmlns:ns0="urn:oasis:names:tc:xliff:document:1.2" id="ngGuideBenchmarkCaution" datatype="html">
-        <ns0:source>The portfolio line uses your selected performance method; the benchmark remains a price-based comparison, not an identical investor experience. MWR is annualized while the benchmark price change is cumulative. Missing baseline prices or exchange data can limit the comparison. Check dates, currency, income and cost treatment before interpreting a gap as outperformance.</ns0:source>
-      </ns0:trans-unit>
-      <ns0:trans-unit xmlns:ns0="urn:oasis:names:tc:xliff:document:1.2" id="ngGuideImprovements" datatype="html">
-        <ns0:source>Other Ghostfolio-NG Improvements</ns0:source>
-      </ns0:trans-unit>
-      <ns0:trans-unit xmlns:ns0="urn:oasis:names:tc:xliff:document:1.2" id="ngGuideRestore" datatype="html">
-        <ns0:source>Complete portfolio restore</ns0:source>
-      </ns0:trans-unit>
-      <ns0:trans-unit xmlns:ns0="urn:oasis:names:tc:xliff:document:1.2" id="ngGuideRestoreExport" datatype="html">
-        <ns0:source>On the source instance, open Settings → Export Data and keep the JSON backup private. On the destination, use Import Data beside Export Data, or Accounts → Import JSON.</ns0:source>
-      </ns0:trans-unit>
-      <ns0:trans-unit xmlns:ns0="urn:oasis:names:tc:xliff:document:1.2" id="ngGuideRestoreMap" datatype="html">
-        <ns0:source>For each source account, choose a new account, an existing compatible account or Exclude. Names are not matched automatically. To restore a cash ledger use a new or empty account, or a compatible account with its financial activities already imported and no existing ledger. Include both accounts of every restored transfer.</ns0:source>
-      </ns0:trans-unit>
-      <ns0:trans-unit xmlns:ns0="urn:oasis:names:tc:xliff:document:1.2" id="ngGuideRestoreConfirm" datatype="html">
-        <ns0:source>Review the preview and warnings before Import Data. Accounts, activities, exported custom-instrument data, tags, platforms and cash history are restored together; an error rolls back the restore. Existing data is retained. A complete JSON restore already includes cash, so do not import the same cash CSV again.</ns0:source>
-      </ns0:trans-unit>
-      <ns0:trans-unit xmlns:ns0="urn:oasis:names:tc:xliff:document:1.2" id="ngGuideRestoreLimits" datatype="html">
-        <ns0:source>Older exports cannot reconstruct cash history or activity links they never contained. Unmanaged legacy accounts remain unmanaged. Login credentials and server configuration are not transferred; base currency and performance method can optionally be restored only into an empty portfolio. Shared manual instruments without an owner can lack metadata or historical prices in the upstream export: verify them afterward.</ns0:source>
-      </ns0:trans-unit>
-      <ns0:trans-unit xmlns:ns0="urn:oasis:names:tc:xliff:document:1.2" id="ngGuideCostBasis" datatype="html">
-        <ns0:source>Remaining cost basis after partial sales</ns0:source>
-      </ns0:trans-unit>
-      <ns0:trans-unit xmlns:ns0="urn:oasis:names:tc:xliff:document:1.2" id="ngGuideCostBasisDescription" datatype="html">
-        <ns0:source>Realized performance uses the remaining cost basis when you sell part of a holding and later buy more. Example without fees: buy 10 at 100, sell 5 at 110, buy 5 at 200, then sell 10 at 210. Gross realized gain is 50 + 600 = 650. Previously sold quantities must not dilute the average cost of the remaining position. Review the holding’s activity history when reconciling this result with broker records.</ns0:source>
-      </ns0:trans-unit>
-      <ns0:trans-unit xmlns:ns0="urn:oasis:names:tc:xliff:document:1.2" id="ngGuideSameDay" datatype="html">
-        <ns0:source>Same-day capital reuse</ns0:source>
-      </ns0:trans-unit>
-      <ns0:trans-unit xmlns:ns0="urn:oasis:names:tc:xliff:document:1.2" id="ngGuideSameDayDescription" datatype="html">
-        <ns0:source>ROI also recognizes capital invested and released before the end of a day. Buy and sell 1,000 on the same day and the capital is not zero. If you then reinvest 1,100 that day, the same-day peak is 1,100, not the sum 2,100. Dates and transaction order matter; enter the real activity sequence instead of changing dates to force a desired return.</ns0:source>
-      </ns0:trans-unit>
-      <ns0:trans-unit xmlns:ns0="urn:oasis:names:tc:xliff:document:1.2" id="ngGuideFeeNames" datatype="html">
-        <ns0:source>Editable fee descriptions</ns0:source>
-      </ns0:trans-unit>
-      <ns0:trans-unit xmlns:ns0="urn:oasis:names:tc:xliff:document:1.2" id="ngGuideFeeNamesDescription" datatype="html">
-        <ns0:source>In Activities, edit a standalone Fee activity to correct its name. A shared or administrator-owned instrument profile is separated when necessary so renaming your fee does not rename other activities. This changes the description, not the fee amount; check both fields before saving.</ns0:source>
-      </ns0:trans-unit>
-      <ns0:trans-unit xmlns:ns0="urn:oasis:names:tc:xliff:document:1.2" id="ngGuidePageIntro" datatype="html">
-        <ns0:source>Meet the team and learn how to use the additional features integrated into Ghostfolio-NG. This guide describes the application’s behavior, including its current limits.</ns0:source>
-      </ns0:trans-unit>
-      <ns0:trans-unit xmlns:ns0="urn:oasis:names:tc:xliff:document:1.2" id="ngGuideContents" datatype="html">
-        <ns0:source>Chapters</ns0:source>
-      </ns0:trans-unit>
-      <ns0:trans-unit xmlns:ns0="urn:oasis:names:tc:xliff:document:1.2" id="ngGuideBackToIndex" datatype="html">
-        <ns0:source>Back to chapters</ns0:source>
-      </ns0:trans-unit>
+      <trans-unit id="ngGuideTeam" datatype="html">
+        <source>The Ghostfolio-NG Team</source>
+      </trans-unit>
+      <trans-unit id="ngGuideIntroduction" datatype="html">
+        <source>Ghostfolio-NG is an independently maintained distribution of Ghostfolio that extends the original open-source project with additional portfolio management, financial analysis and usability features.</source>
+      </trans-unit>
+      <trans-unit id="ngGuideAiCollaboration" datatype="html">
+        <source>The project combines hands-on software development with AI-assisted analysis, implementation, testing and technical review. Codex and ChatGPT are AI assistants, not human contributors.</source>
+      </trans-unit>
+      <trans-unit id="ngGuidePjRole" datatype="html">
+        <source>PJ — Project maintainer and developer</source>
+      </trans-unit>
+      <trans-unit id="ngGuidePjDescription" datatype="html">
+        <source>PJ coordinates Ghostfolio-NG development, defines requirements, designs and validates features, and oversees integration, testing and release decisions.</source>
+      </trans-unit>
+      <trans-unit id="ngGuideCodexRole" datatype="html">
+        <source>Codex — AI development assistant</source>
+      </trans-unit>
+      <trans-unit id="ngGuideCodexDescription" datatype="html">
+        <source>Codex supports implementation, code analysis, automated testing, debugging and verification of changes.</source>
+      </trans-unit>
+      <trans-unit id="ngGuideChatgptRole" datatype="html">
+        <source>ChatGPT — AI analysis and design assistant</source>
+      </trans-unit>
+      <trans-unit id="ngGuideChatgptDescription" datatype="html">
+        <source>ChatGPT supports technical planning, architectural analysis, financial reasoning, documentation and code review.</source>
+      </trans-unit>
+      <trans-unit id="ngGuideAttribution" datatype="html">
+        <source>Ghostfolio-NG builds on the original Ghostfolio open-source project and the work of its contributors. It is an independent distribution, not an official upstream edition or a replacement for the upstream project.</source>
+      </trans-unit>
+      <trans-unit id="ngGuideTeamImageAlt" datatype="html">
+        <source>Illustration of PJ with PJ on his shirt, Codex represented as a robot, and ChatGPT represented as a person; Codex and ChatGPT are AI assistants</source>
+      </trans-unit>
+      <trans-unit id="ngGuideUpstreamLink" datatype="html">
+        <source>Original Ghostfolio project</source>
+      </trans-unit>
+      <trans-unit id="ngGuideProjectLink" datatype="html">
+        <source>Ghostfolio-NG project</source>
+      </trans-unit>
+      <trans-unit id="ngGuideCash" datatype="html">
+        <source>Cash Management</source>
+      </trans-unit>
+      <trans-unit id="ngGuideCashIntro" datatype="html">
+        <source>Cash Management records cash entering, leaving and moving between accounts alongside investment activities. Cash and holdings are distinct: positions represent investments, while total portfolio wealth also includes the cash that you choose to include.</source>
+      </trans-unit>
+      <trans-unit id="ngGuideCashAccounts" datatype="html">
+        <source>Accounts and cash balances</source>
+      </trans-unit>
+      <trans-unit id="ngGuideCashAccountStep" datatype="html">
+        <source>Open Accounts, create or select an account with a currency, then open its details and Cash Balances. Creating an account alone does not create a deposit.</source>
+      </trans-unit>
+      <trans-unit id="ngGuideCashOpeningStep" datatype="html">
+        <source>For a new account, enter the first deposit on its actual date. For an older account, review the existing balances and reconcile to a known balance on a known date. Opening the view alone does not activate a historical account’s cash ledger; saving a movement or preference does. Existing balance snapshots are retained as dated reconciliations when management starts.</source>
+      </trans-unit>
+      <trans-unit id="ngGuideCashPreferences" datatype="html">
+        <source>Review the two independent preferences: Update Cash Balance by default for new activities, and Consider this account’s cash in analyses and allocations. Check Update Cash Balance on each financial activity; changing the default is not a replay of every past activity.</source>
+      </trans-unit>
+      <trans-unit id="ngGuideCashMovements" datatype="html">
+        <source>Deposits, withdrawals and reconciliation</source>
+      </trans-unit>
+      <trans-unit id="ngGuideCashMovementStep" datatype="html">
+        <source>In Cash Balances, select the date and operation, enter the amount and any note, and choose Insert. The account determines the currency. Deposits and withdrawals require positive amounts; the application subtracts withdrawals automatically. Future dates are not accepted.</source>
+      </trans-unit>
+      <trans-unit id="ngGuideCashFeeStep" datatype="html">
+        <source>For a deposit, cash increases by amount minus fee. For a withdrawal, cash decreases by amount plus fee. Enter a non-negative fee in the account currency. Financial activity-linked amounts already include their fees: do not add the same fee again as a manual cash movement.</source>
+      </trans-unit>
+      <trans-unit id="ngGuideCashReconciliationStep" datatype="html">
+        <source>Choose Reconciliation and enter the actual cash balance, including zero or a negative balance. Its fee must be zero. It replaces the calculated balance at that point in the journal; it is not an extra deposit and does not reconstruct missing earlier transactions. Later movements continue from the reconciled balance.</source>
+      </trans-unit>
+      <trans-unit id="ngGuideCashCorrections" datatype="html">
+        <source>Review the running balance in the journal. Use the movement’s Actions menu to edit or delete a manual entry. For linked investment movements, open and correct the original financial activity. A newly negative or worsened negative balance requires confirmation; review the warning rather than using reconciliation to conceal an error.</source>
+      </trans-unit>
+      <trans-unit id="ngGuideCashTransfers" datatype="html">
+        <source>Transfers between accounts</source>
+      </trans-unit>
+      <trans-unit id="ngGuideCashTransferSteps" datatype="html">
+        <source>From Accounts, choose Transfer Cash Balance, select From and To, enter a positive Value in the source account’s currency and confirm Transfer. The transfer uses today’s date. For different currencies, the application converts the destination amount with the available exchange rate for today; this dialog has no historical date or custom destination-amount control. Review both balances afterward.</source>
+      </trans-unit>
+      <trans-unit id="ngGuideCashTransferLimits" datatype="html">
+        <source>A transfer between your accounts is an internal movement, not a new deposit from outside your portfolio. Managed accounts retain linked counterpart entries; legacy accounts remain supported. Transfer entries cannot be edited or deleted separately: use a new reverse transfer if needed. This version has no separate source-fee or destination-fee fields in the transfer dialog; do not assume a bank’s two fees have been recorded automatically.</source>
+      </trans-unit>
+      <trans-unit id="ngGuideCashPerformance" datatype="html">
+        <source>Cash is not investment profit</source>
+      </trans-unit>
+      <trans-unit id="ngGuideCashBoundary" datatype="html">
+        <source>Deposits, withdrawals and reconciliations change recorded wealth, not investment gains. Base-currency cash is outside the investment-return boundary; foreign-currency cash can contribute currency effects. Cash visibility and inclusion settings are separate from the selected return method. Cash fees reduce cash and appear in fee totals, but the ROI/ROAI investment-only result excludes standalone fee activities: the change in total wealth need not equal the investment-only result.</source>
+      </trans-unit>
+      <trans-unit id="ngGuideCashExample" datatype="html">
+        <source>Example in EUR: deposit 1,000 with a fee of 2 → cash 998; withdraw 100 with a fee of 1 → cash 897; reconcile to the bank’s actual 880 → cash 880, not 1,777. A later internal transfer of 200 to another EUR account leaves 680 here and adds 200 there. With no transfer fees or exchange effects, the transfer itself leaves total wealth unchanged. None of these amounts is an investment gain.</source>
+      </trans-unit>
+      <trans-unit id="ngGuideCashCsv" datatype="html">
+        <source>Cash CSV import and export</source>
+      </trans-unit>
+      <trans-unit id="ngGuideCashCsvStep1" datatype="html">
+        <source>Use Export CSV in Cash Balances for the whole account journal. To import, use Import CSV there or on Accounts, select the destination account or create a new one, and inspect the preview. Previewing and cancelling do not create an account or save movements.</source>
+      </trans-unit>
+      <trans-unit id="ngGuideCashCsvStep2" datatype="html">
+        <source>Required columns: Date, Operation, Amount, Currency. Optional: Fee, Sequence, Note, Reference. Use UTF-8, comma or semicolon separators, YYYY-MM-DD dates, a decimal point and no thousands separator. The currency must match the destination account: CSV import does not exchange currencies. Italian column headings are accepted too.</source>
+      </trans-unit>
+      <trans-unit id="ngGuideCashCsvStep3" datatype="html">
+        <source>For hand-written files use DEPOSIT, WITHDRAWAL or RECONCILIATION. Deposit and withdrawal amounts are positive; reconciliation uses the actual balance and Fee 0. Supply Sequence to order same-day movements, especially around a reconciliation. The example below ends at 880 EUR.</source>
+      </trans-unit>
+      <trans-unit id="ngGuideCashCsvPreview" datatype="html">
+        <source>Check new and existing rows, final and minimum balances, currency and warnings before confirming Insert movements. An identical Reference in the same account is skipped; changed contents under the same reference are a conflict. Possible duplicates without references need review. Errors block the whole import; existing entries are not overwritten. If the journal changes after previewing, preview again.</source>
+      </trans-unit>
+      <trans-unit id="ngGuideCashCsvLimits" datatype="html">
+        <source>Cash CSV does not create financial activities. Import those first, then match linked cash rows to the correct existing activities; ambiguous matches need your selection. Keep exported metadata and linked-activity columns unchanged. Files are limited to 2 MB and 5,000 records including metadata. A new transfer cannot be reconstructed from one side alone: use the complete JSON restore for both accounts. Cash CSV is not a full portfolio backup.</source>
+      </trans-unit>
+      <trans-unit id="ngGuideCsvExampleLabel" datatype="html">
+        <source>Cash CSV example</source>
+      </trans-unit>
+      <trans-unit id="ngGuideTax" datatype="html">
+        <source>Tax Management</source>
+      </trans-unit>
+      <trans-unit id="ngGuideTaxIntro" datatype="html">
+        <source>Record actual tax amounts separately from investment values and fees. This feature tracks taxes you enter; it does not calculate tax rates, choose a jurisdiction, generate a tax return or file it for you.</source>
+      </trans-unit>
+      <trans-unit id="ngGuideTaxEntry" datatype="html">
+        <source>Open Activities and create or edit a Buy, Sell, Dividend or Interest activity. Enter its date, account, instrument or currency, quantity and unit price as usual, then enter the monetary Tax amount separately from Fee. Tax uses the currency displayed beside the field; it is an amount, not a percentage.</source>
+      </trans-unit>
+      <trans-unit id="ngGuideTaxCash" datatype="html">
+        <source>Financially, a buy costs gross value plus fee and tax, while a sell, dividend or interest payment yields gross value minus fee and tax. Check the linked account cash movement after saving: in this integrated version, automatic cash updating subtracts fees but omits the Tax field. This also affects cash amounts for non-managed accounts handled by the cash service. Do not assume the account balance is already net of tax. Check the statement and, if needed, reconcile to the verified actual balance without recording the same tax twice.</source>
+      </trans-unit>
+      <trans-unit id="ngGuideTaxReview" datatype="html">
+        <source>Review Tax in the activities table and edit the original activity to correct the amount, date, currency or account. Do not duplicate the same tax as a standalone fee or cash withdrawal. JSON import/export preserves tax; activity CSV import accepts Tax and Withholding Tax columns. Older entries without a tax amount use zero.</source>
+      </trans-unit>
+      <trans-unit id="ngGuideTaxPerformance" datatype="html">
+        <source>Tax reduces monetary net investment performance while gross performance and gross dividend/interest amounts remain distinct. ROAI and ROI use this net result. The current TWR and MWR percentage routines have no explicit tax adjustment: do not interpret those percentages as after-tax returns. Use ROAI or ROI when reviewing the net result after recorded taxes.</source>
+      </trans-unit>
+      <trans-unit id="ngGuideTaxExample" datatype="html">
+        <source>Example: a dividend of 100 EUR with Tax 26 EUR and Fee 0 remains a gross dividend of 100 EUR; the economic net receipt is 74 EUR. The current automatic linked cash movement credits 100 EUR, not 74: verify the 26 EUR discrepancy against the statement before reconciling. Monetary net investment performance does deduct the recorded 26 EUR tax. Do not change the gross dividend to 74 and subtract tax again.</source>
+      </trans-unit>
+      <trans-unit id="ngGuideTaxDisclaimer" datatype="html">
+        <source>Recorded tax information is not a substitute for professional tax advice. Check your records against broker statements and consult a qualified adviser for your situation.</source>
+      </trans-unit>
+      <trans-unit id="ngGuideCalendar" datatype="html">
+        <source>Profit and Loss Calendar</source>
+      </trans-unit>
+      <trans-unit id="ngGuideCalendarIntro" datatype="html">
+        <source>Find the calendar on Home → Overview, outside Zen Mode. It loads historical performance independently of the main overview chart’s selected range. It helps you inspect profitable and unprofitable periods without treating cash deposits as profits.</source>
+      </trans-unit>
+      <trans-unit id="ngGuideCalendarControls" datatype="html">
+        <source>Choose Daily or Weekly to inspect the selected month, Monthly for the selected year, or Last 30 days for the current rolling window. Previous and Next move one month, or one year in Monthly view. Last 30 days resets to the current date and has no historical-period arrows. Weeks run Monday to Sunday and weekly totals use only the portion inside the selected month.</source>
+      </trans-unit>
+      <trans-unit id="ngGuideCalendarUnits" datatype="html">
+        <source>Where your permissions and view mode allow amounts, switch between the base-currency amount and %. Restricted or hidden-value views do not expose monetary amounts. Positive and negative values use different colors and signed numbers; a dash means unavailable, not zero.</source>
+      </trans-unit>
+      <trans-unit id="ngGuideCalendarAmounts" datatype="html">
+        <source>What the amounts mean</source>
+      </trans-unit>
+      <trans-unit id="ngGuideCalendarFormula" datatype="html">
+        <source>Each day’s monetary PnL is the difference between two consecutive calendar dates’ cumulative net performance including currency effects. Weekly and monthly amounts sum those daily differences. A gap in historical dates is not assigned entirely to the next day; incomplete elapsed daily data can make period totals unavailable. Non-trading days are included when valuations are available and may still reflect income, costs or currency changes.</source>
+      </trans-unit>
+      <trans-unit id="ngGuideCalendarPercentages" datatype="html">
+        <source>The % view requests a separate ROAI calculation for each period; it is not the daily monetary PnL divided by yesterday’s balance, nor the change in a cumulative percentage. In this version it is available only when ROAI is selected. With ROI, TWR or MWR, percentage cells may show a dash even when monetary PnL is available. Percentages must not be added to obtain a monthly return.</source>
+      </trans-unit>
+      <trans-unit id="ngGuideCalendarFlows" datatype="html">
+        <source>The calendar reuses net investment performance: contributions themselves are not gains, investment dividends and applicable investment fees/taxes affect net amounts, and foreign-currency conversion affects the currency-adjusted series. It is not a bank-account balance calendar or a complete change-in-wealth statement; the cash and standalone-fee boundaries described in Cash Management still apply.</source>
+      </trans-unit>
+      <trans-unit id="ngGuideCalendarExample" datatype="html">
+        <source>Example: consecutive cumulative net results of 0, 12, 7 and 10 EUR produce daily PnL of +12, −5 and +3 EUR, totaling +10 EUR. A missing observation between 12 and 7 does not justify labelling −5 as a one-day result. A deposit of 500 EUR alone is not +500 EUR of PnL.</source>
+      </trans-unit>
+      <trans-unit id="ngGuideReturns" datatype="html">
+        <source>Financial Performance and Returns</source>
+      </trans-unit>
+      <trans-unit id="ngGuideReturnsIntro" datatype="html">
+        <source>A monetary gain and a percentage return answer different questions. Always compare the same date range, currency, portfolio scope and gross/net basis. These methods reuse your recorded activities and available prices; missing data or incorrect activity dates cannot be repaired by switching the method.</source>
+      </trans-unit>
+      <trans-unit id="ngGuideReturnsSelection" datatype="html">
+        <source>Open Settings, enable Experimental Features and choose Performance Calculation: ROAI, ROI, TWR or MWR. The selector is unavailable while impersonating another user or without permission to change settings. Review Home and Analysis after changing it. This guide explains the NG implementations; some methods and controls are experimental.</source>
+      </trans-unit>
+      <trans-unit id="ngGuideRoi" datatype="html">
+        <source>ROI — Return on Investment</source>
+      </trans-unit>
+      <trans-unit id="ngGuideRoiDefinition" datatype="html">
+        <source>ROI divides net investment performance by invested capital, without time weighting. Net performance includes realized and unrealized investment gains and income, less applicable investment fees and taxes. At portfolio level the denominator accumulates positive net changes in remaining invested cost; a sale does not subtract from capital already counted. Same-day internal reinvestment is netted, and capital invested and released intraday is included through the daily peak adjustment. A holding’s denominator instead uses its buy amounts.</source>
+      </trans-unit>
+      <trans-unit id="ngGuideRoiRange" datatype="html">
+        <source>For a selected date range, ROI starts with the opening market value and adds positive subsequent net investment changes and the relevant intraday adjustments. Reinvestment on different dates can count capital again. It is not simply gain divided by your latest bank balance, nor by all cash deposits.</source>
+      </trans-unit>
+      <trans-unit id="ngGuideRoai" datatype="html">
+        <source>ROAI — Return on Average Investment</source>
+      </trans-unit>
+      <trans-unit id="ngGuideRoaiDefinition" datatype="html">
+        <source>ROAI divides net monetary investment performance by average invested capital. For a holding’s whole history, remaining invested cost is weighted by elapsed calendar intervals between investment activities and the terminal valuation. The portfolio sums the included holdings’ averages. For a selected date range, the calculator includes opening unrealized performance in the opening capital and counts the final valuation day in the daily average. These conventions can produce different averages in whole-history holding statistics and date-range charts. Calendar-day weighting avoids daylight-saving distortions. ROAI is neither TWR nor an annualized XIRR.</source>
+      </trans-unit>
+      <trans-unit id="ngGuideTwr" datatype="html">
+        <source>TWR — Time-Weighted Return</source>
+      </trans-unit>
+      <trans-unit id="ngGuideTwrDefinition" datatype="html">
+        <source>TWR geometrically links daily growth factors. When the preceding value is positive, the factor is (current value − net investment cash inflow + performance adjustments) ÷ preceding value; the total return is the product of factors minus one. At this investment boundary buys add capital and sells release it; same-day flows across holdings are netted. Dividends and interest are return, and fees are negative adjustments. This reduces the effect of contribution timing rather than treating new capital as a gain.</source>
+      </trans-unit>
+      <trans-unit id="ngGuideMwr" datatype="html">
+        <source>MWR — Money-Weighted Return</source>
+      </trans-unit>
+      <trans-unit id="ngGuideMwrDefinition" datatype="html">
+        <source>MWR solves an annualized XIRR from dated investor cash flows and the terminal investment value. Buys are negative, sells and investment income positive, fees negative and terminal value positive. Same-day flows are combined. The solver uses actual calendar days divided by 365: a short-period MWR is still annualized. Date ranges start with a negative opening market value. Base-currency cash remains outside this investment boundary; merely depositing money into that cash account is not an investment cash flow.</source>
+      </trans-unit>
+      <trans-unit id="ngGuideMwrLimits" datatype="html">
+        <source>An XIRR can have multiple solutions or no valid solution. This implementation starts its solver at zero and can return zero when it cannot determine a valid root or when dated flows are insufficient. A displayed zero therefore does not always prove that the investment broke even. TWR/MWR percentage routines do not explicitly deduct the Tax field in this baseline; use the monetary net result and ROAI/ROI for reviewing recorded taxes.</source>
+      </trans-unit>
+      <trans-unit id="ngGuideReturnExamples" datatype="html">
+        <source>Worked examples</source>
+      </trans-unit>
+      <trans-unit id="ngGuideNoFlowsExample" datatype="html">
+        <source>No external investment flows: invest 1,000 EUR, keep the same invested capital for 365 days and end with 1,100 EUR, with no income, fees, taxes or currency effects. Profit is 100 EUR; ROI and ROAI are 10%, cumulative TWR is 10% and annualized MWR is 10%.</source>
+      </trans-unit>
+      <trans-unit id="ngGuideDepositExample" datatype="html">
+        <source>Additional contribution: invest 1,000 EUR on day 1 and another 1,000 on day 3 at unchanged prices; the final value on day 4 is 2,100 EUR. The extra money is invested, not just left in base-currency cash. Gain is 100, not 1,100. ROI uses 2,000 of capital → 5%. In the day-1-to-day-4 chart, ROAI uses (1,000 × 2 + 2,000 × 2) ÷ 4 = 1,500 → about 6.67%. The whole-history holding average uses the three elapsed days: (1,000 × 2 + 2,000 × 1) ÷ 3 ≈ 1,333.33 → 7.5%. Compare like-for-like displays. Assume no costs, income or currency effects.</source>
+      </trans-unit>
+      <trans-unit id="ngGuideTimingExample" datatype="html">
+        <source>Timing matters: invest 1,000 EUR, gain 20% over 365 days to reach 1,200, then invest another 1,000. Lose 10% over the next 365 days and finish at 1,980. TWR is 1.20 × 0.90 − 1 = +8% over both periods, about +3.92% annualized for comparison. MWR solves −1,000 − 1,000 ÷ (1 + r) + 1,980 ÷ (1 + r)² = 0 and is about −0.67% annually. More money was exposed to the losing period. The application’s cumulative TWR and annualized MWR have different time bases; compare them accordingly.</source>
+      </trans-unit>
+      <trans-unit id="ngGuideBenchmarks" datatype="html">
+        <source>Benchmarks</source>
+      </trans-unit>
+      <trans-unit id="ngGuideBenchmarksDefinition" datatype="html">
+        <source>In Analysis, choose an available benchmark in the comparator. Its line is the benchmark price change from its first available point in the portfolio range, adjusted for the benchmark currency’s change against your base currency. It is not recalculated with your deposits, fees, taxes or MWR timing, and no separate dividend reinvestment is added by the comparator. The market-data provider determines the supplied price series. For example, a price from 100 to 110 with unchanged currency gives a +10% benchmark.</source>
+      </trans-unit>
+      <trans-unit id="ngGuideBenchmarkCaution" datatype="html">
+        <source>The portfolio line uses your selected performance method; the benchmark remains a price-based comparison, not an identical investor experience. MWR is annualized while the benchmark price change is cumulative. Missing baseline prices or exchange data can limit the comparison. Check dates, currency, income and cost treatment before interpreting a gap as outperformance.</source>
+      </trans-unit>
+      <trans-unit id="ngGuideImprovements" datatype="html">
+        <source>Other Ghostfolio-NG Improvements</source>
+      </trans-unit>
+      <trans-unit id="ngGuideRestore" datatype="html">
+        <source>Complete portfolio restore</source>
+      </trans-unit>
+      <trans-unit id="ngGuideRestoreExport" datatype="html">
+        <source>On the source instance, open Settings → Export Data and keep the JSON backup private. On the destination, use Import Data beside Export Data, or Accounts → Import JSON.</source>
+      </trans-unit>
+      <trans-unit id="ngGuideRestoreMap" datatype="html">
+        <source>For each source account, choose a new account, an existing compatible account or Exclude. Names are not matched automatically. To restore a cash ledger use a new or empty account, or a compatible account with its financial activities already imported and no existing ledger. Include both accounts of every restored transfer.</source>
+      </trans-unit>
+      <trans-unit id="ngGuideRestoreConfirm" datatype="html">
+        <source>Review the preview and warnings before Import Data. Accounts, activities, exported custom-instrument data, tags, platforms and cash history are restored together; an error rolls back the restore. Existing data is retained. A complete JSON restore already includes cash, so do not import the same cash CSV again.</source>
+      </trans-unit>
+      <trans-unit id="ngGuideRestoreLimits" datatype="html">
+        <source>Older exports cannot reconstruct cash history or activity links they never contained. Unmanaged legacy accounts remain unmanaged. Login credentials and server configuration are not transferred; base currency and performance method can optionally be restored only into an empty portfolio. Shared manual instruments without an owner can lack metadata or historical prices in the upstream export: verify them afterward.</source>
+      </trans-unit>
+      <trans-unit id="ngGuideCostBasis" datatype="html">
+        <source>Remaining cost basis after partial sales</source>
+      </trans-unit>
+      <trans-unit id="ngGuideCostBasisDescription" datatype="html">
+        <source>Realized performance uses the remaining cost basis when you sell part of a holding and later buy more. Example without fees: buy 10 at 100, sell 5 at 110, buy 5 at 200, then sell 10 at 210. Gross realized gain is 50 + 600 = 650. Previously sold quantities must not dilute the average cost of the remaining position. Review the holding’s activity history when reconciling this result with broker records.</source>
+      </trans-unit>
+      <trans-unit id="ngGuideSameDay" datatype="html">
+        <source>Same-day capital reuse</source>
+      </trans-unit>
+      <trans-unit id="ngGuideSameDayDescription" datatype="html">
+        <source>ROI also recognizes capital invested and released before the end of a day. Buy and sell 1,000 on the same day and the capital is not zero. If you then reinvest 1,100 that day, the same-day peak is 1,100, not the sum 2,100. Dates and transaction order matter; enter the real activity sequence instead of changing dates to force a desired return.</source>
+      </trans-unit>
+      <trans-unit id="ngGuideFeeNames" datatype="html">
+        <source>Editable fee descriptions</source>
+      </trans-unit>
+      <trans-unit id="ngGuideFeeNamesDescription" datatype="html">
+        <source>In Activities, edit a standalone Fee activity to correct its name. A shared or administrator-owned instrument profile is separated when necessary so renaming your fee does not rename other activities. This changes the description, not the fee amount; check both fields before saving.</source>
+      </trans-unit>
+      <trans-unit id="ngGuidePageIntro" datatype="html">
+        <source>Meet the team and learn how to use the additional features integrated into Ghostfolio-NG. This guide describes the application’s behavior, including its current limits.</source>
+      </trans-unit>
+      <trans-unit id="ngGuideContents" datatype="html">
+        <source>Chapters</source>
+      </trans-unit>
+      <trans-unit id="ngGuideBackToIndex" datatype="html">
+        <source>Back to chapters</source>
+      </trans-unit>
             </body>
   </file>
 </xliff>
