@@ -38,12 +38,27 @@ const encode = (value) => JSON.stringify(value, null, 2) + '\n';
 
 function harness() {
   const initial = createRegistry('3.97.0');
+  const initialVersion = currentManifest(initial).addon_version;
+  const config = readFileSync(configPath, 'utf8');
+  const versionPattern = /^version: "[^"]+"$/gm;
+
+  assert.equal(
+    [...config.matchAll(versionPattern)].length,
+    1,
+    'Expected exactly one add-on version field'
+  );
+
+  const initialConfig = config.replace(
+    versionPattern,
+    `version: "${initialVersion}"`
+  );
+
   const remote = {
     head: '0'.repeat(40),
     files: {
       [registryPath]: serializeRegistry(initial),
       [manifestPath]: encode(currentManifest(initial)),
-      [configPath]: readFileSync(configPath, 'utf8'),
+      [configPath]: initialConfig,
       ...Object.fromEntries(
         docPaths.map((path) => [path, readFileSync(path, 'utf8')])
       )
