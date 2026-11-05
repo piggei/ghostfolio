@@ -1,0 +1,61 @@
+name: Qualify Home Assistant HTTP read retries
+
+on:
+  push:
+    branches:
+      - test/home-assistant-http-retries-3.97.4
+    paths:
+      - '.github/workflows/home-assistant-http-retries-qualification.yml'
+      - 'scripts/home-assistant-addon-*'
+
+permissions:
+  contents: read
+  packages: read
+
+concurrency:
+  group: ghostfolio-ha-http-retries-qualification-${{ github.ref }}
+  cancel-in-progress: false
+
+jobs:
+  qualify:
+    if: github.repository == 'piggei/ghostfolio'
+    strategy:
+      fail-fast: false
+      matrix:
+        include:
+          - arch: amd64
+            runner: ubuntu-latest
+          - arch: aarch64
+            runner: ubuntu-24.04-arm
+
+    runs-on: ${{ matrix.runner }}
+    timeout-minutes: 60
+
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          persist-credentials: false
+
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 22.23.4
+
+      - name: Run HTTP and Home Assistant regression tests
+        run: |
+          node --test \
+            scripts/home-assistant-addon-http-read.test.mjs \
+            scripts/home-assistant-addon-services.test.mjs \
+            scripts/home-assistant-addon-pipeline.test.mjs
+
+      - uses: docker/setup-buildx-action@v3
+
+      - uses: docker/login-action@v3
+        with:
+          registry: ghcr.io
+          username: ${{ github.actor }}
+          password: ${{ secrets.GITHUB_TOKEN }}
+
+      - name: Qualify Home Assistant application and persistence
+        env:
+          SOURCE_IMAGE: ghcr.io/piggei/ghostfolio-ng@sha256:7c8ce23d2b77675e065283918c01ab7ba1f533973d7c1d9e5d2f818e55c9d7b8
+        run: node scripts/home-assistant-addon-workflow.mjs test ${{ matrix.arch }}
