@@ -207,12 +207,42 @@ resolved digest. Identified attestation descriptors are handled by that existing
 validator. A tag alone, labels alone, or a successful job without a successful
 completed run cannot establish a qualified release.
 
+## Current controller: HTTP read retries
+
+The active Home Assistant 3.97.4 release was published using controller D,
+`a695d99ca3593a02c95c78f096b3ebb930fb13e8`. Its immutable release identity and published image digests
+remain unchanged.
+
+For subsequent releases, the qualified controller proposed for activation is
+`83ecb8df43e3d73f0435931b5fca778856711943`. It adds bounded retries for transient GitHub and GHCR
+HTTP GET transport failures, including response-body reads. HTTP error
+responses are not automatically retried, and GitHub write operations
+retain their existing recovery and idempotency safeguards.
+
+The controller was qualified on GitHub Actions:
+
+- HTTP regression and native AMD64/ARM64 qualification:
+  run `42118693519` (success).
+- Standard Home Assistant AMD64 qualification:
+  run `42119386101` (success).
+- Standard Home Assistant ARM64 qualification:
+  run `42119385995` (success).
+
+The updated orchestrator passed 110 local regression tests using the
+exact immutable controller snapshot. Its new revision has not yet been
+committed, independently qualified in CI, or activated on the default
+branch.
+
+Historical Home Assistant releases retain their original controller
+revisions. Updating the orchestrator pin does not rewrite release
+identities, allocate new versions, or recover previous releases.
+
 ## Reusing the immutable HA contract
 
 The reference is literal and cannot be supplied through event fields:
 
 ```text
-piggei/ghostfolio/.github/workflows/home-assistant-addon.yml@a695d99ca3593a02c95c78f096b3ebb930fb13e8
+piggei/ghostfolio/.github/workflows/home-assistant-addon.yml@83ecb8df43e3d73f0435931b5fca778856711943
 ```
 
 The resolver checks out only its trusted default-branch revision (`github.sha`)
@@ -220,6 +250,7 @@ and the approved HA revision, the latter into `ha-contract` with sparse checkout
 It imports only these approved library modules:
 
 - `home-assistant-addon-github.mjs`: source/job/attempt and HA revision checks.
+- `home-assistant-addon-http-read.mjs`: bounded retries for transient HTTP GET transport failures.
 - `home-assistant-addon-oci.mjs`: authenticated manifest/config digest checks.
 - `home-assistant-addon-release.mjs`: schema, version/order and retry validation.
 
@@ -321,8 +352,9 @@ environment. This creates a temporary source snapshot, not a branch or worktree:
   set -euo pipefail
   task03_contract="$(mktemp -d)"
   trap 'rm -rf "$task03_contract"' EXIT
-  git archive a695d99ca3593a02c95c78f096b3ebb930fb13e8 \
+  git archive 83ecb8df43e3d73f0435931b5fca778856711943 \
     scripts/home-assistant-addon-github.mjs \
+    scripts/home-assistant-addon-http-read.mjs \
     scripts/home-assistant-addon-oci.mjs \
     scripts/home-assistant-addon-release.mjs \
     .github/workflows/home-assistant-addon.yml |
