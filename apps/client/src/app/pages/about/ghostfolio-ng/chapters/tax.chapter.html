@@ -1,0 +1,52 @@
+<h2 class="h4" i18n="@@ngGuideTax" id="tax-heading">Tax Management</h2>
+<p i18n="@@ngGuideTaxIntro">
+  Record actual tax amounts separately from investment values and fees. This
+  feature tracks taxes you enter; it does not calculate tax rates, choose a
+  jurisdiction, generate a tax return or file it for you.
+</p>
+<ol>
+  <li i18n="@@ngGuideTaxEntry">
+    Open Activities and create or edit a Buy, Sell, Dividend or Interest
+    activity. Enter its date, account, instrument or currency, quantity and unit
+    price as usual, then enter the monetary Tax amount separately from Fee. Tax
+    uses the currency displayed beside the field; it is an amount, not a
+    percentage.
+  </li>
+  <li i18n="@@ngGuideTaxCash">
+    Financially, a buy costs gross value plus fee and tax, while a sell,
+    dividend or interest payment yields gross value minus fee and tax. Check the
+    linked account cash movement after saving: in this integrated version,
+    automatic cash updating subtracts fees but omits the Tax field. This also
+    affects cash amounts for non-managed accounts handled by the cash service.
+    Do not assume the account balance is already net of tax. Check the statement
+    and, if needed, reconcile to the verified actual balance without recording
+    the same tax twice.
+  </li>
+  <li i18n="@@ngGuideTaxReview">
+    Review Tax in the activities table and edit the original activity to correct
+    the amount, date, currency or account. Do not duplicate the same tax as a
+    standalone fee or cash withdrawal. JSON import/export preserves tax;
+    activity CSV import accepts Tax and Withholding Tax columns. Older entries
+    without a tax amount use zero.
+  </li>
+</ol>
+<p i18n="@@ngGuideTaxPerformance">
+  Tax reduces monetary net investment performance while gross performance and
+  gross dividend/interest amounts remain distinct. ROAI and ROI use this net
+  result. The current TWR and MWR percentage routines have no explicit tax
+  adjustment: do not interpret those percentages as after-tax returns. Use ROAI
+  or ROI when reviewing the net result after recorded taxes.
+</p>
+<p i18n="@@ngGuideTaxExample">
+  Example: a dividend of 100 EUR with Tax 26 EUR and Fee 0 remains a gross
+  dividend of 100 EUR; the economic net receipt is 74 EUR. The current automatic
+  linked cash movement credits 100 EUR, not 74: verify the 26 EUR discrepancy
+  against the statement before reconciling. Monetary net investment performance
+  does deduct the recorded 26 EUR tax. Do not change the gross dividend to 74
+  and subtract tax again.
+</p>
+<p class="small text-body-secondary" i18n="@@ngGuideTaxDisclaimer">
+  Recorded tax information is not a substitute for professional tax advice.
+  Check your records against broker statements and consult a qualified adviser
+  for your situation.
+</p>

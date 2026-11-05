@@ -4,6 +4,7 @@ import { publicRoutes } from '@ghostfolio/common/routes/routes';
 import { Routes } from '@angular/router';
 
 import { AboutPageComponent } from './about-page.component';
+import { ghostfolioNgGuard } from './ghostfolio-ng/ghostfolio-ng.guard';
 
 export const routes: Routes = [
   {
@@ -18,6 +19,15 @@ export const routes: Routes = [
         path: publicRoutes.about.subRoutes.changelog.path,
         loadChildren: () =>
           import('./changelog/changelog-page.routes').then((m) => m.routes)
+      },
+      {
+        canMatch: [ghostfolioNgGuard],
+        path: publicRoutes.about.subRoutes.ghostfolioNg.path,
+        loadComponent: () =>
+          import('./ghostfolio-ng/ghostfolio-ng-page.component').then(
+            (m) => m.GfGhostfolioNgPageComponent
+          ),
+        title: publicRoutes.about.subRoutes.ghostfolioNg.title
       },
       {
         path: publicRoutes.about.subRoutes.license.path,

@@ -1,0 +1,144 @@
+<h2 class="h4" i18n="@@ngGuideCash" id="cash-heading">Cash Management</h2>
+<p i18n="@@ngGuideCashIntro">
+  Cash Management records cash entering, leaving and moving between accounts
+  alongside investment activities. Cash and holdings are distinct: positions
+  represent investments, while total portfolio wealth also includes the cash
+  that you choose to include.
+</p>
+<h3 class="h5 mt-4" i18n="@@ngGuideCashAccounts">Accounts and cash balances</h3>
+<ol>
+  <li i18n="@@ngGuideCashAccountStep">
+    Open Accounts, create or select an account with a currency, then open its
+    details and Cash Balances. Creating an account alone does not create a
+    deposit.
+  </li>
+  <li i18n="@@ngGuideCashOpeningStep">
+    For a new account, enter the first deposit on its actual date. For an older
+    account, review the existing balances and reconcile to a known balance on a
+    known date. Opening the view alone does not activate a historical account’s
+    cash ledger; saving a movement or preference does. Existing balance
+    snapshots are retained as dated reconciliations when management starts.
+  </li>
+  <li i18n="@@ngGuideCashPreferences">
+    Review the two independent preferences: Update Cash Balance by default for
+    new activities, and Consider this account’s cash in analyses and
+    allocations. Check Update Cash Balance on each financial activity; changing
+    the default is not a replay of every past activity.
+  </li>
+</ol>
+<h3 class="h5 mt-4" i18n="@@ngGuideCashMovements">
+  Deposits, withdrawals and reconciliation
+</h3>
+<ol>
+  <li i18n="@@ngGuideCashMovementStep">
+    In Cash Balances, select the date and operation, enter the amount and any
+    note, and choose Insert. The account determines the currency. Deposits and
+    withdrawals require positive amounts; the application subtracts withdrawals
+    automatically. Future dates are not accepted.
+  </li>
+  <li i18n="@@ngGuideCashFeeStep">
+    For a deposit, cash increases by amount minus fee. For a withdrawal, cash
+    decreases by amount plus fee. Enter a non-negative fee in the account
+    currency. Financial activity-linked amounts already include their fees: do
+    not add the same fee again as a manual cash movement.
+  </li>
+  <li i18n="@@ngGuideCashReconciliationStep">
+    Choose Reconciliation and enter the actual cash balance, including zero or a
+    negative balance. Its fee must be zero. It replaces the calculated balance
+    at that point in the journal; it is not an extra deposit and does not
+    reconstruct missing earlier transactions. Later movements continue from the
+    reconciled balance.
+  </li>
+  <li i18n="@@ngGuideCashCorrections">
+    Review the running balance in the journal. Use the movement’s Actions menu
+    to edit or delete a manual entry. For linked investment movements, open and
+    correct the original financial activity. A newly negative or worsened
+    negative balance requires confirmation; review the warning rather than using
+    reconciliation to conceal an error.
+  </li>
+</ol>
+<h3 class="h5 mt-4" i18n="@@ngGuideCashTransfers">
+  Transfers between accounts
+</h3>
+<p i18n="@@ngGuideCashTransferSteps">
+  From Accounts, choose Transfer Cash Balance, select From and To, enter a
+  positive Value in the source account’s currency and confirm Transfer. The
+  transfer uses today’s date. For different currencies, the application converts
+  the destination amount with the available exchange rate for today; this dialog
+  has no historical date or custom destination-amount control. Review both
+  balances afterward.
+</p>
+<p i18n="@@ngGuideCashTransferLimits">
+  A transfer between your accounts is an internal movement, not a new deposit
+  from outside your portfolio. Managed accounts retain linked counterpart
+  entries; legacy accounts remain supported. Transfer entries cannot be edited
+  or deleted separately: use a new reverse transfer if needed. This version has
+  no separate source-fee or destination-fee fields in the transfer dialog; do
+  not assume a bank’s two fees have been recorded automatically.
+</p>
+<h3 class="h5 mt-4" i18n="@@ngGuideCashPerformance">
+  Cash is not investment profit
+</h3>
+<p i18n="@@ngGuideCashBoundary">
+  Deposits, withdrawals and reconciliations change recorded wealth, not
+  investment gains. Base-currency cash is outside the investment-return
+  boundary; foreign-currency cash can contribute currency effects. Cash
+  visibility and inclusion settings are separate from the selected return
+  method. Cash fees reduce cash and appear in fee totals, but the ROI/ROAI
+  investment-only result excludes standalone fee activities: the change in total
+  wealth need not equal the investment-only result.
+</p>
+<p i18n="@@ngGuideCashExample">
+  Example in EUR: deposit 1,000 with a fee of 2 → cash 998; withdraw 100 with a
+  fee of 1 → cash 897; reconcile to the bank’s actual 880 → cash 880, not 1,777.
+  A later internal transfer of 200 to another EUR account leaves 680 here and
+  adds 200 there. With no transfer fees or exchange effects, the transfer itself
+  leaves total wealth unchanged. None of these amounts is an investment gain.
+</p>
+<h3 class="h5 mt-4" i18n="@@ngGuideCashCsv">Cash CSV import and export</h3>
+<ol>
+  <li i18n="@@ngGuideCashCsvStep1">
+    Use Export CSV in Cash Balances for the whole account journal. To import,
+    use Import CSV there or on Accounts, select the destination account or
+    create a new one, and inspect the preview. Previewing and cancelling do not
+    create an account or save movements.
+  </li>
+  <li i18n="@@ngGuideCashCsvStep2">
+    Required columns: Date, Operation, Amount, Currency. Optional: Fee,
+    Sequence, Note, Reference. Use UTF-8, comma or semicolon separators,
+    YYYY-MM-DD dates, a decimal point and no thousands separator. The currency
+    must match the destination account: CSV import does not exchange currencies.
+    Italian column headings are accepted too.
+  </li>
+  <li i18n="@@ngGuideCashCsvStep3">
+    For hand-written files use DEPOSIT, WITHDRAWAL or RECONCILIATION. Deposit
+    and withdrawal amounts are positive; reconciliation uses the actual balance
+    and Fee 0. Supply Sequence to order same-day movements, especially around a
+    reconciliation. The example below ends at 880 EUR.
+  </li>
+</ol>
+<pre
+  aria-label="Cash CSV example"
+  class="border rounded p-3 overflow-auto"
+  i18n-aria-label="@@ngGuideCsvExampleLabel"
+>
+Date;Operation;Amount;Currency;Fee;Sequence;Reference
+2026-10-01;DEPOSIT;1000;EUR;2;1;opening-1
+2026-10-02;WITHDRAWAL;100;EUR;1;2;withdrawal-1
+2026-10-03;RECONCILIATION;880;EUR;0;3;balance-1</pre>
+<p i18n="@@ngGuideCashCsvPreview">
+  Check new and existing rows, final and minimum balances, currency and warnings
+  before confirming Insert movements. An identical Reference in the same account
+  is skipped; changed contents under the same reference are a conflict. Possible
+  duplicates without references need review. Errors block the whole import;
+  existing entries are not overwritten. If the journal changes after previewing,
+  preview again.
+</p>
+<p i18n="@@ngGuideCashCsvLimits">
+  Cash CSV does not create financial activities. Import those first, then match
+  linked cash rows to the correct existing activities; ambiguous matches need
+  your selection. Keep exported metadata and linked-activity columns unchanged.
+  Files are limited to 2 MB and 5,000 records including metadata. A new transfer
+  cannot be reconstructed from one side alone: use the complete JSON restore for
+  both accounts. Cash CSV is not a full portfolio backup.
+</p>

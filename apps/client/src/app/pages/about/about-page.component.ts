@@ -17,6 +17,7 @@ import {
 import { takeUntilDestroyed } from '@angular/core/rxjs-interop';
 import { addIcons } from 'ionicons';
 import {
+  bookOutline,
   documentTextOutline,
   happyOutline,
   informationCircleOutline,
@@ -44,7 +45,7 @@ export class AboutPageComponent {
     private destroyRef: DestroyRef,
     private userService: UserService
   ) {
-    const { globalPermissions } = this.dataService.fetchInfo();
+    const { globalPermissions, isGhostfolioNg } = this.dataService.fetchInfo();
 
     this.hasPermissionForSubscription = hasPermission(
       globalPermissions,
@@ -60,6 +61,16 @@ export class AboutPageComponent {
             label: publicRoutes.about.title,
             routerLink: publicRoutes.about.routerLink
           },
+          ...(isGhostfolioNg === true
+            ? [
+                {
+                  iconName: 'book-outline',
+                  label: publicRoutes.about.subRoutes.ghostfolioNg.title,
+                  routerLink:
+                    publicRoutes.about.subRoutes.ghostfolioNg.routerLink
+                }
+              ]
+            : []),
           {
             iconName: 'sparkles-outline',
             label: publicRoutes.about.subRoutes.changelog.title,
@@ -101,6 +112,7 @@ export class AboutPageComponent {
       });
 
     addIcons({
+      bookOutline,
       documentTextOutline,
       happyOutline,
       informationCircleOutline,

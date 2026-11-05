@@ -32,6 +32,7 @@
           mat-tab-link
           routerLinkActive
           [active]="rla.isActive"
+          [attr.aria-label]="tab.label"
           [routerLink]="tab.routerLink"
           [routerLinkActiveOptions]="{ exact: true }"
         >

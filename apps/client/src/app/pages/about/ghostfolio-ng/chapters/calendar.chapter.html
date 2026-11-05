@@ -1,0 +1,55 @@
+<h2 class="h4" i18n="@@ngGuideCalendar" id="calendar-heading">
+  Profit and Loss Calendar
+</h2>
+<p i18n="@@ngGuideCalendarIntro">
+  Find the calendar on Home → Overview, outside Zen Mode. It loads historical
+  performance independently of the main overview chart’s selected range. It
+  helps you inspect profitable and unprofitable periods without treating cash
+  deposits as profits.
+</p>
+<ol>
+  <li i18n="@@ngGuideCalendarControls">
+    Choose Daily or Weekly to inspect the selected month, Monthly for the
+    selected year, or Last 30 days for the current rolling window. Previous and
+    Next move one month, or one year in Monthly view. Last 30 days resets to the
+    current date and has no historical-period arrows. Weeks run Monday to Sunday
+    and weekly totals use only the portion inside the selected month.
+  </li>
+  <li i18n="@@ngGuideCalendarUnits">
+    Where your permissions and view mode allow amounts, switch between the
+    base-currency amount and %. Restricted or hidden-value views do not expose
+    monetary amounts. Positive and negative values use different colors and
+    signed numbers; a dash means unavailable, not zero.
+  </li>
+</ol>
+<h3 class="h5 mt-4" i18n="@@ngGuideCalendarAmounts">What the amounts mean</h3>
+<p i18n="@@ngGuideCalendarFormula">
+  Each day’s monetary PnL is the difference between two consecutive calendar
+  dates’ cumulative net performance including currency effects. Weekly and
+  monthly amounts sum those daily differences. A gap in historical dates is not
+  assigned entirely to the next day; incomplete elapsed daily data can make
+  period totals unavailable. Non-trading days are included when valuations are
+  available and may still reflect income, costs or currency changes.
+</p>
+<p i18n="@@ngGuideCalendarPercentages">
+  The % view requests a separate ROAI calculation for each period; it is not the
+  daily monetary PnL divided by yesterday’s balance, nor the change in a
+  cumulative percentage. In this version it is available only when ROAI is
+  selected. With ROI, TWR or MWR, percentage cells may show a dash even when
+  monetary PnL is available. Percentages must not be added to obtain a monthly
+  return.
+</p>
+<p i18n="@@ngGuideCalendarFlows">
+  The calendar reuses net investment performance: contributions themselves are
+  not gains, investment dividends and applicable investment fees/taxes affect
+  net amounts, and foreign-currency conversion affects the currency-adjusted
+  series. It is not a bank-account balance calendar or a complete
+  change-in-wealth statement; the cash and standalone-fee boundaries described
+  in Cash Management still apply.
+</p>
+<p i18n="@@ngGuideCalendarExample">
+  Example: consecutive cumulative net results of 0, 12, 7 and 10 EUR produce
+  daily PnL of +12, −5 and +3 EUR, totaling +10 EUR. A missing observation
+  between 12 and 7 does not justify labelling −5 as a one-day result. A deposit
+  of 500 EUR alone is not +500 EUR of PnL.
+</p>

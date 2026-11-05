@@ -260,6 +260,14 @@ export const publicRoutes = {
         ],
         title: $localize`Changelog`
       },
+      ghostfolioNg: {
+        path: 'ghostfolio-ng',
+        routerLink: [
+          '/' + $localize`:kebab-case@@routes.about:about`,
+          'ghostfolio-ng'
+        ],
+        title: 'Ghostfolio-NG'
+      },
       license: {
         path: $localize`:kebab-case@@routes.about.license:license`,
         routerLink: [

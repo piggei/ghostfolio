@@ -1,0 +1,59 @@
+<h2 class="h4" i18n="@@ngGuideImprovements" id="improvements-heading">
+  Other Ghostfolio-NG Improvements
+</h2>
+<h3 class="h5 mt-4" i18n="@@ngGuideRestore">Complete portfolio restore</h3>
+<ol>
+  <li i18n="@@ngGuideRestoreExport">
+    On the source instance, open Settings → Export Data and keep the JSON backup
+    private. On the destination, use Import Data beside Export Data, or Accounts
+    → Import JSON.
+  </li>
+  <li i18n="@@ngGuideRestoreMap">
+    For each source account, choose a new account, an existing compatible
+    account or Exclude. Names are not matched automatically. To restore a cash
+    ledger use a new or empty account, or a compatible account with its
+    financial activities already imported and no existing ledger. Include both
+    accounts of every restored transfer.
+  </li>
+  <li i18n="@@ngGuideRestoreConfirm">
+    Review the preview and warnings before Import Data. Accounts, activities,
+    exported custom-instrument data, tags, platforms and cash history are
+    restored together; an error rolls back the restore. Existing data is
+    retained. A complete JSON restore already includes cash, so do not import
+    the same cash CSV again.
+  </li>
+</ol>
+<p i18n="@@ngGuideRestoreLimits">
+  Older exports cannot reconstruct cash history or activity links they never
+  contained. Unmanaged legacy accounts remain unmanaged. Login credentials and
+  server configuration are not transferred; base currency and performance method
+  can optionally be restored only into an empty portfolio. Shared manual
+  instruments without an owner can lack metadata or historical prices in the
+  upstream export: verify them afterward.
+</p>
+<h3 class="h5 mt-4" i18n="@@ngGuideCostBasis">
+  Remaining cost basis after partial sales
+</h3>
+<p i18n="@@ngGuideCostBasisDescription">
+  Realized performance uses the remaining cost basis when you sell part of a
+  holding and later buy more. Example without fees: buy 10 at 100, sell 5 at
+  110, buy 5 at 200, then sell 10 at 210. Gross realized gain is 50 + 600 = 650.
+  Previously sold quantities must not dilute the average cost of the remaining
+  position. Review the holding’s activity history when reconciling this result
+  with broker records.
+</p>
+<h3 class="h5 mt-4" i18n="@@ngGuideSameDay">Same-day capital reuse</h3>
+<p i18n="@@ngGuideSameDayDescription">
+  ROI also recognizes capital invested and released before the end of a day. Buy
+  and sell 1,000 on the same day and the capital is not zero. If you then
+  reinvest 1,100 that day, the same-day peak is 1,100, not the sum 2,100. Dates
+  and transaction order matter; enter the real activity sequence instead of
+  changing dates to force a desired return.
+</p>
+<h3 class="h5 mt-4" i18n="@@ngGuideFeeNames">Editable fee descriptions</h3>
+<p i18n="@@ngGuideFeeNamesDescription">
+  In Activities, edit a standalone Fee activity to correct its name. A shared or
+  administrator-owned instrument profile is separated when necessary so renaming
+  your fee does not rename other activities. This changes the description, not
+  the fee amount; check both fields before saving.
+</p>
