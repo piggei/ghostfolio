@@ -1,0 +1,88 @@
+name: Qualify Ghostfolio NG HA HTTP controller
+
+on:
+  push:
+    branches:
+      - test/ghostfolio-ng-ha-orchestrator-http-controller
+    paths:
+      - '.github/workflows/ghostfolio-ng-ha-orchestrator-http-ci.yml'
+
+permissions:
+  contents: read
+
+concurrency:
+  group: ghostfolio-ng-ha-http-controller-ci-${{ github.ref }}
+  cancel-in-progress: false
+
+jobs:
+  qualify:
+    if: github.repository == 'piggei/ghostfolio'
+    runs-on: ubuntu-latest
+    timeout-minutes: 15
+
+    steps:
+      - name: Checkout orchestrator candidate
+        uses: actions/checkout@v4
+        with:
+          persist-credentials: false
+
+      - name: Verify exact orchestrator candidate
+        run: |
+          set -euo pipefail
+          test "$(git rev-parse HEAD^)" = "78fd48123000fb338d63309006754489e02995e9"
+          test "$(git diff --name-only HEAD^ HEAD)" = ".github/workflows/ghostfolio-ng-ha-orchestrator-http-ci.yml"
+
+      - name: Checkout immutable HA contract
+        uses: actions/checkout@v4
+        with:
+          repository: piggei/ghostfolio
+          ref: 83ecb8df43e3d73f0435931b5fca778856711943
+          path: ha-contract
+          persist-credentials: false
+          sparse-checkout-cone-mode: false
+          sparse-checkout: |
+            /scripts/
+            /.github/workflows/home-assistant-addon.yml
+
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 22.23.4
+
+      - name: Verify JavaScript syntax
+        run: |
+          node --check scripts/ghostfolio-ng-ha-orchestrator.mjs
+          node --check scripts/ghostfolio-ng-ha-orchestrator.test.mjs
+          node --check scripts/ghostfolio-ng-ha-orchestrator-workflow.test.mjs
+
+      - name: Run orchestrator regression tests
+        env:
+          HA_CONTRACT_DIR: ha-contract
+        run: |
+          node --test --experimental-test-isolation=none \
+            scripts/ghostfolio-ng-ha-orchestrator.test.mjs \
+            scripts/ghostfolio-ng-ha-orchestrator-workflow.test.mjs
+
+      - name: Validate GitHub Actions workflows
+        run: |
+          set -euo pipefail
+
+          archive="$RUNNER_TEMP/actionlint.tar.gz"
+          directory="$RUNNER_TEMP/actionlint"
+
+          mkdir -p "$directory"
+
+          curl --fail --location --silent --show-error \
+            --retry 3 \
+            --output "$archive" \
+            https://github.com/rhysd/actionlint/releases/download/v1.7.12/actionlint_1.7.12_linux_amd64.tar.gz
+
+          echo "8aca8db96f1b94770f1b0d72b6dddcb1ebb8123cb3712530b08cc387b349a3d8  $archive" \
+            | sha256sum --check
+
+          tar -xzf "$archive" -C "$directory"
+
+          "$directory/actionlint" -version
+
+          "$directory/actionlint" \
+            .github/workflows/ghostfolio-ng-ha-orchestrator.yml \
+            .github/workflows/ghostfolio-ng-ha-orchestrator-http-ci.yml
