@@ -634,3 +634,76 @@ for (const [name, change] of [
     await assert.rejects(h.github.verifySource(h.identity));
   });
 }
+
+test('GitHub GET retries transport failures without repeating writes', async () => {
+  let calls = 0;
+  const delays = [];
+
+  const github = new GitHub({
+    token: 'test-token',
+    sleep: async (ms) => delays.push(ms),
+    fetcher: async (_url, options) => {
+      assert.equal(options.method, 'GET');
+      calls++;
+
+      if (calls < 3) {
+        throw new TypeError('fetch failed');
+      }
+
+      return response({ valid: true });
+    }
+  });
+
+  assert.deepEqual(await github.api('test-resource'), { valid: true });
+  assert.equal(calls, 3);
+  assert.deepEqual(delays, [250, 750]);
+});
+
+test('GitHub PATCH transport failure is never automatically retried', async () => {
+  let calls = 0;
+
+  const github = new GitHub({
+    token: 'test-token',
+    sleep: async () => {},
+    fetcher: async (_url, options) => {
+      assert.equal(options.method, 'PATCH');
+      calls++;
+      throw new TypeError('lost PATCH response');
+    }
+  });
+
+  await assert.rejects(
+    github.api('git/refs/heads/feat/home-assistant-addon', 'PATCH', {
+      sha: 'a'.repeat(40),
+      force: false
+    }),
+    (error) => {
+      assert.equal(error.ambiguous, true);
+      return true;
+    }
+  );
+
+  assert.equal(calls, 1);
+});
+
+test('GitHub GET HTTP failures are not retried', async () => {
+  for (const status of [401, 403, 404, 429, 500, 503]) {
+    let calls = 0;
+
+    const github = new GitHub({
+      token: 'test-token',
+      sleep: async () => {},
+      fetcher: async () => {
+        calls++;
+        return response({}, status);
+      }
+    });
+
+    await assert.rejects(
+      github.api('test-resource'),
+      new RegExp(`GitHub GET HTTP ${status}`)
+    );
+
+    assert.equal(calls, 1);
+  }
+});

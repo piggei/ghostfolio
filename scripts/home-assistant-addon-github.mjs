@@ -1,5 +1,7 @@
 import assert from 'node:assert/strict';
 
+import { httpRead } from './home-assistant-addon-http-read.mjs';
+
 export const branch = 'feat/home-assistant-addon';
 export const registryPath = 'home-assistant-addon/releases/registry.json';
 export const manifestPath = 'home-assistant-addon/release.json';
@@ -22,27 +24,51 @@ export class GitHub {
   }
 
   async api(path, method = 'GET', body, missing = false) {
+    const url = `https://api.github.com/repos/piggei/ghostfolio/${path}`;
+    const options = {
+      method,
+      headers: {
+        Authorization: `Bearer ${this.token}`,
+        Accept: 'application/vnd.github+json',
+        'X-GitHub-Api-Version': '2022-11-28',
+        'Content-Type': 'application/json'
+      },
+      body: body === undefined ? undefined : JSON.stringify(body)
+    };
+
+    if (method === 'GET') {
+      const response = await httpRead(this.fetcher, url, options, {
+        service: 'GitHub',
+        operation: 'read API resource',
+        sleep: this.sleep
+      });
+
+      if (missing && response.status === 404) return null;
+
+      if (response.status < 200 || response.status >= 300) {
+        throw Object.assign(new Error(`GitHub GET HTTP ${response.status}`), {
+          status: response.status,
+          ambiguous: false
+        });
+      }
+
+      return response.body;
+    }
+
     let response;
+
     try {
-      response = await this.fetcher(
-        `https://api.github.com/repos/piggei/ghostfolio/${path}`,
-        {
-          method,
-          headers: {
-            Authorization: `Bearer ${this.token}`,
-            Accept: 'application/vnd.github+json',
-            'X-GitHub-Api-Version': '2022-11-28',
-            'Content-Type': 'application/json'
-          },
-          body: body === undefined ? undefined : JSON.stringify(body),
-          signal: AbortSignal.timeout(30000)
-        }
-      );
+      response = await this.fetcher(url, {
+        ...options,
+        signal: AbortSignal.timeout(30000)
+      });
     } catch (error) {
       if (method === 'PATCH') error.ambiguous = true;
       throw error;
     }
+
     if (missing && response.status === 404) return null;
+
     if (!response.ok) {
       throw Object.assign(
         new Error(`GitHub ${method} HTTP ${response.status}`),
@@ -54,6 +80,7 @@ export class GitHub {
         }
       );
     }
+
     try {
       return await response.json();
     } catch (error) {

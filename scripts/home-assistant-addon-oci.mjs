@@ -1,6 +1,8 @@
 import assert from 'node:assert/strict';
 import { createHash } from 'node:crypto';
 
+import { httpRead } from './home-assistant-addon-http-read.mjs';
+
 export const architectures = { amd64: 'amd64', aarch64: 'arm64' };
 export const sha256 = (bytes) =>
   `sha256:${createHash('sha256').update(bytes).digest('hex')}`;
@@ -33,28 +35,40 @@ export class Registry {
       const headers = {};
       if (this.token)
         headers.Authorization = `Basic ${Buffer.from(`${this.actor}:${this.token}`).toString('base64')}`;
-      const response = await this.fetcher(
+      const response = await httpRead(
+        this.fetcher,
         `https://ghcr.io/token?service=ghcr.io&scope=repository:${repository}:pull`,
-        { headers, signal: AbortSignal.timeout(30000) }
+        { headers },
+        {
+          service: 'GHCR',
+          operation: 'request scoped token'
+        }
       );
       assert.equal(response.status, 200, `GHCR token HTTP ${response.status}`);
-      const body = await response.json();
+      const body = response.body;
       assert.equal(typeof body.token, 'string');
       this.tokens.set(repository, body.token);
     }
-    const response = await this.fetcher(
+    const response = await httpRead(
+      this.fetcher,
       `https://ghcr.io/v2/${repository}/${resource}`,
       {
         headers: {
           Authorization: `Bearer ${this.tokens.get(repository)}`,
           Accept: accept
-        },
-        signal: AbortSignal.timeout(30000)
+        }
+      },
+      {
+        service: 'GHCR',
+        operation: resource.startsWith('manifests/')
+          ? 'read manifest'
+          : 'read image configuration',
+        mode: 'bytes'
       }
     );
     if (response.status === 404 && missing) return null;
     assert.equal(response.status, 200, `GHCR HTTP ${response.status}`);
-    const bytes = Buffer.from(await response.arrayBuffer());
+    const bytes = response.body;
     const actual = sha256(bytes);
     const header = response.headers.get('docker-content-digest');
     if (header) assert.equal(header, actual, 'Registry digest header mismatch');
