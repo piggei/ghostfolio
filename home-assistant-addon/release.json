@@ -1,5 +1,36 @@
 {
   "schema_version": 1,
-  "addon_version": "3.97.0",
-  "state": "legacy"
+  "identity": {
+    "integration_tag": "integration-3.97.0-17",
+    "source_commit": "faf45da4e863420b5644ad453a1990e52f146d1a",
+    "source_image": "ghcr.io/piggei/ghostfolio-ng@sha256:c2e4f4ea5948974853282c43e03735ac4c86f1ca13877b1d80561a27fe996b05",
+    "ghostfolio_version": "3.97.0",
+    "addon_source_revision": "a695d99ca3593a02c95c78f096b3ebb930fb13e8"
+  },
+  "addon_version": "3.97.3",
+  "state": "activated",
+  "qualified": {
+    "amd64": {
+      "os": "linux",
+      "architecture": "amd64",
+      "digest": "sha256:ea679aadfd67caa59f132626f636f09a8fd7509eae7ab1ee84da8e72af3afa69"
+    },
+    "aarch64": {
+      "os": "linux",
+      "architecture": "arm64",
+      "digest": "sha256:029acf88cdadaf2cc25989e6edaa78093a78959ca6e1be56df2609e4a1523abd"
+    }
+  },
+  "published": {
+    "amd64": {
+      "os": "linux",
+      "architecture": "amd64",
+      "digest": "sha256:ea679aadfd67caa59f132626f636f09a8fd7509eae7ab1ee84da8e72af3afa69"
+    },
+    "aarch64": {
+      "os": "linux",
+      "architecture": "arm64",
+      "digest": "sha256:029acf88cdadaf2cc25989e6edaa78093a78959ca6e1be56df2609e4a1523abd"
+    }
+  }
 }
