@@ -43,16 +43,19 @@ jobs:
           push: false
           load: true
           tags: ghostfolio-ng:candidate-${{ matrix.arch }}
+          build-args: |
+            GHOSTFOLIO_NG=true
           cache-from: type=gha,scope=ghostfolio-ng-candidate-${{ matrix.arch }}
           cache-to: type=gha,mode=max,scope=ghostfolio-ng-candidate-${{ matrix.arch }}
 
       - name: Test shared smoke test implementation
-        run: node --test scripts/ghostfolio-ng-smoke-test.test.mjs
+        run: node --test scripts/ghostfolio-ng-smoke-test.test.mjs scripts/ghostfolio-ng-candidate-workflow.test.mjs
 
       - name: Run Ghostfolio-NG runtime smoke test
         shell: bash
         env:
           TARGET_ARCH: ${{ matrix.arch }}
+          EXPECT_GHOSTFOLIO_NG: 'true'
         run: |
           set -euo pipefail
 

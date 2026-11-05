@@ -14,6 +14,13 @@ IMAGE_REF="$1"
 COMPOSE_TEMPLATE="${2:-}"
 SOURCE_IMAGE="${3:-}"
 
+# Opt in to NG qualification without changing existing shared callers.
+EXPECT_GHOSTFOLIO_NG="${EXPECT_GHOSTFOLIO_NG:-false}"
+if [[ "$EXPECT_GHOSTFOLIO_NG" != true && "$EXPECT_GHOSTFOLIO_NG" != false ]]; then
+  echo "ERROR: EXPECT_GHOSTFOLIO_NG must be true or false" >&2
+  exit 2
+fi
+
 if [ -n "$COMPOSE_TEMPLATE" ] && [ ! -f "$COMPOSE_TEMPLATE" ]; then
   echo "ERROR: Compose template not found" >&2
   exit 2
@@ -176,6 +183,13 @@ if [ -n "$COMPOSE_TEMPLATE" ]; then
   "${compose[@]}" pull ghostfolio
 fi
 
+if [ "$EXPECT_GHOSTFOLIO_NG" = true ]; then
+  echo "=== Check image Ghostfolio-NG configuration ==="
+
+  docker image inspect "$IMAGE_REF" --format '{{json .Config.Env}}' |
+    jq -e 'map(select(startswith("GHOSTFOLIO_NG="))) == ["GHOSTFOLIO_NG=true"]' >/dev/null
+fi
+
 echo "=== Start Ghostfolio-NG ==="
 
 "${compose[@]}" up -d --pull never --wait --wait-timeout 240
@@ -185,3 +199,12 @@ echo "=== Check API health ==="
 "${compose[@]}" exec -T ghostfolio \
   curl --fail --silent --show-error \
   http://127.0.0.1:3333/api/v1/health
+
+if [ "$EXPECT_GHOSTFOLIO_NG" = true ]; then
+  echo "=== Check public API Ghostfolio-NG flag ==="
+
+  "${compose[@]}" exec -T ghostfolio \
+    curl --fail --silent --show-error --max-time 30 \
+    http://127.0.0.1:3333/api/v1/info |
+    jq -e -s 'length == 1 and (.[0] | if type == "object" then .isGhostfolioNg == true else false end)' >/dev/null
+fi

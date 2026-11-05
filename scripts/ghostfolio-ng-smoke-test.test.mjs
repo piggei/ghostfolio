@@ -15,7 +15,7 @@ import { test } from 'node:test';
 
 const script = resolve('scripts/ghostfolio-ng-smoke-test.sh');
 
-function runScenario(failure = '', distributive = false) {
+function runScenario(failure = '', distributive = false, options = {}) {
   const root = mkdtempSync(join(tmpdir(), 'ghostfolio-ng-unit-'));
   const bin = join(root, 'bin');
   const temporary = join(root, 'temporary');
@@ -75,8 +75,10 @@ case " $* " in
 esac
 
 case " $* " in
+  *" image inspect "*) operation=image-config ;;
   *" pull postgres redis "*) operation=pull ;;
   *" up -d "*) operation=up ;;
+  *" exec -T ghostfolio "*"/api/v1/info "*) operation=info ;;
   *" exec -T ghostfolio "*) operation=health ;;
   *" down --volumes "*) operation=down ;;
   *) operation=other ;;
@@ -85,6 +87,11 @@ esac
 if [[ "$operation" == "$MOCK_FAILURE" ]]; then
   exit 42
 fi
+
+case "$operation" in
+  image-config) printf '%s\\n' "$MOCK_IMAGE_ENV" ;;
+  info) printf '%s\\n' "$MOCK_INFO_BODY" ;;
+esac
 
 exit 0
 `;
@@ -106,7 +113,10 @@ exit 0
       RUNNER_TEMP: temporary,
       MOCK_DOCKER_LOG: log,
       MOCK_FAILURE: failure,
-      MOCK_EXPECTED_IMAGE: expectedImage
+      MOCK_EXPECTED_IMAGE: expectedImage,
+      EXPECT_GHOSTFOLIO_NG: options.expectNg ?? 'false',
+      MOCK_IMAGE_ENV: options.imageEnv ?? '["GHOSTFOLIO_NG=true"]',
+      MOCK_INFO_BODY: options.infoBody ?? '{"isGhostfolioNg":true}'
     }
   });
 
@@ -251,4 +261,101 @@ test('does not pull the local Ghostfolio image in candidate mode', () => {
 
   assert.equal(result.status, 0);
   assert.ok(!hasCommand(result.commands, 'pull ghostfolio'));
+});
+
+for (const distributive of [false, true]) {
+  test(`qualifies NG image metadata and anonymous info API (distributive=${distributive})`, () => {
+    const result = runScenario('', distributive, { expectNg: 'true' });
+
+    assert.equal(result.status, 0, result.output);
+    assert.equal(result.credentialsRemain, false);
+    assert.equal(result.directories.length, 0);
+    const inspect = result.commands.findIndex((c) =>
+      c.includes('image inspect')
+    );
+    const startup = result.commands.findIndex((c) => c.includes('up -d'));
+    const info = result.commands.find((c) => c.includes('/api/v1/info'));
+    assert.ok(inspect >= 0 && inspect < startup);
+    if (distributive) {
+      assert.ok(
+        result.commands.findIndex((c) => c.includes('pull ghostfolio')) <
+          inspect
+      );
+    }
+    assert.ok(info?.includes('exec -T ghostfolio curl --fail'));
+    assert.ok(info.includes('--max-time 30'));
+    assert.doesNotMatch(info, /Authorization|Bearer|--user|--cookie/);
+    assert.ok(result.output.includes('smoke test: PASS'));
+  });
+
+  test(`leaves NG checks optional (distributive=${distributive})`, () => {
+    const result = runScenario('', distributive, {
+      imageEnv: '["GHOSTFOLIO_NG=false"]',
+      infoBody: 'invalid JSON'
+    });
+
+    assert.equal(result.status, 0, result.output);
+    assert.ok(!hasCommand(result.commands, 'image inspect'));
+    assert.ok(!hasCommand(result.commands, '/api/v1/info'));
+  });
+}
+
+for (const imageEnv of [
+  '["GHOSTFOLIO_NG=false"]',
+  '[]',
+  '["GHOSTFOLIO_NG=true","GHOSTFOLIO_NG=false"]',
+  'null',
+  'invalid JSON'
+]) {
+  test(`rejects NG image configuration ${imageEnv}`, () => {
+    const result = runScenario('', false, { expectNg: 'true', imageEnv });
+
+    assert.notEqual(result.status, 0);
+    assert.ok(!hasCommand(result.commands, 'up -d'));
+    assert.ok(hasCommand(result.commands, 'down --volumes'));
+    assert.equal(result.credentialsRemain, false);
+    assert.ok(!result.output.includes('smoke test: PASS'));
+  });
+}
+
+for (const infoBody of [
+  '{"isGhostfolioNg":false}',
+  '{"isGhostfolioNg":"true"}',
+  '{"isGhostfolioNg":1}',
+  '{"isGhostfolioNg":null}',
+  '{}',
+  'null',
+  '[]',
+  'invalid JSON',
+  '',
+  '{"isGhostfolioNg":true}\n{"isGhostfolioNg":true}'
+]) {
+  test(`rejects invalid NG info response ${JSON.stringify(infoBody)}`, () => {
+    const result = runScenario('', false, { expectNg: 'true', infoBody });
+
+    assert.notEqual(result.status, 0);
+    assert.ok(hasCommand(result.commands, '/api/v1/info'));
+    assert.ok(hasCommand(result.commands, 'down --volumes'));
+    assert.equal(result.credentialsRemain, false);
+    assert.ok(!result.output.includes('smoke test: PASS'));
+  });
+}
+
+for (const failure of ['image-config', 'info']) {
+  test(`cleans up and fails when NG ${failure} command fails`, () => {
+    const result = runScenario(failure, false, { expectNg: 'true' });
+
+    assert.notEqual(result.status, 0);
+    assert.ok(hasCommand(result.commands, 'down --volumes'));
+    assert.equal(result.credentialsRemain, false);
+    assert.ok(!result.output.includes('smoke test: PASS'));
+  });
+}
+
+test('rejects invalid NG option before invoking Docker', () => {
+  const result = runScenario('', false, { expectNg: 'yes' });
+
+  assert.equal(result.status, 2);
+  assert.deepEqual(result.commands, []);
+  assert.match(result.output, /EXPECT_GHOSTFOLIO_NG must be true or false/);
 });
