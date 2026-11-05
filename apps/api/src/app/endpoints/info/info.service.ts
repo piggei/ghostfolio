@@ -52,7 +52,7 @@ export class InfoService {
     const isGhostfolioNg = this.configurationService.get('GHOSTFOLIO_NG');
     let isReadOnlyMode: boolean | undefined;
     let latestFearAndGreedStocksMarketDataPromise:
-      Promise<MarketData> | undefined;
+      Promise<MarketData | null> | undefined;
 
     const globalPermissions: string[] = [];
 
