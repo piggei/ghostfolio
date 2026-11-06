@@ -265,9 +265,9 @@ Before restoring a database, verify compatibility with the
 Ghostfolio application version.
 
 <!-- release-current:start -->
-Current add-on version: **3.97.4**.
-Ghostfolio NG: `integration-3.97.0-18`.
-Source image: `ghcr.io/piggei/ghostfolio-ng@sha256:7c8ce23d2b77675e065283918c01ab7ba1f533973d7c1d9e5d2f818e55c9d7b8`.
+Current add-on version: **3.98.0**.
+Ghostfolio NG: `integration-3.98.0-19`.
+Source image: `ghcr.io/piggei/ghostfolio-ng@sha256:18f24b9e8cf9d4fc88b47364175129a2d68241ec393bfb54193cf1d23ca1e2ed`.
 <!-- release-current:end -->
 
 ## Updates
