@@ -340,6 +340,38 @@ grep -Fq "$INGRESS_PATH/api/v1/info" <<< "$bundle"
 
 echo 'HTML and main bundle: PASS'
 
+echo '=== Ingress image assets ==='
+
+for asset in \
+  images/button-buy-me-a-coffee.png \
+  images/sponsors/logo-testmu-dark.svg \
+  images/sponsors/logo-testmu-light.svg \
+  images/ghostfolio-ng-team.webp
+do
+  headers=$(docker exec "$CI_APP" \
+    curl --fail --silent --show-error \
+    -D - -o /dev/null \
+    -H "$INGRESS_HEADER" \
+    "http://127.0.0.1:8099/assets/$asset")
+
+  content_type=$(printf '%s\n' "$headers" |
+    tr -d '\r' |
+    sed -n '/^[Cc]ontent-[Tt]ype:/s/^[^:]*:[[:space:]]*//p')
+
+  case "$asset" in
+    *.png) expected_type='image/png' ;;
+    *.svg) expected_type='image/svg+xml' ;;
+    *.webp) expected_type='image/webp' ;;
+  esac
+
+  test "$content_type" = "$expected_type"
+
+  echo "PASS: $asset ($content_type)"
+done
+
+echo 'Ingress image assets: PASS'
+
+
 echo '=== Angular chunks ==='
 
 chunk_count=0
@@ -393,6 +425,67 @@ test "$api_chunk_count" -gt 0
 
 echo "Angular chunks inspected: $chunk_count"
 echo "Angular chunks with API references: $api_chunk_count"
+
+echo '=== Angular relative image references ==='
+
+image_chunk_count=0
+image_reference_count=0
+
+while IFS= read -r asset; do
+  [ -n "$asset" ] || continue
+
+  direct=$(docker exec "$CI_APP" curl --fail --silent --show-error \
+    "http://127.0.0.1:3333/it/$asset")
+
+  relative=$( { grep -oF '../assets/images/' <<< "$direct" || true; } | wc -l)
+  original=$( { grep -oF '/assets/images/' <<< "$direct" || true; } | wc -l)
+
+  if [ "$relative" -eq 0 ]; then
+    continue
+  fi
+
+  rewritten_chunk=$(docker exec "$CI_APP" curl --fail --silent --show-error \
+    -H "$INGRESS_HEADER" \
+    "http://127.0.0.1:8099/it/$asset")
+
+  expected=$( { grep -oF "$INGRESS_PATH/assets/images/" <<< "$rewritten_chunk" || true; } | wc -l)
+
+  if [ "$expected" -ne "$original" ]; then
+    echo "::error::Incomplete relative image rewriting in $asset"
+    echo "Expected: $original; rewritten: $expected"
+    exit 1
+  fi
+
+  if grep -Fq '../assets/images/' <<< "$rewritten_chunk"; then
+    echo "::error::Unrewritten relative image reference in $asset"
+    exit 1
+  fi
+
+  if grep -Fq "../${INGRESS_PATH#/}/assets/images/" <<< "$rewritten_chunk"; then
+    echo "::error::Duplicated Ingress prefix in $asset"
+    exit 1
+  fi
+
+  image_chunk_count=$((image_chunk_count + 1))
+  image_reference_count=$((image_reference_count + original))
+
+  echo "PASS: $asset ($relative relative, $original total image references)"
+done < <(
+  docker exec "$CI_APP" sh -c '
+    find /ghostfolio/apps/client/it \
+      -maxdepth 1 \
+      -type f \
+      -name "chunk-*.js" \
+      -exec grep -lF "../assets/images/" {} +
+  ' | sed 's|.*/||'
+)
+
+test "$image_chunk_count" -gt 0
+test "$image_reference_count" -gt 0
+
+echo "Angular image chunks inspected: $image_chunk_count"
+echo "Angular image references rewritten: $image_reference_count"
+echo 'Angular relative image references: PASS'
 
 echo '=== PWA manifest with Ingress ==='
 
