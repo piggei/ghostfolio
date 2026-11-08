@@ -10,7 +10,7 @@ const workflow = readFileSync(
 test('candidate push qualifies both native architectures with NG enabled', () => {
   assert.match(
     workflow,
-    /on:\n  push:\n    branches:\n(?:      - .+\n)*      - integration\/ghostfolio-3\.98-candidate\n/
+    /on:\n  push:\n    branches:\n(?:      - .+\n)*      - integration\/ghostfolio-3\.99-candidate\n/
   );
   assert.match(workflow, /if: github\.repository == 'piggei\/ghostfolio'/);
   assert.match(workflow, /- arch: amd64\n\s+runner: ubuntu-latest/);

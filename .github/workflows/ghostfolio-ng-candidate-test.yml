@@ -6,6 +6,7 @@ on:
       - feat/ghostfolio-ng-distribution
       - integration/ghostfolio-3.97-candidate
       - integration/ghostfolio-3.98-candidate
+      - integration/ghostfolio-3.99-candidate
 
 permissions:
   contents: read
