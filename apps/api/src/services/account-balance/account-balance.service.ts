@@ -48,18 +48,22 @@ export class AccountBalanceService {
   public async createOrUpdateAccountBalance({
     accountId,
     balance,
+    comment,
     date,
     userId
   }: CreateAccountBalanceDto & {
     accountId: string;
     userId: string;
   }): Promise<AccountBalance> {
+    const dateOfBalance = resetHours(parseISO(date));
+
     const write = async (transaction: Prisma.TransactionClient) => {
       await this.cashManagementService?.assertLegacyBalanceWrite(
         transaction,
         { accountId, userId },
-        resetHours(parseISO(date))
+        dateOfBalance
       );
+
       return transaction.accountBalance.upsert({
         create: {
           account: {
@@ -70,17 +74,19 @@ export class AccountBalanceService {
               }
             }
           },
-          date: resetHours(parseISO(date)),
+          comment,
+          date: dateOfBalance,
           value: balance
         },
         update: {
+          comment,
           value: balance
         },
         where: {
           accountId_userId_date: {
             accountId,
             userId,
-            date: resetHours(parseISO(date))
+            date: dateOfBalance
           }
         }
       });
@@ -235,6 +241,7 @@ export class AccountBalanceService {
       },
       select: {
         account: true,
+        comment: true,
         date: true,
         id: true,
         value: true

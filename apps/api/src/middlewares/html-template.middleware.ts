@@ -215,6 +215,7 @@ export class HtmlTemplateMiddleware implements NestMiddleware {
     const rootUrl = process.env.ROOT_URL || environment.rootUrl;
 
     if (
+      path.startsWith('/.well-known/') ||
       path.startsWith('/api/') ||
       path.startsWith(STORYBOOK_PATH) ||
       this.isFileRequest(path) ||
@@ -364,9 +365,10 @@ export class HtmlTemplateMiddleware implements NestMiddleware {
     if (filename === '/assets/LICENSE') {
       return true;
     } else if (
-      filename.endsWith('-de.fi') ||
-      filename.endsWith('-markets.sh') ||
-      filename.includes('auth/ey')
+      filename.includes('auth/ey') ||
+      personalFinanceTools.some(({ alias, key }) => {
+        return filename.endsWith(`-${alias ?? key}`);
+      })
     ) {
       return false;
     }

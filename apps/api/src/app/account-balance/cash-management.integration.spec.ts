@@ -760,6 +760,80 @@ describeDatabase('Cash management with PostgreSQL', () => {
     ).toBe(0);
   });
 
+  it('preserves optional balance comments without bypassing cash ledger protection', async () => {
+    const balances = new AccountBalanceService(
+      emitter,
+      exchangeRate as never,
+      prisma,
+      service
+    );
+
+    const date = '2026-10-01';
+
+    const created = await balances.createOrUpdateAccountBalance({
+      ...scope(),
+      balance: 100,
+      comment: 'Initial note',
+      date
+    });
+
+    expect(created.comment).toBe('Initial note');
+
+    const preserved = await balances.createOrUpdateAccountBalance({
+      ...scope(),
+      balance: 150,
+      date
+    });
+
+    expect(preserved.id).toBe(created.id);
+    expect(preserved.comment).toBe('Initial note');
+    expect(preserved.value).toBe(150);
+
+    const cleared = await balances.createOrUpdateAccountBalance({
+      ...scope(),
+      balance: 150,
+      comment: null,
+      date
+    });
+
+    expect(cleared.comment).toBeNull();
+
+    const updated = await balances.createOrUpdateAccountBalance({
+      ...scope(),
+      balance: 175,
+      comment: 'Updated note',
+      date
+    });
+
+    expect(updated.comment).toBe('Updated note');
+    expect(updated.value).toBe(175);
+
+    await service.open({
+      ...scope(),
+      balance: '175',
+      date: '2026-10-02'
+    });
+
+    await expect(
+      balances.createOrUpdateAccountBalance({
+        ...scope(),
+        balance: 999,
+        comment: 'Forbidden change',
+        date: '2026-10-02'
+      })
+    ).rejects.toBeInstanceOf(ConflictException);
+
+    const projection = await prisma.accountBalance.findFirstOrThrow({
+      where: {
+        ...scope(),
+        date: day('2026-10-02')
+      }
+    });
+
+    expect(projection.value).toBe(175);
+    expect(projection.comment).toBeNull();
+  });
+
   it('prevents legacy writers from overwriting managed projections', async () => {
     await open();
     const balances = new AccountBalanceService(

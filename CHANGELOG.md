@@ -5,6 +5,23 @@ All notable changes to this project will be documented in this file.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/),
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## 3.99.0 - 2026-11-07
+
+### Added
+
+- Added `comment` to the `AccountBalance` database schema as a preparation for notes in the account balances
+- Added the discovery endpoints of OAuth 2.1 to the server of the Model Context Protocol (MCP) (experimental)
+
+### Changed
+
+- Improved the _Storybook_ stories of the accounts table component
+- Improved the _Storybook_ stories of the activities table component
+- Changed the build executor of the client from `@nx/angular:browser-esbuild` to `@nx/angular:application`
+- Improved the language localization for German (`de`)
+- Improved the language localization for Polish (`pl`)
+- Improved the language localization for Spanish (`es`)
+- Upgraded `ngx-skeleton-loader` from version `13.0.0` to `14.0.0`
+
 ## 3.98.0 - 2026-11-04
 
 ### Changed

@@ -1,13 +1,14 @@
-import { AccountBalance } from '@ghostfolio/common/interfaces';
-
+import { Type } from 'class-transformer';
 import {
   IsArray,
   IsBoolean,
   IsObject,
   IsOptional,
-  ValidateIf
+  ValidateIf,
+  ValidateNested
 } from 'class-validator';
 
+import { AccountBalanceDto } from './account-balance.dto';
 import { CreateAccountDto } from './create-account.dto';
 
 export class CreateAccountWithBalancesDto extends CreateAccountDto {
@@ -24,7 +25,9 @@ export class CreateAccountWithBalancesDto extends CreateAccountDto {
   cashManagement?: import('@ghostfolio/common/interfaces').CashManagementExport;
   @IsArray()
   @IsOptional()
-  balances?: AccountBalance[];
+  @Type(() => AccountBalanceDto)
+  @ValidateNested({ each: true })
+  balances?: AccountBalanceDto[];
 
   /**
    * @deprecated Accepted for backward compatibility with old export files
