@@ -207,17 +207,18 @@ resolved digest. Identified attestation descriptors are handled by that existing
 validator. A tag alone, labels alone, or a successful job without a successful
 completed run cannot establish a qualified release.
 
-## Current controller: HTTP read retries
+## Historical controller: HTTP read retries
 
 The active Home Assistant 3.97.4 release was published using controller D,
 `a695d99ca3593a02c95c78f096b3ebb930fb13e8`. Its immutable release identity and published image digests
 remain unchanged.
 
-For subsequent releases, the qualified controller proposed for activation is
-`83ecb8df43e3d73f0435931b5fca778856711943`. It adds bounded retries for transient GitHub and GHCR
-HTTP GET transport failures, including response-body reads. HTTP error
-responses are not automatically retried, and GitHub write operations
-retain their existing recovery and idempotency safeguards.
+Controller `83ecb8df43e3d73f0435931b5fca778856711943` subsequently
+became the approved contract revision for the releases that followed. It
+adds bounded retries for transient GitHub and
+GHCR HTTP GET transport failures, including response-body reads. HTTP error
+responses are not automatically retried, and GitHub write operations retain
+their existing recovery and idempotency safeguards.
 
 The controller was qualified on GitHub Actions:
 
@@ -228,21 +229,48 @@ The controller was qualified on GitHub Actions:
 - Standard Home Assistant ARM64 qualification:
   run `42119385995` (success).
 
-The updated orchestrator passed 110 local regression tests using the
-exact immutable controller snapshot. Its new revision has not yet been
-committed, independently qualified in CI, or activated on the default
-branch.
+This controller revision and its qualification results are retained here
+as historical evidence. Subsequent controller revisions do not rewrite
+the immutable identities or published image digests of existing releases.
 
-Historical Home Assistant releases retain their original controller
-revisions. Updating the orchestrator pin does not rewrite release
-identities, allocate new versions, or recover previous releases.
+## Qualified controller candidate: Ingress asset rewriting
+
+The current approved Home Assistant controller revision is
+`f9497d2fb67aae47c5acb168fe10839798e52beb`.
+
+It corrects absolute API and asset URL rewriting under Home Assistant
+Ingress while preserving relative Angular asset and logo URLs. The Nginx
+configuration covers HTML, JavaScript and CSS responses without applying
+the former indiscriminate `/api/` and `/assets/` substitutions.
+
+The revision adds dedicated Ingress regression tests and extends the shared
+runtime smoke test to verify HTML, JavaScript chunks, CSS, relative URL
+preservation and direct access.
+
+Native application and persistence qualification completed successfully:
+
+- AMD64: GitHub Actions run
+  [42551531974](https://github.com/piggei/ghostfolio/actions/runs/42551531974).
+- ARM64: GitHub Actions run
+  [42551532004](https://github.com/piggei/ghostfolio/actions/runs/42551532004).
+
+Both qualifications used Ghostfolio-NG 3.99.0 and verified the Home Assistant
+add-on build, Ingress assets, PWA, API and persistence lifecycle.
+
+The orchestrator pin update is a separate change. It does not modify the
+already activated Home Assistant 3.99.0 release or its immutable identity.
+A subsequent independently qualified NG release is required before the
+orchestrator can allocate and publish Home Assistant 3.99.1.
+
+Historical releases retain their original controller revisions, image
+digests and registry identities.
 
 ## Reusing the immutable HA contract
 
 The reference is literal and cannot be supplied through event fields:
 
 ```text
-piggei/ghostfolio/.github/workflows/home-assistant-addon.yml@83ecb8df43e3d73f0435931b5fca778856711943
+piggei/ghostfolio/.github/workflows/home-assistant-addon.yml@f9497d2fb67aae47c5acb168fe10839798e52beb
 ```
 
 The resolver checks out only its trusted default-branch revision (`github.sha`)
@@ -352,7 +380,7 @@ environment. This creates a temporary source snapshot, not a branch or worktree:
   set -euo pipefail
   task03_contract="$(mktemp -d)"
   trap 'rm -rf "$task03_contract"' EXIT
-  git archive 83ecb8df43e3d73f0435931b5fca778856711943 \
+  git archive f9497d2fb67aae47c5acb168fe10839798e52beb \
     scripts/home-assistant-addon-github.mjs \
     scripts/home-assistant-addon-http-read.mjs \
     scripts/home-assistant-addon-oci.mjs \
