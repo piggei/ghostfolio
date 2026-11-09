@@ -7,11 +7,19 @@ import { join } from 'node:path';
 import { isDeepStrictEqual } from 'node:util';
 
 import {
+  changelogPath,
   configPath,
   docPaths,
   manifestPath,
   registryPath
 } from './home-assistant-addon-github.mjs';
+import {
+  extractReleaseNotes,
+  mergeReleaseNotes,
+  releaseNotesArchive,
+  releaseNotesArchivePath,
+  validateReleaseNotesArchive
+} from './home-assistant-addon-changelog.mjs';
 import { localImageIdentity } from './home-assistant-addon-local-image.mjs';
 import { architectures } from './home-assistant-addon-oci.mjs';
 import {
@@ -58,7 +66,7 @@ const recordFor = (registry, identity) =>
   );
 const json = (value) => JSON.stringify(value, null, 2) + '\n';
 
-export function activationFiles(snapshot, registry) {
+export function activationFiles(snapshot, registry, plan) {
   const manifest = currentManifest(registry);
   assert.equal(manifest.state, 'activated');
   const config = snapshot.files[configPath];
@@ -71,6 +79,20 @@ export function activationFiles(snapshot, registry) {
       `version: "${manifest.addon_version}"`
     )
   };
+
+  const incomingNotes = plan.release_notes ?? [];
+  const existingChangelog = snapshot.files[changelogPath];
+
+  if (
+    incomingNotes.length ||
+    (existingChangelog !== null && existingChangelog !== undefined)
+  ) {
+    files[changelogPath] = mergeReleaseNotes(
+      existingChangelog ?? '',
+      manifest.addon_version,
+      incomingNotes
+    );
+  }
   for (const path of docPaths) {
     const original = snapshot.files[path];
     const marker =
@@ -191,16 +213,28 @@ export class Pipeline {
     return snapshot;
   }
 
-  async verify(identity) {
+  async verify(identity, includeReleaseBody = false) {
     validateIdentity(identity);
-    await this.github.verifySource(identity);
+    const releaseBody = await this.github.verifySource(
+      identity,
+      includeReleaseBody
+    );
     await this.registry.source(identity);
+    return releaseBody;
   }
 
-  async persist(plan, operation, activation = false) {
+  async persist(
+    plan,
+    operation,
+    activation = false,
+    additionalFiles = {}
+  ) {
     const snapshot = await this.snapshot(plan);
     const next = operation(snapshot.registry);
-    if (isDeepStrictEqual(next, snapshot.registry)) return snapshot.registry;
+    if (
+      isDeepStrictEqual(next, snapshot.registry) &&
+      Object.keys(additionalFiles).length === 0
+    ) return snapshot.registry;
     await this.github.verifyAddonRevision(
       plan.identity.addon_source_revision,
       snapshot.head
@@ -215,8 +249,11 @@ export class Pipeline {
     }
     const record = recordFor(next, plan.identity);
     const files = activation
-      ? activationFiles(snapshot, next)
-      : { [registryPath]: serializeRegistry(next) };
+      ? activationFiles(snapshot, next, plan)
+      : {
+          [registryPath]: serializeRegistry(next),
+          ...additionalFiles
+        };
     plan.head = await this.github.commit(
       snapshot.head,
       files,
@@ -228,8 +265,40 @@ export class Pipeline {
   }
 
   async prepare(identity, tag) {
-    await this.verify(identity);
     const snapshot = await this.snapshot();
+    const existing = snapshot.registry.releases.find(
+      (record) => record.identity.integration_tag === identity.integration_tag
+    );
+    const archivePath = releaseNotesArchivePath(identity);
+    const archivedContent = await this.github.file(
+      archivePath,
+      snapshot.head,
+      true
+    );
+
+    let releaseNotes;
+    let additionalFiles = {};
+
+    if (archivedContent !== null) {
+      releaseNotes = validateReleaseNotesArchive(
+        JSON.parse(archivedContent),
+        identity
+      );
+      await this.verify(identity, false);
+    } else if (existing?.state === 'activated' || tag) {
+      releaseNotes = [];
+      await this.verify(identity, false);
+    } else {
+      const releaseBody = await this.verify(identity, true);
+      releaseNotes = extractReleaseNotes(releaseBody ?? '');
+
+      additionalFiles[archivePath] =
+        JSON.stringify(
+          releaseNotesArchive(identity, releaseNotes),
+          null,
+          2
+        ) + '\n';
+    }
     if (!snapshot.registry.releases.length) {
       assert.ok(
         compareVersions(
@@ -260,9 +329,15 @@ export class Pipeline {
       identity,
       head: snapshot.head,
       addon_version: record.addon_version,
-      terminal: record.state === 'activated'
+      terminal: record.state === 'activated',
+      release_notes: releaseNotes
     };
-    await this.persist(plan, (r) => reserveRelease(r, identity));
+    await this.persist(
+      plan,
+      (r) => reserveRelease(r, identity),
+      false,
+      additionalFiles
+    );
     return plan;
   }
 
