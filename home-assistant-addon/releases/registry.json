@@ -1,8 +1,8 @@
 {
   "schema_version": 1,
-  "generation": 32,
+  "generation": 33,
   "baseline_version": "3.97.0",
-  "current_release": "integration-3.99.0-21",
+  "current_release": "integration-3.99.0-22",
   "releases": [
     {
       "identity": {
@@ -185,7 +185,7 @@
         "addon_source_revision": "f9497d2fb67aae47c5acb168fe10839798e52beb"
       },
       "addon_version": "3.99.1",
-      "state": "published",
+      "state": "activated",
       "qualified": {
         "amd64": {
           "os": "linux",
