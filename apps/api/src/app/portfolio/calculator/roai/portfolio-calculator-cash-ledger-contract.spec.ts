@@ -224,6 +224,7 @@ describe('PortfolioCalculator', () => {
         const balances = calculation.balances.map(({ date, value }) => ({
           id: randomUUID(),
           accountId,
+          comment: null,
           date: parseDate(date),
           value: Number(value),
           valueInBaseCurrency: Number(value)
@@ -232,6 +233,7 @@ describe('PortfolioCalculator', () => {
           balances.push({
             id: randomUUID(),
             accountId: accounts[1].id,
+            comment: null,
             date: parseDate('2024-01-03'),
             value: destination,
             valueInBaseCurrency: destination
@@ -302,6 +304,7 @@ describe('PortfolioCalculator', () => {
           balances: calculation.balances.map(({ date, value }) => ({
             id: randomUUID(),
             accountId,
+            comment: null,
             date: parseDate(date),
             value: Number(value),
             valueInBaseCurrency: Number(value)
