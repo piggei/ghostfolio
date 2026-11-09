@@ -1,0 +1,14 @@
+{
+  "schema_version": 1,
+  "identity": {
+    "integration_tag": "integration-3.99.0-21",
+    "source_commit": "c8613e2ebe2df70e26a3479ad39ca3a25860c431",
+    "source_image": "ghcr.io/piggei/ghostfolio-ng@sha256:1349a830843fa6628c7cf9590a85db9b811cf8d3479772da12c8327ffd82f5d5",
+    "ghostfolio_version": "3.99.0",
+    "addon_source_revision": "83ecb8df43e3d73f0435931b5fca778856711943"
+  },
+  "sections": [
+    "## Official Ghostfolio updates\n\n### [Ghostfolio 3.99.0](https://github.com/ghostfolio/ghostfolio/releases/tag/3.99.0)\n\n#### Added\n\n- Added `comment` to the `AccountBalance` database schema as a preparation for notes in the account balances\n- Added the discovery endpoints of OAuth 2.1 to the server of the Model Context Protocol (MCP) (experimental)\n\n#### Changed\n\n- Improved the *Storybook* stories of the accounts table component\n- Improved the *Storybook* stories of the activities table component\n- Changed the build executor of the client from `@nx/angular:browser-esbuild` to `@nx/angular:application`\n- Improved the language localization for German (`de`)\n- Improved the language localization for Polish (`pl`)\n- Improved the language localization for Spanish (`es`)\n- Upgraded `ngx-skeleton-loader` from version `13.0.0` to `14.0.0`\n\n#### Special Thanks\n\n- [**@dtslvr**](https://github.com/dtslvr)\n- [**@KenTandrian**](https://github.com/KenTandrian)\n- [**@kodzonko**](https://github.com/kodzonko)\n- [**@Lyndros**](https://github.com/Lyndros)",
+    "## Integration-specific changes\n\n- test(roai): update cash ledger balance mocks ([c8613e2](https://github.com/piggei/ghostfolio/commit/c8613e2ebe2df70e26a3479ad39ca3a25860c431))\n- ci: qualify Ghostfolio-NG 3.99 candidate ([f46d511](https://github.com/piggei/ghostfolio/commit/f46d511d6ff760bd6701f37e323bfef243710893))\n- Merge Ghostfolio 3.99.0 into Ghostfolio-NG candidate ([796c996](https://github.com/piggei/ghostfolio/commit/796c9961a3365047f527641651e4f719a0e3d801))"
+  ]
+}

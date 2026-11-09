@@ -1,5 +1,5 @@
 name: Ghostfolio-NG
-version: "3.99.1"
+version: '3.99.1'
 slug: ghostfolio_ng
 description: Ghostfolio-NG integration for Home Assistant
 url: https://github.com/piggei/ghostfolio
@@ -15,11 +15,11 @@ ports:
 ports_description:
   3333/tcp: Ghostfolio web interface (optional)
 options:
-  database_host: ""
+  database_host: ''
   database_port: 5432
   database_name: ghostfolio
-  database_user: ""
-  database_pass: ""
+  database_user: ''
+  database_pass: ''
 schema:
   database_host: str
   database_port: int

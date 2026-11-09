@@ -21,28 +21,19 @@ const requiredDirectives = [
 ];
 
 function rewriteLikeNginx(content, prefix = ingressPath) {
-  const replacements = new Map([
-    ['base href="/', `base href="${prefix}/`]
-  ]);
+  const replacements = new Map([['base href="/', `base href="${prefix}/`]]);
 
   for (const resource of ['api', 'assets']) {
     for (const delimiter of ["'", '"', '`']) {
       const needle = `${delimiter}/${resource}/`;
 
-      replacements.set(
-        needle,
-        `${delimiter}${prefix}/${resource}/`
-      );
+      replacements.set(needle, `${delimiter}${prefix}/${resource}/`);
     }
   }
 
-  replacements.set(
-    'url(/assets/',
-    `url(${prefix}/assets/`
-  );
+  replacements.set('url(/assets/', `url(${prefix}/assets/`);
 
-  const escapeRegExp = (value) =>
-    value.replace(/[.*+?^${}()|[\]\\]/g, '\\$&');
+  const escapeRegExp = (value) => value.replace(/[.*+?^${}()|[\]\\]/g, '\\$&');
 
   const pattern = new RegExp(
     [...replacements.keys()]
@@ -74,15 +65,9 @@ test('Ingress configuration declares all expected rewrite directives', () => {
 });
 
 test('Ingress configuration does not contain indiscriminate API or asset rewriting', () => {
-  assert.doesNotMatch(
-    config,
-    /sub_filter\s+['"]\/api\/['"]/
-  );
+  assert.doesNotMatch(config, /sub_filter\s+['"]\/api\/['"]/);
 
-  assert.doesNotMatch(
-    config,
-    /sub_filter\s+['"]\/assets\/['"]/
-  );
+  assert.doesNotMatch(config, /sub_filter\s+['"]\/assets\/['"]/);
 });
 
 test('HTML rewrites base href and absolute assets while preserving relative assets', () => {
@@ -124,9 +109,9 @@ test('JavaScript rewrites absolute API and asset URLs with all supported delimit
 
 test('relative logo and asset URLs remain byte-for-byte unchanged', () => {
   const direct = [
-    "../api/v1/logo/YAHOO/AAPL",
-    "../api/v1/logo?url=https%3A%2F%2Fexample.com",
-    "../assets/images/logo.svg",
+    '../api/v1/logo/YAHOO/AAPL',
+    '../api/v1/logo?url=https%3A%2F%2Fexample.com',
+    '../assets/images/logo.svg',
     "'../api/v1/logo/MSN/MSFT'",
     '"../assets/images/company.svg"'
   ].join('\n');
@@ -164,10 +149,10 @@ test('direct access without an Ingress prefix preserves original URLs', () => {
 });
 
 test('the previous indiscriminate rewriting regression is detected', () => {
-  const direct = "../api/v1/logo/YAHOO/AAPL";
+  const direct = '../api/v1/logo/YAHOO/AAPL';
 
   const oldBrokenResult =
-    "../api/hassio_ingress/test-token/api/v1/logo/YAHOO/AAPL";
+    '../api/hassio_ingress/test-token/api/v1/logo/YAHOO/AAPL';
 
   const expected = rewriteLikeNginx(direct);
 

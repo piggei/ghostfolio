@@ -295,6 +295,7 @@ test('GitHub provenance resolves the actual tag commit and checks the NG release
         if (path.startsWith('releases/'))
           return response({
             tag_name: identity.integration_tag,
+            body: '## Official Ghostfolio updates\n\n### Added\n\n- Test feature',
             draft: mode === 'draft',
             prerelease: false
           });
@@ -335,8 +336,13 @@ test('GitHub provenance resolves the actual tag commit and checks the NG release
         throw new Error(path);
       }
     });
-    if (mode === 'success') await github.verifySource(identity);
-    else await assert.rejects(github.verifySource(identity));
+    if (mode === 'success') {
+      const body = await github.verifySource(identity);
+      assert.equal(
+        body,
+        '## Official Ghostfolio updates\n\n### Added\n\n- Test feature'
+      );
+    } else await assert.rejects(github.verifySource(identity));
   }
 });
 
@@ -465,6 +471,7 @@ function provenanceFixture({
       if (path.startsWith('releases/'))
         return response({
           tag_name: identity.integration_tag,
+          body: '## Official Ghostfolio updates\n\n### Added\n\n- Test feature',
           draft: false,
           prerelease: false
         });

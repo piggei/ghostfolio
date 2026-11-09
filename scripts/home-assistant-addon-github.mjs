@@ -10,6 +10,7 @@ export const docPaths = [
   'home-assistant-addon/README.md',
   'home-assistant-addon/DOCS.md'
 ];
+export const changelogPath = 'home-assistant-addon/CHANGELOG.md';
 const shaPattern = /^[a-f0-9]{40}$/;
 
 export class GitHub {
@@ -95,10 +96,16 @@ export class GitHub {
     return ref.object.sha;
   }
 
-  async file(path, ref) {
+  async file(path, ref, missing = false) {
     const value = await this.api(
-      `contents/${path}?ref=${encodeURIComponent(ref)}`
+      `contents/${path}?ref=${encodeURIComponent(ref)}`,
+      'GET',
+      undefined,
+      missing
     );
+
+    if (value === null) return null;
+
     assert.equal(value.type, 'file');
     assert.equal(value.encoding, 'base64');
     return Buffer.from(value.content, 'base64').toString();
@@ -136,6 +143,8 @@ export class GitHub {
     const files = {};
     for (const path of [registryPath, manifestPath, configPath, ...docPaths])
       files[path] = await this.file(path, head);
+
+    files[changelogPath] = await this.file(changelogPath, head, true);
     return { head, files };
   }
 
@@ -150,13 +159,19 @@ export class GitHub {
     return object.sha;
   }
 
-  async verifySource(identity) {
-    const release = await this.api(
-      `releases/tags/${encodeURIComponent(identity.integration_tag)}`
-    );
-    assert.equal(release.tag_name, identity.integration_tag);
-    assert.equal(release.draft, false);
-    assert.equal(release.prerelease, false);
+  async verifySource(identity, includeReleaseBody = true) {
+    let releaseBody;
+
+    if (includeReleaseBody) {
+      const release = await this.api(
+        `releases/tags/${encodeURIComponent(identity.integration_tag)}`
+      );
+      assert.equal(release.tag_name, identity.integration_tag);
+      assert.equal(release.draft, false);
+      assert.equal(release.prerelease, false);
+      assert.equal(typeof release.body, 'string', 'NG release body is missing');
+      releaseBody = release.body;
+    }
     assert.equal(
       await this.resolveTag(identity.integration_tag),
       identity.source_commit,
@@ -243,6 +258,8 @@ export class GitHub {
       run.run_attempt,
       'NG attempt changed during verification'
     );
+
+    return releaseBody;
   }
 
   async verifyAddonRevision(revision, head) {

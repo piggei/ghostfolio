@@ -138,7 +138,7 @@ test('Ingress regression suite runs before Docker qualification', () => {
   const ingressTest = workflow.indexOf(
     'scripts/home-assistant-addon-ingress-rewrite.test.mjs'
   );
-  const dockerBuild = workflow.indexOf("docker.run([");
+  const dockerBuild = workflow.indexOf('docker.run([');
 
   assert.ok(testCommand >= 0);
   assert.ok(ingressTest > testCommand);

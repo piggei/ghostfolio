@@ -3,6 +3,7 @@ import { readFileSync } from 'node:fs';
 import { test } from 'node:test';
 
 import {
+  changelogPath,
   configPath,
   docPaths,
   manifestPath,
@@ -40,7 +41,7 @@ function harness() {
   const initial = createRegistry('3.97.0');
   const initialVersion = currentManifest(initial).addon_version;
   const config = readFileSync(configPath, 'utf8');
-  const versionPattern = /^version: "[^"]+"$/gm;
+  const versionPattern = /^version: (["'])[^"']+\1$/gm;
 
   assert.equal(
     [...config.matchAll(versionPattern)].length,
@@ -50,7 +51,7 @@ function harness() {
 
   const initialConfig = config.replace(
     versionPattern,
-    `version: "${initialVersion}"`
+    (_match, quote) => `version: ${quote}${initialVersion}${quote}`
   );
 
   const remote = {
@@ -59,6 +60,7 @@ function harness() {
       [registryPath]: serializeRegistry(initial),
       [manifestPath]: encode(currentManifest(initial)),
       [configPath]: initialConfig,
+      [changelogPath]: null,
       ...Object.fromEntries(
         docPaths.map((path) => [path, readFileSync(path, 'utf8')])
       )
@@ -73,8 +75,49 @@ function harness() {
         assert.equal(this.head, expected, 'Concurrent remote branch update');
       return { head: this.head, files: structuredClone(this.files) };
     },
-    async verifySource() {
+    async file(filePath, ref, missing = false) {
+      assert.equal(ref, this.head, 'Unexpected file snapshot revision');
+      const value = this.files[filePath];
+
+      if (value === null || value === undefined) {
+        if (missing) return null;
+        throw new Error(`Missing remote file: ${filePath}`);
+      }
+
+      return value;
+    },
+    async verifySource(identity, includeReleaseBody = false) {
       if (this.sourceFailure) throw new Error('NG source provenance');
+
+      if (!includeReleaseBody) return undefined;
+
+      this.releaseBodyRequests = (this.releaseBodyRequests ?? 0) + 1;
+
+      if (this.releaseUnavailable) throw new Error('NG release unavailable');
+
+      if (this.releaseBodyOverride !== undefined)
+        return this.releaseBodyOverride;
+
+      return `Ghostfolio-NG release.
+
+## Official Ghostfolio updates
+
+### Added
+
+- Added test feature.
+
+### Changed
+
+- Improved test feature.
+
+## Integration-specific changes
+
+- Fixed test integration.
+
+## Installation
+
+- Installation instructions must not be included.
+`;
     },
     async verifyAddonRevision() {
       if (this.sourceChanged) throw new Error('Add-on source changed');
@@ -272,11 +315,36 @@ test('both native qualifications and digest promotion precede a single atomic me
   const h = harness();
   const original = h.remote.files[configPath];
   const plan = await h.qualified();
+
+  assert.equal(plan.release_notes.length, 2);
+  assert.ok(plan.release_notes[0].includes('- Added test feature.'));
+  assert.ok(plan.release_notes[1].includes('- Fixed test integration.'));
+
   assert.deepEqual(h.docker.tests, ['amd64', 'amd64', 'aarch64', 'aarch64']);
   assert.equal(h.remote.files[configPath], original);
+  assert.equal(h.remote.files[changelogPath], null);
+
   const result = await h.pipeline.publish(plan);
   assert.equal(result.addon_version, '3.97.1');
   assert.equal(result.publication_status, 'activated');
+
+  const changelog = h.remote.files[changelogPath];
+
+  assert.ok(changelog);
+  assert.match(changelog, /## 3\.97\.1/);
+  assert.match(changelog, /### Official Ghostfolio updates/);
+  assert.match(changelog, /#### Added/);
+  assert.match(changelog, /#### Changed/);
+  assert.match(changelog, /### Integration-specific changes/);
+  assert.ok(!changelog.includes('Installation instructions'));
+
+  const activation = h.remote.commits.find(
+    (commit) => commit.message === 'Activate Home Assistant 3.97.1'
+  );
+
+  assert.ok(activation);
+  assert.ok(activation.changed.includes(changelogPath));
+
   assert.match(result.amd64_digest, /^sha256:a{64}$/);
   assert.match(result.aarch64_digest, /^sha256:b{64}$/);
   assert.equal(
@@ -289,16 +357,101 @@ test('both native qualifications and digest promotion precede a single atomic me
     ),
     ['reserved', 'reserved', 'qualified', 'qualified', 'published', 'activated']
   );
-  for (const commit of h.remote.commits.slice(0, -1)) {
-    assert.deepEqual(commit.changed, [registryPath]);
+  for (const [index, commit] of h.remote.commits.slice(0, -1).entries()) {
+    const expected =
+      index === 0
+        ? [
+            registryPath,
+            `home-assistant-addon/releases/notes/${identity.integration_tag}.json`
+          ]
+        : [registryPath];
+
+    assert.deepEqual(commit.changed.sort(), expected.sort());
     assert.equal(commit.files[configPath], original);
   }
   assert.deepEqual(
     h.remote.commits.at(-1).changed.sort(),
-    [registryPath, manifestPath, configPath, ...docPaths].sort()
+    [registryPath, manifestPath, configPath, changelogPath, ...docPaths].sort()
   );
   for (const doc of docPaths)
     assert.ok(h.remote.files[doc].includes('**3.97.1**'));
+});
+
+test('archives verified releases even when they have no selected notes', async () => {
+  const h = harness();
+  h.remote.releaseBodyOverride = 'Release without selected changelog sections.';
+
+  const plan = await h.pipeline.prepare(identity);
+  const archivePath = `home-assistant-addon/releases/notes/${identity.integration_tag}.json`;
+
+  assert.deepEqual(plan.release_notes, []);
+  assert.deepEqual(JSON.parse(h.remote.files[archivePath]).sections, []);
+  assert.equal(h.remote.releaseBodyRequests, 1);
+
+  h.remote.releaseUnavailable = true;
+  h.remote.releaseBodyOverride = undefined;
+
+  const recovered = await h.pipeline.prepare(identity);
+
+  assert.deepEqual(recovered.release_notes, []);
+  assert.equal(h.remote.releaseBodyRequests, 1);
+});
+
+test('new workflow recovers archived NG notes after release deletion', async () => {
+  const h = harness();
+
+  const firstPlan = await h.pipeline.prepare(identity);
+  const originalNotes = structuredClone(firstPlan.release_notes);
+
+  const archivePath = `home-assistant-addon/releases/notes/${identity.integration_tag}.json`;
+
+  const archive = h.remote.files[archivePath];
+
+  assert.ok(archive);
+  assert.deepEqual(JSON.parse(archive).identity, identity);
+  assert.deepEqual(JSON.parse(archive).sections, originalNotes);
+  assert.equal(h.remote.releaseBodyRequests, 1);
+
+  // Simulate a completely new workflow execution.
+  h.remote.releaseUnavailable = true;
+
+  const secondPlan = await h.pipeline.prepare(identity);
+
+  assert.deepEqual(secondPlan.release_notes, originalNotes);
+  assert.equal(h.remote.releaseBodyRequests, 1);
+
+  assert.equal(secondPlan.head, h.remote.head);
+});
+
+test('prepared release survives NG GitHub Release deletion', async () => {
+  const h = harness();
+
+  const plan = await h.pipeline.prepare(identity);
+  const originalNotes = structuredClone(plan.release_notes);
+
+  assert.equal(h.remote.releaseBodyRequests, 1);
+  assert.equal(originalNotes.length, 2);
+
+  // Simulate deletion of the NG GitHub Release after preparation.
+  h.remote.releaseUnavailable = true;
+
+  await h.pipeline.qualify(plan, 'amd64');
+  await h.pipeline.qualify(plan, 'aarch64');
+
+  assert.deepEqual(plan.release_notes, originalNotes);
+
+  const result = await h.pipeline.publish(plan);
+
+  assert.equal(result.publication_status, 'activated');
+  assert.equal(h.remote.releaseBodyRequests, 1);
+
+  const changelog = h.remote.files[changelogPath];
+
+  assert.ok(changelog);
+  assert.ok(changelog.includes('- Added test feature.'));
+  assert.ok(changelog.includes('- Improved test feature.'));
+  assert.ok(changelog.includes('- Fixed test integration.'));
+  assert.ok(!changelog.includes('Installation instructions'));
 });
 
 for (const arch of ['amd64', 'aarch64']) {
