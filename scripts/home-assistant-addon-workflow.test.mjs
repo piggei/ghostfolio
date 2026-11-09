@@ -128,6 +128,23 @@ test('both ordinary test workflows use the same smoke implementation without wri
   );
 });
 
+test('Ingress regression suite runs before Docker qualification', () => {
+  const workflow = readFileSync(
+    'scripts/home-assistant-addon-workflow.mjs',
+    'utf8'
+  );
+
+  const testCommand = workflow.indexOf("if (command === 'test')");
+  const ingressTest = workflow.indexOf(
+    'scripts/home-assistant-addon-ingress-rewrite.test.mjs'
+  );
+  const dockerBuild = workflow.indexOf("docker.run([");
+
+  assert.ok(testCommand >= 0);
+  assert.ok(ingressTest > testCommand);
+  assert.ok(dockerBuild > ingressTest);
+});
+
 test('shared smoke script retains the original runtime assertions and extends persistence', () => {
   const script = readFileSync(
     'scripts/home-assistant-addon-smoke-test.sh',
@@ -149,6 +166,13 @@ test('shared smoke script retains the original runtime assertions and extends pe
     'site.webmanifest',
     'android-chrome-512x512.png',
     '/api/v1/info',
+    'verify_ingress_rewrite',
+    'local expected="$direct"',
+    'for resource in api assets; do',
+    'if [ "$expected" != "$ingress" ]; then',
+    'url(/assets/',
+    'Angular CSS',
+    'test "$css_count" -gt 0',
     'trap cleanup EXIT',
     'for lifecycle in restart recreate',
     'sha256sum /data/secrets/ghostfolio.env',

@@ -16,8 +16,6 @@
     "grep -oE 'src=\"[^\"]*main-[^\"]+\\.js\"' |",
     "test -n \"$main_bundle\"",
     "grep -Fq \"$INGRESS_PATH/api/v1/info\" <<< \"$bundle\"",
-    "grep -oF '/api/' | wc -l || true)",
-    "grep -oE 'href=\"chunk-[^\"]+\\.js\"' <<< \"$html\" |",
     "test \"$chunk_count\" -gt 0",
     "test \"$api_chunk_count\" -gt 0",
     ".start_url == ($prefix + \"/it/\") and",
@@ -26,6 +24,15 @@
     ".start_url == \"/it/\" and",
     "all(.icons[]; .src | startswith(\"/assets/\"))",
     "jq -e 'type == \"object\"' >/dev/null",
-    "jq -e 'type == \"object\"' >/dev/null"
+    "jq -e 'type == \"object\"' >/dev/null",
+    "echo '=== Angular CSS ==='",
+    "echo \"Angular CSS files inspected: $css_count\"",
+    "grep -oE 'href=\"[^\"]*chunk-[^\"]+\\.js\"' <<< \"$html\" |",
+    "verify_ingress_rewrite() {",
+    "local expected=\"$direct\"",
+    "for resource in api assets; do",
+    "if [ \"$expected\" != \"$ingress\" ]; then",
+    "verify_ingress_rewrite \"$asset\" \"$direct\" \"$chunk\"",
+    "verify_ingress_rewrite \"$asset\" \"$direct\" \"$ingress\""
   ]
 }

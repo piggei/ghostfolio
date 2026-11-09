@@ -340,6 +340,58 @@ grep -Fq "$INGRESS_PATH/api/v1/info" <<< "$bundle"
 
 echo 'HTML and main bundle: PASS'
 
+count_literal() {
+  local count
+  count=$(
+    { grep -oF -- "$2" <<< "$1" || true; } |
+      wc -l
+  )
+  printf '%s' "$count"
+}
+
+verify_ingress_rewrite() {
+  local label="$1"
+  local direct="$2"
+  local ingress="$3"
+
+  local expected="$direct"
+  local resource
+  local delimiter
+  local needle
+  local replacement
+
+  # Reproduce the literal Nginx sub_filter rules in their configured order.
+  for resource in api assets; do
+    for delimiter in "'" '"' '`'; do
+      needle="${delimiter}/${resource}/"
+      replacement="${delimiter}${INGRESS_PATH}/${resource}/"
+      expected="${expected//"$needle"/"$replacement"}"
+    done
+  done
+
+  # CSS also supports unquoted url(/assets/...).
+  expected="${expected//"url(/assets/"/"url($INGRESS_PATH/assets/"}"
+
+  if [ "$expected" != "$ingress" ]; then
+    echo "::error::Ingress response differs from expected Nginx rewriting: $label"
+
+    if [ "$expected" = "$direct" ]; then
+      echo "No absolute references requiring rewriting were found."
+    fi
+
+    return 1
+  fi
+
+  echo "PASS: $label (exact response comparison)"
+}
+
+echo '=== Main Angular bundle ==='
+
+direct_bundle=$(docker exec "$CI_APP" curl --fail --silent --show-error \
+  "http://127.0.0.1:3333/it/$main_bundle")
+
+verify_ingress_rewrite "main bundle" "$direct_bundle" "$bundle"
+
 echo '=== Angular chunks ==='
 
 chunk_count=0
@@ -353,38 +405,20 @@ while IFS= read -r asset; do
   direct=$(docker exec "$CI_APP" curl --fail --silent --show-error \
     "http://127.0.0.1:3333/it/$asset")
 
-  original=$( { grep -oF '/api/' <<< "$direct" || true; } | wc -l)
-
-  if [ "$original" -eq 0 ]; then
-    continue
-  fi
-
   chunk=$(docker exec "$CI_APP" curl --fail --silent --show-error \
     -H "$INGRESS_HEADER" \
     "http://127.0.0.1:8099/it/$asset")
 
-  rewritten=$( { grep -oF "$INGRESS_PATH/api/" <<< "$chunk" || true; } | wc -l)
+  verify_ingress_rewrite "$asset" "$direct" "$chunk"
 
-  without_prefix=${chunk//"$INGRESS_PATH/api/"/}
-  remaining=$(printf '%s\n' "$without_prefix" |
-    grep -oF '/api/' | wc -l || true)
+  api_original=$(count_literal "$direct" "/api/")
+  api_relative=$(count_literal "$direct" "../api/")
 
-  if [ "$rewritten" -ne "$original" ]; then
-    echo "::error::Incomplete API path rewriting in $asset"
-    echo "Expected: $original; rewritten: $rewritten"
-    exit 1
+  if [ "$api_original" -gt "$api_relative" ]; then
+    api_chunk_count=$((api_chunk_count + 1))
   fi
-
-  if [ "$remaining" -ne 0 ]; then
-    echo "::error::Unrewritten API references in $asset"
-    exit 1
-  fi
-
-  api_chunk_count=$((api_chunk_count + 1))
-
-  echo "PASS: $asset ($rewritten API references)"
 done < <(
-  grep -oE 'href="chunk-[^"]+\.js"' <<< "$html" |
+  grep -oE 'href="[^"]*chunk-[^"]+\.js"' <<< "$html" |
     cut -d '"' -f 2
 )
 
@@ -393,6 +427,50 @@ test "$api_chunk_count" -gt 0
 
 echo "Angular chunks inspected: $chunk_count"
 echo "Angular chunks with API references: $api_chunk_count"
+
+echo '=== Angular CSS ==='
+
+css_count=0
+
+while IFS= read -r asset; do
+  [ -n "$asset" ] || continue
+
+  css_count=$((css_count + 1))
+
+  asset="${asset%%\?*}"
+
+  case "$asset" in
+    "$INGRESS_PATH/"*)
+      direct_path="/${asset#"$INGRESS_PATH"/}"
+      ingress_path="$asset"
+      ;;
+    /*)
+      direct_path="$asset"
+      ingress_path="$INGRESS_PATH$asset"
+      ;;
+    *)
+      direct_path="/it/$asset"
+      ingress_path="/it/$asset"
+      ;;
+  esac
+
+  direct=$(docker exec "$CI_APP" curl --fail --silent --show-error \
+    "http://127.0.0.1:3333$direct_path")
+
+  ingress=$(docker exec "$CI_APP" curl --fail --silent --show-error \
+    -H "$INGRESS_HEADER" \
+    "http://127.0.0.1:8099$ingress_path")
+
+  verify_ingress_rewrite "$asset" "$direct" "$ingress"
+done < <(
+  grep -oE 'href="[^"]+\.css[^"]*"' <<< "$html" |
+    cut -d '"' -f 2 |
+    sort -u
+)
+
+test "$css_count" -gt 0
+
+echo "Angular CSS files inspected: $css_count"
 
 echo '=== PWA manifest with Ingress ==='
 

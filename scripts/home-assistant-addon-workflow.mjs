@@ -1,4 +1,5 @@
 import assert from 'node:assert/strict';
+import { execFileSync } from 'node:child_process';
 import { appendFileSync, readFileSync, writeFileSync } from 'node:fs';
 import { fileURLToPath } from 'node:url';
 
@@ -64,6 +65,13 @@ export async function main(command, planPath, arch) {
   const pipeline = new Pipeline({ github, registry });
   if (command === 'test') {
     assert.ok(Object.hasOwn(architectures, planPath));
+
+    execFileSync(
+      process.execPath,
+      ['--test', 'scripts/home-assistant-addon-ingress-rewrite.test.mjs'],
+      { stdio: 'inherit' }
+    );
+
     const source = testSource(
       process.env.SOURCE_IMAGE,
       JSON.parse(readFileSync(manifestPath)),
