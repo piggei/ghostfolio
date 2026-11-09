@@ -41,7 +41,7 @@ function harness() {
   const initial = createRegistry('3.97.0');
   const initialVersion = currentManifest(initial).addon_version;
   const config = readFileSync(configPath, 'utf8');
-  const versionPattern = /^version: "[^"]+"$/gm;
+  const versionPattern = /^version: (["'])[^"']+\1$/gm;
 
   assert.equal(
     [...config.matchAll(versionPattern)].length,
@@ -51,7 +51,7 @@ function harness() {
 
   const initialConfig = config.replace(
     versionPattern,
-    `version: "${initialVersion}"`
+    (_match, quote) => `version: ${quote}${initialVersion}${quote}`
   );
 
   const remote = {
@@ -93,8 +93,7 @@ function harness() {
 
       this.releaseBodyRequests = (this.releaseBodyRequests ?? 0) + 1;
 
-      if (this.releaseUnavailable)
-        throw new Error('NG release unavailable');
+      if (this.releaseUnavailable) throw new Error('NG release unavailable');
 
       if (this.releaseBodyOverride !== undefined)
         return this.releaseBodyOverride;
@@ -358,15 +357,14 @@ test('both native qualifications and digest promotion precede a single atomic me
     ),
     ['reserved', 'reserved', 'qualified', 'qualified', 'published', 'activated']
   );
-  for (const [index, commit] of h.remote.commits
-    .slice(0, -1)
-    .entries()) {
-    const expected = index === 0
-      ? [
-          registryPath,
-          `home-assistant-addon/releases/notes/${identity.integration_tag}.json`
-        ]
-      : [registryPath];
+  for (const [index, commit] of h.remote.commits.slice(0, -1).entries()) {
+    const expected =
+      index === 0
+        ? [
+            registryPath,
+            `home-assistant-addon/releases/notes/${identity.integration_tag}.json`
+          ]
+        : [registryPath];
 
     assert.deepEqual(commit.changed.sort(), expected.sort());
     assert.equal(commit.files[configPath], original);
@@ -384,8 +382,7 @@ test('archives verified releases even when they have no selected notes', async (
   h.remote.releaseBodyOverride = 'Release without selected changelog sections.';
 
   const plan = await h.pipeline.prepare(identity);
-  const archivePath =
-    `home-assistant-addon/releases/notes/${identity.integration_tag}.json`;
+  const archivePath = `home-assistant-addon/releases/notes/${identity.integration_tag}.json`;
 
   assert.deepEqual(plan.release_notes, []);
   assert.deepEqual(JSON.parse(h.remote.files[archivePath]).sections, []);
@@ -406,8 +403,7 @@ test('new workflow recovers archived NG notes after release deletion', async () 
   const firstPlan = await h.pipeline.prepare(identity);
   const originalNotes = structuredClone(firstPlan.release_notes);
 
-  const archivePath =
-    `home-assistant-addon/releases/notes/${identity.integration_tag}.json`;
+  const archivePath = `home-assistant-addon/releases/notes/${identity.integration_tag}.json`;
 
   const archive = h.remote.files[archivePath];
 

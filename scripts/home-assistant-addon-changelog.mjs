@@ -196,27 +196,23 @@ export function releaseNotesArchive(identity, sections) {
 
 export function validateReleaseNotesArchive(archive, identity) {
   assert.ok(archive && typeof archive === 'object');
-  assert.deepEqual(
-    Object.keys(archive).sort(),
-    ['identity', 'schema_version', 'sections']
-  );
+  assert.deepEqual(Object.keys(archive).sort(), [
+    'identity',
+    'schema_version',
+    'sections'
+  ]);
 
   assert.equal(archive.schema_version, 1);
   assert.deepEqual(archive.identity, identity);
   assert.ok(Array.isArray(archive.sections));
-  assert.ok(
-    archive.sections.every((section) => typeof section === 'string')
-  );
+  assert.ok(archive.sections.every((section) => typeof section === 'string'));
 
   return structuredClone(archive.sections);
 }
 
 export function releaseNotesArchivePath(identity) {
   assert.ok(identity && typeof identity.integration_tag === 'string');
-  assert.match(
-    identity.integration_tag,
-    /^integration-\d+\.\d+\.\d+-\d+$/
-  );
+  assert.match(identity.integration_tag, /^integration-\d+\.\d+\.\d+-\d+$/);
 
   return `home-assistant-addon/releases/notes/${identity.integration_tag}.json`;
 }

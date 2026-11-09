@@ -100,10 +100,7 @@ test('does not modify the changelog when all notes are duplicates', () => {
   const notes = extractReleaseNotes(releaseBody);
   const existing = mergeReleaseNotes('', '3.99.1', notes);
 
-  assert.equal(
-    mergeReleaseNotes(existing, '3.99.1', notes),
-    existing
-  );
+  assert.equal(mergeReleaseNotes(existing, '3.99.1', notes), existing);
 });
 
 test('keeps historical versions unchanged', () => {
@@ -116,11 +113,9 @@ test('keeps historical versions unchanged', () => {
 - Historical feature.
 `;
 
-  const merged = mergeReleaseNotes(
-    existing,
-    '3.99.1',
-    ['## Official Ghostfolio updates\n\n### Added\n\n- New feature.']
-  );
+  const merged = mergeReleaseNotes(existing, '3.99.1', [
+    '## Official Ghostfolio updates\n\n### Added\n\n- New feature.'
+  ]);
 
   assert.ok(merged.includes('- Historical feature.'));
   assert.ok(merged.includes('- New feature.'));
@@ -134,10 +129,8 @@ test('rejects invalid version and input types', () => {
 });
 
 test('release notes archive preserves the complete NG identity', async () => {
-  const {
-    releaseNotesArchive,
-    validateReleaseNotesArchive
-  } = await import('./home-assistant-addon-changelog.mjs');
+  const { releaseNotesArchive, validateReleaseNotesArchive } =
+    await import('./home-assistant-addon-changelog.mjs');
 
   const identity = {
     integration_tag: 'integration-3.99.0-21',
@@ -155,17 +148,12 @@ test('release notes archive preserves the complete NG identity', async () => {
   const archive = releaseNotesArchive(identity, sections);
 
   assert.equal(archive.schema_version, 1);
-  assert.deepEqual(
-    validateReleaseNotesArchive(archive, identity),
-    sections
-  );
+  assert.deepEqual(validateReleaseNotesArchive(archive, identity), sections);
 });
 
 test('release notes archive rejects a different NG identity', async () => {
-  const {
-    releaseNotesArchive,
-    validateReleaseNotesArchive
-  } = await import('./home-assistant-addon-changelog.mjs');
+  const { releaseNotesArchive, validateReleaseNotesArchive } =
+    await import('./home-assistant-addon-changelog.mjs');
 
   const identity = {
     integration_tag: 'integration-3.99.0-21',
@@ -177,11 +165,11 @@ test('release notes archive rejects a different NG identity', async () => {
 
   const archive = releaseNotesArchive(identity, []);
 
-  assert.throws(
-    () => validateReleaseNotesArchive(
-      archive,
-      { ...identity, integration_tag: 'integration-3.99.0-22' }
-    )
+  assert.throws(() =>
+    validateReleaseNotesArchive(archive, {
+      ...identity,
+      integration_tag: 'integration-3.99.0-22'
+    })
   );
 });
 

@@ -7,19 +7,19 @@ import { join } from 'node:path';
 import { isDeepStrictEqual } from 'node:util';
 
 import {
-  changelogPath,
-  configPath,
-  docPaths,
-  manifestPath,
-  registryPath
-} from './home-assistant-addon-github.mjs';
-import {
   extractReleaseNotes,
   mergeReleaseNotes,
   releaseNotesArchive,
   releaseNotesArchivePath,
   validateReleaseNotesArchive
 } from './home-assistant-addon-changelog.mjs';
+import {
+  changelogPath,
+  configPath,
+  docPaths,
+  manifestPath,
+  registryPath
+} from './home-assistant-addon-github.mjs';
 import { localImageIdentity } from './home-assistant-addon-local-image.mjs';
 import { architectures } from './home-assistant-addon-oci.mjs';
 import {
@@ -75,8 +75,8 @@ export function activationFiles(snapshot, registry, plan) {
     [registryPath]: serializeRegistry(registry),
     [manifestPath]: json(manifest),
     [configPath]: config.replace(
-      /^version:.*$/m,
-      `version: "${manifest.addon_version}"`
+      /^version: (["']).*\1$/m,
+      (_match, quote) => `version: ${quote}${manifest.addon_version}${quote}`
     )
   };
 
@@ -206,8 +206,9 @@ export class Pipeline {
       'Current manifest does not match registry'
     );
     const advertised = currentManifest(snapshot.registry).addon_version;
-    assert.ok(
-      snapshot.files[configPath].includes(`version: "${advertised}"`),
+    assert.match(
+      snapshot.files[configPath],
+      new RegExp(`^version: ["']${advertised}["']$`, 'm'),
       'Advertised version mismatch'
     );
     return snapshot;
@@ -223,18 +224,14 @@ export class Pipeline {
     return releaseBody;
   }
 
-  async persist(
-    plan,
-    operation,
-    activation = false,
-    additionalFiles = {}
-  ) {
+  async persist(plan, operation, activation = false, additionalFiles = {}) {
     const snapshot = await this.snapshot(plan);
     const next = operation(snapshot.registry);
     if (
       isDeepStrictEqual(next, snapshot.registry) &&
       Object.keys(additionalFiles).length === 0
-    ) return snapshot.registry;
+    )
+      return snapshot.registry;
     await this.github.verifyAddonRevision(
       plan.identity.addon_source_revision,
       snapshot.head
@@ -293,11 +290,8 @@ export class Pipeline {
       releaseNotes = extractReleaseNotes(releaseBody ?? '');
 
       additionalFiles[archivePath] =
-        JSON.stringify(
-          releaseNotesArchive(identity, releaseNotes),
-          null,
-          2
-        ) + '\n';
+        JSON.stringify(releaseNotesArchive(identity, releaseNotes), null, 2) +
+        '\n';
     }
     if (!snapshot.registry.releases.length) {
       assert.ok(

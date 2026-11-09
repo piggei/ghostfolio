@@ -342,8 +342,7 @@ test('GitHub provenance resolves the actual tag commit and checks the NG release
         body,
         '## Official Ghostfolio updates\n\n### Added\n\n- Test feature'
       );
-    }
-    else await assert.rejects(github.verifySource(identity));
+    } else await assert.rejects(github.verifySource(identity));
   }
 });
 
