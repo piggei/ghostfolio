@@ -72,9 +72,9 @@ The add-on uses architecture-specific images:
 The add-on version determines the image tag requested by Supervisor.
 
 <!-- release-current:start -->
-Current add-on version: **3.98.0**.
-Ghostfolio NG: `integration-3.98.0-19`.
-Source image: `ghcr.io/piggei/ghostfolio-ng@sha256:18f24b9e8cf9d4fc88b47364175129a2d68241ec393bfb54193cf1d23ca1e2ed`.
+Current add-on version: **3.99.0**.
+Ghostfolio NG: `integration-3.99.0-21`.
+Source image: `ghcr.io/piggei/ghostfolio-ng@sha256:1349a830843fa6628c7cf9590a85db9b811cf8d3479772da12c8327ffd82f5d5`.
 <!-- release-current:end -->
 
 Release builds use an immutable Ghostfolio source image digest to ensure
