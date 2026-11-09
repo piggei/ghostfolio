@@ -235,7 +235,9 @@ function fixture(number = 15) {
         'home-assistant-addon/release.json': JSON.stringify(current),
         'home-assistant-addon/config.yaml': `name: Ghostfolio-NG\nversion: "${current.addon_version}"\nslug: ghostfolio_ng\n`,
         'home-assistant-addon/README.md': 'Documentation',
-        'home-assistant-addon/DOCS.md': 'Documentation'
+        'home-assistant-addon/DOCS.md': 'Documentation',
+        'home-assistant-addon/CHANGELOG.md':
+          '# Ghostfolio-NG Home Assistant Add-on Changelog\n'
       };
       const content = state.files?.[name] ?? files[name];
       assert.notEqual(
@@ -839,6 +841,22 @@ test('activated historical release is delegated for tag repair without changing 
   assert.equal(contract.currentManifest(f.ha).addon_version, '3.97.2');
 });
 
+test('HA version validation accepts both YAML quoting styles', async () => {
+  for (const quote of ["'", '"']) {
+    const f = fixture();
+    const version = contract.currentManifest(f.ha).addon_version;
+
+    f.files = {
+      'home-assistant-addon/config.yaml': `name: Ghostfolio-NG\nversion: ${quote}${version}${quote}\nslug: ghostfolio_ng\n`
+    };
+
+    const result = await f.resolve();
+
+    assert.equal(result.resolution, 'new_release');
+    assert.equal(result.should_publish, 'true');
+  }
+});
+
 test('HA manifest/config drift fails before publishing any output', async () => {
   for (const files of [
     { 'home-assistant-addon/release.json': '{}' },
@@ -1086,7 +1104,7 @@ for (const index of [0, 1]) {
       ...existing.identity,
       addon_source_revision: HA_REVISION
     };
-    assert.equal(HA_REVISION, 'f9497d2fb67aae47c5acb168fe10839798e52beb');
+    assert.equal(HA_REVISION, 'e3cd9971fd480d5e8f87545761f9994ba8273895');
     assert.throws(
       () => disposition(registry, selected, contract),
       /Conflicting HA release identity/
