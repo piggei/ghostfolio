@@ -8,7 +8,7 @@ export const DEFAULT_BRANCH = 'main';
 export const NG_BRANCH = 'integration/ghostfolio-all-pr';
 export const NG_WORKFLOW = '.github/workflows/integration-release.yml';
 export const NG_WORKFLOW_NAME = 'Publish integration Docker release';
-export const HA_REVISION = 'f9497d2fb67aae47c5acb168fe10839798e52beb';
+export const HA_REVISION = 'e3cd9971fd480d5e8f87545761f9994ba8273895';
 export const HA_WORKFLOW = '.github/workflows/home-assistant-addon.yml';
 export const SOURCE_REPOSITORY = 'piggei/ghostfolio-ng';
 
@@ -376,7 +376,13 @@ export async function resolveRelease({
   const advertised = snapshot.files['home-assistant-addon/config.yaml'];
   assert.equal((advertised.match(/^version:.*$/gm) ?? []).length, 1);
   assert.ok(
-    advertised.includes(`version: "${current.addon_version}"`),
+    advertised
+      .split('\n')
+      .some(
+        (line) =>
+          line === `version: "${current.addon_version}"` ||
+          line === `version: '${current.addon_version}'`
+      ),
     'HA advertised version drift'
   );
   const status = disposition(allocations, identity, contract);

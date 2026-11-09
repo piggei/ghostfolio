@@ -44,7 +44,7 @@ test('workflow_run listens only to completed integration releases and provides H
 });
 
 test('reusable workflow reference and validator checkout are fixed to the approved HA revision', () => {
-  assert.equal(HA_REVISION, 'f9497d2fb67aae47c5acb168fe10839798e52beb');
+  assert.equal(HA_REVISION, 'e3cd9971fd480d5e8f87545761f9994ba8273895');
   assert.ok(!yaml.includes('4d642df014071b5c72eb731409aef47507cad641'));
   assert.ok(!yaml.includes('bfaf9ff86325d3d6fb25c37785e854cc583077df'));
   assert.ok(
