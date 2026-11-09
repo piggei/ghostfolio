@@ -1,4 +1,5 @@
 import assert from 'node:assert/strict';
+import { readFileSync } from 'node:fs';
 import { test } from 'node:test';
 
 import {
@@ -350,6 +351,58 @@ test('generates the Home Assistant release section with the correct links', () =
   assert.ok(
     markdown.includes(
       'https://github.com/piggei/ghostfolio/blob/feat/home-assistant-addon/home-assistant-addon/DOCS.md'
+    )
+  );
+});
+
+test('renders documented Cash Management integration with description', () => {
+  const manifest = JSON.parse(
+    readFileSync('docker/integrated-prs.json', 'utf8')
+  );
+
+  const markdown = localPatchesMarkdown(manifest);
+
+  assert.match(markdown, /### Cash Management/);
+  assert.match(markdown, /cash-activity-tax-integration/);
+  assert.match(markdown, /Correctly accounts for taxes and fees exactly once/);
+  assert.match(markdown, /\[#8252\]\(https:\/\/github\.com\/ghostfolio\/ghostfolio\/pull\/8252\)/);
+  assert.match(markdown, /\[#8305\]\(https:\/\/github\.com\/ghostfolio\/ghostfolio\/pull\/8305\)/);
+  assert.match(markdown, /\[Integration commit\]/);
+  assert.match(markdown, /\[Documentation\]/);
+});
+
+test('rejects conflicting or invalid local patch provenance', () => {
+  const invalid = [
+    { ...localPatch, documentation: 'docs/example.md' },
+    { ...localPatch, manifest: undefined },
+    { ...localPatch, manifest: undefined, documentation: '../invalid.md' },
+    { ...localPatch, description: '' },
+    { ...localPatch, description: 'Invalid\nMarkdown' }
+  ];
+
+  for (const patch of invalid) {
+    assert.throws(
+      () => localPatchesMarkdown({
+        pullRequests: [],
+        localPatches: [patch]
+      }),
+      /Invalid local patch entry/
+    );
+  }
+});
+
+test('release introduction uses the official Ghostfolio-NG description', () => {
+  const source = readFileSync('scripts/integration-release.mjs', 'utf8');
+
+  assert.ok(
+    source.includes(
+      'Ghostfolio-NG is an **unofficial experimental distribution of Ghostfolio**'
+    )
+  );
+
+  assert.ok(
+    source.includes(
+      'along with a small set of documented integration-specific patches.'
     )
   );
 });

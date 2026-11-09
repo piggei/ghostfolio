@@ -59,6 +59,15 @@
       "source": "fix/portfolio-cached-fx-context",
       "manifest": "docker/patches/fx-cache-context.json",
       "integrationCommit": "c9bd747985fcedbbf7a0ac01110510ac9a973746"
+    },
+    {
+      "id": "cash-activity-tax-integration",
+      "title": "Integrate activity taxes into Unified Cash Ledger movements",
+      "category": "Cash Management",
+      "source": "integration/ghostfolio-all-pr",
+      "documentation": "docs/ng-cash-activity-tax-integration.md",
+      "integrationCommit": "0cfcd69fb0c7a3251ab71aa4dcac9ff322314cd1",
+      "description": "Correctly accounts for taxes and fees exactly once, handles tax-only edits, and preserves tax data during JSON portfolio restoration. Applies to the Ghostfolio-NG integration of upstream PRs [#8252](https://github.com/ghostfolio/ghostfolio/pull/8252) and [#8305](https://github.com/ghostfolio/ghostfolio/pull/8305)."
     }
   ]
 }

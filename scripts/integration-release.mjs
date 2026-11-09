@@ -102,10 +102,17 @@ export function localPatchesMarkdown(manifest) {
       !patch.source.trim() ||
       typeof patch.integrationCommit !== 'string' ||
       !/^[0-9a-f]{40}$/.test(patch.integrationCommit) ||
-      typeof patch.manifest !== 'string' ||
-      !patch.manifest.startsWith('docker/patches/') ||
-      !patch.manifest.endsWith('.json') ||
-      patch.manifest !== `docker/patches/${patch.id}.json`
+      (patch.manifest === undefined) ===
+        (patch.documentation === undefined) ||
+      (patch.manifest !== undefined &&
+        patch.manifest !== `docker/patches/${patch.id}.json`) ||
+      (patch.documentation !== undefined &&
+        (typeof patch.documentation !== 'string' ||
+          !/^docs\/[a-z0-9-]+\.md$/.test(patch.documentation))) ||
+      (patch.description !== undefined &&
+        (typeof patch.description !== 'string' ||
+          !patch.description.trim() ||
+          /[\r\n]/.test(patch.description)))
     ) {
       throw new Error('Invalid local patch entry');
     }
@@ -124,8 +131,12 @@ export function localPatchesMarkdown(manifest) {
       .get(patch.category)
       .push(
         `- **${patch.title}** (local patch: \`${patch.id}\`) — ` +
-          `source: \`${patch.source}\`; ` +
-          `[provenance](https://github.com/piggei/ghostfolio/blob/${patch.integrationCommit}/${patch.manifest})`
+          (patch.description ? `${patch.description} ` : '') +
+          (patch.manifest
+            ? `source: \`${patch.source}\`; ` +
+              `[provenance](https://github.com/piggei/ghostfolio/blob/${patch.integrationCommit}/${patch.manifest})`
+            : `[Integration commit](https://github.com/piggei/ghostfolio/commit/${patch.integrationCommit}); ` +
+              `[Documentation](https://github.com/piggei/ghostfolio/blob/${patch.integrationCommit}/${patch.documentation})`)
       );
   }
 
@@ -259,9 +270,11 @@ export function generateRelease() {
   const localPatches = localPatchesMarkdown(manifest);
 
   const notes =
-    `Ghostfolio NG is an enhanced distribution of the open-source Ghostfolio ` +
-    `project, combining official upstream updates with additional features, ` +
-    `improvements and independently maintained integrations.\n\n` +
+    `Ghostfolio-NG is an **unofficial experimental distribution of Ghostfolio**, ` +
+    `designed to make independently proposed features available for hands-on ` +
+    `testing and evaluation. It combines the official Ghostfolio release with ` +
+    `additional features submitted as independent upstream Pull Requests, ` +
+    `along with a small set of documented integration-specific patches.\n\n` +
     `This release is built from the \`integration/ghostfolio-all-pr\` branch ` +
     `and is based on Ghostfolio **${version}**.\n\n` +
     `## Release information\n\n` +
