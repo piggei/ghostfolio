@@ -3,6 +3,7 @@
 ## 3.99.2
 
 ### Integration-specific changes
+
 - fix(distribution): improve Ghostfolio-NG release descriptions (376872bf1)
 
 ## 3.99.0

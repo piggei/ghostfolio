@@ -421,9 +421,13 @@ const bootstrapManifest = Object.freeze({
 function assertMetadataConsistency(registry, manifest, config) {
   validateRegistry(registry);
   assert.deepEqual(currentManifest(registry), manifest);
-  assert.deepEqual(config.match(/^version:.*$/gm), [
-    `version: "${manifest.addon_version}"`
-  ]);
+  const versionLines = config.match(/^version:.*$/gm) ?? [];
+
+  assert.equal(versionLines.length, 1);
+  assert.ok(
+    versionLines[0] === `version: "${manifest.addon_version}"` ||
+      versionLines[0] === `version: '${manifest.addon_version}'`
+  );
 }
 
 function partiallyQualifiedFixture() {
