@@ -1,5 +1,11 @@
 # Ghostfolio-NG Home Assistant Add-on Changelog
 
+## 3.99.3
+
+### Integration-specific changes
+
+- ci: trigger Ghostfolio-NG integration release (f0c04418d)
+
 ## 3.99.2
 
 ### Integration-specific changes
