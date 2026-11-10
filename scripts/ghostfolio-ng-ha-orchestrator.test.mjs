@@ -1104,7 +1104,7 @@ for (const index of [0, 1]) {
       ...existing.identity,
       addon_source_revision: HA_REVISION
     };
-    assert.equal(HA_REVISION, 'e3cd9971fd480d5e8f87545761f9994ba8273895');
+    assert.equal(HA_REVISION, 'd78d0e7939c4e7b70eeda9b628244e9f5c47656c');
     assert.throws(
       () => disposition(registry, selected, contract),
       /Conflicting HA release identity/
