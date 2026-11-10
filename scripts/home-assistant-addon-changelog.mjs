@@ -129,7 +129,7 @@ export function mergeReleaseNotes(existing, addonVersion, incoming) {
   const versionHeading = `## ${addonVersion}`;
   const lines = existing.trimEnd()
     ? existing.trimEnd().split('\n')
-    : ['# Ghostfolio-NG Home Assistant Add-on Changelog'];
+    : ['# Ghostfolio-NG Home Assistant Add-on Changelog', ''];
 
   let versionIndex = lines.indexOf(versionHeading);
 
@@ -167,6 +167,7 @@ export function mergeReleaseNotes(existing, addonVersion, incoming) {
 
     for (const heading of block.headings.slice(common)) {
       rendered.push(`${'#'.repeat(heading.level)} ${heading.text}`);
+      rendered.push('');
     }
 
     rendered.push(block.content);

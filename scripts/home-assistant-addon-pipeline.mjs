@@ -104,7 +104,7 @@ export function activationFiles(snapshot, registry, plan) {
     );
     files[path] = original.replace(
       marker,
-      `<!-- release-current:start -->\nCurrent add-on version: **${manifest.addon_version}**.\nGhostfolio NG: \`${manifest.identity.integration_tag}\`.\nSource image: \`${manifest.identity.source_image}\`.\n<!-- release-current:end -->`
+      `<!-- release-current:start -->\n\nCurrent add-on version: **${manifest.addon_version}**.\nGhostfolio NG: \`${manifest.identity.integration_tag}\`.\nSource image: \`${manifest.identity.source_image}\`.\n<!-- release-current:end -->`
     );
   }
   return files;

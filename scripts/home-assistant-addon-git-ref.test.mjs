@@ -185,7 +185,7 @@ for (const reads of [[target], [before, target]]) {
     assert.equal(result.head, target);
     assert.equal(
       h.calls.filter((c) => c.path.startsWith('contents/')).length,
-      5
+      6
     );
     for (const c of h.calls.filter((c) => c.path.startsWith('contents/')))
       assert.ok(c.path.endsWith(`?ref=${target}`));

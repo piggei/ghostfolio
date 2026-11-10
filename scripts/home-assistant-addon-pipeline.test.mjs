@@ -11,6 +11,7 @@ import {
 } from './home-assistant-addon-github.mjs';
 import { architectures } from './home-assistant-addon-oci.mjs';
 import {
+  activationFiles,
   candidateTag,
   imageLabels,
   imageRepository,
@@ -26,6 +27,46 @@ import {
   isTagRecovery,
   testSource
 } from './home-assistant-addon-workflow.mjs';
+
+test('activation generates Prettier-compliant release documentation', async () => {
+  const { format } = await import('prettier');
+
+  const registry = JSON.parse(
+    readFileSync('home-assistant-addon/releases/registry.json', 'utf8')
+  );
+
+  const snapshot = {
+    files: {
+      [configPath]: readFileSync(configPath, 'utf8'),
+      [changelogPath]: readFileSync(changelogPath, 'utf8'),
+      ...Object.fromEntries(
+        docPaths.map((path) => [path, readFileSync(path, 'utf8')])
+      )
+    }
+  };
+
+  const generated = activationFiles(snapshot, registry, {
+    release_notes: []
+  });
+
+  for (const path of docPaths) {
+    assert.equal(
+      generated[path],
+      await format(generated[path], { filepath: path }),
+      `${path}: generated Markdown formatting`
+    );
+
+    assert.equal(
+      [...generated[path].matchAll(/<!-- release-current:start -->/g)].length,
+      1
+    );
+
+    assert.equal(
+      [...generated[path].matchAll(/<!-- release-current:end -->/g)].length,
+      1
+    );
+  }
+});
 
 const identity = {
   integration_tag: 'integration-3.97.0-15',

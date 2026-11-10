@@ -47,6 +47,54 @@ test('extracts only the two requested release sections', () => {
   assert.ok(!notes.join('\n').includes('This must not appear.'));
 });
 
+test('generated changelog remains Prettier-compliant and idempotent', async () => {
+  const { format } = await import('prettier');
+
+  const scenarios = [
+    {
+      name: 'multiple sections',
+      existing: '',
+      incoming: [
+        '## Official Ghostfolio updates\n\n### Added\n\n- Feature A.\n\n### Changed\n\n- Feature B.',
+        '## Integration-specific changes\n\n- Fix C.'
+      ]
+    },
+    {
+      name: 'repeated notes',
+      existing: '',
+      incoming: [
+        '## Integration-specific changes\n\n- Fix A.\n- Fix A.\n- Fix B.'
+      ]
+    },
+    {
+      name: 'existing version',
+      existing:
+        '# Ghostfolio-NG Home Assistant Add-on Changelog\n\n## 3.99.2\n\n### Integration-specific changes\n\n- Existing fix.\n',
+      incoming: ['## Integration-specific changes\n\n- New fix.']
+    }
+  ];
+
+  for (const scenario of scenarios) {
+    const generated = mergeReleaseNotes(
+      scenario.existing,
+      '3.99.2',
+      scenario.incoming
+    );
+
+    const formatted = await format(generated, {
+      filepath: 'home-assistant-addon/CHANGELOG.md'
+    });
+
+    assert.equal(generated, formatted, scenario.name);
+
+    assert.equal(
+      mergeReleaseNotes(generated, '3.99.2', scenario.incoming),
+      generated,
+      `${scenario.name}: idempotence`
+    );
+  }
+});
+
 test('preserves Markdown heading hierarchy', () => {
   const notes = extractReleaseNotes(releaseBody);
 
