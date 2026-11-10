@@ -346,6 +346,77 @@ test('GitHub provenance resolves the actual tag commit and checks the NG release
   }
 });
 
+test('activation commit validates YAML quoting and immutable release metadata', async () => {
+  const commit = 'a'.repeat(40);
+  const record = {
+    identity: {
+      integration_tag: 'integration-3.99.0-23'
+    },
+    addon_version: '3.99.2',
+    state: 'activated',
+    qualified: {},
+    published: {}
+  };
+
+  const manifest = { schema_version: 1, ...record };
+  const registry = {
+    current_release: record.identity.integration_tag,
+    releases: [record]
+  };
+
+  const cases = [
+    ['double quotes', 'version: "3.99.2"\n', true],
+    ['single quotes', "version: '3.99.2'\n", true],
+    ['wrong version', "version: '3.99.1'\n", false],
+    ['mixed quotes', 'version: "3.99.2\'\n', false],
+    ['duplicate version', "version: '3.99.2'\nversion: '3.99.2'\n", false],
+    ['missing version', 'slug: ghostfolio_ng\n', false]
+  ];
+
+  for (const [name, config, valid] of cases) {
+    const github = new GitHub({
+      token: 'test-token',
+      fetcher: async (url, options) => {
+        assert.equal(options.method, 'GET');
+
+        const resource = url.split('/repos/piggei/ghostfolio/')[1];
+
+        if (resource.startsWith('commits?'))
+          return response([
+            {
+              sha: commit,
+              commit: { message: 'Activate Home Assistant 3.99.2' }
+            }
+          ]);
+
+        const files = {
+          'home-assistant-addon/release.json': JSON.stringify(manifest),
+          'home-assistant-addon/releases/registry.json':
+            JSON.stringify(registry),
+          'home-assistant-addon/config.yaml': config
+        };
+
+        for (const [filename, value] of Object.entries(files)) {
+          if (resource === `contents/${filename}?ref=${commit}`)
+            return response({
+              type: 'file',
+              encoding: 'base64',
+              content: Buffer.from(value).toString('base64')
+            });
+        }
+
+        throw new Error(`Unexpected test API request: ${resource}`);
+      }
+    });
+
+    if (valid) {
+      assert.equal(await github.activationCommit(record), commit, name);
+    } else {
+      await assert.rejects(github.activationCommit(record), undefined, name);
+    }
+  }
+});
+
 test('Git tag create is idempotent, detects conflicts and recovers a lost response', async () => {
   for (const mode of [
     'missing',
