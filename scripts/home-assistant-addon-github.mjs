@@ -379,12 +379,17 @@ export class GitHub {
           ),
           record
         );
-        assert.match(
-          await this.file(configPath, commit.sha),
-          new RegExp(
-            `^version: "${record.addon_version.replaceAll('.', '\\.')}"$`,
-            'm'
-          )
+        const config = await this.file(configPath, commit.sha);
+        const expectedVersion = record.addon_version;
+        const versionLines = config
+          .split('\n')
+          .filter((line) => line.startsWith('version:'));
+
+        assert.equal(versionLines.length, 1, 'Expected one version field');
+        assert.ok(
+          versionLines[0] === `version: "${expectedVersion}"` ||
+            versionLines[0] === `version: '${expectedVersion}'`,
+          'Activation version mismatch'
         );
         return commit.sha;
       }
