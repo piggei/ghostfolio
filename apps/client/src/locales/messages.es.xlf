@@ -11508,6 +11508,22 @@
         <source>Chapters</source>
         <target state="translated">Capítulos</target>
       </trans-unit>
+      <trans-unit id="ngGuideCashScreenshotAlt" datatype="html">
+        <source>Cash management transaction journal and balances</source>
+        <target state="needs-translation">Cash management transaction journal and balances</target>
+      </trans-unit>
+      <trans-unit id="ngGuideTaxScreenshotAlt" datatype="html">
+        <source>Tax field in the investment activity editor</source>
+        <target state="needs-translation">Tax field in the investment activity editor</target>
+      </trans-unit>
+      <trans-unit id="ngGuideCalendarScreenshotAlt" datatype="html">
+        <source>Profit and Loss Calendar showing daily portfolio performance</source>
+        <target state="needs-translation">Profit and Loss Calendar showing daily portfolio performance</target>
+      </trans-unit>
+      <trans-unit id="ngGuideReturnsScreenshotAlt" datatype="html">
+        <source>Performance calculation selector with ROI, ROAI, TWR and MWR</source>
+        <target state="needs-translation">Performance calculation selector with ROI, ROAI, TWR and MWR</target>
+      </trans-unit>
       <trans-unit id="ngGuideBackToIndex" datatype="html">
         <source>Back to chapters</source>
         <target state="translated">Volver a los capítulos</target>

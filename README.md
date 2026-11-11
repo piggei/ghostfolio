@@ -6,6 +6,8 @@
 >
 > This distribution **is not an official Ghostfolio release** and is not maintained or endorsed by the original Ghostfolio project.
 >
+> **[Explore Ghostfolio-NG features and documentation](README-NG.md)**
+>
 > The original Ghostfolio README and documentation are preserved below.
 
 <div align="center">
