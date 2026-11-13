@@ -7,6 +7,7 @@ import {
   IncrementalFinancialEvaluator
 } from './activity-matched-benchmark';
 import { BenchmarkDisplayValuation } from './benchmark-display-valuation.adapter';
+import { evaluateNgBenchmarkSeries } from './benchmark-ng-performance-series';
 
 export interface BenchmarkPerformanceSeriesInput {
   points: FinancialPoint[];
@@ -15,7 +16,7 @@ export interface BenchmarkPerformanceSeriesInput {
   valuationDates: string[];
   start: string;
   end: string;
-  method: 'ROI' | 'ROAI';
+  method: 'ROI' | 'ROAI' | 'MWR' | 'TWR';
 }
 
 function calendarDay(date: string): number {
@@ -39,6 +40,30 @@ export function composeBenchmarkPerformanceSeries({
   end,
   method
 }: BenchmarkPerformanceSeriesInput): LineChartItem[] {
+  if (method === 'MWR' || method === 'TWR') {
+    return evaluateNgBenchmarkSeries({
+      points,
+      financialCurrency,
+      displayValuations,
+      valuationDates,
+      start,
+      end,
+      method
+    }).map((observation) => {
+      if (
+        observation.status !== 'BASELINE' &&
+        observation.status !== 'CALCULATED'
+      ) {
+        throw new Error(
+          `Unavailable benchmark return: ${method} ${observation.date} ${observation.status}`
+        );
+      }
+      const value = observation.returnFraction.mul(100).toNumber();
+      if (!Number.isFinite(value))
+        throw new Error(`Invalid benchmark return: ${observation.date}`);
+      return { date: observation.date, value };
+    });
+  }
   if (method !== 'ROI' && method !== 'ROAI') {
     throw new Error('Unsupported benchmark method');
   }
