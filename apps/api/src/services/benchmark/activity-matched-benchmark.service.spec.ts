@@ -1,5 +1,6 @@
 import { ActivitiesModule } from '@ghostfolio/api/services/activities/activities.module';
 import { ActivitiesService } from '@ghostfolio/api/services/activities/activities.service';
+import { ConfigurationService } from '@ghostfolio/api/services/configuration/configuration.service';
 import { DataProviderModule } from '@ghostfolio/api/services/data-provider/data-provider.module';
 import { DataProviderService } from '@ghostfolio/api/services/data-provider/data-provider.service';
 import { MarketDataModule } from '@ghostfolio/api/services/market-data/market-data.module';
@@ -56,6 +57,7 @@ function activity(
 
 describe('ActivityMatchedBenchmarkService', () => {
   let service: ActivityMatchedBenchmarkService;
+  let ngEnabled = false;
   const getActivitiesForPortfolioCalculator = jest.fn();
   const get = jest.fn();
   const getHistoricalPrices = jest.fn();
@@ -93,6 +95,7 @@ describe('ActivityMatchedBenchmarkService', () => {
 
   beforeEach(async () => {
     jest.resetAllMocks();
+    ngEnabled = false;
     get.mockResolvedValue({ currency: 'EUR' });
     getActivitiesForPortfolioCalculator.mockResolvedValue({
       activities,
@@ -107,6 +110,7 @@ describe('ActivityMatchedBenchmarkService', () => {
     const module = await Test.createTestingModule({
       providers: [
         ActivityMatchedBenchmarkService,
+        { provide: ConfigurationService, useValue: { get: () => ngEnabled } },
         {
           provide: ActivitiesService,
           useValue: { getActivitiesForPortfolioCalculator }
@@ -131,6 +135,8 @@ describe('ActivityMatchedBenchmarkService', () => {
     const module = await Test.createTestingModule({
       imports: [ActivityMatchedBenchmarkModule]
     })
+      .overrideProvider(ConfigurationService)
+      .useValue({ get: () => ngEnabled })
       .overrideModule(ActivitiesModule)
       .useModule({
         module: class ActivitiesStub {},
@@ -245,6 +251,60 @@ describe('ActivityMatchedBenchmarkService', () => {
       endDate: new Date('2025-01-13T00:00:00Z')
     });
   });
+
+  it.each(['MWR', 'TWR'] as const)(
+    'converts NG %s benchmark prices and independent display-date FX',
+    async (method) => {
+      ngEnabled = true;
+      get.mockResolvedValue({ currency: 'USD' });
+      getActivitiesForPortfolioCalculator.mockResolvedValue({
+        activities: [activity('2025-01-10', 90)]
+      });
+      getHistoricalPrices.mockResolvedValue({
+        prices: [
+          { date: '2025-01-10', price: '100' },
+          { date: '2025-01-13', price: '110' }
+        ]
+      });
+      getHistoricalFxQuotes.mockResolvedValue(
+        [
+          { date: '2025-01-10', rate: '0.9' },
+          { date: '2025-01-11', rate: '0.91' },
+          { date: '2025-01-12', rate: '0.92' },
+          { date: '2025-01-13', rate: '0.93' }
+        ].map((quote) => ({ ...quote, currencyFrom: 'USD', currencyTo: 'EUR' }))
+      );
+      const { marketData } = await service.getMarketDataForUser(
+        input({
+          method,
+          end: '2025-01-13',
+          valuationDates: [
+            '2025-01-10',
+            '2025-01-11',
+            '2025-01-12',
+            '2025-01-13'
+          ]
+        })
+      );
+      marketData.forEach(({ value }, i) => {
+        const gross = [1, 91 / 90, 92 / 90, 102.3 / 90][i];
+        const expected =
+          i === 0
+            ? 0
+            : (method === 'MWR' ? Math.pow(gross, 365 / i) - 1 : gross - 1) *
+              100;
+        if (method === 'TWR') expect(value).toBeCloseTo(expected, 10);
+        if (method === 'MWR')
+          expect(value / (expected || 1)).toBeCloseTo(i === 0 ? 0 : 1, 10);
+      });
+      expect(getHistoricalFxQuotes).toHaveBeenCalledWith({
+        currencyFrom: 'USD',
+        currencyTo: 'EUR',
+        startDate: new Date('2025-01-10T00:00:00Z'),
+        endDate: new Date('2025-01-13T00:00:00Z')
+      });
+    }
+  );
 
   it.each([{ valuationDates: [] }, { valuationDates: ['2024-12-01'] }])(
     'returns an empty chart without dependency queries for %j',
@@ -601,4 +661,23 @@ describe('ActivityMatchedBenchmarkService', () => {
       }
     );
   });
+
+  it.each(['MWR', 'TWR'] as const)(
+    'orchestrates NG %s using historical data and rejects it when NG is disabled',
+    async (method) => {
+      await expect(
+        service.getMarketDataForUser(input({ method }))
+      ).rejects.toThrow('Benchmark method requires Ghostfolio-NG');
+      expect(getActivitiesForPortfolioCalculator).not.toHaveBeenCalled();
+      ngEnabled = true;
+      getHistoricalPrices.mockResolvedValue({
+        prices: prices.map((price) => ({ ...price, price: '10' }))
+      });
+      const result = await service.getMarketDataForUser(input({ method }));
+      expect(result.marketData.every(({ value }) => value === 0)).toBe(true);
+      expect(result.marketData.map(({ date }) => date)).toEqual(
+        input().valuationDates
+      );
+    }
+  );
 });

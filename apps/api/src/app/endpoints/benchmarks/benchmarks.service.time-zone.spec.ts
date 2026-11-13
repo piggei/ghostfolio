@@ -5,6 +5,7 @@
 import { PortfolioService } from '@ghostfolio/api/app/portfolio/portfolio.service';
 import { ActivityMatchedBenchmarkService } from '@ghostfolio/api/services/benchmark/activity-matched-benchmark.service';
 import { BenchmarkService } from '@ghostfolio/api/services/benchmark/benchmark.service';
+import { ConfigurationService } from '@ghostfolio/api/services/configuration/configuration.service';
 import { ExchangeRateDataService } from '@ghostfolio/api/services/exchange-rate-data/exchange-rate-data.service';
 import { MarketDataService } from '@ghostfolio/api/services/market-data/market-data.service';
 import { SymbolService } from '@ghostfolio/api/services/symbol/symbol.service';
@@ -45,7 +46,8 @@ describe('BenchmarksService in a time zone behind UTC', () => {
       } as unknown as SymbolService,
       {
         getMarketDataForUser: getActivityMatchedMarketData
-      } as unknown as ActivityMatchedBenchmarkService
+      } as unknown as ActivityMatchedBenchmarkService,
+      { get: () => false } as unknown as ConfigurationService
     );
   });
 

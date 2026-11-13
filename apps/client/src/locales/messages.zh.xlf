@@ -11871,6 +11871,14 @@
         <source>ROI also recognizes capital invested and released before the end of a day. Buy and sell 1,000 on the same day and the capital is not zero. If you then reinvest 1,100 that day, the same-day peak is 1,100, not the sum 2,100. Dates and transaction order matter; enter the real activity sequence instead of changing dates to force a desired return.</source>
         <target state="translated">ROI 还会识别同一天结束前投入并收回的资本。同日买入并卖出 1,000，投入资本也不会变成零。如果当天又投入 1,100，则当日峰值为 1,100，而不是相加后的 2,100。日期和交易顺序很重要；请录入真实交易顺序，不要为了得到期望的收益率而修改日期。</target>
       </trans-unit>
+      <trans-unit id="ngBenchmarkMwrAnnualized" datatype="html">
+        <source>Activity-Matched MWR (annualized)</source>
+        <target state="new">Activity-Matched MWR (annualized)</target>
+      </trans-unit>
+      <trans-unit id="ngBenchmarkTwrCumulative" datatype="html">
+        <source>Activity-Matched TWR (cumulative)</source>
+        <target state="new">Activity-Matched TWR (cumulative)</target>
+      </trans-unit>
       </body>
   </file>
 </xliff>

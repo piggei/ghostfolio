@@ -37,7 +37,9 @@ export class UpdateUserSettingDto {
   @IsIn([
     'TRADITIONAL',
     'ACTIVITY_MATCHED_ROI',
-    'ACTIVITY_MATCHED_ROAI'
+    'ACTIVITY_MATCHED_ROAI',
+    'ACTIVITY_MATCHED_MWR',
+    'ACTIVITY_MATCHED_TWR'
   ] as BenchmarkComparisonMode[])
   @IsOptional()
   benchmarkComparisonMode?: BenchmarkComparisonMode;

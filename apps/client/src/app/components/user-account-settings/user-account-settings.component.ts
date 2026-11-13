@@ -104,6 +104,7 @@ export class GfUserAccountSettingsComponent implements OnInit {
   protected isAccessTokenHidden = true;
   protected readonly isFingerprintSupported = this.doesBrowserSupportAuthn();
   protected isLoading = true;
+  protected readonly isGhostfolioNg: boolean;
   protected isWebAuthnEnabled: boolean;
   protected readonly language = document.documentElement.lang;
   protected locales = [
@@ -146,7 +147,8 @@ export class GfUserAccountSettingsComponent implements OnInit {
   private readonly webAuthnService = inject(WebAuthnService);
 
   public constructor() {
-    const { currencies } = this.dataService.fetchInfo();
+    const { currencies, isGhostfolioNg } = this.dataService.fetchInfo();
+    this.isGhostfolioNg = isGhostfolioNg === true;
 
     this.currencies = currencies;
 

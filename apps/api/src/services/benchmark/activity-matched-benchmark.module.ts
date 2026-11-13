@@ -1,4 +1,5 @@
 import { ActivitiesModule } from '@ghostfolio/api/services/activities/activities.module';
+import { ConfigurationModule } from '@ghostfolio/api/services/configuration/configuration.module';
 import { DataProviderModule } from '@ghostfolio/api/services/data-provider/data-provider.module';
 import { MarketDataModule } from '@ghostfolio/api/services/market-data/market-data.module';
 import { SymbolModule } from '@ghostfolio/api/services/symbol/symbol.module';
@@ -11,6 +12,7 @@ import { BenchmarkMarketDataProvider } from './activity-matched/benchmark-market
 
 @Module({
   imports: [
+    ConfigurationModule,
     ActivitiesModule,
     SymbolModule,
     MarketDataModule,

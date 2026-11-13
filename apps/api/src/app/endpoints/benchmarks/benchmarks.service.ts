@@ -1,6 +1,7 @@
 import { PortfolioService } from '@ghostfolio/api/app/portfolio/portfolio.service';
 import { ActivityMatchedBenchmarkService } from '@ghostfolio/api/services/benchmark/activity-matched-benchmark.service';
 import { BenchmarkService } from '@ghostfolio/api/services/benchmark/benchmark.service';
+import { ConfigurationService } from '@ghostfolio/api/services/configuration/configuration.service';
 import { ExchangeRateDataService } from '@ghostfolio/api/services/exchange-rate-data/exchange-rate-data.service';
 import { MarketDataService } from '@ghostfolio/api/services/market-data/market-data.service';
 import { SymbolService } from '@ghostfolio/api/services/symbol/symbol.service';
@@ -28,7 +29,8 @@ export class BenchmarksService {
     private readonly marketDataService: MarketDataService,
     private readonly portfolioService: PortfolioService,
     private readonly symbolService: SymbolService,
-    private readonly activityMatchedBenchmarkService: ActivityMatchedBenchmarkService
+    private readonly activityMatchedBenchmarkService: ActivityMatchedBenchmarkService,
+    private readonly configurationService: ConfigurationService
   ) {}
 
   public async getMarketDataForUser({
@@ -61,10 +63,25 @@ export class BenchmarksService {
     });
 
     const comparisonMode = userSettings.benchmarkComparisonMode;
+    const ngMethod =
+      comparisonMode === 'ACTIVITY_MATCHED_MWR'
+        ? 'MWR'
+        : comparisonMode === 'ACTIVITY_MATCHED_TWR'
+          ? 'TWR'
+          : undefined;
+    if (
+      userSettings.isExperimentalFeatures &&
+      ngMethod &&
+      !this.configurationService.get('GHOSTFOLIO_NG')
+    ) {
+      throw new Error('Benchmark method requires Ghostfolio-NG');
+    }
+
     if (
       userSettings.isExperimentalFeatures &&
       (comparisonMode === 'ACTIVITY_MATCHED_ROI' ||
-        comparisonMode === 'ACTIVITY_MATCHED_ROAI')
+        comparisonMode === 'ACTIVITY_MATCHED_ROAI' ||
+        ngMethod)
     ) {
       return this.activityMatchedBenchmarkService.getMarketDataForUser({
         userId,
@@ -75,7 +92,9 @@ export class BenchmarksService {
         valuationDates: chart.map(({ date }) => date),
         start: format(startDate, DATE_FORMAT, { in: utc }),
         end: format(endDate, DATE_FORMAT, { in: utc }),
-        method: comparisonMode === 'ACTIVITY_MATCHED_ROI' ? 'ROI' : 'ROAI'
+        method:
+          ngMethod ??
+          (comparisonMode === 'ACTIVITY_MATCHED_ROI' ? 'ROI' : 'ROAI')
       });
     }
 

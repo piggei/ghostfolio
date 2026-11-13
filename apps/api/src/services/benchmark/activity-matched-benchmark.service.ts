@@ -1,4 +1,5 @@
 import { ActivitiesService } from '@ghostfolio/api/services/activities/activities.service';
+import { ConfigurationService } from '@ghostfolio/api/services/configuration/configuration.service';
 import { SymbolService } from '@ghostfolio/api/services/symbol/symbol.service';
 import { isCurrency } from '@ghostfolio/common/helper';
 import {
@@ -11,7 +12,10 @@ import { Injectable } from '@nestjs/common';
 import { DataSource } from '@prisma/client';
 
 import { createActivityFunding } from './activity-matched/activity-cash-flow.provider';
-import { runActivityMatchedBenchmarkPipeline } from './activity-matched/activity-matched-benchmark.pipeline';
+import {
+  runActivityMatchedBenchmarkPipeline,
+  runActivityMatchedBenchmarkSimulation
+} from './activity-matched/activity-matched-benchmark.pipeline';
 import { createBenchmarkDisplayValuations } from './activity-matched/benchmark-display-valuation.adapter';
 import { BenchmarkFxMarketDataProvider } from './activity-matched/benchmark-fx-market-data.provider';
 import { BenchmarkMarketDataProvider } from './activity-matched/benchmark-market-data.provider';
@@ -24,7 +28,7 @@ export interface ActivityMatchedBenchmarkInput extends AssetProfileIdentifier {
   valuationDates: string[];
   start: string;
   end: string;
-  method: 'ROI' | 'ROAI';
+  method: 'ROI' | 'ROAI' | 'MWR' | 'TWR';
 }
 
 function calendarDate(date: string): Date {
@@ -45,7 +49,8 @@ export class ActivityMatchedBenchmarkService {
     private readonly activitiesService: ActivitiesService,
     private readonly symbolService: SymbolService,
     private readonly benchmarkMarketDataProvider: BenchmarkMarketDataProvider,
-    private readonly benchmarkFxMarketDataProvider: BenchmarkFxMarketDataProvider
+    private readonly benchmarkFxMarketDataProvider: BenchmarkFxMarketDataProvider,
+    private readonly configurationService: ConfigurationService
   ) {}
 
   public async getMarketDataForUser({
@@ -62,8 +67,14 @@ export class ActivityMatchedBenchmarkService {
     calendarDate(start);
     const endDate = calendarDate(end);
     if (start > end) throw new Error('Reversed benchmark range');
-    if (method !== 'ROI' && method !== 'ROAI') {
+    if (!['ROI', 'ROAI', 'MWR', 'TWR'].includes(method)) {
       throw new Error('Unsupported benchmark method');
+    }
+    if (
+      (method === 'MWR' || method === 'TWR') &&
+      !this.configurationService.get('GHOSTFOLIO_NG')
+    ) {
+      throw new Error('Benchmark method requires Ghostfolio-NG');
     }
     if (!userId?.trim()) throw new Error('Missing benchmark user');
     if (!symbol?.trim() || !Object.values(DataSource).includes(dataSource)) {
@@ -131,17 +142,23 @@ export class ActivityMatchedBenchmarkService {
         startDate: calendarDate(fxStart),
         endDate
       });
-    const pipeline = runActivityMatchedBenchmarkPipeline({
+    const simulationInput = {
       activities,
       currency,
       benchmarkCurrency: benchmark.currency,
       prices,
       fxQuotes,
-      valuationDates: dates,
-      start,
-      end,
-      method
-    });
+      valuationDates: dates
+    };
+    const pipeline =
+      method === 'ROI' || method === 'ROAI'
+        ? runActivityMatchedBenchmarkPipeline({
+            ...simulationInput,
+            start,
+            end,
+            method
+          })
+        : runActivityMatchedBenchmarkSimulation(simulationInput);
     const displayValuations = createBenchmarkDisplayValuations({
       points: pipeline.points,
       prices,

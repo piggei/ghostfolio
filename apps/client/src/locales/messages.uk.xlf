@@ -11870,6 +11870,14 @@
         <source>ROI also recognizes capital invested and released before the end of a day. Buy and sell 1,000 on the same day and the capital is not zero. If you then reinvest 1,100 that day, the same-day peak is 1,100, not the sum 2,100. Dates and transaction order matter; enter the real activity sequence instead of changing dates to force a desired return.</source>
         <target state="translated">ROI також враховує капітал, інвестований і вивільнений до завершення дня. Якщо купити й продати на 1,000 того самого дня, капітал не дорівнює нулю. Якщо потім реінвестувати 1,100 цього дня, денний максимум становить 1,100, а не суму 2,100. Дати й порядок операцій важливі: вводьте фактичну послідовність, а не змінюйте дати заради бажаної дохідності.</target>
       </trans-unit>
+      <trans-unit id="ngBenchmarkMwrAnnualized" datatype="html">
+        <source>Activity-Matched MWR (annualized)</source>
+        <target state="new">Activity-Matched MWR (annualized)</target>
+      </trans-unit>
+      <trans-unit id="ngBenchmarkTwrCumulative" datatype="html">
+        <source>Activity-Matched TWR (cumulative)</source>
+        <target state="new">Activity-Matched TWR (cumulative)</target>
+      </trans-unit>
       </body>
   </file>
 </xliff>

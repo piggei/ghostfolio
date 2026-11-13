@@ -1,6 +1,7 @@
 import { PortfolioService } from '@ghostfolio/api/app/portfolio/portfolio.service';
 import { ActivityMatchedBenchmarkService } from '@ghostfolio/api/services/benchmark/activity-matched-benchmark.service';
 import { BenchmarkService } from '@ghostfolio/api/services/benchmark/benchmark.service';
+import { ConfigurationService } from '@ghostfolio/api/services/configuration/configuration.service';
 import { ExchangeRateDataService } from '@ghostfolio/api/services/exchange-rate-data/exchange-rate-data.service';
 import { MarketDataService } from '@ghostfolio/api/services/market-data/market-data.service';
 import { SymbolService } from '@ghostfolio/api/services/symbol/symbol.service';
@@ -14,6 +15,7 @@ import { BenchmarksService } from './benchmarks.service';
 
 describe('BenchmarksService', () => {
   let benchmarksService: BenchmarksService;
+  let ngEnabled = false;
   let get: jest.Mock;
   let getExchangeRatesByCurrency: jest.Mock;
   let getPerformance: jest.Mock;
@@ -22,6 +24,7 @@ describe('BenchmarksService', () => {
   let getActivityMatchedMarketData: jest.Mock;
 
   beforeEach(() => {
+    ngEnabled = false;
     get = jest.fn().mockResolvedValue({ currency: 'USD', marketPrice: 200 });
     getExchangeRatesByCurrency = jest.fn().mockResolvedValue({});
     getPerformance = jest.fn().mockResolvedValue({
@@ -44,7 +47,8 @@ describe('BenchmarksService', () => {
       { get } as unknown as SymbolService,
       {
         getMarketDataForUser: getActivityMatchedMarketData
-      } as unknown as ActivityMatchedBenchmarkService
+      } as unknown as ActivityMatchedBenchmarkService,
+      { get: () => ngEnabled } as unknown as ConfigurationService
     );
   });
 
@@ -379,4 +383,53 @@ describe('BenchmarksService', () => {
         expect(mock).not.toHaveBeenCalled();
     });
   });
+
+  it.each(['ACTIVITY_MATCHED_MWR', 'ACTIVITY_MATCHED_TWR'] as const)(
+    'enforces the NG gate and dispatches %s independently of portfolio performance',
+    async (benchmarkComparisonMode) => {
+      const args = {
+        dataSource: DataSource.YAHOO,
+        symbol: 'SPY',
+        dateRange: 'max' as const,
+        startDate: new Date('2025-01-01T00:00:00Z'),
+        endDate: new Date('2025-01-10T00:00:00Z'),
+        userId: 'ng-user',
+        userSettings: {
+          baseCurrency: 'EUR',
+          isExperimentalFeatures: true,
+          benchmarkComparisonMode,
+          performanceCalculationType: PerformanceCalculationType.ROAI
+        }
+      };
+      getPerformance.mockResolvedValue({
+        chart: [{ date: '2025-01-01' }, { date: '2025-01-10' }]
+      });
+      await expect(
+        benchmarksService.getMarketDataForUser(args)
+      ).rejects.toThrow('Benchmark method requires Ghostfolio-NG');
+      expect(getActivityMatchedMarketData).not.toHaveBeenCalled();
+      ngEnabled = true;
+      const response = {
+        marketData: [
+          { date: '2025-01-01', value: 0 },
+          { date: '2025-01-10', value: 0 }
+        ]
+      };
+      getActivityMatchedMarketData.mockResolvedValue(response);
+      expect(await benchmarksService.getMarketDataForUser(args)).toBe(response);
+      expect(getActivityMatchedMarketData).toHaveBeenCalledWith(
+        expect.objectContaining({
+          currency: 'EUR',
+          userId: 'ng-user',
+          method:
+            benchmarkComparisonMode === 'ACTIVITY_MATCHED_MWR' ? 'MWR' : 'TWR'
+        })
+      );
+      expect(args.userSettings.performanceCalculationType).toBe(
+        PerformanceCalculationType.ROAI
+      );
+      expect(marketDataItems).not.toHaveBeenCalled();
+      expect(getExchangeRatesByCurrency).not.toHaveBeenCalled();
+    }
+  );
 });

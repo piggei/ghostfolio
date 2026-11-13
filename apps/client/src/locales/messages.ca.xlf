@@ -11868,6 +11868,14 @@
         <target state="translated">Compilació <x id="INTERPOLATION" equiv-text="{{ buildInfo.buildNumber }}"/> — basada en Ghostfolio <x id="INTERPOLATION_1" equiv-text="{{ buildInfo.upstreamVersion }}"/></target>
         <target state="translated">Compilación <x id="INTERPOLATION" equiv-text="{{ buildInfo.buildNumber }}"/> — basada en Ghostfolio <x id="INTERPOLATION_1" equiv-text="{{ buildInfo.upstreamVersion }}"/></target>
       </trans-unit>
+      <trans-unit id="ngBenchmarkMwrAnnualized" datatype="html">
+        <source>Activity-Matched MWR (annualized)</source>
+        <target state="new">Activity-Matched MWR (annualized)</target>
+      </trans-unit>
+      <trans-unit id="ngBenchmarkTwrCumulative" datatype="html">
+        <source>Activity-Matched TWR (cumulative)</source>
+        <target state="new">Activity-Matched TWR (cumulative)</target>
+      </trans-unit>
       </body>
   </file>
 </xliff>

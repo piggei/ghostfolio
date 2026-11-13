@@ -10640,6 +10640,12 @@
       <trans-unit id="ngGuideBackToIndex" datatype="html">
         <source>Back to chapters</source>
       </trans-unit>
+      <trans-unit id="ngBenchmarkMwrAnnualized" datatype="html">
+        <source>Activity-Matched MWR (annualized)</source>
+      </trans-unit>
+      <trans-unit id="ngBenchmarkTwrCumulative" datatype="html">
+        <source>Activity-Matched TWR (cumulative)</source>
+      </trans-unit>
             </body>
   </file>
 </xliff>

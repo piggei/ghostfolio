@@ -60,12 +60,15 @@ describe('UpdateUserSettingDto benchmark comparison mode', () => {
     });
   }
 
-  it.each(['TRADITIONAL', 'ACTIVITY_MATCHED_ROI', 'ACTIVITY_MATCHED_ROAI'])(
-    'accepts %s',
-    (mode) => {
-      expect(validateMode(mode)).toEqual([]);
-    }
-  );
+  it.each([
+    'TRADITIONAL',
+    'ACTIVITY_MATCHED_ROI',
+    'ACTIVITY_MATCHED_ROAI',
+    'ACTIVITY_MATCHED_MWR',
+    'ACTIVITY_MATCHED_TWR'
+  ])('accepts %s', (mode) => {
+    expect(validateMode(mode)).toEqual([]);
+  });
 
   it('accepts an omitted mode for backward compatibility', () => {
     expect(validateMode()).toEqual([]);

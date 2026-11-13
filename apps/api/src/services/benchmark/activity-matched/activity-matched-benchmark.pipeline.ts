@@ -42,19 +42,16 @@ export interface ActivityMatchedBenchmarkPipelineResult {
   performance: ReturnType<typeof evaluateRange>;
 }
 
-export function runActivityMatchedBenchmarkPipeline({
+export function runActivityMatchedBenchmarkSimulation({
   activities,
   currency,
   benchmarkCurrency,
   prices,
   fxQuotes,
   valuationDates,
-  start,
-  end,
-  method,
   maxPriceAgeDays,
   maxFxAgeDays
-}: ActivityMatchedBenchmarkPipelineInput): ActivityMatchedBenchmarkPipelineResult {
+}: Omit<ActivityMatchedBenchmarkPipelineInput, 'start' | 'end' | 'method'>) {
   const funding = createActivityFunding({
     activities,
     currency
@@ -85,13 +82,25 @@ export function runActivityMatchedBenchmarkPipeline({
     maxPriceAgeDays
   });
 
-  const performance = evaluateRange(points, method, start, end);
-
   return {
     funding,
     fx,
     preparedPrices,
-    points,
-    performance
+    points
+  };
+}
+
+export function runActivityMatchedBenchmarkPipeline(
+  input: ActivityMatchedBenchmarkPipelineInput
+): ActivityMatchedBenchmarkPipelineResult {
+  const simulation = runActivityMatchedBenchmarkSimulation(input);
+  return {
+    ...simulation,
+    performance: evaluateRange(
+      simulation.points,
+      input.method,
+      input.start,
+      input.end
+    )
   };
 }

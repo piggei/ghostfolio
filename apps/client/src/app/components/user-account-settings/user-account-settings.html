@@ -99,6 +99,18 @@
                     <mat-option i18n value="ACTIVITY_MATCHED_ROAI">
                       Activity-Matched ROAI
                     </mat-option>
+                    @if (isGhostfolioNg) {
+                      <mat-option
+                        i18n="@@ngBenchmarkMwrAnnualized"
+                        value="ACTIVITY_MATCHED_MWR"
+                        >Activity-Matched MWR (annualized)</mat-option
+                      >
+                      <mat-option
+                        i18n="@@ngBenchmarkTwrCumulative"
+                        value="ACTIVITY_MATCHED_TWR"
+                        >Activity-Matched TWR (cumulative)</mat-option
+                      >
+                    }
                   </mat-select>
                 </mat-form-field>
               </div>

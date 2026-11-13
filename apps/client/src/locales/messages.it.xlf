@@ -11285,6 +11285,14 @@
         <source>Back to chapters</source>
         <target state="translated">Torna ai capitoli</target>
       </trans-unit>
+      <trans-unit id="ngBenchmarkMwrAnnualized" datatype="html">
+        <source>Activity-Matched MWR (annualized)</source>
+        <target state="translated">Activity-Matched MWR (annualizzato)</target>
+      </trans-unit>
+      <trans-unit id="ngBenchmarkTwrCumulative" datatype="html">
+        <source>Activity-Matched TWR (cumulative)</source>
+        <target state="translated">Activity-Matched TWR (cumulativo)</target>
+      </trans-unit>
             </body>
   </file>
 </xliff>

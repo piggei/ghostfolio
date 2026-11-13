@@ -17,6 +17,7 @@ import { UserController } from './user.controller';
 
 describe('UserController benchmark comparison settings', () => {
   const updateUserSetting = jest.fn();
+  let ngEnabled = false;
 
   function createController({
     settings = {},
@@ -41,7 +42,7 @@ describe('UserController benchmark comparison settings', () => {
     } as unknown as UserService;
 
     return new UserController(
-      {} as ConfigurationService,
+      { get: () => ngEnabled } as unknown as ConfigurationService,
       {} as JwtService,
       {} as PropertyService,
       request,
@@ -61,6 +62,7 @@ describe('UserController benchmark comparison settings', () => {
 
   beforeEach(() => {
     jest.clearAllMocks();
+    ngEnabled = false;
     updateUserSetting.mockResolvedValue({});
   });
 
@@ -175,4 +177,27 @@ describe('UserController benchmark comparison settings', () => {
 
     expect(updateUserSetting).not.toHaveBeenCalled();
   });
+
+  it.each(['ACTIVITY_MATCHED_MWR', 'ACTIVITY_MATCHED_TWR'] as const)(
+    'requires Ghostfolio-NG to save %s',
+    async (mode) => {
+      const controller = createController({
+        settings: { isExperimentalFeatures: true }
+      });
+      await expect(
+        update(controller, { benchmarkComparisonMode: mode })
+      ).rejects.toThrow('Benchmark method requires Ghostfolio-NG');
+      expect(updateUserSetting).not.toHaveBeenCalled();
+      ngEnabled = true;
+      await update(controller, { benchmarkComparisonMode: mode });
+      expect(updateUserSetting).toHaveBeenCalledWith(
+        expect.objectContaining({
+          userSettings: {
+            isExperimentalFeatures: true,
+            benchmarkComparisonMode: mode
+          }
+        })
+      );
+    }
+  );
 });

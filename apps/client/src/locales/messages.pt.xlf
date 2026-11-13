@@ -11851,6 +11851,14 @@
         <source>In Activities, edit a standalone Fee activity to correct its name. A shared or administrator-owned instrument profile is separated when necessary so renaming your fee does not rename other activities. This changes the description, not the fee amount; check both fields before saving.</source>
         <target state="translated">Em Operações, edite uma operação autónoma de Comissão para corrigir o respetivo nome. Quando necessário, o perfil de um instrumento partilhado ou pertencente ao administrador é separado, para que mudar o nome da sua comissão não altere outras operações. Isto altera a descrição, não o montante da comissão; confira ambos os campos antes de guardar.</target>
       </trans-unit>
+      <trans-unit id="ngBenchmarkMwrAnnualized" datatype="html">
+        <source>Activity-Matched MWR (annualized)</source>
+        <target state="new">Activity-Matched MWR (annualized)</target>
+      </trans-unit>
+      <trans-unit id="ngBenchmarkTwrCumulative" datatype="html">
+        <source>Activity-Matched TWR (cumulative)</source>
+        <target state="new">Activity-Matched TWR (cumulative)</target>
+      </trans-unit>
     </body>
   </file>
 </xliff>

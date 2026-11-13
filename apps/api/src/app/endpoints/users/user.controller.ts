@@ -219,6 +219,18 @@ export class UserController {
       );
     }
 
+    if (
+      ['ACTIVITY_MATCHED_MWR', 'ACTIVITY_MATCHED_TWR'].includes(
+        data.benchmarkComparisonMode
+      ) &&
+      !this.configurationService.get('GHOSTFOLIO_NG')
+    ) {
+      throw new HttpException(
+        'Benchmark method requires Ghostfolio-NG',
+        StatusCodes.BAD_REQUEST
+      );
+    }
+
     const emitPortfolioChangedEvent = 'baseCurrency' in data;
 
     const userSettings: UserSettings = merge(
