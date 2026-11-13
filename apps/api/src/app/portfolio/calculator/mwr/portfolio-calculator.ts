@@ -19,6 +19,8 @@ import { AssetSubClass } from '@prisma/client';
 import { Big } from 'big.js';
 import { differenceInCalendarDays } from 'date-fns';
 
+import { calculateXirr } from '../xirr';
+
 interface DatedCashFlow {
   date: string;
   value: Big;
@@ -362,155 +364,12 @@ export class MwrPortfolioCalculator extends PortfolioCalculator {
   }
 
   private calculateXirr(cashFlows: DatedCashFlow[]): number {
-    const cashFlowsByDate = new Map<string, Big>();
-
-    for (const { date, value } of cashFlows) {
-      cashFlowsByDate.set(
-        date,
-        (cashFlowsByDate.get(date) ?? new Big(0)).plus(value)
-      );
-    }
-
-    const aggregatedCashFlows = Array.from(cashFlowsByDate.entries())
-      .map(([date, value]) => ({ date, value }))
-      .filter(({ value }) => !value.eq(0))
-      .sort((a, b) => a.date.localeCompare(b.date));
-
-    if (aggregatedCashFlows.length < 2) {
-      return 0;
-    }
-
-    if (
-      !aggregatedCashFlows.some(({ value }) => value.lt(0)) ||
-      !aggregatedCashFlows.some(({ value }) => value.gt(0))
-    ) {
-      return 0;
-    }
-
-    const firstDate = this.getParsedDate(aggregatedCashFlows[0].date);
-    const lastDate = this.getParsedDate(aggregatedCashFlows.at(-1).date);
-
-    if (differenceInCalendarDays(lastDate, firstDate) === 0) {
-      return 0;
-    }
-
-    const scale = aggregatedCashFlows.reduce((maximum, { value }) => {
-      return value.abs().gt(maximum) ? value.abs() : maximum;
-    }, new Big(0));
-
-    if (scale.eq(0)) {
-      return 0;
-    }
-
-    const normalizedCashFlows = aggregatedCashFlows.map(({ date, value }) => ({
-      exponent:
-        differenceInCalendarDays(this.getParsedDate(date), firstDate) / 365,
-      value: value.div(scale).toNumber()
-    }));
-
-    const calculateXnpv = (rate: number) => {
-      if (rate <= -1) {
-        return Number.POSITIVE_INFINITY;
-      }
-
-      return normalizedCashFlows.reduce((xnpv, cashFlow) => {
-        return xnpv + cashFlow.value / Math.pow(1 + rate, cashFlow.exponent);
-      }, 0);
-    };
-
-    // Start Newton's method at zero. In common multiple-IRR cases this
-    // deterministically favors the root reached from that initial estimate.
-    let newtonRate = 0;
-
-    for (let iteration = 0; iteration < 50; iteration += 1) {
-      const xnpv = calculateXnpv(newtonRate);
-
-      if (Math.abs(xnpv) < 1e-14) {
-        return newtonRate;
-      }
-
-      const derivative = normalizedCashFlows.reduce((value, cashFlow) => {
-        const exponent = cashFlow.exponent;
-
-        if (exponent === 0) {
-          return value;
-        }
-
-        return (
-          value -
-          (exponent * cashFlow.value) / Math.pow(1 + newtonRate, exponent + 1)
-        );
-      }, 0);
-
-      if (!Number.isFinite(derivative) || Math.abs(derivative) < 1e-14) {
-        break;
-      }
-
-      const nextRate = newtonRate - xnpv / derivative;
-
-      if (!Number.isFinite(nextRate) || nextRate <= -1) {
-        break;
-      }
-
-      if (Math.abs(nextRate - newtonRate) < 1e-14) {
-        return nextRate;
-      }
-
-      newtonRate = nextRate;
-    }
-
-    let lowerRate = -0.999999999;
-    let upperRate = 1;
-
-    let lowerValue = calculateXnpv(lowerRate);
-    let upperValue = calculateXnpv(upperRate);
-
-    if (Math.abs(lowerValue) < 1e-14) {
-      return lowerRate;
-    }
-
-    if (Math.abs(upperValue) < 1e-14) {
-      return upperRate;
-    }
-
-    while (
-      Math.sign(lowerValue) === Math.sign(upperValue) &&
-      upperRate < 1_000_000
-    ) {
-      upperRate = upperRate * 2 + 1;
-      upperValue = calculateXnpv(upperRate);
-    }
-
-    if (
-      !Number.isFinite(lowerValue) ||
-      !Number.isFinite(upperValue) ||
-      Math.sign(lowerValue) === Math.sign(upperValue)
-    ) {
-      return 0;
-    }
-
-    for (let iteration = 0; iteration < 200; iteration += 1) {
-      const middleRate = (lowerRate + upperRate) / 2;
-      const middleValue = calculateXnpv(middleRate);
-
-      if (Math.abs(middleValue) < 1e-14) {
-        return middleRate;
-      }
-
-      if (Math.sign(lowerValue) === Math.sign(middleValue)) {
-        lowerRate = middleRate;
-        lowerValue = middleValue;
-      } else {
-        upperRate = middleRate;
-        upperValue = middleValue;
-      }
-
-      if (Math.abs(upperRate - lowerRate) < 1e-14) {
-        return (lowerRate + upperRate) / 2;
-      }
-    }
-
-    return (lowerRate + upperRate) / 2;
+    return calculateXirr(cashFlows, (date, origin) =>
+      differenceInCalendarDays(
+        this.getParsedDate(date),
+        this.getParsedDate(origin)
+      )
+    ).rate;
   }
 
   private getActivityCashFlows({
