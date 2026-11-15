@@ -1,212 +1,138 @@
 # Ghostfolio-NG Home Assistant Add-on
 
-Run Ghostfolio-NG as a Home Assistant add-on with an integrated
-Redis service, persistent application secrets, and Home Assistant Ingress.
+Run Ghostfolio-NG directly inside Home Assistant with native Ingress
+support, integrated Redis, persistent application secrets and
+architecture-specific container images.
 
-This add-on uses the Ghostfolio integration image published by
-[piggei/ghostfolio](https://github.com/piggei/ghostfolio).
+The add-on is maintained in the
+[piggei/ghostfolio repository](https://github.com/piggei/ghostfolio)
+and uses the independently maintained Ghostfolio-NG distribution.
 
-It does not build Ghostfolio from source or include a PostgreSQL server.
+It supports AMD64 and ARM64 and requires an external PostgreSQL
+server. PostgreSQL is not included in the add-on.
 
 ## Features
 
 - Ghostfolio-NG application
-- Home Assistant Ingress support
-- Optional direct access to the Ghostfolio web interface
+- Native Home Assistant Ingress integration
+- Optional direct access to the application
 - Integrated Redis with password authentication
 - Persistent Redis storage using append-only files
-- Automatically generated persistent application secrets
-- PostgreSQL connection configuration through Home Assistant options
+- Automatically generated and persistent application secrets
+- PostgreSQL configuration through Home Assistant options
 - Authenticated Supervisor API configuration retrieval using Bashio
-- No dependency on a generated `/data/options.json` file
 - s6-overlay service supervision
 - Application services running as an unprivileged user
 
 ## Architecture
 
-The add-on image extends the Ghostfolio-NG Docker image.
+The add-on image extends an immutable Ghostfolio-NG application image.
 
-The runtime includes:
+The runtime consists of:
 
 - Ghostfolio (Angular frontend and NestJS backend)
 - Redis bound to the container loopback interface
 - Nginx reverse proxy for Home Assistant Ingress
 - s6-overlay for initialization and service supervision
-- Bashio for retrieving add-on options from Home Assistant Supervisor
+- Bashio for retrieving configuration from Home Assistant Supervisor
 
-PostgreSQL is an external dependency and must be configured separately.
+The application listens internally on port 3333.
+The Ingress proxy listens internally on port 8099.
 
-The application listens on port 3333. The Ingress proxy listens
-internally on port 8099.
+PostgreSQL is external and must be reachable from the add-on.
 
 ## Supported architectures
 
-The add-on supports:
+- `amd64`
+- `aarch64`
 
-- amd64
-- aarch64
-
-Both architecture builds and native runtime smoke tests have been
-validated. The aarch64 test runs on a native ARM64 GitHub Actions runner.
+Both architectures are built and qualified independently on native
+GitHub Actions runners. Final images are published only after both
+architectures have passed qualification.
 
 ## Installation
 
 [![Add repository to Home Assistant](https://my.home-assistant.io/badges/supervisor_add_addon_repository.svg)](https://my.home-assistant.io/redirect/supervisor_add_addon_repository/?repository_url=https%3A%2F%2Fgithub.com%2Fpiggei%2Fghostfolio%23feat%2Fhome-assistant-addon)
 
-The add-on repository is:
+Add-on repository:
 
 https://github.com/piggei/ghostfolio#feat/home-assistant-addon
 
-Installation through Home Assistant Supervisor requires the corresponding
-versioned container images to be published in GHCR.
+After adding the repository:
 
-See [DOCS.md](DOCS.md) for configuration and installation instructions.
+1. Refresh the Home Assistant add-on store if necessary.
+2. Select Ghostfolio-NG.
+3. Configure the external PostgreSQL connection.
+4. Install and start the add-on.
+5. Open the application through Home Assistant Ingress.
+6. Review the startup logs and application health.
+
+See [DOCS.md](DOCS.md) for complete installation,
+configuration, update, backup and troubleshooting instructions.
 
 ## Container images
 
-The add-on uses architecture-specific images:
+The add-on uses separate architecture-specific images:
 
 - `ghcr.io/piggei/ghostfolio-ng-ha-amd64`
 - `ghcr.io/piggei/ghostfolio-ng-ha-aarch64`
 
-The add-on version determines the image tag requested by Supervisor.
+Home Assistant Supervisor selects the appropriate image using
+the add-on version declared in `config.yaml`.
 
 <!-- release-current:start -->
 
 Current add-on version: **3.99.3**.
 Ghostfolio NG: `integration-3.99.0-24`.
 Source image: `ghcr.io/piggei/ghostfolio-ng@sha256:c5836caab45f808db74413cbc832699c4d9cf68244801bd984710ba822e06e15`.
+
 <!-- release-current:end -->
 
-Release builds use an immutable Ghostfolio source image digest to ensure
-both architectures are built from the same Ghostfolio release.
-
-The release workflow accepts explicit immutable inputs through `workflow_call`
-and, when exposed by GitHub, `workflow_dispatch`. Versioned tags matching
-`home-assistant-addon/v*` verify/recover an already activated release.
-See [release automation](releases/WORKFLOW.md) for recovery and permissions.
+Each release is associated with an immutable Ghostfolio-NG source
+image digest. Both architecture images are qualified against the
+same source identity before the new add-on version is activated.
 
 ## Persistent data
 
-The Home Assistant add-on data directory stores:
+The add-on stores persistent runtime data under `/data`:
 
 - `/data/secrets/ghostfolio.env`
 - `/data/redis/`
 
-Application secrets are generated during initial startup and reused
-on subsequent starts.
+Application secrets are generated during initial startup and
+reused on subsequent starts.
 
-The external PostgreSQL database stores the Ghostfolio application
+Do not delete or regenerate these secrets during normal updates.
+
+The external PostgreSQL database contains the Ghostfolio application
 data and must be backed up independently.
 
-## Ghostfolio-NG 0.1.3 qualification
+## Release and maintenance
 
-Version 0.1.3 updates the add-on base image to Ghostfolio-NG
-`integration-3.94.0-11`, pinned to its verified immutable OCI digest.
+Ghostfolio-NG application releases and Home Assistant add-on versions
+are independently versioned.
 
-The following checks have passed on local AMD64:
+A new NG integration release can result in a new add-on version,
+even when the upstream Ghostfolio version has not changed.
 
-- Docker image build and Nginx configuration validation.
-- Startup with S6 Overlay, Redis and PostgreSQL.
-- Authenticated Home Assistant Supervisor mock configuration.
-- Ghostfolio health endpoint returning HTTP 200.
-- Nginx Ingress proxy redirecting to the localized application.
-- Persistent secrets remaining unchanged after container restart.
+The automated release process verifies the NG release provenance,
+reserves an add-on version, qualifies both architectures, publishes
+the immutable images and activates the release metadata.
 
-Native ARM64 qualification completed successfully, and version 0.1.3
-images were published and independently verified on GHCR.
-Installation through a real Home Assistant Supervisor remains to be verified.
+The current advertised version is updated only after both final
+architecture images have been successfully published and verified.
 
-## Ghostfolio-NG 0.2.0
+For the release contract, recovery procedures and maintainer
+permissions, see:
 
-Version 0.2.0 completes the transition to the Ghostfolio-NG identity.
-
-Changes include:
-
-- Home Assistant add-on name: Ghostfolio-NG.
-- Add-on slug: `ghostfolio_ng`.
-- Architecture-specific images renamed to `ghostfolio-ng-ha-*`.
-- Updated repository metadata and OCI image labels.
-- Continued use of the verified Ghostfolio-NG integration image.
-
-The application runtime, PostgreSQL configuration, Redis persistence,
-Supervisor API integration and Ingress implementation remain unchanged.
-
-Version 0.2.0 requires renewed AMD64 and ARM64 qualification and
-publication of its architecture-specific images before installation.
-
-## Ghostfolio-NG 3.97.0
-
-Version 3.97.0 aligns the Home Assistant add-on version with the
-underlying Ghostfolio upstream version.
-
-The add-on uses Ghostfolio-NG `integration-3.97.0-12`, based on
-Ghostfolio upstream 3.97.0 with additional integrated features.
-The source image is pinned to its verified immutable OCI digest.
-
-Changes include:
-
-- Updated Ghostfolio-NG application to the 3.97.0 integration release.
-- Continued support for AMD64 and AArch64.
-- Add-on version aligned with the Ghostfolio application version.
-- Unchanged add-on identity, PostgreSQL configuration, Redis,
-  Ingress integration and persistent data locations.
-
-This version changes the add-on versioning convention from 0.2.0
-to 3.97.0. It does not introduce a new add-on identity or slug.
-
-AMD64 and AArch64 add-on qualification and publication are required
-before this version can be considered released. Installation and
-upgrade through a real Home Assistant Supervisor require separate
-verification.
-
-## Development and release status
-
-Version 0.1.2 includes the Home Assistant Ingress routing and
-PWA manifest compatibility fixes.
-
-The following have been validated locally on amd64 and through
-automated native ARM64 GitHub Actions tests:
-
-- Docker image build and Nginx configuration
-- s6-overlay service initialization
-- Authenticated Supervisor API requests through Bashio
-- Configuration retrieval without `/data/options.json`
-- Persistent secrets initialization and reuse
-- Redis startup and password authentication
-- PostgreSQL connectivity using credentials containing special characters
-- Ghostfolio application startup and health endpoint
-- Application services running as the unprivileged `node` user
-- Angular HTML base path rewriting
-- JavaScript API path rewriting, including the tested Angular chunk
-- Home Assistant Ingress API responses
-- PWA manifest rewriting for Ingress
-- PWA icon requests through Ingress
-- Preservation of the original manifest without Ingress
-- Direct Ghostfolio API access
-- Financial API JSON response integrity
-- Nginx reverse proxy and simulated Ingress redirects
-
-The native ARM64 workflow also verifies the application database session,
-persistent secrets, Redis authentication, Ingress routing, PWA resources,
-and cleanup of isolated test resources.
-
-The following remain to be validated or improved:
-
-- Installation and startup of version 0.1.2 through a real Home Assistant Supervisor
-- Full browser navigation through real Home Assistant Ingress
-- PWA standalone installation and launch behavior
-- The PWA manifest `url` field, which still reports the internal container address
-- Integration of Nginx access and error logs into the Home Assistant log stream
-- IPv6 PostgreSQL connection formatting
-
-The published 0.1.0 and 0.1.1 releases remain available independently.
+- [Release state contract](releases/README.md)
+- [Release workflow and recovery](releases/WORKFLOW.md)
 
 ## License
 
-Ghostfolio is distributed under the license provided in the
+Ghostfolio is distributed under the license provided by the
 upstream Ghostfolio repository.
 
-The Home Assistant add-on includes additional integration scripts
-and configuration. Consult the relevant upstream projects for
-their respective license terms.
+The Home Assistant add-on also contains integration-specific
+scripts and configuration. Consult the respective projects
+for their applicable license terms.
