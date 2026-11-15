@@ -1,107 +1,208 @@
-# Release state contract (Phase 1A)
+# Home Assistant release state contract
 
-`registry.json` is the authoritative allocation history. `../release.json` is
-the current advertised release manifest. Schema validation and state transitions
-are implemented in `../../scripts/home-assistant-addon-release.mjs`, using Node
-built-ins and no additional dependencies.
+This document describes the release registry and state machine used by
+the automated Ghostfolio-NG Home Assistant add-on publisher.
 
-The initial registry preserves the existing `3.97.0` version as a baseline.
-The initial manifest has state `legacy`: it deliberately makes no claim that
-the new automation qualified or published the existing images. No version has
-been allocated by the automation yet.
+The implementation is maintained in:
 
-## Identity and allocation
+- `scripts/home-assistant-addon-release.mjs`
+- `scripts/home-assistant-addon-pipeline.mjs`
+- `scripts/home-assistant-addon-github.mjs`
 
-Each record contains exactly:
+The registry is stored in `home-assistant-addon/releases/registry.json`.
+The current advertised release is materialized in
+`home-assistant-addon/release.json`.
 
-- `identity`: `integration_tag`, `source_commit`, `source_image`,
-  `ghostfolio_version`, `addon_source_revision`.
-- `addon_version`: the permanently reserved three-component version.
-- `state`: `reserved`, `qualified`, `published`, or `activated`.
-- `qualified`: verified candidate descriptors keyed by HA architecture.
-- `published`: verified final descriptors keyed by HA architecture.
+## Source of truth
 
-The integration tag is the lookup key; all five identity fields must match on
-retry. Both revisions are full Git commit SHAs. Only the expected NG repository
-with a SHA-256 digest is accepted. Tags must follow the current integration
-workflow's `integration-X.Y.Z-N` format, with a matching upstream version.
-Historical `.attempt` tag suffixes are intentionally rejected: the current NG
-workflow does not emit them. Supporting them requires an explicit identity policy.
+`registry.json` is the authoritative allocation and release history.
+It records every allocated add-on version, including reservations that
+did not reach publication.
 
-New reservations must have a greater NG run number and must not regress the
-upstream version relative to previous allocations. The maximum of baseline and
-all allocations determines the next version: use upstream if greater, otherwise
-increment the maximum's patch. Failed reservations remain consumed. A retry
-never allocates again, including a retry after a newer release has activated.
-Numbers are compared using BigInt, avoiding string ordering and precision loss.
+`release.json` is the current advertised release manifest. It is
+derived from the registry's `current_release` pointer and is updated
+only when a release is activated.
 
-The initial baseline does not establish a verified NG run ordering. The workflow
-must verify the first requested release against the existing deployment and
-published NG provenance before reservation.
+The add-on `config.yaml` version and the current-release documentation
+are updated in the same activation commit. This keeps the version
+advertised to Home Assistant aligned with the activated registry record.
 
-## Transitions and evidence
+The initial baseline version is `3.97.0`. Its legacy manifest is
+preserved as historical state; it is not retroactively represented
+as a release qualified by the current automation.
+
+## Release identity
+
+Every release is identified by exactly five immutable fields:
+
+| Field | Meaning |
+| --- | --- |
+| `integration_tag` | Published Ghostfolio-NG integration tag |
+| `source_commit` | Full Git commit SHA associated with the NG release |
+| `source_image` | Immutable GHCR source image reference, pinned by SHA-256 digest |
+| `ghostfolio_version` | Three-component upstream Ghostfolio version |
+| `addon_source_revision` | Full Git SHA of the approved HA publisher implementation |
+
+The integration tag follows `integration-X.Y.Z-N`. Its embedded
+version must match `ghostfolio_version`. Both commit references must
+be full 40-character hexadecimal SHAs. The source image must reference
+`ghcr.io/piggei/ghostfolio-ng` by a SHA-256 digest.
+
+The integration tag is the lookup key, but retries must match all five
+identity fields exactly. Reusing a tag with different source metadata
+is rejected.
+
+Historical tag formats with an additional attempt suffix are not part
+of the current NG release identity contract.
+
+## Add-on version allocation
+
+The registry starts from the documented baseline and allocates
+strictly increasing three-component add-on versions.
+
+For each new NG integration release:
+
+1. Its NG run number must be greater than the previous allocation.
+2. Its upstream Ghostfolio version must not regress.
+3. The next add-on version is the upstream version if that version is
+   greater than the previous add-on version.
+4. Otherwise, the patch component of the previous add-on version
+   is incremented.
+
+Version comparisons use integer components rather than lexical string
+ordering.
+
+A reservation is permanent. Failed or abandoned reservations remain
+in the registry and their version numbers are not reused. Retrying the
+same release identity reuses its existing reservation; it does not
+allocate another version.
+
+This allows multiple NG integration builds of the same upstream
+Ghostfolio version to receive distinct Home Assistant add-on versions.
+
+## Registry schema
+
+The registry uses schema version 1 and contains:
+
+- `schema_version`: registry format version.
+- `generation`: monotonically increasing counter for persisted operations.
+- `baseline_version`: initial add-on version baseline.
+- `current_release`: integration tag of the latest activated release,
+  or `null` before the first activation.
+- `releases`: ordered release allocation and evidence records.
+
+Each release record contains:
+
+- `identity`: the five immutable identity fields.
+- `addon_version`: permanently allocated add-on version.
+- `state`: current release state.
+- `qualified`: per-architecture candidate image evidence.
+- `published`: per-architecture final image evidence.
+
+Image evidence contains exactly:
+
+- `os`: `linux`.
+- `architecture`: OCI architecture (`amd64` or `arm64`).
+- `digest`: SHA-256 content digest.
+
+The Home Assistant architecture `aarch64` maps to OCI architecture
+`arm64`; `amd64` maps to `amd64`.
+
+## State transitions
+
+A release progresses through the following states:
 
 ```text
-reserved --both candidates recorded--> qualified
-qualified --both final digests recorded--> published
-published --monotonic activation--> activated
+reserved
+  -> qualified
+  -> published
+  -> activated
 ```
 
-Each image descriptor contains `os`, `architecture`, and `digest`. HA `aarch64`
-maps to OCI `arm64`; `amd64` maps to OCI `amd64`. Only Linux is supported.
-Partial progress remains in the per-architecture maps: a failed ARM64 build or
-publication cannot advance the overall state prematurely. Both candidates must
-qualify before any final image can be recorded. Final descriptors must match
-qualified descriptors exactly. Recorded descriptors cannot be replaced on retry.
+- **reserved** — identity and add-on version have been allocated.
+- **qualified** — both AMD64 and ARM64 candidate images have been
+  recorded after qualification.
+- **published** — both final architecture image descriptors have been
+  recorded and match their qualified candidate descriptors exactly.
+- **activated** — release metadata has been advanced and the release
+  is advertised to Home Assistant.
 
-These functions validate the shape and consistency of supplied evidence. They do
-not contact GitHub or GHCR, inspect OCI manifests, execute tests, or prove that a
-caller actually verified a remote image. Phase 1B must perform those operations
-before recording the descriptors, including source-commit provenance checks.
+The state is derived from the evidence maps. A release cannot skip
+a state, publish before both architectures qualify, or activate
+without both final images.
 
-`current_release` points to the newest activated record. Activation changes only
-the in-memory snapshot; `currentManifest()` derives the proposed manifest.
-Older published records cannot replace newer activated metadata. Retrying an
-already activated historical release is a no-op, preserving the newer pointer.
+The two architecture digests must be distinct. Published evidence
+must match qualified evidence exactly.
 
-## Persistence and concurrency boundary
+## Activation and historical releases
 
-Transitions return validated copies and never mutate their arguments.
-`generation` advances once per changed operation; identical retries preserve it.
-`saveRegistry()` accepts exactly one logical operation per generation: reserve
-one release, record one architecture descriptor in one evidence map, or activate
-one published release. It reconstructs that operation through the same public
-state-machine functions and compares the entire resulting snapshot. Schema-valid
-snapshots that skip states, batch evidence additions, alter existing evidence,
-modify multiple releases, or change the current pointer independently are rejected.
-The first candidate keeps state `reserved`; the second advances to `qualified`.
-The first final descriptor keeps state `qualified`; the second advances to
-`published`. Each individual descriptor must be persisted before the next one.
-Activation is a separate operation and cannot introduce any image evidence.
-Activated records are immutable, including identity, version and both evidence
-maps. Historical retries remain no-ops and cannot move the current pointer.
+The `current_release` pointer identifies the newest activated record.
 
-`loadRegistry()` validates persisted JSON. `saveRegistry()` uses an exclusive
-local lock, expected snapshot SHA-256, generation checking, immutable history
-checks, a flushed temporary file and atomic rename. A stale writer fails rather
-than overwriting another writer. Initialization is explicit; missing or corrupt
-registries are never silently recreated. An abandoned lock requires inspection
-and deliberate recovery; it is never automatically stolen.
+Activation is monotonic: an older release cannot replace a newer
+activated release. Retrying an already activated historical release
+is a no-op and does not move the current pointer backwards.
 
-This provides local process coordination and atomic registry replacement, not
-a distributed Git lock or a power-loss durability guarantee. All writers must
-follow the same locking protocol. The registry is one file to avoid partial
-updates across many allocation files.
+Activated records are immutable. Their identity, allocated version
+and image evidence cannot be changed.
 
-Phase 1B must persist reservations before publication and update registry,
-current manifest, config and current documentation in one coherent Git commit
-after both remote final images are verified. It must check remote branch HEAD,
-reject stale pushes without force-push, serialize release runs, and recover
-activation/tag publication independently. This phase intentionally does not
-implement those workflow or metadata writes, or allocate a real new version.
+The current manifest is derived from the activated registry record.
+Before the first automated activation, the legacy manifest continues
+to describe the pre-existing baseline without claiming automated
+qualification or publication.
 
-Run contract tests from the add-on worktree:
+## Persistence and concurrency
+
+The local registry module validates schema, identity, evidence and
+state transitions. Its `saveRegistry()` operation:
+
+- uses an exclusive local lock file;
+- checks the expected SHA-256 revision of the current registry;
+- checks the generation and reconstructs exactly one authorized
+  state-machine operation;
+- writes a temporary file and flushes it before atomic rename;
+- rejects stale writers instead of overwriting concurrent changes.
+
+The local lock coordinates processes sharing that filesystem. It is
+not a distributed Git lock and does not provide a power-loss durability
+guarantee by itself.
+
+The release pipeline adds remote concurrency protection. Each logical
+registry operation is persisted through a Git commit based on the
+observed remote branch head. Remote head checks and non-force ref
+updates reject concurrent changes rather than overwriting them.
+
+Registry, manifest, add-on configuration and current-release
+documentation are committed together during activation. The versioned
+Git tag is then created or verified against the activation commit.
+
+## Operational guarantees
+
+The state contract validates data supplied to it; it does not itself
+contact GitHub or GHCR, inspect OCI manifests, build images or run smoke
+tests. Those checks are performed by the publisher pipeline before
+evidence is recorded.
+
+The publisher verifies source provenance, image architecture,
+manifest/config digests and provenance labels. Candidate images are
+pulled and smoke-tested by digest. Final images are promoted from
+qualified digests and checked again immediately before activation.
+
+Existing tags are never overwritten. A conflicting digest or tag
+causes publication to fail. A missing image for an already activated
+release requires maintainer intervention; it is not silently rebuilt
+or replaced.
+
+## Tests
+
+Run the release state contract tests from the repository root:
 
 ```sh
 node --test scripts/home-assistant-addon-release.test.mjs
+```
+
+The pipeline and persistence integration tests are covered separately
+by:
+
+```sh
+node --test scripts/home-assistant-addon-pipeline.test.mjs
 ```
