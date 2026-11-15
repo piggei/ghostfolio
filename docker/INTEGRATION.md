@@ -284,14 +284,14 @@ to the upstream image name.
 The latest end-to-end verified NG integration release documented
 at the time of this update is:
 
-| Item | Value |
-| --- | --- |
-| Integration tag | `integration-3.99.0-24` |
-| Source commit | `f0c04418df139244ff6a41443a2ca08407993a01` |
-| Version-specific image | `ghcr.io/piggei/ghostfolio-ng:integration-3.99.0-24` |
-| Commit image | `ghcr.io/piggei/ghostfolio-ng:sha-f0c04418df139244ff6a41443a2ca08407993a01` |
-| Rolling channel | `ghcr.io/piggei/ghostfolio-ng:integration` |
-| Architectures | Linux AMD64 and ARM64 |
+| Item                   | Value                                                                       |
+| ---------------------- | --------------------------------------------------------------------------- |
+| Integration tag        | `integration-3.99.0-24`                                                     |
+| Source commit          | `f0c04418df139244ff6a41443a2ca08407993a01`                                  |
+| Version-specific image | `ghcr.io/piggei/ghostfolio-ng:integration-3.99.0-24`                        |
+| Commit image           | `ghcr.io/piggei/ghostfolio-ng:sha-f0c04418df139244ff6a41443a2ca08407993a01` |
+| Rolling channel        | `ghcr.io/piggei/ghostfolio-ng:integration`                                  |
+| Architectures          | Linux AMD64 and ARM64                                                       |
 
 The same NG release was consumed by the automated Home Assistant
 publisher, which activated add-on version `3.99.3`.
