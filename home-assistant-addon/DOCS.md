@@ -258,6 +258,14 @@ frontend operation or financial data update is working correctly.
 
 ## Updates and versioning
 
+<!-- release-current:start -->
+
+Current add-on version: **3.99.3**.
+Ghostfolio NG: `integration-3.99.0-24`.
+Source image: `ghcr.io/piggei/ghostfolio-ng@sha256:c5836caab45f808db74413cbc832699c4d9cf68244801bd984710ba822e06e15`.
+
+<!-- release-current:end -->
+
 Ghostfolio-NG application releases and Home Assistant add-on versions
 are independently versioned.
 
@@ -425,10 +433,3 @@ normal Home Assistant add-on log stream.
 - Nginx access and error logs are not integrated into the
   Home Assistant add-on log stream.
 
-<!-- release-current:start -->
-
-Current add-on version: **3.99.3**.
-Ghostfolio NG: `integration-3.99.0-24`.
-Source image: `ghcr.io/piggei/ghostfolio-ng@sha256:c5836caab45f808db74413cbc832699c4d9cf68244801bd984710ba822e06e15`.
-
-<!-- release-current:end -->
