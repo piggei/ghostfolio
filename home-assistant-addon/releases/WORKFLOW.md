@@ -1,283 +1,323 @@
 # Home Assistant release workflow
 
-This workflow builds on the original dispatch workflow (`444d08508f73`) and
-versioned-tag workflow (`8b7b59cf2a00`). All supported release entry points use
-the same controller, state machine, registry client and qualification script.
-The NG integration workflow is intentionally unchanged in Phase 1B.
+This document describes the production release path for the Ghostfolio-NG
+Home Assistant add-on in `piggei/ghostfolio`.
 
-## Inputs and outputs
+The current implementation has two cooperating workflows:
 
-`workflow_call` and `workflow_dispatch` require five strings:
+- `.github/workflows/integration-release.yml` publishes a verified
+  Ghostfolio-NG integration release.
+- `.github/workflows/ghostfolio-ng-ha-orchestrator.yml` resolves a
+  completed NG release and invokes the reusable Home Assistant publisher.
+- `.github/workflows/home-assistant-addon.yml` builds, qualifies and
+  publishes the add-on images, then activates the release metadata.
 
-| Input                   | Validation                                                                                                             |
-| ----------------------- | ---------------------------------------------------------------------------------------------------------------------- |
-| `integration_tag`       | Published `integration-X.Y.Z-N`, not draft/prerelease                                                                  |
-| `source_commit`         | Full SHA matching the peeled integration Git tag, package version and successful NG `release` job                      |
-| `source_image`          | `ghcr.io/piggei/ghostfolio-ng@sha256:…`, matching both immutable release and commit tags                               |
-| `ghostfolio_version`    | Three components matching integration tag and source `package.json`                                                    |
-| `addon_source_revision` | Full approved SHA containing this implementation; its build/test/controller files must match the destination HA branch |
+The reusable publisher is called at the immutable revision
+`d78d0e7939c4e7b70eeda9b628244e9f5c47656c`. The orchestrator checks out
+that same revision as a read-only validation contract and passes it as
+`addon_source_revision`.
 
-NG provenance requires one unambiguous matching run of the registered integration
-workflow, bound to repository, workflow ID/path, branch, run number and commit.
-The latest run must be `completed` with conclusion `success`. Its explicitly
-selected attempt must contain exactly one completed successful `release` job
-with the same run ID and commit. Jobs are fetched from the attempt-specific API,
-never combined with earlier attempts. The run is read again after the jobs to
-reject a retry or identity/status change during verification. A partial rerun
-whose latest attempt has no `release` job is deliberately rejected, even if an
-earlier attempt contains a successful publication job.
+## Production trigger: Ghostfolio-NG to Home Assistant
 
-This strict completed-run requirement rules out calling HA as a blocking job
-inside that same NG run: the parent would remain in progress until HA finished.
-Phase 1C must establish a separate invocation after NG completion. No workflow
-is redesigned or changed to resolve that orchestration decision in review 1B-R.
+The normal production path is automatic:
 
-Outputs: `addon_version`, `amd64_digest`, `aarch64_digest`, `metadata_commit`,
-`publication_status` (`activated` or `already_activated`). Outputs are emitted
-only after both final images and the corresponding Git tag have been verified.
+1. A push to `integration/ghostfolio-all-pr` starts
+   **Publish integration Docker release**.
+2. The NG workflow verifies the integration and builds/tests the
+   AMD64 and ARM64 images.
+3. The NG release job publishes the integration release and its
+   immutable source references.
+4. After the NG workflow completes successfully, GitHub emits a
+   `workflow_run` event for the orchestrator.
+5. The orchestrator validates the completed NG run, release, Git tag,
+   source image and current HA release contract.
+6. The orchestrator calls the reusable HA publisher using the five
+   immutable release inputs.
+7. The HA publisher reserves an add-on version, qualifies both
+   architectures, publishes the final images and activates metadata.
 
-The future NG caller must use a literal full approved SHA in its reusable
-workflow reference. A relative call would resolve against the caller commit.
-No caller or placeholder SHA is added in Phase 1B. Every job explicitly checks
-out the immutable add-on source revision, never the integration caller's files.
+The orchestrator listens only for completed runs of
+**Publish integration Docker release** on
+`integration/ghostfolio-all-pr`. It runs from `main`, and its job
+requires the event to belong to `piggei/ghostfolio` and the default
+branch ref `refs/heads/main`.
 
-## Execution
+A successful NG run is necessary but not sufficient: the orchestrator
+also verifies the release provenance and the actual GHCR source image.
+It does not build or republish NG.
+
+## Orchestrator recovery
+
+The orchestrator also exposes `workflow_dispatch` with one required
+input, `ng_run_id`.
+
+This is a recovery entry point for an already completed successful NG
+run. It resolves that run again and performs the same provenance checks.
+It does not rebuild NG or accept caller-supplied tags, commits or image
+digests.
+
+Manual dispatch is available from the default-branch workflow. Use it
+only when an automatic `workflow_run` invocation needs recovery or
+reprocessing. Do not dispatch while the corresponding automatic run
+is still active.
+
+The orchestrator serializes its own runs with the
+`ghostfolio-ng-ha-orchestrator` concurrency group and
+`cancel-in-progress: false`.
+
+## NG provenance validation
+
+The orchestrator identifies the registered NG workflow by its path,
+name and workflow ID. It requires the run to match:
+
+- Repository: `piggei/ghostfolio`
+- Branch: `integration/ghostfolio-all-pr`
+- Workflow: `.github/workflows/integration-release.yml`
+- Workflow name: `Publish integration Docker release`
+- Event: `push` or an explicitly requested `workflow_dispatch`
+- Status: `completed`
+- Conclusion: `success`
+
+For automatic events, the event payload must match the canonical run
+including run ID, attempt, run number, commit and workflow ID.
+
+The selected run attempt must contain exactly one completed successful
+`release` job bound to that same run and commit. Jobs from earlier
+attempts are not combined with the selected attempt. A partial rerun
+without a successful release job in its latest attempt is rejected.
+
+The orchestrator binds the package version to the run commit, checks
+the expected integration tag and published GitHub Release, resolves
+the Git tag to the exact source commit, and obtains the immutable NG
+source image digest from GHCR. It then rechecks the run, release and
+tag before returning the HA inputs.
+
+A newer NG run number supersedes an older unprocessed release. An
+older run is not allowed to allocate a new add-on version after a
+newer release has already been recorded.
+
+## Reusable publisher inputs and outputs
+
+The reusable workflow
+`.github/workflows/home-assistant-addon.yml` requires five strings:
+
+| Input | Meaning and validation |
+| --- | --- |
+| `integration_tag` | Published NG tag in the form `integration-X.Y.Z-N` |
+| `source_commit` | Full 40-character source commit SHA |
+| `source_image` | Immutable `ghcr.io/piggei/ghostfolio-ng@sha256:…` reference |
+| `ghostfolio_version` | Three-component upstream application version |
+| `addon_source_revision` | Full approved SHA of the HA publisher implementation |
+
+The publisher validates the identity against the NG GitHub Release,
+tag, source commit, package version, immutable source image and
+registered successful NG release job.
+
+The reusable workflow checks out the approved add-on source revision
+for every build and publication job. It does not build from the
+caller's integration branch.
+
+Outputs are emitted after publication and tag verification:
+
+- `addon_version`
+- `amd64_digest`
+- `aarch64_digest`
+- `metadata_commit`
+- `publication_status`: `activated` or `already_activated`
+
+## HA publication stages
+
+The publisher uses one repository-wide concurrency group,
+`ghostfolio-home-assistant-release`, with
+`cancel-in-progress: false`.
+
+The jobs execute in this order:
 
 ```text
-prepare (AMD64): verify NG provenance + OCI source → persist reservation
-  → qualify-amd64: build/reuse → shared smoke → candidate push/verify → persist
-  → qualify-aarch64 (native ARM64): same steps → persist
-  → publish (AMD64): verify both candidates
-      → promote AMD64 by digest → verify → persist publication evidence
-      → promote AArch64 by digest → verify → persist publication evidence
-      → verify both finals again
-      → atomic activation commit: registry + manifest + config + current docs
-      → create/verify versioned Git tag
+prepare (AMD64)
+  verify NG provenance and immutable source
+  reserve add-on version and persist release plan
+
+qualify-amd64 (AMD64)
+  build or recover candidate
+  smoke-test local image
+  push and inspect candidate by digest
+  pull and smoke-test exact remote digest
+  persist AMD64 qualification evidence
+
+qualify-aarch64 (native ARM64)
+  build or recover candidate
+  smoke-test local image
+  push and inspect candidate by digest
+  pull and smoke-test exact remote digest
+  persist ARM64 qualification evidence
+
+publish (AMD64)
+  verify both qualified candidates
+  promote each exact digest to its final version tag
+  verify both final images again
+  atomically activate registry, manifest, config and documentation
+  create or verify the versioned Git tag
 ```
 
-Serial architecture jobs ensure each qualification is persisted before the next
-job. The same tested local image is uploaded, or the existing candidate is pulled
-by digest and retested. There is no build in the publication job. Candidates use
-a stable hash of the full release identity, so a new workflow run can recover
-an upload whose registry commit was interrupted. Candidate images deliberately
-disable Buildx attestations to retain a single-platform manifest for exact digest
-promotion. The NG source index supports identified attestation descriptors.
+The ARM64 job uses a native `ubuntu-24.04-arm` runner. The AMD64
+jobs use `ubuntu-latest`.
 
-OCI reads verify SHA-256 from response bytes, manifest/config digests, actual
-config architecture and provenance labels. Source validation checks both native
-platforms and rejects duplicate/extra runnable platforms. Only HTTP 404 means
-absence; authentication, rate-limit, transport and server failures abort safely.
+The publication job does not rebuild either architecture. It promotes
+the exact qualified candidate digests. Both final images must match
+their qualified descriptors before activation.
 
-The shared smoke script retains the original AMD64/ARM64 runtime assertions and
-adds Redis authentication rejection plus PostgreSQL/Redis/secrets persistence
-across restart and recreation with the same volumes. Cleanup is an EXIT trap.
-Ordinary CI uses the same script with read-only permissions. Its optional source
-override must be immutable. Before the first automated activation it defaults to
-the centrally pinned, previously qualified NG `-15` digest in `test-source.json`;
-after activation it defaults to the current release manifest. That test pin does
-not allocate or advertise a new add-on version. Direct Docker builds must provide
-`GHOSTFOLIO_IMAGE`; the stale implicit Dockerfile source has been removed.
+Candidate tags are derived from the full immutable release identity.
+If a run is interrupted after an upload, a later run can locate the
+candidate, pull it by digest and repeat the native smoke test.
+A mutable candidate tag is never accepted as a substitute for the
+recorded digest.
 
-## Persistent recovery and concurrency
+## Version allocation and activation
 
-Each state-machine operation is validated through Phase 1A `saveRegistry()` and
-persisted in its own remote commit. The API builds a new tree from the existing
-remote tree, preserving unrelated files. It checks remote HEAD before preparing
-the update and immediately before advancing the branch. The new commit has that
-HEAD as its sole parent; the ref update uses `force: false`. A concurrent sibling
-commit causes rejection rather than overwriting it. Source/config drift also
-causes rejection. Lost branch-update responses are recovered only when the remote
-HEAD equals the exact commit just created.
+The HA publisher reserves a unique add-on version in
+`home-assistant-addon/releases/registry.json`.
 
-The workflow-wide, repository-wide concurrency group is
-`ghostfolio-home-assistant-release`, with `cancel-in-progress: false`.
-This supplements remote checks; the local lock is never treated as distributed.
-GitHub concurrency is not a durable FIFO queue: superseded pending requests must
-be explicitly retried if every release is required.
+The NG integration tag, upstream Ghostfolio version and HA add-on
+version are distinct identifiers. Multiple NG builds of the same
+upstream version can therefore receive successive HA add-on versions.
 
-| Interrupted point                        | Recovery                                                                        |
-| ---------------------------------------- | ------------------------------------------------------------------------------- |
-| Reservation / qualification commit       | Reload the existing allocation; reuse its version                               |
-| Candidate push response                  | Verify uploaded config against the tested local config                          |
-| Candidate push before state commit       | Resolve the deterministic candidate, pull by digest and requalify               |
-| One final published                      | Verify and retain it; publish only the missing other final                      |
-| Final publication before evidence commit | Inspect actual GHCR state, then persist the matching evidence                   |
-| Activation before tag creation           | Locate and verify the historical activation commit; create only the missing tag |
-| Historical activated release             | Verify immutable artifacts and tag; leave current metadata unchanged            |
+The current advertised version is advanced only after both final
+architecture images have been verified.
 
-Existing final tags must match the qualified digest exactly. Conflicts are fatal.
-No existing tag is overwritten or deleted. A missing image for an activated
-release fails for maintainer intervention rather than silently republishing it.
+The activation commit updates these files together:
 
-Restart the **entire HA workflow**, with the same five inputs, after an interrupted
-run. This retries HA only and never starts an NG build. Use **Re-run all jobs** on
-an existing HA run, rather than only failed jobs: per-attempt handoff artifacts
-and remote HEAD expectations deliberately reject stale job plans. Registry and
-GHCR state, not artifact retention, are the recovery source of truth.
+- `home-assistant-addon/releases/registry.json`
+- `home-assistant-addon/release.json`
+- `home-assistant-addon/config.yaml`
+- `home-assistant-addon/README.md`
+- `home-assistant-addon/DOCS.md`
+- `home-assistant-addon/CHANGELOG.md`, when release notes are present
 
-Manual dispatch is declared but GitHub normally exposes/requires it on the default
-branch. This task does not change `main`; do not assume the Actions UI or
-`gh workflow run --ref …` is available before that constraint is addressed.
-An existing run of this new HA workflow can be rerun; historical runs of the old
-workflow still execute the old implementation and are not recovery entry points.
-The future approved reusable caller can also provide recovery without rebuilding
-NG. Establishing the first remotely runnable
-entry point is a deployment prerequisite, not a hidden default-branch change.
+The versioned tag follows
+`home-assistant-addon/vX.Y.Z` and points to the activation commit.
+An existing tag must resolve to the expected commit; tags are never
+moved or overwritten.
 
-Versioned tag pushes are retained for recovery/verification of **already activated**
-manifests. Legacy tags such as the existing `v3.97.0`, without the immutable
-contract, fail with an explicit recovery message instead of selecting a digest
-implicitly. Fresh pre-activation tag releases are intentionally unsupported:
-the version must not be advertised before images exist, and an existing Git tag
-must not be moved to a later activation commit.
+## Recovery
 
-## Permissions and deployment checks
+Recovery is based on the registry and actual GHCR state, not on
+workflow artifacts alone.
 
-Preparation needs `contents:write` for allocation, `packages:read`, `actions:read`.
-Qualification and publication need `contents:write`, `packages:write`,
-`actions:read`. Ordinary CI needs only `contents:read`, `packages:read`.
-`GITHUB_TOKEN` is passed only to the controller/login steps; checkout credentials
-are not persisted. No PAT, additional secret or repository setting is introduced.
-Bot-generated commits/tags do not depend on push-triggered workflows, preventing
-duplicate publication. The future reusable caller must grant the needed token
-permissions: a callee cannot increase them.
+| Interrupted point | Expected recovery |
+| --- | --- |
+| After reservation | Reuse the existing identity and allocated version |
+| Candidate upload response lost | Inspect the deterministic candidate and verify its config |
+| Candidate uploaded before evidence commit | Pull by digest and rerun native smoke qualification |
+| Only one final image published | Retain and verify it; publish only the missing architecture |
+| Final image published before evidence commit | Inspect GHCR and persist matching publication evidence |
+| Activation committed before tag creation | Verify the historical activation commit and create only the missing tag |
+| Already activated release retried | Verify immutable images and tag; do not move current metadata backwards |
 
-Before enabling publication, maintainers must validate GitHub workflow syntax
-with actionlint, runner availability, package visibility/permissions, branch/tag
-rules, API commit permissions, native builds, real registry promotion and a real
-Supervisor upgrade. Local Phase 1B validation completed an actual AMD64 build
-and the shared application/persistence smoke test, including restart and
-recreation. The bootstrap NG digest, both architectures, source revision labels
-and immutable tags were also verified read-only against GHCR. Native ARM64 and
-real Supervisor upgrade checks remain outstanding. No remote writes were executed;
-publication and GitHub mutation recovery were tested with simulated services.
+Restart the full HA workflow with the same five inputs after an
+interrupted publication. For an existing HA run, use **Re-run all jobs**,
+not only failed jobs: the workflow transfers per-attempt plan artifacts
+between jobs, and remote branch-head checks deliberately reject stale
+plans.
 
-GHCR does not provide a compare-and-swap for mutable tags. Exclusive repository
-release concurrency plus remote absence/digest checks protect this automation;
-uncoordinated external writers must not publish to these image repositories.
-The first allocation also assumes the documented installed baseline `3.97.0`:
-its legacy manifest is not retroactively claimed as automation-verified.
+The orchestrator's manual recovery input is an NG run ID. It reruns
+NG provenance resolution and then calls the HA publisher; it does not
+rebuild NG.
+
+A missing image for an already activated release is a maintainer
+intervention condition. The publisher does not silently rebuild or
+replace an activated image.
+
+GitHub concurrency is not a durable FIFO queue. If a pending run is
+superseded, explicitly recover the required NG run after checking that
+it is not already being processed.
+
+## Concurrency and Git safety
+
+Every registry operation is committed against the observed remote
+HA branch head. The publisher checks the remote head before preparing
+a write and immediately before advancing the branch.
+
+Ref updates are non-force updates. A concurrent commit or source/config
+drift causes the operation to fail rather than overwrite another writer.
+
+The local registry lock protects processes sharing one filesystem;
+it is not a distributed lock. Repository-wide GitHub concurrency and
+remote head checks provide the cross-run protection.
+
+GHCR mutable tags do not provide compare-and-swap semantics. The
+publisher therefore checks for existing tags, verifies their digests
+and refuses conflicting images. Uncoordinated external writers must
+not publish to the add-on image repositories.
+
+## Permissions
+
+The workflows use the repository-provided `GITHUB_TOKEN`.
+
+| Job | Required permissions |
+| --- | --- |
+| Orchestrator resolve | `contents: read`, `actions: read`, `packages: read` |
+| HA prepare | `contents: write`, `packages: read`, `actions: read` |
+| HA qualification | `contents: write`, `packages: write`, `actions: read` |
+| HA publication | `contents: write`, `packages: write`, `actions: read` |
+
+The reusable workflow cannot increase permissions granted by its
+caller. The orchestrator therefore grants the permissions required
+by the called publisher.
+
+Checkout credentials are not persisted. No personal access token
+or additional repository secret is required by this release path.
+
+## Current production reference
+
+The latest end-to-end verified release is:
+
+| Item | Value |
+| --- | --- |
+| NG integration tag | `integration-3.99.0-24` |
+| NG source commit | `f0c04418df139244ff6a41443a2ca08407993a01` |
+| HA add-on version | `3.99.3` |
+| HA publisher revision | `d78d0e7939c4e7b70eeda9b628244e9f5c47656c` |
+| HA activation commit | `96854aab978dc4b6554f614ef9f3460197271a8c` |
+
+Both AMD64 and ARM64 images were qualified and published, the HA
+release metadata was activated, the versioned Git tag was created,
+and the update and changelog were confirmed in a real Home Assistant
+installation.
+
+Future releases should not copy these version or digest values.
+The registry, manifest and workflow outputs are the authoritative
+sources for each new release.
+
+## Validation
+
+Run the release contract tests:
+
+```sh
+node --test scripts/home-assistant-addon-release.test.mjs
+```
+
+Run the pipeline and recovery tests:
+
+```sh
+node --test scripts/home-assistant-addon-pipeline.test.mjs
+```
+
+Run the workflow input and event contract tests:
+
+```sh
+node --test scripts/home-assistant-addon-workflow.test.mjs
+```
+
+Run the orchestrator tests from the repository root:
+
+```sh
+node --test scripts/ghostfolio-ng-ha-orchestrator.test.mjs
+node --test scripts/ghostfolio-ng-ha-orchestrator-workflow.test.mjs
+```
 
 Official references:
 
-- [Reusable workflows and literal revisions](https://docs.github.com/en/actions/how-tos/reuse-automations/reuse-workflows)
-- [Token-generated events](https://docs.github.com/en/actions/how-tos/write-workflows/choose-when-workflows-run/trigger-a-workflow)
+- [Reusable workflows and immutable references](https://docs.github.com/en/actions/how-tos/reuse-automations/reuse-workflows)
+- [Events that trigger workflows](https://docs.github.com/en/actions/how-tos/write-workflows/choose-when-workflows-run/trigger-a-workflow)
 - [Workflow syntax and concurrency](https://docs.github.com/en/actions/reference/workflows-and-actions/workflow-syntax)
-
-## Bootstrap readiness review (1B-R)
-
-No commit, push, tag or workflow execution is authorized by this procedure.
-Each publication step below requires separate authorization. The remote HA branch
-was confirmed at `ae29e27d8acb83f02d402ddeaa934aea867e7ea5`; it does not yet
-contain this reusable implementation. That existing SHA must not be used as the
-new reusable revision. The NG `-15` run `41731193162` was rechecked read-only:
-completed/success, attempt 1, with a completed successful `release` job bound
-to commit `649d61f90429483cac949c0c97c83d10c13f7c8e`.
-
-### First authorized activation procedure
-
-1. Freeze the reviewed HA changes, including all currently untracked Phase 1A
-   registry/module files and the Phase 1B files. Confirm `config.yaml` still
-   advertises `3.97.0`, the registry has no new allocations, and no NG files
-   are included. Run the complete Node contract/service/workflow suite, syntax
-   checks, ShellCheck and formatting/whitespace checks on these exact files.
-2. Run `actionlint` against the three HA workflows before publication, using an
-   already available approved installation. Do not install it or change project
-   dependencies implicitly. Resolve errors and re-review any resulting changes.
-3. Only after explicit authorization, create and publish the reviewed commit
-   on `feat/home-assistant-addon`, without a release tag or force-push. That
-   branch push is expected to run the ordinary read-only AMD64/ARM64 tests;
-   it does not match the release workflow's tag trigger. Review those test runs,
-   particularly native ARM64, before enabling the release caller.
-4. Record the actual full 40-character commit SHA after the authorized commit
-   exists. Read-only commands for the operator are:
-
-   ```sh
-   ha_release_sha=$(git rev-parse HEAD)
-   git ls-remote origin refs/heads/feat/home-assistant-addon
-   gh api "repos/piggei/ghostfolio/commits/${ha_release_sha}" --jq .sha
-   ```
-
-   Confirm all three identify the published reviewed commit. Do not substitute
-   the current pre-implementation HEAD, a branch name or a moving tag. Record
-   the SHA and test-run links in the deployment approval.
-
-5. Verify the workflow and all required implementation files at that exact SHA:
-
-   ```sh
-   git show "${ha_release_sha}:.github/workflows/home-assistant-addon.yml"
-   gh api "repos/piggei/ghostfolio/contents/.github/workflows/home-assistant-addon.yml?ref=${ha_release_sha}" --jq .sha
-   ```
-
-   The Contents API returns a blob SHA: compare it with the local blob SHA from
-   `git rev-parse "${ha_release_sha}:.github/workflows/home-assistant-addon.yml"`.
-   Confirm `on.workflow_call`, all five required string inputs and all five
-   outputs. Recheck syntax/lint against the published blob, not an edited working
-   copy. Confirm scripts, smoke script, mock Supervisor, manifest, registry,
-   documentation markers and test-source pin also exist at the published SHA.
-
-6. Review the caller's token grants and the callee's per-job permissions:
-   preparation requires `contents:write`, `packages:read`, `actions:read`;
-   qualification/publication require `contents:write`, `packages:write`,
-   `actions:read`. Check repository workflow policy, branch/tag rules and GHCR
-   package access permit those operations for `GITHUB_TOKEN`. Read-only review
-   cannot prove that future writes will be accepted; no test write is permitted
-   in this checkpoint. Do not add a PAT or change settings as a workaround.
-7. Prepare the future literal reference by replacing `FULL_APPROVED_HA_SHA`
-   below with the exact recorded SHA, and use the same value for
-   `addon_source_revision`:
-
-   ```text
-   piggei/ghostfolio/.github/workflows/home-assistant-addon.yml@FULL_APPROVED_HA_SHA
-   ```
-
-   This is a documentation template, not an executable caller. A concrete
-   immutable reference cannot exist until the authorized commit has been created
-   and published. No caller is added in 1B-R.
-
-8. Before Phase 1C implementation, approve an entry point that runs after the NG
-   run has completed successfully. A separate `workflow_run` orchestrator would
-   require presence on the default branch; a manual dispatch entry point has
-   that constraint too. The remote `main` workflow directory currently contains
-   only `build-code.yml`, `docker-image.yml` and `extract-locales.yml`.
-   Do not assume dispatch is available or modify `main` without authorization.
-   No same-run blocking call can satisfy the strict NG gate. After the entry
-   point and immutable reference are approved, use an already completed NG
-   release and its verified digest for the first separately authorized HA run.
-
-### Trigger availability
-
-| Path                      | Before publishing the reviewed HA SHA            | After publishing the HA SHA                                                                               |
-| ------------------------- | ------------------------------------------------ | --------------------------------------------------------------------------------------------------------- |
-| `workflow_call`           | New implementation unavailable remotely          | Callable by a separately approved workflow using a literal full SHA; it need not be on the default branch |
-| `workflow_dispatch`       | No new runnable entry point                      | Still blocked by missing default-branch registration; publication on the HA branch alone is insufficient  |
-| Versioned tag `push`      | Historical tags execute historical workflow code | New code supports recovery only for an already activated manifest; it cannot bootstrap the first release  |
-| Ordinary HA branch `push` | Existing test workflows only                     | Runs shared read-only qualification, not release publication                                              |
-| Rerun of an HA release    | Historical runs retain old code                  | An existing run of the new implementation can be rerun in full after the first approved invocation        |
-
-`GITHUB_TOKEN`-generated commits and tags are not used as triggers for another
-release pipeline. Do not create a tag to force the bootstrap or move an existing
-tag. Workflow availability and actual write permissions remain deployment checks.
-
-### Actionlint availability and validation limits
-
-Actionlint was unavailable during review 1B-R. For Task 02A the maintainer
-installed actionlint 1.7.12 at `/usr/local/bin/actionlint`. Validation of all three
-HA workflows now passes without diagnostics, closing the local Actions lint
-checkpoint. YAML parsing with duplicate-key detection, the targeted workflow
-contract tests, Node/Bash syntax checks, ShellCheck and formatting checks also
-pass. No project dependency was added or changed.
-Neither YAML parsing nor actionlint can establish remote package permissions,
-runner availability or successful execution of the future immutable caller.
-
-### Candidate integrity conclusion
-
-No candidate implementation change was needed. Once recorded, the registry's
-digest is authoritative; recovery pulls that digest and reruns smoke rather than
-trusting a mutable candidate tag. A changed tag is not adopted. A mismatching
-descriptor for the recorded digest is rejected before qualification/publication.
-For an uploaded but unregistered candidate, matching labels do not replace the
-smoke test. Both final descriptors must match recorded qualification exactly,
-and both final tags are checked again immediately before activation. Regression
-tests cover both architectures and digest drift after publication evidence was
-already recorded. Uncoordinated external writers remain prohibited as documented.
