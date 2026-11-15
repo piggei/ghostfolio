@@ -100,6 +100,15 @@ import { cloneDeep, groupBy, isNumber } from 'lodash-es';
 import { Observable, catchError, throwError, Subscription } from 'rxjs';
 import { map } from 'rxjs/operators';
 
+export interface DailyPortfolioPerformanceResponse {
+  days: {
+    date: string;
+    pnl:
+      | { status: 'available'; dailyPnl: string }
+      | { status: 'unavailable'; dailyPnl: null; reason: string };
+  }[];
+}
+
 @Service()
 export class DataService {
   private readonly http = inject(HttpClient);
@@ -751,6 +760,19 @@ export class DataService {
           return response;
         })
       );
+  }
+
+  public fetchPortfolioDailyPerformance({
+    startDate,
+    endDate
+  }: {
+    startDate: string;
+    endDate: string;
+  }): Observable<DailyPortfolioPerformanceResponse | null> {
+    return this.http.post<DailyPortfolioPerformanceResponse | null>(
+      '/api/v2/portfolio/performance/daily',
+      { startDate, endDate }
+    );
   }
 
   public fetchPortfolioCalendarPercentages(

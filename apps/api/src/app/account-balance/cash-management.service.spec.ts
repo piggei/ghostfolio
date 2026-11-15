@@ -492,6 +492,7 @@ describe('CashManagementService', () => {
         events: [
           {
             amount: '40',
+            economicClassification: null,
             comment: null,
             date: '2026-10-02',
             id: 'deposit',
@@ -500,6 +501,7 @@ describe('CashManagementService', () => {
           },
           {
             balance: '500',
+            economicClassification: null,
             comment: null,
             date: '2026-10-04',
             id: 'reconciliation',
@@ -508,6 +510,7 @@ describe('CashManagementService', () => {
           },
           {
             amount: '-60',
+            economicClassification: null,
             comment: null,
             date: '2026-10-06',
             id: 'withdrawal',
@@ -765,6 +768,7 @@ describe('CashManagementService', () => {
         {
           amount: '400',
           comment: 'First deposit',
+          economicClassification: null,
           date: '2026-10-02',
           id: 'created-event-1',
           sequence: 1,
@@ -773,6 +777,7 @@ describe('CashManagementService', () => {
         {
           amount: '400',
           comment: null,
+          economicClassification: null,
           date: '2026-10-03',
           id: 'created-event-2',
           sequence: 2,
@@ -815,6 +820,7 @@ describe('CashManagementService', () => {
         { date: '2026-10-06', value: '440' }
       ]);
       expect(result.events.find(({ id }) => id === 'deposit')).toEqual({
+        economicClassification: null,
         amount: '10',
         comment: null,
         date: '2026-10-02',
@@ -880,6 +886,7 @@ describe('CashManagementService', () => {
         { date: '2026-10-06', value: '390' }
       ]);
       expect(result.events.find(({ id }) => id === 'reconciliation')).toEqual({
+        economicClassification: null,
         balance: '450',
         comment: null,
         date: '2026-10-04',

@@ -1,3 +1,6 @@
+import { CASH_MOVEMENT_CLASSIFICATIONS } from '@ghostfolio/common/interfaces';
+import type { CashMovementClassification } from '@ghostfolio/common/interfaces';
+
 import { BadRequestException } from '@nestjs/common';
 import { Big } from 'big.js';
 import { parse, unparse } from 'papaparse';
@@ -11,6 +14,7 @@ export const CASH_CSV_COLUMNS = [
   'Operation',
   'Amount',
   'Fee',
+  'EconomicClassification',
   'Currency',
   'Note',
   'SourceAccount',
@@ -99,8 +103,9 @@ export function readCashCsv(csv: string): CashCsvRow[] {
       CASH_CSV_COLUMNS.map((key) => [key, item[key] ?? ''])
     ) as CashCsvRow;
     for (const key of CASH_CSV_COLUMNS)
-      if (key !== 'Note') row[key] = row[key].trim();
-    if (row.Version && row.Version !== '1')
+      if (key !== 'Note' && key !== 'EconomicClassification')
+        row[key] = row[key].trim();
+    if (row.Version && !['1', '2'].includes(row.Version))
       throw new BadRequestException('Unsupported cash CSV version.');
     const operations: Record<string, string> = {
       DEPOSITO: 'DEPOSIT',
@@ -114,6 +119,27 @@ export function readCashCsv(csv: string): CashCsvRow[] {
     row.Record ||= 'EVENT';
     if (!['META', 'EVENT'].includes(row.Record))
       throw new BadRequestException('Record must be META or EVENT.');
+    if (row.EconomicClassification !== '') {
+      if (row.Version !== '2')
+        throw new BadRequestException(
+          'EconomicClassification requires cash CSV version 2.'
+        );
+      if (
+        !CASH_MOVEMENT_CLASSIFICATIONS.includes(
+          row.EconomicClassification as CashMovementClassification
+        )
+      )
+        throw new BadRequestException('Unsupported EconomicClassification.');
+      if (
+        row.Record !== 'EVENT' ||
+        !['DEPOSIT', 'WITHDRAWAL'].includes(row.Operation) ||
+        row.ActivityId ||
+        row.TransferReference
+      )
+        throw new BadRequestException(
+          'EconomicClassification is only allowed on manual movement rows.'
+        );
+    }
     for (const key of [
       'Note',
       'SourceAccountName',

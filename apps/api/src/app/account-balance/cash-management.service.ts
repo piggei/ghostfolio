@@ -2,6 +2,8 @@ import { PortfolioChangedEvent } from '@ghostfolio/api/events/portfolio-changed.
 import { ExchangeRateDataService } from '@ghostfolio/api/services/exchange-rate-data/exchange-rate-data.service';
 import { PrismaService } from '@ghostfolio/api/services/prisma/prisma.service';
 import {
+  CASH_MOVEMENT_CLASSIFICATIONS,
+  CashMovementClassification,
   CashConfirmation,
   CashCsvPreview,
   CashEventInput,
@@ -16,7 +18,12 @@ import {
   NotFoundException
 } from '@nestjs/common';
 import { EventEmitter2 } from '@nestjs/event-emitter';
-import { Account, CashEvent, Order, Prisma } from '@prisma/client';
+import {
+  Account,
+  CashEvent as PersistedCashEvent,
+  Order,
+  Prisma
+} from '@prisma/client';
 import { Big } from 'big.js';
 import { format } from 'date-fns';
 import { omit } from 'lodash-es';
@@ -47,9 +54,18 @@ interface CashAccountScope {
   userId: string;
 }
 
-type CashState = Prisma.AccountCashStateGetPayload<{
-  include: { events: true };
-}>;
+// Existing transient events (CSV, legacy drafts and order/transfer writers)
+// omit the new nullable column. Persisted records always have it after migration.
+type CashEvent = Omit<PersistedCashEvent, 'economicClassification'> & {
+  economicClassification?: PersistedCashEvent['economicClassification'];
+};
+
+type CashState = Omit<
+  Prisma.AccountCashStateGetPayload<{
+    include: { events: true };
+  }>,
+  'events'
+> & { events: CashEvent[] };
 
 type EventValue = Pick<CashEvent, 'date' | 'sequence' | 'type'> & {
   value: Prisma.Decimal | string;
@@ -91,7 +107,7 @@ export class CashManagementService {
       });
       const byId = new Map(orders.map((order) => [order.id, order]));
       const base = {
-        Version: '1',
+        Version: '2',
         Currency: state.currency,
         SourceAccount: scope.accountId,
         SourceAccountName: owner?.name ?? ''
@@ -128,6 +144,7 @@ export class CashManagementService {
               ? new Big(event.value.toString()).toFixed()
               : new Big(event.value.toString()).abs().toFixed(),
           Fee: new Big(event.fee.toString()).toFixed(),
+          EconomicClassification: event.economicClassification ?? '',
           Note: event.comment ?? '',
           TransferReference: event.transferId ?? '',
           ...(order
@@ -486,6 +503,9 @@ export class CashManagementService {
         date: row.Date,
         operation: row.Operation,
         amount: row.Amount,
+        economicClassification: row.EconomicClassification
+          ? this.normalizeEconomicClassification(row.EconomicClassification)
+          : null,
         status: 'NEW',
         message: ''
       };
@@ -530,7 +550,7 @@ export class CashManagementService {
         // debits. Preserve those in versioned exports without changing manual CSV rules.
         const exportedZero =
           amount === '0' &&
-          row.Version === '1' &&
+          ['1', '2'].includes(row.Version) &&
           row.Record === 'EVENT' &&
           !!row.Reference;
         if (
@@ -639,6 +659,16 @@ export class CashManagementService {
             throw new BadRequestException(
               'The reference or linked activity already exists with different content. No overwrite is performed.'
             );
+          // Blank/legacy metadata makes no reclassification request. Keep the
+          // financial identity comparator above independent of the category.
+          if (
+            row.EconomicClassification &&
+            previous.economicClassification !== row.EconomicClassification
+          )
+            throw new BadRequestException(
+              'Economic classification conflicts with the existing movement. Use an explicit edit; no overwrite is performed.'
+            );
+          item.economicClassification = previous.economicClassification ?? null;
           item.status = 'EXISTING';
           item.message = 'Already present; no duplicate movement.';
           preview.existingCount++;
@@ -700,6 +730,7 @@ export class CashManagementService {
           type: checkpoint ? 'CHECKPOINT' : 'MOVEMENT',
           value: new Prisma.Decimal(value),
           fee: new Prisma.Decimal(fee),
+          economicClassification: item.economicClassification ?? null,
           comment: row.Note || null,
           orderId,
           transferId: null,
@@ -874,7 +905,7 @@ export class CashManagementService {
 
       this.checkCurrency(account, state);
 
-      return this.toSnapshot(state, this.calculateState(state));
+      return this.toApiSnapshot(state, this.calculateState(state));
     });
   }
 
@@ -891,6 +922,13 @@ export class CashManagementService {
   }): Promise<CashManagementSnapshot> {
     const scope = { accountId, userId };
     const normalizedEvent = this.normalizeEvent(event);
+    const economicClassification = this.normalizeEconomicClassification(
+      event.economicClassification
+    );
+    this.assertClassificationEligibility(
+      normalizedEvent.type,
+      economicClassification
+    );
     const result = await this.inAccountTransaction(
       scope,
       async (transaction, account) => {
@@ -924,7 +962,12 @@ export class CashManagementService {
         });
 
         const createdEvent = await transaction.cashEvent.create({
-          data: { ...scope, ...normalizedEvent, sequence }
+          data: {
+            ...scope,
+            ...normalizedEvent,
+            sequence,
+            economicClassification
+          }
         });
         const nextState: CashState = {
           ...state,
@@ -936,7 +979,7 @@ export class CashManagementService {
         await this.writeState(transaction, nextState);
         await this.writeProjection(transaction, nextState, calculation);
 
-        return this.toSnapshot(nextState, calculation);
+        return this.toApiSnapshot(nextState, calculation);
       }
     );
 
@@ -970,6 +1013,17 @@ export class CashManagementService {
           expectedRevision
         });
         const previousEvent = this.requireEvent(state, eventId);
+        const economicClassification =
+          event.economicClassification === undefined
+            ? (previousEvent.economicClassification ?? null)
+            : this.normalizeEconomicClassification(
+                event.economicClassification
+              );
+        this.assertClassificationEligibility(
+          normalizedEvent.type,
+          economicClassification,
+          previousEvent
+        );
 
         const dateChanged =
           previousEvent.date.getTime() !== normalizedEvent.date.getTime();
@@ -1001,7 +1055,7 @@ export class CashManagementService {
         });
 
         const updatedEvent = await transaction.cashEvent.update({
-          data: { ...normalizedEvent, sequence },
+          data: { ...normalizedEvent, sequence, economicClassification },
           where: { ...scope, id: eventId }
         });
         const nextState: CashState = {
@@ -1016,7 +1070,7 @@ export class CashManagementService {
         await this.writeState(transaction, nextState);
         await this.writeProjection(transaction, nextState, calculation);
 
-        return this.toSnapshot(nextState, calculation);
+        return this.toApiSnapshot(nextState, calculation);
       }
     );
 
@@ -1072,7 +1126,7 @@ export class CashManagementService {
         await this.writeState(transaction, nextState);
         await this.writeProjection(transaction, nextState, calculation);
 
-        return this.toSnapshot(nextState, calculation);
+        return this.toApiSnapshot(nextState, calculation);
       }
     );
 
@@ -1134,8 +1188,9 @@ export class CashManagementService {
     snapshot: import('@ghostfolio/common/interfaces').CashManagementExport,
     currency: string
   ) {
+    if (![1, 2].includes(snapshot?.version))
+      throw new BadRequestException('Unsupported cash ledger backup version.');
     if (
-      snapshot?.version !== 1 ||
       snapshot.currency !== currency ||
       typeof snapshot.defaultUpdateCash !== 'boolean' ||
       (snapshot.includeCashInPortfolio !== undefined &&
@@ -1151,6 +1206,13 @@ export class CashManagementService {
       ...snapshot.openingBalance,
       balance: this.normalizeValue(snapshot.openingBalance.balance)
     };
+    if (
+      (snapshot.openingBalance as unknown as Record<string, unknown>)
+        .economicClassification != null
+    )
+      throw new BadRequestException(
+        'Opening balances cannot carry movement classification.'
+      );
     this.toUtcDate(openingBalance.date);
     const orderIds = new Set<string>();
     const events = snapshot.events.map((event) => {
@@ -1168,6 +1230,33 @@ export class CashManagementService {
       )
         throw new BadRequestException('Invalid cash import reference');
       const normalized = this.normalizeEvent(event);
+      const economicClassification = this.normalizeEconomicClassification(
+        event.economicClassification
+      );
+      if (snapshot.version === 1 && economicClassification !== null)
+        throw new BadRequestException(
+          'Classified cash events require backup version 2; refusing a version-1 downgrade.'
+        );
+      this.assertClassificationEligibility(
+        normalized.type,
+        economicClassification
+      );
+      const original = event as unknown as Record<string, unknown>;
+      if (
+        economicClassification !== null &&
+        [
+          'orderId',
+          'transferId',
+          'transferCounterparty',
+          'transferCounterpartyAccountId',
+          'transferCounterpartyMode',
+          'transferCounterpartyAmount',
+          'transferCounterpartyCurrency'
+        ].some((key) => original[key] != null)
+      )
+        throw new BadRequestException(
+          'Linked cash events cannot carry manual economic classification.'
+        );
       if (
         !Number.isInteger(event.sequence) ||
         event.sequence < (snapshot.isAutomaticOpening ? 0 : 1) ||
@@ -1261,6 +1350,10 @@ export class CashManagementService {
       }
       data.push({
         ...this.normalizeEvent(event),
+        economicClassification:
+          snapshot.version === 2
+            ? this.normalizeEconomicClassification(event.economicClassification)
+            : null,
         importReference: event.importReference ?? null,
         sequence: event.sequence,
         orderId,
@@ -1324,7 +1417,7 @@ export class CashManagementService {
             revision: state.revision + 1
           }
         });
-        return this.toSnapshot(
+        return this.toApiSnapshot(
           {
             ...state,
             defaultUpdateCash:
@@ -1855,6 +1948,42 @@ export class CashManagementService {
     return state.lastSequence + 1;
   }
 
+  private normalizeEconomicClassification(
+    value: unknown
+  ): CashMovementClassification | null {
+    if (value == null) return null;
+    if (
+      !CASH_MOVEMENT_CLASSIFICATIONS.includes(
+        value as CashMovementClassification
+      )
+    ) {
+      throw new BadRequestException('Unsupported cash movement classification');
+    }
+    return value as CashMovementClassification;
+  }
+
+  private assertClassificationEligibility(
+    type: CashEvent['type'],
+    classification: CashMovementClassification | null,
+    previous?: CashEvent
+  ): void {
+    if (classification === null) return;
+    if (
+      type !== 'MOVEMENT' ||
+      (previous &&
+        (previous.orderId != null ||
+          previous.transferId != null ||
+          previous.transferCounterpartyAccountId != null ||
+          previous.transferCounterpartyMode != null ||
+          previous.transferCounterpartyAmount != null ||
+          previous.transferCounterpartyCurrency != null))
+    ) {
+      throw new BadRequestException(
+        'Classification is only allowed on manual movements; clear it explicitly before reconciliation'
+      );
+    }
+  }
+
   private normalizeEvent(event: CashEventInput): {
     comment: string | null;
     date: Date;
@@ -2127,6 +2256,14 @@ export class CashManagementService {
     };
   }
 
+  /** All snapshots now preserve the v2 classification metadata. */
+  private toApiSnapshot(
+    state: CashState,
+    calculation: CashBalanceCalculation
+  ): CashManagementSnapshot {
+    return this.toSnapshot(state, calculation);
+  }
+
   private toSnapshot(
     state: CashState,
     calculation: CashBalanceCalculation
@@ -2135,6 +2272,7 @@ export class CashManagementService {
       .map((event) => {
         return {
           ...this.toCalculatorEvent(event),
+          economicClassification: event.economicClassification ?? null,
           ...(event.type === 'MOVEMENT'
             ? { amount: event.value.toString() }
             : {}),

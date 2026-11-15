@@ -171,7 +171,24 @@ describe('upstream realized-gain characterization', () => {
         )
       );
 
+      // Both implementations must agree on the remaining position.
+      expect(snapshot.positions).toHaveLength(1);
       expect(snapshot.totalInvestment.toNumber()).toBeCloseTo(75, 10);
+      expect(snapshot.positions[0].investment.toNumber()).toBeCloseTo(75, 10);
+      expect(upstreamLast?.value).toBeCloseTo(100, 10);
+
+      // Both implementations produce the same performance for this scenario.
+      expect(snapshot.positions[0].grossPerformance.toNumber()).toBeCloseTo(
+        60,
+        10
+      );
+      expect(upstreamLast?.netPerformance).toBeCloseTo(60, 10);
+
+      // The independent financial model retains the correct realized gain
+      // and residual cost basis for the four-operation scenario.
+      expect(prototypeLast.costBasis.toNumber()).toBeCloseTo(75, 10);
+      expect(prototypeLast.realizedGain.toNumber()).toBeCloseTo(35, 10);
+      expect(prototypeLast.value.toNumber()).toBeCloseTo(100, 10);
       expect(prototypeLast.netPerformance.toNumber()).toBeCloseTo(60, 10);
     }
   );

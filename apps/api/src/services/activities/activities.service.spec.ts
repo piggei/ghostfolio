@@ -626,14 +626,16 @@ describe('ActivitiesService', () => {
         4,
         'CHF',
         'EUR',
-        date
+        date,
+        undefined
       );
       expect(toCurrencyAtDate).toHaveBeenNthCalledWith(
         4,
         4,
         'CHF',
         'USD',
-        date
+        date,
+        undefined
       );
     });
 
@@ -949,6 +951,202 @@ describe('ActivitiesService', () => {
 
       return result.activities[0];
     }
+  });
+
+  describe('getActivitiesForSecuritiesPortfolioCalculator', () => {
+    it('uses the same transaction for orders, profiles, splits and FX conversions', async () => {
+      const transaction = {
+        order: {
+          findMany: jest.fn().mockResolvedValue([
+            {
+              ...activityDummyData,
+              account: null,
+              cashEvent: null,
+              currency: 'USD',
+              date: parseDate('2024-01-15'),
+              fee: 1,
+              id: 'activity-id',
+              quantity: 2,
+              tax: 1,
+              SymbolProfile: {
+                currency: 'USD',
+                dataSource: DataSource.YAHOO,
+                symbol: 'AAPL'
+              },
+              tags: [],
+              type: ActivityType.BUY,
+              unitPrice: 100
+            }
+          ]),
+          count: jest.fn().mockResolvedValue(1)
+        }
+      };
+
+      const prismaService = {
+        order: {
+          findMany: jest.fn(),
+          count: jest.fn()
+        }
+      };
+
+      const assetProfile = {
+        ...assetProfileDummyData,
+        assetSubClass: AssetSubClass.STOCK,
+        currency: 'USD',
+        dataSource: DataSource.YAHOO,
+        name: 'Apple',
+        symbol: 'AAPL'
+      };
+
+      const getSymbolProfiles = jest.fn().mockResolvedValue([assetProfile]);
+      const getSplitsByUserId = jest.fn().mockResolvedValue([]);
+      const toCurrencyAtDate = jest.fn(
+        async (
+          amount: number,
+          fromCurrency: string,
+          toCurrency: string,
+          date: Date,
+          transaction?: Prisma.TransactionClient
+        ) => {
+          void [fromCurrency, toCurrency, date, transaction];
+
+          return amount;
+        }
+      );
+
+      const service = new ActivitiesService(
+        null,
+        null,
+        { getSplitsByUserId } as unknown as AssetProfileSplitService,
+        null,
+        null,
+        null,
+        null,
+        { toCurrencyAtDate } as unknown as ExchangeRateDataService,
+        null,
+        prismaService as unknown as PrismaService,
+        { getSymbolProfiles } as unknown as SymbolProfileService,
+        null
+      );
+
+      const result =
+        await service.getActivitiesForSecuritiesPortfolioCalculator({
+          userCurrency: 'EUR',
+          userId: 'user-id',
+          transaction: transaction as never
+        });
+
+      expect(result.activities).toHaveLength(1);
+      expect(result.count).toBe(1);
+
+      // Orders and count must use the supplied transaction.
+      expect(transaction.order.findMany).toHaveBeenCalledTimes(1);
+      expect(transaction.order.count).toHaveBeenCalledTimes(1);
+      expect(prismaService.order.findMany).not.toHaveBeenCalled();
+      expect(prismaService.order.count).not.toHaveBeenCalled();
+
+      // Symbol profiles and stock splits must use the same transaction.
+      expect(getSymbolProfiles).toHaveBeenCalledWith(
+        [{ dataSource: DataSource.YAHOO, symbol: 'AAPL' }],
+        transaction
+      );
+
+      expect(getSplitsByUserId).toHaveBeenCalledWith({
+        userId: 'user-id',
+        transaction
+      });
+
+      // All six FX conversions must receive the identical transaction.
+      expect(toCurrencyAtDate).toHaveBeenCalledTimes(6);
+
+      for (const call of toCurrencyAtDate.mock.calls) {
+        expect(call[4]).toBe(transaction);
+      }
+    });
+
+    it('excludes cash positions while preserving securities activities', async () => {
+      const stock = createActivity({
+        assetSubClass: AssetSubClass.STOCK,
+        symbol: 'AAPL'
+      });
+      const cash = createActivity({
+        assetSubClass: AssetSubClass.CASH,
+        symbol: 'USD'
+      });
+
+      jest.spyOn(activitiesService, 'getActivities').mockResolvedValue({
+        activities: [stock, cash],
+        count: 2
+      });
+
+      const result =
+        await activitiesService.getActivitiesForSecuritiesPortfolioCalculator({
+          userCurrency: 'USD',
+          userId: 'user-id'
+        });
+
+      expect(result.activities).toEqual([stock]);
+      expect(result.count).toBe(1);
+      expect(accountService.getCashDetails).not.toHaveBeenCalled();
+    });
+
+    it('applies stock splits before excluding cash positions', async () => {
+      const stock = createActivity({
+        assetSubClass: AssetSubClass.STOCK,
+        symbol: 'AAPL'
+      });
+      const cash = createActivity({
+        assetSubClass: AssetSubClass.CASH,
+        symbol: 'USD'
+      });
+
+      jest.spyOn(activitiesService, 'getActivities').mockResolvedValue({
+        activities: [stock, cash],
+        count: 2
+      });
+
+      getSplitsByUserId.mockResolvedValue([createSplit()]);
+
+      const result =
+        await activitiesService.getActivitiesForSecuritiesPortfolioCalculator({
+          userCurrency: 'USD',
+          userId: 'user-id'
+        });
+
+      expect(result.count).toBe(1);
+      expect(result.activities[0]).toMatchObject({
+        quantity: 20,
+        unitPrice: 50,
+        unitPriceInAssetProfileCurrency: 50
+      });
+    });
+
+    it('preserves filters and account exclusion options', async () => {
+      const filters = [{ id: 'AAPL', type: 'SYMBOL' }] as Filter[];
+
+      jest.spyOn(activitiesService, 'getActivities').mockResolvedValue({
+        activities: [],
+        count: 0
+      });
+
+      await activitiesService.getActivitiesForSecuritiesPortfolioCalculator({
+        filters,
+        userCurrency: 'USD',
+        userId: 'user-id',
+        withExcludedAccountsAndActivities: true
+      });
+
+      expect(activitiesService.getActivities).toHaveBeenCalledWith({
+        filters,
+        userCurrency: 'USD',
+        userId: 'user-id',
+        withExcludedAccountsAndActivities: true
+      });
+
+      expect(getSplitsByUserId).toHaveBeenCalledWith({
+        userId: 'user-id'
+      });
+    });
   });
 
   describe('getLatestActivity', () => {

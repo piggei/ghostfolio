@@ -117,7 +117,7 @@
           <p class="text-warning">{{ warning }}</p>
         }
         @for (issue of preview.errors.slice(0, 50); track $index) {
-          <p class="text-danger">{{ issue }}</p>
+          <p class="text-danger">{{ cashMessage(issue) }}</p>
         }
         @if (preview.errors.length > 50) {
           <p i18n>
@@ -132,6 +132,9 @@
                 <th i18n>Date</th>
                 <th i18n>Operation</th>
                 <th i18n>Amount</th>
+                <th i18n="@@cashEconomicClassification">
+                  Economic classification
+                </th>
                 <th i18n>Status</th>
               </tr>
             </thead>
@@ -148,8 +151,11 @@
                   <td>{{ row.date }}</td>
                   <td>{{ row.operation }}</td>
                   <td>{{ row.amount }}</td>
+                  <td data-testid="csv-classification">
+                    {{ csvClassification(row) }}
+                  </td>
                   <td>
-                    {{ csvStatus(row.status) }} {{ row.message }}
+                    {{ csvStatus(row.status) }} {{ cashMessage(row.message) }}
                     @if (row.candidates?.length) {
                       <mat-form-field
                         appearance="outline"
@@ -274,6 +280,26 @@
           <input formControlName="amount" inputmode="decimal" matInput />
           <span matTextSuffix>{{ currency() }}</span>
         </mat-form-field>
+        @if (form.controls.operation.value !== 'CHECKPOINT') {
+          <mat-form-field appearance="outline">
+            <mat-label i18n="@@cashEconomicClassification"
+              >Economic classification</mat-label
+            >
+            <mat-select
+              formControlName="economicClassification"
+              [canSelectNullableOptions]="true"
+            >
+              @for (classification of classifications; track classification) {
+                <mat-option [value]="classification">{{
+                  classificationLabel(classification)
+                }}</mat-option>
+              }
+            </mat-select>
+            <mat-error i18n="@@cashClassificationInvalid"
+              >Select a valid economic classification.</mat-error
+            >
+          </mat-form-field>
+        }
         <mat-form-field appearance="outline">
           <mat-label i18n>Fee</mat-label>
           <input
@@ -310,6 +336,38 @@
           </button>
         }
       </form>
+      @if (classificationChanged()) {
+        <p
+          class="small text-warning"
+          data-testid="classification-warning"
+          i18n="@@cashClassificationHistoricalWarning"
+          role="status"
+        >
+          Changing the economic classification of an existing movement may
+          change historical portfolio performance.
+        </p>
+      }
+      @if (
+        form.controls.operation.value === 'CHECKPOINT' &&
+        form.controls.economicClassification.value !== null
+      ) {
+        <p
+          class="text-danger"
+          i18n="@@cashClassificationCheckpointError"
+          role="alert"
+        >
+          Clear the economic classification explicitly before changing this
+          movement to a reconciliation.
+        </p>
+        <button
+          i18n="@@cashClassificationClear"
+          mat-button
+          type="button"
+          (click)="form.controls.economicClassification.setValue(null)"
+        >
+          Clear classification
+        </button>
+      }
       @if (form.controls.operation.value === 'CHECKPOINT') {
         <p class="small" i18n>
           Enter the actual balance at this date. A reconciliation replaces the
@@ -319,6 +377,10 @@
         <p class="small" i18n>
           Enter a positive amount. Withdrawals are subtracted automatically.
         </p>
+        <p class="small" i18n="@@cashClassificationDirectionHelp">
+          Deposit and Withdrawal describe the cash direction. Choose the
+          economic classification independently.
+        </p>
       }
     }
     <div class="table-responsive">
@@ -327,6 +389,7 @@
           <tr>
             <th i18n>Date</th>
             <th i18n>Operation</th>
+            <th i18n="@@cashEconomicClassification">Economic classification</th>
             <th class="text-end" i18n>Amount</th>
             <th class="text-end" i18n>Fee</th>
             <th class="text-end" i18n>Cash Balance</th>
@@ -339,6 +402,13 @@
             <tr>
               <td class="text-nowrap">{{ event.date }}</td>
               <td>{{ eventLabel(event) }}</td>
+              <td data-testid="event-classification">
+                {{
+                  event.type === 'MOVEMENT' && !isLinked(event)
+                    ? classificationLabel(event.economicClassification)
+                    : '—'
+                }}
+              </td>
               <td class="text-end text-nowrap">
                 {{ eventAmount(event) }} {{ currency() }}
               </td>
@@ -362,7 +432,7 @@
                     <ion-icon name="ellipsis-vertical" />
                   </button>
                   <mat-menu #actions="matMenu">
-                    @if (event.orderId || event.transferId) {
+                    @if (isLinked(event)) {
                       <button
                         mat-menu-item
                         type="button"
@@ -400,7 +470,7 @@
             </tr>
           } @empty {
             <tr>
-              <td colspan="7" i18n>No cash transactions yet.</td>
+              <td colspan="8" i18n>No cash transactions yet.</td>
             </tr>
           }
         </tbody>

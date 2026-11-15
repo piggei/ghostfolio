@@ -19,6 +19,7 @@ import { DataProviderHistoricalResponse } from '@ghostfolio/common/interfaces';
 
 import { utc } from '@date-fns/utc';
 import { Injectable, Logger } from '@nestjs/common';
+import { Prisma } from '@prisma/client';
 import {
   eachDayOfInterval,
   format,
@@ -60,12 +61,14 @@ export class ExchangeRateDataService {
     currencies,
     endDate = new Date(),
     startDate,
-    targetCurrency
+    targetCurrency,
+    transaction
   }: {
     currencies: string[];
     endDate?: Date;
     startDate: Date;
     targetCurrency: string;
+    transaction?: Prisma.TransactionClient;
   }): Promise<ExchangeRatesByCurrency> {
     if (!startDate) {
       return {};
@@ -80,7 +83,8 @@ export class ExchangeRateDataService {
         await this.getExchangeRates({
           startDate,
           currencyFrom: currency,
-          currencyTo: targetCurrency
+          currencyTo: targetCurrency,
+          transaction
         });
 
       const dateStrings = Object.keys(
@@ -290,7 +294,8 @@ export class ExchangeRateDataService {
     aValue: number,
     aFromCurrency: string,
     aToCurrency: string,
-    aDate: Date
+    aDate: Date,
+    transaction?: Prisma.TransactionClient
   ) {
     if (aValue === 0) {
       return 0;
@@ -316,7 +321,8 @@ export class ExchangeRateDataService {
       const marketData = await this.marketDataService.get({
         dataSource,
         symbol,
-        date: aDate
+        date: aDate,
+        transaction
       });
 
       if (marketData?.marketPrice) {
@@ -335,7 +341,8 @@ export class ExchangeRateDataService {
               await this.marketDataService.get({
                 dataSource,
                 date: aDate,
-                symbol: `${DEFAULT_CURRENCY}${aFromCurrency}`
+                symbol: `${DEFAULT_CURRENCY}${aFromCurrency}`,
+                transaction
               })
             )?.marketPrice;
           }
@@ -349,7 +356,8 @@ export class ExchangeRateDataService {
               await this.marketDataService.get({
                 dataSource,
                 date: aDate,
-                symbol: `${DEFAULT_CURRENCY}${aToCurrency}`
+                symbol: `${DEFAULT_CURRENCY}${aToCurrency}`,
+                transaction
               })
             )?.marketPrice;
           }
@@ -385,12 +393,14 @@ export class ExchangeRateDataService {
     currencyFrom,
     currencyTo,
     endDate = new Date(),
-    startDate
+    startDate,
+    transaction
   }: {
     currencyFrom: string;
     currencyTo: string;
     endDate?: Date;
     startDate: Date;
+    transaction?: Prisma.TransactionClient;
   }) {
     const dates = eachDayOfInterval({ end: endDate, start: startDate });
     const factors: { [dateString: string]: number } = {};
@@ -424,7 +434,8 @@ export class ExchangeRateDataService {
           symbol
         }
       ],
-      dateQuery: { gte: startDate, lt: endDate }
+      dateQuery: { gte: startDate, lt: endDate },
+      transaction
     });
 
     if (marketData?.length > 0) {
@@ -454,7 +465,8 @@ export class ExchangeRateDataService {
                 symbol: `${DEFAULT_CURRENCY}${currencyFrom}`
               }
             ],
-            dateQuery: { gte: startDate, lt: endDate }
+            dateQuery: { gte: startDate, lt: endDate },
+            transaction
           });
 
           for (const { date, marketPrice } of marketData) {
@@ -480,7 +492,8 @@ export class ExchangeRateDataService {
             dateQuery: {
               gte: startDate,
               lt: endDate
-            }
+            },
+            transaction
           });
 
           for (const { date, marketPrice } of marketData) {

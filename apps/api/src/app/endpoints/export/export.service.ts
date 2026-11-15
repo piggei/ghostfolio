@@ -147,7 +147,7 @@ export class ExportService {
         });
         if (snapshot) {
           account.cashManagement = {
-            version: 1,
+            version: 2,
             currency: snapshot.currency,
             defaultUpdateCash: snapshot.defaultUpdateCash,
             includeCashInPortfolio: snapshot.includeCashInPortfolio,

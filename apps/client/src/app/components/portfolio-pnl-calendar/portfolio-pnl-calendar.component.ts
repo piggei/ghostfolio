@@ -54,7 +54,31 @@ export class GfPortfolioPnlCalendarComponent {
   });
 
   protected readonly days = computed(() => {
-    return getPnlCalendarDays(this.chart() ?? []);
+    const chartDays = getPnlCalendarDays(this.chart() ?? []);
+
+    if (this.effectiveUnit() !== 'currency') {
+      return chartDays;
+    }
+
+    const dailyPnl = this.dailyPnl();
+
+    if (dailyPnl === null) {
+      return chartDays.map(({ date, percentagePoints }) => ({
+        date,
+        amount: undefined,
+        percentagePoints
+      }));
+    }
+
+    const percentageByDate = new Map(
+      chartDays.map(({ date, percentagePoints }) => [date, percentagePoints])
+    );
+
+    return [...dailyPnl.entries()].map(([date, amount]) => ({
+      date,
+      amount,
+      percentagePoints: percentageByDate.get(date)
+    }));
   });
   protected readonly firstHistoricalDate = computed(() => {
     return this.chart()
@@ -211,7 +235,42 @@ export class GfPortfolioPnlCalendarComponent {
   });
 
   private readonly dataService = inject(DataService);
+  private readonly dailyPnl = signal<Map<string, number | undefined> | null>(
+    null
+  );
   private readonly percentages = signal<Map<string, number> | null>(null);
+
+  private readonly dailyPnlRequest = computed(() => {
+    if (this.chart() === null || this.effectiveUnit() !== 'currency') {
+      return null;
+    }
+
+    const referenceDate = this.referenceDate();
+    const year = referenceDate.getFullYear();
+    const month = referenceDate.getMonth();
+    const today = getLocalTodayKey();
+    const rolling = this.view() === 'last30';
+    const annual = this.view() === 'monthly';
+
+    const requestedEnd = rolling
+      ? this.toDateKey(year, month, referenceDate.getDate())
+      : addCalendarDays(this.toDateKey(year, annual ? 12 : month + 1, 1), -1);
+
+    const endDate = requestedEnd > today ? today : requestedEnd;
+
+    let startDate = rolling
+      ? addCalendarDays(endDate, -29)
+      : this.toDateKey(year, annual ? 0 : month, 1);
+
+    const firstHistoricalDate = this.firstHistoricalDate();
+
+    if (firstHistoricalDate && firstHistoricalDate > startDate) {
+      startDate = firstHistoricalDate;
+    }
+
+    return startDate <= endDate ? { startDate, endDate } : null;
+  });
+
   private readonly percentageRequest = computed(() => {
     if (
       this.chart() === null ||
@@ -248,6 +307,43 @@ export class GfPortfolioPnlCalendarComponent {
   });
 
   public constructor() {
+    toObservable(this.dailyPnlRequest)
+      .pipe(
+        switchMap((period) => {
+          this.dailyPnl.set(null);
+
+          return period
+            ? this.dataService
+                .fetchPortfolioDailyPerformance(period)
+                .pipe(catchError(() => of(null)))
+            : of(null);
+        }),
+        takeUntilDestroyed()
+      )
+      .subscribe((response) => {
+        if (response === null) {
+          this.dailyPnl.set(null);
+          return;
+        }
+
+        this.dailyPnl.set(
+          new Map(
+            response.days.map(({ date, pnl }) => {
+              if (pnl.status !== 'available') {
+                return [date, undefined] as const;
+              }
+
+              const amount = Number(pnl.dailyPnl);
+
+              return [
+                date,
+                Number.isFinite(amount) ? amount : undefined
+              ] as const;
+            })
+          )
+        );
+      });
+
     toObservable(this.percentageRequest)
       .pipe(
         switchMap((periods) => {

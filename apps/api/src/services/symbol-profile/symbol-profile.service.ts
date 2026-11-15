@@ -131,9 +131,12 @@ export class SymbolProfileService {
   }
 
   public async getSymbolProfiles(
-    aAssetProfileIdentifiers: AssetProfileIdentifier[]
+    aAssetProfileIdentifiers: AssetProfileIdentifier[],
+    transaction?: Prisma.TransactionClient
   ): Promise<EnhancedAssetProfile[]> {
-    return this.prismaService.symbolProfile
+    const prisma = transaction ?? this.prismaService;
+
+    return prisma.symbolProfile
       .findMany({
         include: {
           _count: {

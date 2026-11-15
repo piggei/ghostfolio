@@ -15,6 +15,7 @@ import { ExchangeRateDataModule } from '@ghostfolio/api/services/exchange-rate-d
 import { I18nModule } from '@ghostfolio/api/services/i18n/i18n.module';
 import { ImpersonationModule } from '@ghostfolio/api/services/impersonation/impersonation.module';
 import { MarketDataModule } from '@ghostfolio/api/services/market-data/market-data.module';
+import { PrismaModule } from '@ghostfolio/api/services/prisma/prisma.module';
 import { DataGatheringQueueModule } from '@ghostfolio/api/services/queues/data-gathering/data-gathering.module';
 import { PortfolioSnapshotQueueModule } from '@ghostfolio/api/services/queues/portfolio-snapshot/portfolio-snapshot.module';
 import { RedisCacheModule } from '@ghostfolio/api/services/redis-cache/redis-cache.module';
@@ -25,6 +26,7 @@ import { Module } from '@nestjs/common';
 
 import { PortfolioCalculatorFactory } from './calculator/portfolio-calculator.factory';
 import { CurrentRateService } from './current-rate.service';
+import { DailyNavOrchestratorService } from './daily-nav-orchestrator.service';
 import { PortfolioController } from './portfolio.controller';
 import { PortfolioService } from './portfolio.service';
 import { RulesService } from './rules.service';
@@ -49,6 +51,7 @@ import { RulesService } from './rules.service';
     MarketDataModule,
     PerformanceLoggingModule,
     PortfolioSnapshotQueueModule,
+    PrismaModule,
     RedactValuesInResponseModule,
     RedisCacheModule,
     SymbolProfileModule,
@@ -58,6 +61,7 @@ import { RulesService } from './rules.service';
   ],
   providers: [
     CurrentRateService,
+    DailyNavOrchestratorService,
     PortfolioCalculatorFactory,
     PortfolioService,
     RulesService

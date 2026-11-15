@@ -1,3 +1,5 @@
+import type { CashMovementClassification } from './cash-management.interface';
+
 export interface CashCsvPreview {
   accountId: string;
   currency: string;
@@ -8,6 +10,7 @@ export interface CashCsvPreview {
     date: string;
     operation: string;
     amount: string;
+    economicClassification?: CashMovementClassification | null;
     status: 'NEW' | 'EXISTING' | 'ERROR';
     message: string;
     candidates?: { id: string; label: string }[];

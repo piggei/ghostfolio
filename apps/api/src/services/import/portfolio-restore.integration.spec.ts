@@ -2,6 +2,7 @@ import { CashManagementService } from '@ghostfolio/api/app/account-balance/cash-
 import { ExportService } from '@ghostfolio/api/app/endpoints/export/export.service';
 import { AccountBalanceService } from '@ghostfolio/api/services/account-balance/account-balance.service';
 import { PrismaService } from '@ghostfolio/api/services/prisma/prisma.service';
+import type { ExportResponse } from '@ghostfolio/common/interfaces';
 
 import { ValidationPipe } from '@nestjs/common';
 import { ConfigService } from '@nestjs/config';
@@ -140,6 +141,314 @@ describeDb('Portfolio JSON restore with PostgreSQL', () => {
     expect(plan.errors).toEqual([]);
     return service.run({ ...input, digest: plan.digest }, userId, false);
   }
+  async function exportPortfolio(ownerId: string): Promise<ExportResponse> {
+    const exporter = new ExportService(
+      {
+        accounts: ({ where }) =>
+          prisma.account.findMany({
+            where,
+            include: { balances: true, tags: true, platform: true }
+          })
+      } as never,
+      {
+        getActivities: async ({ userId: id }) => ({
+          activities: (
+            await prisma.order.findMany({
+              where: { userId: id },
+              include: { SymbolProfile: true, tags: true }
+            })
+          ).map((order) => ({ ...order, assetProfile: order.SymbolProfile }))
+        })
+      } as never,
+      {
+        marketDataItems: ({ where }) => prisma.marketData.findMany({ where })
+      } as never,
+      { getTagsForUser: async () => [] } as never,
+      cash
+    );
+    return JSON.parse(
+      JSON.stringify(
+        await exporter.export({
+          userId: ownerId,
+          userSettings: { baseCurrency: 'EUR' } as never
+        })
+      )
+    ) as ExportResponse;
+  }
+
+  it('round-trips a full JSON v2 backup with categories, linked orders and reciprocal transfer remapping', async () => {
+    const source = fixture();
+    const first = source.backup.accounts[0];
+    first.cashManagement.version = 2;
+    first.cashManagement.events[0].economicClassification = 'EXTERNAL_CAPITAL';
+    first.cashManagement.events.push(
+      {
+        id: randomUUID(),
+        type: 'MOVEMENT',
+        date: '2026-03-01',
+        sequence: 3,
+        amount: '100',
+        fee: '2',
+        economicClassification: 'INCOME',
+        importReference: 'manual-income'
+      },
+      {
+        id: randomUUID(),
+        type: 'MOVEMENT',
+        date: '2026-03-02',
+        sequence: 4,
+        amount: '-20',
+        fee: '1',
+        economicClassification: 'EXPENSE',
+        importReference: 'manual-expense'
+      },
+      {
+        id: randomUUID(),
+        type: 'MOVEMENT',
+        date: '2026-03-03',
+        sequence: 5,
+        amount: '5',
+        fee: '0',
+        economicClassification: null,
+        importReference: 'unknown'
+      }
+    );
+    const otherId = randomUUID();
+    const transferId = randomUUID();
+    first.cashManagement.events.push({
+      id: randomUUID(),
+      type: 'MOVEMENT',
+      date: '2026-10-25',
+      sequence: 6,
+      amount: '-20',
+      transferId,
+      transferCounterparty: {
+        accountId: otherId,
+        mode: 'CASH',
+        amount: '20',
+        currency: 'EUR'
+      }
+    });
+    source.backup.accounts.push({
+      id: otherId,
+      name: 'Second source',
+      currency: 'EUR',
+      platformId: null,
+      cashManagement: {
+        version: 2,
+        currency: 'EUR',
+        defaultUpdateCash: true,
+        openingBalance: { date: '2026-01-01', balance: '0', sequence: 0 },
+        events: [
+          {
+            id: randomUUID(),
+            type: 'MOVEMENT',
+            date: '2026-10-25',
+            sequence: 1,
+            amount: '20',
+            transferId,
+            transferCounterparty: {
+              accountId: first.id,
+              mode: 'CASH',
+              amount: '-20',
+              currency: 'EUR'
+            }
+          }
+        ]
+      }
+    });
+    source.choices.push({ sourceId: otherId, targetId: 'NEW' });
+    await commit(source);
+    const backup = await exportPortfolio(userId);
+    expect(
+      backup.accounts.every((account) => account.cashManagement.version === 2)
+    ).toBe(true);
+    const sourceEvents = backup.accounts.find(
+      (account) => account.name === first.name
+    ).cashManagement.events;
+    expect(
+      sourceEvents.slice(0, 5).map((event) => event.economicClassification)
+    ).toEqual(['EXTERNAL_CAPITAL', null, 'INCOME', 'EXPENSE', null]);
+    const destinationUser = randomUUID();
+    users.push(destinationUser);
+    await prisma.user.create({ data: { id: destinationUser } });
+    const request = (await new ValidationPipe({
+      transform: true,
+      whitelist: true,
+      forbidNonWhitelisted: true
+    }).transform(
+      {
+        backup,
+        choices: backup.accounts.map((account) => ({
+          sourceId: account.id,
+          targetId: 'NEW'
+        }))
+      },
+      { type: 'body', metatype: PortfolioRestoreDto }
+    )) as PortfolioRestoreDto;
+    const preview = await service.run(request, destinationUser, true);
+    expect(preview.errors).toEqual([]);
+    await service.run(
+      { ...request, digest: preview.digest },
+      destinationUser,
+      false
+    );
+    const restored = await exportPortfolio(destinationUser);
+    for (const account of backup.accounts) {
+      const next = restored.accounts.find(
+        (candidate) => candidate.name === account.name
+      );
+      expect(next.id).not.toBe(account.id);
+      const summarize = (events: typeof sourceEvents) =>
+        events.map((event) => ({
+          type: event.type,
+          date: event.date,
+          sequence: event.sequence,
+          value: event.type === 'MOVEMENT' ? event.amount : event.balance,
+          fee: event.fee ?? '0',
+          economicClassification: event.economicClassification,
+          importReference: event.importReference
+        }));
+      expect(summarize(next.cashManagement.events)).toEqual(
+        summarize(account.cashManagement.events)
+      );
+      const before = await cash.getPersisted({ userId, accountId: account.id });
+      const after = await cash.getPersisted({
+        userId: destinationUser,
+        accountId: next.id
+      });
+      expect(after.balances).toEqual(before.balances);
+    }
+    const linked = restored.accounts
+      .flatMap((account) => account.cashManagement.events)
+      .find((event) => event.orderId);
+    expect(
+      restored.activities.some((activity) => activity.id === linked.orderId)
+    ).toBe(true);
+    expect(
+      backup.activities.some((activity) => activity.id === linked.orderId)
+    ).toBe(false);
+    const transfers = restored.accounts
+      .flatMap((account) => account.cashManagement.events)
+      .filter((event) => event.transferId);
+    expect(transfers).toHaveLength(2);
+    expect(transfers[0].transferId).toBe(transfers[1].transferId);
+    expect(transfers[0].transferId).not.toBe(
+      backup.accounts
+        .flatMap((account) => account.cashManagement.events)
+        .find((event) => event.transferId).transferId
+    );
+    expect(
+      transfers.every((event) =>
+        restored.accounts.some(
+          (account) => account.id === event.transferCounterparty.accountId
+        )
+      )
+    ).toBe(true);
+    expect(
+      transfers.every((event) => event.economicClassification === null)
+    ).toBe(true);
+  });
+
+  it('restores v1 historical movements as null without inferring capital from signs', async () => {
+    await commit(fixture());
+    const events = await prisma.cashEvent.findMany({ where: { userId } });
+    expect(events).toHaveLength(2);
+    expect(events.every((event) => event.economicClassification === null)).toBe(
+      true
+    );
+  });
+
+  it.each([0, 3, '2'])(
+    'explicitly rejects unsupported cash backup version %s',
+    async (version) => {
+      const input = fixture();
+      input.backup.accounts[0].cashManagement.version = version as never;
+      await expect(service.run(input, userId, true)).rejects.toThrow(
+        'Unsupported cash ledger backup version'
+      );
+      expect(await prisma.account.count({ where: { userId } })).toBe(0);
+    }
+  );
+
+  it('rejects a v2 classification mislabeled as v1 rather than silently dropping it', async () => {
+    const input = fixture();
+    input.backup.accounts[0].cashManagement.events[0].economicClassification =
+      'INCOME';
+    await expect(service.run(input, userId, true)).rejects.toThrow('version 2');
+  });
+
+  it.each([
+    'order',
+    'transfer',
+    'checkpoint',
+    'residual',
+    'opening',
+    'invalid-category'
+  ])(
+    'rejects v2 classification on %s before remapping or writing',
+    async (kind) => {
+      const input = fixture();
+      const ledger = input.backup.accounts[0].cashManagement;
+      ledger.version = 2;
+      const event = ledger.events[kind === 'order' ? 1 : 0];
+      event.economicClassification = 'INCOME';
+      if (kind === 'transfer') event.transferId = randomUUID();
+      if (kind === 'checkpoint')
+        ledger.events[0] = {
+          id: event.id,
+          type: 'CHECKPOINT',
+          balance: '5000',
+          date: event.date,
+          sequence: event.sequence,
+          economicClassification: 'INCOME'
+        };
+      if (kind === 'residual')
+        event.transferCounterparty = {
+          accountId: randomUUID(),
+          mode: 'LEGACY',
+          amount: '-5000',
+          currency: 'EUR'
+        };
+      if (kind === 'opening') {
+        event.economicClassification = null;
+        Object.assign(ledger.openingBalance, {
+          economicClassification: 'INCOME'
+        });
+      }
+      if (kind === 'invalid-category')
+        event.economicClassification = 'UNKNOWN' as never;
+      await expect(service.run(input, userId, true)).rejects.toThrow();
+      expect(await prisma.account.count({ where: { userId } })).toBe(0);
+      expect(await prisma.cashEvent.count({ where: { userId } })).toBe(0);
+    }
+  );
+
+  it('rolls back a v2 restore after a classified ledger has actually been written', async () => {
+    const input = fixture();
+    input.backup.accounts[0].cashManagement.version = 2;
+    input.backup.accounts[0].cashManagement.events[0].economicClassification =
+      'EXTERNAL_CAPITAL';
+    const plan = await service.run(input, userId, true);
+    expect(plan.errors).toEqual([]);
+    const original = cash.restoreInTransaction.bind(cash);
+    const spy = jest
+      .spyOn(cash, 'restoreInTransaction')
+      .mockImplementationOnce(async (...args) => {
+        await original(...args);
+        throw new Error('after classified ledger write');
+      });
+    try {
+      await expect(
+        service.run({ ...input, digest: plan.digest }, userId, false)
+      ).rejects.toThrow('after classified ledger write');
+    } finally {
+      spy.mockRestore();
+    }
+    expect(await prisma.account.count({ where: { userId } })).toBe(0);
+    expect(await prisma.order.count({ where: { userId } })).toBe(0);
+    expect(await prisma.cashEvent.count({ where: { userId } })).toBe(0);
+  });
   it('does not reuse an existing activity with a different tax, while missing tax still matches zero', async () => {
     const first = fixture();
     delete first.backup.accounts[0].cashManagement;

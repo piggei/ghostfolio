@@ -22,6 +22,7 @@ describe('Portfolio cash value visibility', () => {
         { buildFiltersFromQueryParams: () => [] } as never,
         { get: () => false } as never,
         { getPerformance: async () => result } as never,
+        { calculateDailyPerformance: jest.fn() } as never,
         { user: { settings: { settings: {} } } } as never
       );
       const response = await controller.getPerformanceV2(

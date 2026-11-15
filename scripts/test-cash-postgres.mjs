@@ -7,8 +7,10 @@ import { assertCashTestReport } from './cash-test-report.mjs';
 
 const files = [
   'apps/api/src/app/account-balance/cash-management.integration.spec.ts',
+  'apps/api/src/app/account-balance/daily-cash-persisted-reader.integration.spec.ts',
   'apps/api/src/services/import/portfolio-restore.integration.spec.ts',
-  'apps/api/src/app/portfolio/calculator/roai/portfolio-calculator-cash-ledger-contract.spec.ts'
+  'apps/api/src/app/portfolio/calculator/roai/portfolio-calculator-cash-ledger-contract.spec.ts',
+  'apps/api/src/app/portfolio/daily-nav-orchestrator.integration.spec.ts'
 ];
 let temporary;
 try {
@@ -58,7 +60,7 @@ try {
     throw new Error('Cash test process failed.');
   assertCashTestReport(JSON.parse(readFileSync(report, 'utf8')), files);
   console.log(
-    `Cash gate passed: all three suites ran without skips (${timezone}).`
+    `Cash gate passed: all five suites ran without skips (${timezone}).`
   );
 } catch (error) {
   console.error(error.message);

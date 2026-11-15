@@ -29,9 +29,14 @@ export class MarketDataService {
   public async get({
     dataSource,
     date = new Date(),
-    symbol
-  }: DataGatheringItem): Promise<MarketData | null> {
-    return await this.prismaService.marketData.findFirst({
+    symbol,
+    transaction
+  }: DataGatheringItem & {
+    transaction?: Prisma.TransactionClient;
+  }): Promise<MarketData | null> {
+    const prisma = transaction ?? this.prismaService;
+
+    return prisma.marketData.findFirst({
       where: {
         dataSource,
         symbol,
@@ -75,14 +80,18 @@ export class MarketDataService {
     assetProfileIdentifiers,
     dateQuery,
     skip,
-    take
+    take,
+    transaction
   }: {
     assetProfileIdentifiers: AssetProfileIdentifier[];
     dateQuery: DateQuery;
     skip?: number;
     take?: number;
+    transaction?: Prisma.TransactionClient;
   }): Promise<MarketData[]> {
-    return this.prismaService.marketData.findMany({
+    const prisma = transaction ?? this.prismaService;
+
+    return prisma.marketData.findMany({
       skip,
       take,
       orderBy: [
@@ -107,12 +116,16 @@ export class MarketDataService {
 
   public async getRangeCount({
     assetProfileIdentifiers,
-    dateQuery
+    dateQuery,
+    transaction
   }: {
     assetProfileIdentifiers: AssetProfileIdentifier[];
     dateQuery: DateQuery;
+    transaction?: Prisma.TransactionClient;
   }): Promise<number> {
-    return this.prismaService.marketData.count({
+    const prisma = transaction ?? this.prismaService;
+
+    return prisma.marketData.count({
       where: {
         date: dateQuery,
         OR: assetProfileIdentifiers.map(({ dataSource, symbol }) => {

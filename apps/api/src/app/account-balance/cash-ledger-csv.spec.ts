@@ -42,7 +42,7 @@ describe('Cash CSV format', () => {
   it('rejects unknown versions and columns', () => {
     expect(() =>
       readCashCsv(
-        'Version,Date,Operation,Amount,Currency\n2,2026-10-01,DEPOSIT,10,EUR'
+        'Version,Date,Operation,Amount,Currency\n3,2026-10-01,DEPOSIT,10,EUR'
       )
     ).toThrow();
     expect(() =>
@@ -50,6 +50,112 @@ describe('Cash CSV format', () => {
         'Date,Operation,Amount,Currency,Unknown\n2026-10-01,DEPOSIT,10,EUR,x'
       )
     ).toThrow();
+  });
+  it.each(['EXTERNAL_CAPITAL', 'INCOME', 'EXPENSE', ''])(
+    'round-trips CSV v2 category %s exactly',
+    (EconomicClassification) => {
+      const csv = writeCashCsv([
+        {
+          Version: '2',
+          Date: '2026-10-01',
+          Operation: 'DEPOSIT',
+          Amount: '100',
+          Currency: 'EUR',
+          EconomicClassification
+        }
+      ]);
+      expect(readCashCsv(csv)[0]).toMatchObject({
+        Version: '2',
+        EconomicClassification
+      });
+    }
+  );
+  it.each(['income', ' INCOME', 'INCOME ', 'null', 'UNKNOWN', '0'])(
+    'rejects malformed category %s',
+    (EconomicClassification) => {
+      expect(() =>
+        readCashCsv(
+          writeCashCsv([
+            {
+              Version: '2',
+              Date: '2026-10-01',
+              Operation: 'DEPOSIT',
+              Amount: '100',
+              Currency: 'EUR',
+              EconomicClassification
+            }
+          ])
+        )
+      ).toThrow();
+    }
+  );
+  it.each(['ACTIVITY', 'TRANSFER', 'RECONCILIATION'])(
+    'rejects manual category on %s',
+    (Operation) => {
+      expect(() =>
+        readCashCsv(
+          writeCashCsv([
+            {
+              Version: '2',
+              Date: '2026-10-01',
+              Operation,
+              Amount: '100',
+              Currency: 'EUR',
+              EconomicClassification: 'INCOME'
+            }
+          ])
+        )
+      ).toThrow();
+    }
+  );
+  it('rejects categories on metadata and forged linked manual rows', () => {
+    for (const extra of [
+      { Record: 'META' },
+      { ActivityId: 'order' },
+      { TransferReference: 'transfer' }
+    ]) {
+      expect(() =>
+        readCashCsv(
+          writeCashCsv([
+            {
+              Version: '2',
+              Date: '2026-10-01',
+              Operation: 'DEPOSIT',
+              Amount: '100',
+              Currency: 'EUR',
+              EconomicClassification: 'INCOME',
+              ...extra
+            }
+          ])
+        )
+      ).toThrow();
+    }
+  });
+  it.each(['1', ''])(
+    'refuses classified data without an explicit v2 contract (version %s)',
+    (Version) => {
+      expect(() =>
+        readCashCsv(
+          writeCashCsv([
+            {
+              Version,
+              Date: '2026-10-01',
+              Operation: 'DEPOSIT',
+              Amount: '100',
+              Currency: 'EUR',
+              EconomicClassification: 'INCOME'
+            }
+          ])
+        )
+      ).toThrow();
+    }
+  );
+  it('keeps v1/manual input unclassified without interpreting Deposit as capital', () => {
+    for (const csv of [
+      'Version,Date,Operation,Amount,Currency\n1,2026-10-01,DEPOSIT,100,EUR',
+      'Data;Operazione;Importo;Valuta\n2026-10-01;Prelievo;100;EUR'
+    ])
+      expect(readCashCsv(csv)[0].EconomicClassification).toBe('');
   });
   it('validates civil dates without rolling invalid days forward', () => {
     expect(csvDate('2026-10-25')).toBe('2026-10-25');

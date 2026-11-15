@@ -57,6 +57,41 @@ describe('AssetProfileSplitService', () => {
   });
 
   describe('getSplitsByUserId', () => {
+    it('uses the supplied transaction without accessing PrismaService', async () => {
+      const splits = [
+        createStoredSplit('2020-08-31'),
+        createStoredSplit('2021-09-16')
+      ];
+
+      const transactionFindMany = jest.fn().mockResolvedValue(splits);
+      const transaction = {
+        assetProfileSplit: {
+          findMany: transactionFindMany
+        }
+      };
+
+      const result = await assetProfileSplitService.getSplitsByUserId({
+        userId: 'user-id',
+        transaction: transaction as never
+      });
+
+      expect(result).toBe(splits);
+      expect(transactionFindMany).toHaveBeenCalledTimes(1);
+      expect(transactionFindMany).toHaveBeenCalledWith({
+        orderBy: [{ date: 'asc' }],
+        where: {
+          symbolProfile: {
+            activities: {
+              some: {
+                userId: 'user-id'
+              }
+            }
+          }
+        }
+      });
+      expect(findMany).not.toHaveBeenCalled();
+    });
+
     it('fetches the splits of the asset profiles held by the user with one ordered query', async () => {
       const splits = [
         createStoredSplit('2020-08-31'),

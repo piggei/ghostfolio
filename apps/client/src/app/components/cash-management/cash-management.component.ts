@@ -1,11 +1,13 @@
 import { COMMENT_MAXIMUM_LENGTH } from '@ghostfolio/common/config';
 import { DATE_FORMAT } from '@ghostfolio/common/helper';
 import {
+  CASH_MOVEMENT_CLASSIFICATIONS,
   CashCsvPreview,
   CashEventInput,
   CashManagementSnapshot,
   ManagedCashEvent
 } from '@ghostfolio/common/interfaces';
+import type { CashMovementClassification } from '@ghostfolio/common/interfaces';
 import { internalRoutes, publicRoutes } from '@ghostfolio/common/routes/routes';
 import { DataService } from '@ghostfolio/ui/services';
 
@@ -18,6 +20,7 @@ import {
   input,
   output,
   signal,
+  untracked,
   viewChild
 } from '@angular/core';
 import { takeUntilDestroyed } from '@angular/core/rxjs-interop';
@@ -69,6 +72,7 @@ export class GfCashManagementComponent {
   public readonly changed = output<void>();
 
   protected readonly COMMENT_MAXIMUM_LENGTH = COMMENT_MAXIMUM_LENGTH;
+  protected readonly classifications = [null, ...CASH_MOVEMENT_CLASSIFICATIONS];
   protected readonly cashGuideLink =
     publicRoutes.resources.subRoutes.guides.routerLink;
   protected readonly today = format(new Date(), DATE_FORMAT);
@@ -88,6 +92,18 @@ export class GfCashManagementComponent {
   protected readonly orderedEvents = () =>
     [...(this.snapshot()?.events ?? [])].reverse();
   protected readonly form = new FormGroup({
+    economicClassification: new FormControl<CashMovementClassification | null>(
+      null,
+      {
+        validators: [
+          (control) =>
+            control.value === null ||
+            CASH_MOVEMENT_CLASSIFICATIONS.includes(control.value)
+              ? null
+              : { economicClassification: true }
+        ]
+      }
+    ),
     operation: new FormControl('DEPOSIT', { nonNullable: true }),
     date: new FormControl(this.today, {
       nonNullable: true,
@@ -110,6 +126,8 @@ export class GfCashManagementComponent {
   private readonly router = inject(Router);
   private csvContent = '';
   private csvActivityLinks: Record<string, string> = {};
+  private accountGeneration = 0;
+  private originalClassification: CashMovementClassification | null = null;
 
   public constructor() {
     addIcons({ ellipsisVertical });
@@ -121,25 +139,29 @@ export class GfCashManagementComponent {
     effect((onCleanup) => {
       const accountId = this.accountId();
 
-      this.transferInformation.set(null);
-      this.snapshot.set(undefined);
-      this.error.set('');
+      const subscription = untracked(() => {
+        this.cancelEdit();
+        this.cancelCsvImport();
+        this.busy.set(false);
+        this.transferInformation.set(null);
+        this.snapshot.set(undefined);
+        this.error.set('');
 
-      const subscription = this.dataService
-        .fetchCashManagement(accountId)
-        .subscribe({
+        return this.dataService.fetchCashManagement(accountId).subscribe({
           next: (snapshot) => {
             this.snapshot.set(snapshot);
             const event = snapshot?.events.find(
               ({ id }) => id === this.eventId()
             );
-            if (event && !event.orderId && !event.transferId) this.edit(event);
+            if (event && !this.isLinked(event)) this.edit(event);
           },
           error: () =>
             this.error.set($localize`Unable to load cash transactions.`)
         });
+      });
 
       onCleanup(() => {
+        this.accountGeneration++;
         subscription.unsubscribe();
         this.accountRequestsCancelled.next();
       });
@@ -148,12 +170,24 @@ export class GfCashManagementComponent {
 
   protected save() {
     const state = this.snapshot();
-    if (!state || this.form.invalid || this.busy()) {
+    if (!state || !this.canWrite() || this.form.invalid || this.busy()) {
       return;
     }
-    const { operation, amount, date, comment, fee } = this.form.getRawValue();
+    const persisted = state.events.find(({ id }) => id === this.editing());
+    if (this.editing() && (!persisted || this.isLinked(persisted))) return;
+    const { operation, amount, date, comment, fee, economicClassification } =
+      this.form.getRawValue();
+    if (operation === 'CHECKPOINT' && economicClassification !== null) {
+      this.error.set(
+        $localize`:@@cashClassificationCheckpointError:Clear the economic classification explicitly before changing this movement to a reconciliation.`
+      );
+      return;
+    }
     const value = new Big(amount);
-    if (operation !== 'CHECKPOINT' && !value.gt(0)) {
+    if (
+      operation !== 'CHECKPOINT' &&
+      !(value.gt(0) || (value.eq(0) && new Big(fee).gt(0)))
+    ) {
       this.error.set($localize`Enter a positive amount.`);
       return;
     }
@@ -164,7 +198,8 @@ export class GfCashManagementComponent {
             balance: value.toString(),
             date,
             comment,
-            fee: '0'
+            fee: '0',
+            economicClassification: null
           }
         : {
             type: 'MOVEMENT',
@@ -174,7 +209,8 @@ export class GfCashManagementComponent {
               : value
             ).toString(),
             date,
-            comment
+            comment,
+            economicClassification
           };
     this.run(
       this.dataService.saveCashEvent(
@@ -187,12 +223,15 @@ export class GfCashManagementComponent {
   }
 
   protected edit(event: ManagedCashEvent) {
+    if (this.isLinked(event) || this.busy()) return;
     this.editing.set(event.id);
+    this.originalClassification = event.economicClassification ?? null;
     const value =
       event.type === 'CHECKPOINT'
         ? new Big(event.balance)
         : new Big(event.amount);
     this.form.setValue({
+      economicClassification: this.originalClassification,
       operation:
         event.type === 'CHECKPOINT'
           ? 'CHECKPOINT'
@@ -208,13 +247,80 @@ export class GfCashManagementComponent {
 
   protected cancelEdit() {
     this.editing.set(undefined);
-    this.formDirective()?.resetForm({
+    this.originalClassification = null;
+    const defaults = {
+      economicClassification: null,
       operation: 'DEPOSIT',
       date: this.today,
       amount: '',
       fee: '0',
       comment: ''
-    });
+    };
+    this.form.reset(defaults);
+    this.formDirective()?.resetForm(defaults);
+  }
+
+  protected isLinked(event: ManagedCashEvent) {
+    return (
+      event.orderId != null ||
+      event.transferId != null ||
+      event.transferCounterparty != null
+    );
+  }
+
+  protected classificationChanged() {
+    return (
+      !!this.editing() &&
+      this.form.controls.economicClassification.value !==
+        this.originalClassification
+    );
+  }
+
+  protected classificationLabel(
+    value: CashMovementClassification | null | undefined
+  ) {
+    switch (value) {
+      case 'EXTERNAL_CAPITAL':
+        return $localize`:@@cashClassificationExternalCapital:External capital`;
+      case 'INCOME':
+        return $localize`:@@cashClassificationIncome:Income`;
+      case 'EXPENSE':
+        return $localize`:@@cashClassificationExpense:Expense`;
+      default:
+        return $localize`:@@cashClassificationUnclassified:Unclassified`;
+    }
+  }
+
+  protected csvClassification(row: CashCsvPreview['rows'][number]) {
+    return ['DEPOSIT', 'WITHDRAWAL'].includes(row.operation)
+      ? this.classificationLabel(row.economicClassification)
+      : '—';
+  }
+
+  protected cashMessage(message: string) {
+    const row = /^Row (\d+): (.*)$/.exec(message);
+    const detail = row?.[2] ?? message;
+    let translated: string;
+    switch (detail) {
+      case 'Unsupported EconomicClassification.':
+      case 'Unsupported cash movement classification':
+      case 'economicClassification must be a supported category on a manual MOVEMENT':
+        translated = $localize`:@@cashClassificationInvalid:Select a valid economic classification.`;
+        break;
+      case 'EconomicClassification requires cash CSV version 2.':
+        translated = $localize`:@@cashClassificationCsvVersion:Economic classification requires CSV version 2.`;
+        break;
+      case 'EconomicClassification is only allowed on manual movement rows.':
+      case 'Classification is only allowed on manual movements; clear it explicitly before reconciliation':
+        translated = $localize`:@@cashClassificationManualOnly:Economic classification is available only for manual cash movements.`;
+        break;
+      case 'Economic classification conflicts with the existing movement. Use an explicit edit; no overwrite is performed.':
+        translated = $localize`:@@cashClassificationConflict:This movement already has a different economic classification. Edit the movement explicitly; import will not overwrite it.`;
+        break;
+      default:
+        return message;
+    }
+    return row ? `${row[1]}: ${translated}` : translated;
   }
 
   protected remove(event: ManagedCashEvent) {
@@ -310,6 +416,7 @@ export class GfCashManagementComponent {
     this.dataService
       .exportCashCsv(this.accountId())
       .pipe(
+        takeUntil(this.accountRequestsCancelled),
         takeUntilDestroyed(this.destroyRef),
         finalize(() => this.busy.set(false))
       )
@@ -343,15 +450,16 @@ export class GfCashManagementComponent {
     this.busy.set(true);
     this.error.set('');
     this.selectedFile.set(file.name);
+    const generation = this.accountGeneration;
+    const accountId = this.accountId();
     try {
-      this.csvContent = await file.text();
+      const content = await file.text();
+      if (generation !== this.accountGeneration) return;
+      this.csvContent = content;
       this.dataService
-        .previewCashCsv(
-          this.accountId(),
-          this.csvContent,
-          this.csvActivityLinks
-        )
+        .previewCashCsv(accountId, this.csvContent, this.csvActivityLinks)
         .pipe(
+          takeUntil(this.accountRequestsCancelled),
           takeUntilDestroyed(this.destroyRef),
           finalize(() => this.busy.set(false))
         )
@@ -360,6 +468,7 @@ export class GfCashManagementComponent {
           error: (error) => this.showCsvError(error)
         });
     } catch (error) {
+      if (generation !== this.accountGeneration) return;
       this.busy.set(false);
       this.showCsvError(error);
     }
@@ -373,6 +482,7 @@ export class GfCashManagementComponent {
     this.dataService
       .previewCashCsv(this.accountId(), this.csvContent, this.csvActivityLinks)
       .pipe(
+        takeUntil(this.accountRequestsCancelled),
         takeUntilDestroyed(this.destroyRef),
         finalize(() => this.busy.set(false))
       )
@@ -401,6 +511,7 @@ export class GfCashManagementComponent {
     this.csvContent = '';
     this.csvActivityLinks = {};
     this.selectedFile.set('');
+    this.csvPage.set(0);
   }
 
   private showCsvError(error: unknown) {
@@ -415,9 +526,9 @@ export class GfCashManagementComponent {
     this.error.set(
       Array.isArray(message) &&
         message.every((item) => typeof item === 'string')
-        ? message.join('; ')
+        ? message.map((item) => this.cashMessage(item)).join('; ')
         : typeof message === 'string'
-          ? message
+          ? this.cashMessage(message)
           : $localize`Unable to process the cash CSV.`
     );
   }
@@ -441,9 +552,12 @@ export class GfCashManagementComponent {
         error: (error) => {
           const message = error.error?.message;
           this.error.set(
-            typeof message === 'string'
-              ? message
-              : $localize`Unable to save. Reload the account and try again.`
+            Array.isArray(message) &&
+              message.every((item) => typeof item === 'string')
+              ? message.map((item: string) => this.cashMessage(item)).join('; ')
+              : typeof message === 'string'
+                ? this.cashMessage(message)
+                : $localize`Unable to save. Reload the account and try again.`
           );
           // A stale revision needs a fresh snapshot and a new user decision.
           this.dataService

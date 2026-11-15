@@ -1,8 +1,8 @@
 import { CurrentRateService } from '@ghostfolio/api/app/portfolio/current-rate.service';
+import { projectDailyHoldings } from '@ghostfolio/api/app/portfolio/daily-holdings-projector';
 import { PortfolioSnapshotComputationError } from '@ghostfolio/api/app/portfolio/errors/portfolio-snapshot-computation.error';
 import { AccumulatedValues } from '@ghostfolio/api/app/portfolio/interfaces/accumulated-values.interface';
 import { DateRangeInterval } from '@ghostfolio/api/app/portfolio/interfaces/date-range-interval.interface';
-import { HoldingBalance } from '@ghostfolio/api/app/portfolio/interfaces/holding-balance.interface';
 import { HoldingBalancesAtDate } from '@ghostfolio/api/app/portfolio/interfaces/holding-balances-at-date.interface';
 import { HoldingPerformance } from '@ghostfolio/api/app/portfolio/interfaces/holding-performance.interface';
 import { HoldingValuationItem } from '@ghostfolio/api/app/portfolio/interfaces/holding-valuation-item.interface';
@@ -27,7 +27,6 @@ import {
   getIntervalFromDateRange
 } from '@ghostfolio/common/calculation-helper';
 import {
-  INVESTMENT_ACTIVITY_TYPES,
   PORTFOLIO_SNAPSHOT_PROCESS_JOB_NAME,
   PORTFOLIO_SNAPSHOT_PROCESS_JOB_OPTIONS,
   PORTFOLIO_SNAPSHOT_COMPUTATION_QUEUE_PRIORITY_HIGH,
@@ -80,7 +79,7 @@ import {
   startOfYear,
   subDays
 } from 'date-fns';
-import { groupBy, mapValues, sortBy, uniqBy } from 'lodash-es';
+import { groupBy, mapValues, sortBy } from 'lodash-es';
 
 export abstract class PortfolioCalculator {
   protected static readonly ENABLE_LOGGING = false;
@@ -2134,148 +2133,7 @@ export abstract class PortfolioCalculator {
 
   @LogPerformance
   private computeHoldingBalancesByDate() {
-    this.holdingBalancesByDate = [];
-    const holdingBalancesByAssetProfileIdentifier: {
-      [assetProfileIdentifier: string]: HoldingBalance;
-    } = {};
-
-    let lastDate: string = null;
-    let latestHoldingBalances: HoldingBalancesAtDate = null;
-
-    for (const {
-      assetProfile,
-      date,
-      fee,
-      feeInBaseCurrency,
-      quantity,
-      tags,
-      tax,
-      taxInBaseCurrency,
-      type,
-      unitPrice
-    } of this.activities) {
-      let holdingBalance: HoldingBalance;
-
-      const assetSubClass = assetProfile.assetSubClass;
-      const currency = assetProfile.currency;
-      const dataSource = assetProfile.dataSource;
-      const factor = getFactor(type);
-      const skipErrors = !!assetProfile.userId; // Skip errors for custom asset profiles
-      const symbol = assetProfile.symbol;
-
-      const assetProfileIdentifier = getAssetProfileIdentifier(assetProfile);
-
-      const previousHoldingBalance =
-        holdingBalancesByAssetProfileIdentifier[assetProfileIdentifier];
-
-      if (previousHoldingBalance) {
-        let investment = previousHoldingBalance.investment;
-
-        let newQuantity = quantity
-          .mul(factor)
-          .plus(previousHoldingBalance.quantity);
-
-        if (type === 'BUY') {
-          if (previousHoldingBalance.investment.gte(0)) {
-            investment = previousHoldingBalance.investment.plus(
-              quantity.mul(unitPrice)
-            );
-          } else {
-            investment = previousHoldingBalance.investment.plus(
-              quantity.mul(previousHoldingBalance.averagePrice)
-            );
-          }
-        } else if (type === 'SELL') {
-          if (previousHoldingBalance.investment.gt(0)) {
-            investment = previousHoldingBalance.investment.minus(
-              quantity.mul(previousHoldingBalance.averagePrice)
-            );
-          } else {
-            investment = previousHoldingBalance.investment.minus(
-              quantity.mul(unitPrice)
-            );
-          }
-        }
-
-        if (newQuantity.abs().lt(Number.EPSILON)) {
-          // Reset to zero if quantity is (almost) zero to avoid rounding issues
-          investment = new Big(0);
-          newQuantity = new Big(0);
-        }
-
-        holdingBalance = {
-          assetSubClass,
-          currency,
-          dataSource,
-          investment,
-          skipErrors,
-          symbol,
-          activitiesCount: previousHoldingBalance.activitiesCount + 1,
-          averagePrice: newQuantity.eq(0)
-            ? new Big(0)
-            : investment.div(newQuantity).abs(),
-          dateOfFirstActivity: previousHoldingBalance.dateOfFirstActivity,
-          fee: previousHoldingBalance.fee.plus(fee),
-          feeInBaseCurrency:
-            previousHoldingBalance.feeInBaseCurrency.plus(feeInBaseCurrency),
-          includeInHoldings: previousHoldingBalance.includeInHoldings,
-          quantity: newQuantity,
-          tax: previousHoldingBalance.tax.plus(tax),
-          taxInBaseCurrency:
-            previousHoldingBalance.taxInBaseCurrency.plus(taxInBaseCurrency),
-          tags: previousHoldingBalance.tags.concat(tags)
-        };
-      } else {
-        holdingBalance = {
-          assetSubClass,
-          currency,
-          dataSource,
-          fee,
-          feeInBaseCurrency,
-          skipErrors,
-          symbol,
-          tags,
-          tax,
-          taxInBaseCurrency,
-          activitiesCount: 1,
-          averagePrice: unitPrice,
-          dateOfFirstActivity: date,
-          includeInHoldings: INVESTMENT_ACTIVITY_TYPES.includes(type),
-          investment: unitPrice.mul(quantity).mul(factor),
-          quantity: quantity.mul(factor)
-        };
-      }
-
-      holdingBalance.tags = uniqBy(holdingBalance.tags, 'id');
-
-      holdingBalancesByAssetProfileIdentifier[assetProfileIdentifier] =
-        holdingBalance;
-
-      const holdings = (latestHoldingBalances?.holdings ?? []).filter(
-        (holding) => {
-          return getAssetProfileIdentifier(holding) !== assetProfileIdentifier;
-        }
-      );
-
-      holdings.push(holdingBalance);
-
-      holdings.sort((a, b) => {
-        return (
-          a.symbol?.localeCompare(b.symbol) ||
-          a.dataSource?.localeCompare(b.dataSource)
-        );
-      });
-
-      if (lastDate !== date || latestHoldingBalances === null) {
-        latestHoldingBalances = { date, holdings };
-
-        this.holdingBalancesByDate.push(latestHoldingBalances);
-      } else {
-        latestHoldingBalances.holdings = holdings;
-      }
-
-      lastDate = date;
-    }
+    this.holdingBalancesByDate = projectDailyHoldings(this.activities);
   }
 
   private getChartDateMap({

@@ -26,7 +26,10 @@ export class TwrBenchmarkEvaluator {
     if (this.previousValue.gt(0)) {
       const factor = point.value.minus(flow).div(this.previousValue);
       if (factor.lt(0)) this.undefinedReturn = true;
-      this.factor = this.factor.mul(factor);
+      // Bound significant digits to keep chaining cost independent of history.
+      // Forty digits exceed the default division and numeric API precision;
+      // this applies only to the new benchmark, never portfolio calculations.
+      this.factor = this.factor.mul(factor).prec(40, Big.roundHalfEven);
     }
     this.invested ||= point.value.gt(0);
     this.previous = point;

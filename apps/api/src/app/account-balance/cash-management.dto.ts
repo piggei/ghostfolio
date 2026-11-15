@@ -1,4 +1,8 @@
 import { COMMENT_MAXIMUM_LENGTH } from '@ghostfolio/common/config';
+import {
+  CASH_MOVEMENT_CLASSIFICATIONS,
+  CashMovementClassification
+} from '@ghostfolio/common/interfaces';
 import { IsValidAccountBalanceDateConstraint } from '@ghostfolio/common/validator-constraints/is-valid-account-balance-date';
 import { IsCurrencyCode } from '@ghostfolio/common/validators/is-currency-code';
 
@@ -18,6 +22,7 @@ import {
   MaxLength,
   Min,
   Validate,
+  ValidateBy,
   ValidateIf,
   ValidateNested
 } from 'class-validator';
@@ -48,6 +53,21 @@ export class CashOpeningDto {
 }
 
 export class CashEventDto {
+  @ValidateBy({
+    name: 'isCashMovementClassification',
+    validator: {
+      validate: (value: unknown, args) =>
+        value == null ||
+        ((args.object as CashEventDto).type === 'MOVEMENT' &&
+          CASH_MOVEMENT_CLASSIFICATIONS.includes(
+            value as CashMovementClassification
+          )),
+      defaultMessage: () =>
+        'economicClassification must be a supported category on a manual MOVEMENT'
+    }
+  })
+  economicClassification?: CashMovementClassification | null;
+
   @IsString()
   @IsOptional()
   @MaxLength(100)

@@ -94,6 +94,60 @@ describe('SymbolProfileService', () => {
       } as unknown as PrismaService);
     });
 
+    it('uses the supplied transaction for symbol profile lookup', async () => {
+      const transactionFindMany = jest.fn().mockResolvedValue([]);
+      const transaction = {
+        symbolProfile: {
+          findMany: transactionFindMany
+        }
+      };
+
+      const identifiers = [{ dataSource: DataSource.YAHOO, symbol: 'AAPL' }];
+
+      const result = await symbolProfileService.getSymbolProfiles(
+        identifiers,
+        transaction as never
+      );
+
+      expect(result).toEqual([]);
+      expect(transactionFindMany).toHaveBeenCalledWith({
+        include: {
+          _count: {
+            select: { activities: true, watchedBy: true }
+          },
+          activities: {
+            orderBy: { date: 'asc' },
+            select: { date: true },
+            take: 1
+          },
+          assetProfileOverrides: true
+        },
+        where: {
+          OR: [{ dataSource: DataSource.YAHOO, symbol: 'AAPL' }]
+        }
+      });
+
+      expect(findManySymbolProfiles).not.toHaveBeenCalled();
+    });
+
+    it('uses PrismaService when no transaction is supplied', async () => {
+      findManySymbolProfiles.mockResolvedValue([]);
+
+      const result = await symbolProfileService.getSymbolProfiles([
+        { dataSource: DataSource.YAHOO, symbol: 'AAPL' }
+      ]);
+
+      expect(result).toEqual([]);
+      expect(findManySymbolProfiles).toHaveBeenCalledTimes(1);
+      expect(findManySymbolProfiles).toHaveBeenCalledWith(
+        expect.objectContaining({
+          where: {
+            OR: [{ dataSource: DataSource.YAHOO, symbol: 'AAPL' }]
+          }
+        })
+      );
+    });
+
     it('enhances the symbol profile and excludes relational metadata', async () => {
       const dateOfFirstActivity = new Date('2024-01-15T00:00:00.000Z');
 

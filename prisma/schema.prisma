@@ -188,6 +188,7 @@ model AuthDevice {
 }
 
 model CashEvent {
+  economicClassification        CashMovementClassification?
   importReference               String?
   fee                           Decimal                       @default(0) @db.Decimal(65, 30)
   accountId                     String
@@ -212,6 +213,8 @@ model CashEvent {
 
   @@unique([accountId, userId, importReference])
   @@unique([accountId, userId, date, sequence])
+  @@index([userId, date])
+  @@index([userId, transferId])
 }
 
 model MarketData {
@@ -422,6 +425,12 @@ enum AssetSubClass {
 enum CashEventType {
   CHECKPOINT
   MOVEMENT
+}
+
+enum CashMovementClassification {
+  EXTERNAL_CAPITAL
+  INCOME
+  EXPENSE
 }
 
 enum DataGatheringFrequency {

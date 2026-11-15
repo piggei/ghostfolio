@@ -38,6 +38,7 @@ import {
   getStartOfUtcDateOfTomorrow,
   hasGhostfolioPrefix,
   isAccountBalanceInFuture,
+  isCashPosition,
   isDraftActivity
 } from '@ghostfolio/common/helper';
 import { CashConfirmation } from '@ghostfolio/common/interfaces';
@@ -83,6 +84,44 @@ export class ActivitiesService {
     private readonly tagService: TagService,
     private readonly cashManagementService?: CashManagementService
   ) {}
+
+  /**
+   * Retrieves activities for historical securities holdings.
+   * Cash positions and synthetic cash activities are intentionally excluded.
+   */
+  @LogPerformance
+  public async getActivitiesForSecuritiesPortfolioCalculator({
+    filters,
+    userCurrency,
+    userId,
+    transaction,
+    withExcludedAccountsAndActivities = false
+  }: {
+    filters?: Filter[];
+    userCurrency: string;
+    userId: string;
+    transaction?: Prisma.TransactionClient;
+    withExcludedAccountsAndActivities?: boolean;
+  }): Promise<ActivitiesResponse> {
+    const result = await this.getActivitiesWithSplits({
+      filters,
+      userCurrency,
+      userId,
+      transaction,
+      withExcludedAccountsAndActivities
+    });
+
+    const activities = result.activities.filter(({ assetProfile }) => {
+      return !isCashPosition({
+        assetSubClass: assetProfile.assetSubClass
+      });
+    });
+
+    return {
+      activities,
+      count: activities.length
+    };
+  }
 
   public areCashActivitiesExcludedByFilters(filters: Filter[] = []) {
     const {
@@ -715,6 +754,7 @@ export class ActivitiesService {
     types,
     userCurrency,
     userId,
+    transaction,
     withExcludedAccountsAndActivities = false
   }: {
     endDate?: Date;
@@ -728,6 +768,7 @@ export class ActivitiesService {
     types?: ActivityType[];
     userCurrency: string;
     userId: string;
+    transaction?: Prisma.TransactionClient;
     withExcludedAccountsAndActivities?: boolean;
   }): Promise<ActivitiesResponse> {
     let orderBy: Prisma.Enumerable<Prisma.OrderOrderByWithRelationInput> = [
@@ -753,6 +794,7 @@ export class ActivitiesService {
         skip,
         take,
         where,
+        transaction,
         include: {
           account: {
             include: {
@@ -777,7 +819,7 @@ export class ActivitiesService {
         },
         orderBy: [...orderBy, { id: sortDirection }]
       }),
-      this.prismaService.order.count({ where })
+      (transaction ?? this.prismaService).order.count({ where })
     ]);
 
     for (const order of orders) {
@@ -806,7 +848,8 @@ export class ActivitiesService {
     );
 
     const assetProfiles = await this.symbolProfileService.getSymbolProfiles(
-      assetProfileIdentifiers
+      assetProfileIdentifiers,
+      transaction
     );
 
     const activities = await Promise.all(
@@ -832,37 +875,43 @@ export class ActivitiesService {
             order.fee,
             order.currency ?? order.SymbolProfile.currency,
             order.SymbolProfile.currency,
-            order.date
+            order.date,
+            transaction
           ),
           this.exchangeRateDataService.toCurrencyAtDate(
             order.fee,
             order.currency ?? order.SymbolProfile.currency,
             userCurrency,
-            order.date
+            order.date,
+            transaction
           ),
           this.exchangeRateDataService.toCurrencyAtDate(
             order.tax,
             order.currency ?? order.SymbolProfile.currency,
             order.SymbolProfile.currency,
-            order.date
+            order.date,
+            transaction
           ),
           this.exchangeRateDataService.toCurrencyAtDate(
             order.tax,
             order.currency ?? order.SymbolProfile.currency,
             userCurrency,
-            order.date
+            order.date,
+            transaction
           ),
           this.exchangeRateDataService.toCurrencyAtDate(
             order.unitPrice,
             order.currency ?? order.SymbolProfile.currency,
             order.SymbolProfile.currency,
-            order.date
+            order.date,
+            transaction
           ),
           this.exchangeRateDataService.toCurrencyAtDate(
             value,
             order.currency ?? order.SymbolProfile.currency,
             userCurrency,
-            order.date
+            order.date,
+            transaction
           )
         ]);
 
@@ -909,26 +958,12 @@ export class ActivitiesService {
     /** Whether to include activities that are excluded from analysis. */
     withExcludedAccountsAndActivities?: boolean;
   }) {
-    const [activities, splits] = await Promise.all([
-      this.getActivities({
-        filters,
-        userCurrency,
-        userId,
-        withExcludedAccountsAndActivities
-      }),
-      this.assetProfileSplitService.getSplitsByUserId({ userId })
-    ]);
-
-    if (splits.length > 0) {
-      const splitsBySymbolProfileId = groupBy(splits, 'symbolProfileId');
-
-      activities.activities = activities.activities.map((activity) => {
-        return adjustActivityBySplits(
-          activity,
-          splitsBySymbolProfileId[activity.assetProfile.id] ?? []
-        );
-      });
-    }
+    const activities = await this.getActivitiesWithSplits({
+      filters,
+      userCurrency,
+      userId,
+      withExcludedAccountsAndActivities
+    });
 
     if (withCash && !this.areCashActivitiesExcludedByFilters(filters)) {
       const cashDetails = await this.accountService.getCashDetails({
@@ -1405,6 +1440,47 @@ export class ActivitiesService {
     return activity;
   }
 
+  private async getActivitiesWithSplits({
+    filters,
+    userCurrency,
+    userId,
+    transaction,
+    withExcludedAccountsAndActivities = false
+  }: {
+    filters?: Filter[];
+    userCurrency: string;
+    userId: string;
+    transaction?: Prisma.TransactionClient;
+    withExcludedAccountsAndActivities?: boolean;
+  }): Promise<ActivitiesResponse> {
+    const [activities, splits] = await Promise.all([
+      this.getActivities({
+        filters,
+        userCurrency,
+        userId,
+        transaction,
+        withExcludedAccountsAndActivities
+      }),
+      this.assetProfileSplitService.getSplitsByUserId({
+        userId,
+        transaction
+      })
+    ]);
+
+    if (splits.length > 0) {
+      const splitsBySymbolProfileId = groupBy(splits, 'symbolProfileId');
+
+      activities.activities = activities.activities.map((activity) => {
+        return adjustActivityBySplits(
+          activity,
+          splitsBySymbolProfileId[activity.assetProfile.id] ?? []
+        );
+      });
+    }
+
+    return activities;
+  }
+
   private getWhereClause({
     endDate,
     filters,
@@ -1591,10 +1667,13 @@ export class ActivitiesService {
     cursor?: Prisma.OrderWhereUniqueInput;
     where?: Prisma.OrderWhereInput;
     orderBy?: Prisma.Enumerable<Prisma.OrderOrderByWithRelationInput>;
+    transaction?: Prisma.TransactionClient;
   }): Promise<OrderWithAccount[]> {
-    const { include, skip, take, cursor, where, orderBy } = params;
+    const { include, skip, take, cursor, where, orderBy, transaction } = params;
 
-    return this.prismaService.order.findMany({
+    const prisma = transaction ?? this.prismaService;
+
+    return prisma.order.findMany({
       cursor,
       include,
       orderBy,

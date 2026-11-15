@@ -10646,6 +10646,46 @@
       <trans-unit id="ngBenchmarkTwrCumulative" datatype="html">
         <source>Activity-Matched TWR (cumulative)</source>
       </trans-unit>
-            </body>
+
+<trans-unit id="cashEconomicClassification" datatype="html">
+        <source>Economic classification</source>
+      </trans-unit>
+<trans-unit id="cashClassificationUnclassified" datatype="html">
+        <source>Unclassified</source>
+      </trans-unit>
+<trans-unit id="cashClassificationExternalCapital" datatype="html">
+        <source>External capital</source>
+      </trans-unit>
+<trans-unit id="cashClassificationIncome" datatype="html">
+        <source>Income</source>
+      </trans-unit>
+<trans-unit id="cashClassificationExpense" datatype="html">
+        <source>Expense</source>
+      </trans-unit>
+<trans-unit id="cashClassificationHistoricalWarning" datatype="html">
+        <source>Changing the economic classification of an existing movement may change historical portfolio performance.</source>
+      </trans-unit>
+<trans-unit id="cashClassificationInvalid" datatype="html">
+        <source>Select a valid economic classification.</source>
+      </trans-unit>
+<trans-unit id="cashClassificationCheckpointError" datatype="html">
+        <source>Clear the economic classification explicitly before changing this movement to a reconciliation.</source>
+      </trans-unit>
+<trans-unit id="cashClassificationClear" datatype="html">
+        <source>Clear classification</source>
+      </trans-unit>
+<trans-unit id="cashClassificationDirectionHelp" datatype="html">
+        <source>Deposit and Withdrawal describe the cash direction. Choose the economic classification independently.</source>
+      </trans-unit>
+<trans-unit id="cashClassificationCsvVersion" datatype="html">
+        <source>Economic classification requires CSV version 2.</source>
+      </trans-unit>
+<trans-unit id="cashClassificationManualOnly" datatype="html">
+        <source>Economic classification is available only for manual cash movements.</source>
+      </trans-unit>
+<trans-unit id="cashClassificationConflict" datatype="html">
+        <source>This movement already has a different economic classification. Edit the movement explicitly; import will not overwrite it.</source>
+      </trans-unit>
+</body>
   </file>
 </xliff>

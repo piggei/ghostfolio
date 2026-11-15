@@ -3,7 +3,7 @@ import { resetHours } from '@ghostfolio/common/helper';
 import { AssetProfileIdentifier } from '@ghostfolio/common/interfaces';
 
 import { Injectable } from '@nestjs/common';
-import { AssetProfileSplit } from '@prisma/client';
+import { AssetProfileSplit, Prisma } from '@prisma/client';
 
 @Injectable()
 export class AssetProfileSplitService {
@@ -57,11 +57,15 @@ export class AssetProfileSplitService {
    * for, in ascending order by date
    */
   public async getSplitsByUserId({
-    userId
+    userId,
+    transaction
   }: {
     userId: string;
+    transaction?: Prisma.TransactionClient;
   }): Promise<AssetProfileSplit[]> {
-    return this.prismaService.assetProfileSplit.findMany({
+    const prisma = transaction ?? this.prismaService;
+
+    return prisma.assetProfileSplit.findMany({
       orderBy: [
         {
           date: 'asc'

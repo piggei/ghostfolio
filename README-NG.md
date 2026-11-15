@@ -82,6 +82,26 @@ The container registry is `ghcr.io/piggei/ghostfolio-ng`. Prefer a versioned int
 
 Do not confuse these images with the official `ghostfolio/ghostfolio` images, which do not necessarily include NG features.
 
+## Home Assistant Add-on
+
+Ghostfolio-NG is also available as a native **Home Assistant Add-on** for Linux AMD64 and ARM64.
+
+The add-on provides:
+
+- Native Home Assistant Ingress integration.
+- Integrated Redis with persistent storage.
+- Persistent application secrets.
+- Independent add-on versioning.
+- Automated builds, architecture qualification and release publication.
+
+A separate PostgreSQL server is required.
+
+The Home Assistant add-on is maintained in the [`feat/home-assistant-addon`](https://github.com/piggei/ghostfolio/tree/feat/home-assistant-addon) branch.
+
+For installation, configuration, updates and backup instructions, see the [Home Assistant Add-on documentation](https://github.com/piggei/ghostfolio/blob/feat/home-assistant-addon/home-assistant-addon/DOCS.md) and the [add-on repository README](https://github.com/piggei/ghostfolio/blob/feat/home-assistant-addon/home-assistant-addon/README.md).
+
+Ghostfolio-NG integration releases and Home Assistant add-on releases have independent version numbers. The automated publication workflow connects the two distributions while preserving their individual release identities.
+
 ## Documentation
 
 - **In-app user guide:** open **About → Ghostfolio-NG** in a Ghostfolio-NG build for step-by-step instructions, worked examples, and current feature limitations.

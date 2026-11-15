@@ -1,4 +1,14 @@
+export const CASH_MOVEMENT_CLASSIFICATIONS = [
+  'EXTERNAL_CAPITAL',
+  'INCOME',
+  'EXPENSE'
+] as const;
+
+export type CashMovementClassification =
+  (typeof CASH_MOVEMENT_CLASSIFICATIONS)[number];
+
 export type CashEventInput = {
+  economicClassification?: CashMovementClassification | null;
   comment?: string | null;
   fee?: string;
   date: string;
@@ -41,7 +51,7 @@ export interface CashManagementExport {
   isAutomaticOpening?: boolean;
   events: ManagedCashEvent[];
   openingBalance: { balance: string; date: string; sequence: number };
-  version: 1;
+  version: 1 | 2;
 }
 
 export interface CashConfirmation {

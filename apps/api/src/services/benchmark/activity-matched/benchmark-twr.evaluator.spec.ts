@@ -33,4 +33,30 @@ describe('Incremental benchmark TWR', () => {
     ).toBeCloseTo(0.331, 12);
     expect(JSON.stringify(evaluator)).toBe(before);
   });
+
+  it('preserves compound growth across 1500 daily observations and monthly contributions', () => {
+    const saved = { DP: Big.DP, RM: Big.RM };
+    const date = (i: number) =>
+      new Date(Date.UTC(2020, 0, i + 1)).toISOString().slice(0, 10);
+    const points = simulateBenchmark({
+      prices: Array.from({ length: 1500 }, (_, i) => ({
+        date: date(i),
+        price: String(100 * Math.pow(1.04, i / 365))
+      })),
+      flows: Array.from({ length: 50 }, (_, i) => ({
+        date: date(i * 30),
+        amount: '100'
+      })),
+      valuationDates: []
+    });
+    const evaluator = new TwrBenchmarkEvaluator(points[0]);
+    let result;
+    for (const point of points.slice(1))
+      result = evaluator.addFinancialPoint(point);
+    expect(result.returnFraction.toNumber()).toBeCloseTo(
+      Math.pow(1.04, 1499 / 365) - 1,
+      12
+    );
+    expect({ DP: Big.DP, RM: Big.RM }).toEqual(saved);
+  });
 });

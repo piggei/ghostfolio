@@ -15,7 +15,7 @@ import { ActivitiesService } from '@ghostfolio/api/services/activities/activitie
 import { ApiService } from '@ghostfolio/api/services/api/api.service';
 import { ConfigurationService } from '@ghostfolio/api/services/configuration/configuration.service';
 import { getIntervalFromDateRange } from '@ghostfolio/common/calculation-helper';
-import { UNKNOWN_KEY } from '@ghostfolio/common/config';
+import { DEFAULT_CURRENCY, UNKNOWN_KEY } from '@ghostfolio/common/config';
 import { SubscriptionType } from '@ghostfolio/common/enums';
 import { isCashPosition } from '@ghostfolio/common/helper';
 import {
@@ -54,7 +54,10 @@ import { DataSource } from '@prisma/client';
 import { Big } from 'big.js';
 import { StatusCodes, getReasonPhrase } from 'http-status-codes';
 
+import { DailyNavOrchestratorService } from './daily-nav-orchestrator.service';
+import type { DailyNavPerformanceResult } from './daily-nav-orchestrator.service';
 import { GetCalendarPerformanceDto } from './get-calendar-performance.dto';
+import { GetDailyPerformanceDto } from './get-daily-performance.dto';
 import { GetDetailsDto } from './get-details.dto';
 import { GetDividendsDto } from './get-dividends.dto';
 import { GetHoldingsDto } from './get-holdings.dto';
@@ -70,6 +73,7 @@ export class PortfolioController {
     private readonly apiService: ApiService,
     private readonly configurationService: ConfigurationService,
     private readonly portfolioService: PortfolioService,
+    private readonly dailyNavOrchestratorService: DailyNavOrchestratorService,
     @Inject(REQUEST) private readonly request: RequestWithUser
   ) {}
 
@@ -512,6 +516,34 @@ export class PortfolioController {
     return this.portfolioService.getCalendarPerformancePercentages({
       periods,
       userId
+    });
+  }
+
+  @Post('performance/daily')
+  @HttpCode(HttpStatus.OK)
+  @RequiresScope(scopes.portfolioRead)
+  @Version('2')
+  public async getDailyPerformance(
+    @Impersonation()
+    { scopes: impersonationScopes, userId, userSettings }: ImpersonationContext,
+    @Body() { startDate, endDate }: GetDailyPerformanceDto
+  ): Promise<DailyNavPerformanceResult | null> {
+    if (
+      !hasScope(impersonationScopes, scopes.portfolioReadValues) ||
+      isRestrictedView(this.request.user) ||
+      this.request.user.settings.settings.viewMode === 'ZEN'
+    ) {
+      return null;
+    }
+
+    return this.dailyNavOrchestratorService.calculateDailyPerformance({
+      userId,
+      startDate,
+      endDate,
+      baseCurrency:
+        userSettings.baseCurrency ??
+        this.request.user.settings.settings.baseCurrency ??
+        DEFAULT_CURRENCY
     });
   }
 

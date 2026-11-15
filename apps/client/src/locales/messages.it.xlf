@@ -11293,6 +11293,59 @@
         <source>Activity-Matched TWR (cumulative)</source>
         <target state="translated">Activity-Matched TWR (cumulativo)</target>
       </trans-unit>
-            </body>
+
+<trans-unit id="cashEconomicClassification" datatype="html">
+        <source>Economic classification</source>
+        <target state="translated">Classificazione economica</target>
+      </trans-unit>
+<trans-unit id="cashClassificationUnclassified" datatype="html">
+        <source>Unclassified</source>
+        <target state="translated">Non classificato</target>
+      </trans-unit>
+<trans-unit id="cashClassificationExternalCapital" datatype="html">
+        <source>External capital</source>
+        <target state="translated">Capitale esterno</target>
+      </trans-unit>
+<trans-unit id="cashClassificationIncome" datatype="html">
+        <source>Income</source>
+        <target state="translated">Provento</target>
+      </trans-unit>
+<trans-unit id="cashClassificationExpense" datatype="html">
+        <source>Expense</source>
+        <target state="translated">Spesa</target>
+      </trans-unit>
+<trans-unit id="cashClassificationHistoricalWarning" datatype="html">
+        <source>Changing the economic classification of an existing movement may change historical portfolio performance.</source>
+        <target state="translated">Modificare la classificazione economica di un movimento esistente può cambiare la performance storica del portafoglio.</target>
+      </trans-unit>
+<trans-unit id="cashClassificationInvalid" datatype="html">
+        <source>Select a valid economic classification.</source>
+        <target state="translated">Seleziona una classificazione economica valida.</target>
+      </trans-unit>
+<trans-unit id="cashClassificationCheckpointError" datatype="html">
+        <source>Clear the economic classification explicitly before changing this movement to a reconciliation.</source>
+        <target state="translated">Rimuovi esplicitamente la classificazione economica prima di trasformare questo movimento in una riconciliazione.</target>
+      </trans-unit>
+<trans-unit id="cashClassificationClear" datatype="html">
+        <source>Clear classification</source>
+        <target state="translated">Rimuovi classificazione</target>
+      </trans-unit>
+<trans-unit id="cashClassificationDirectionHelp" datatype="html">
+        <source>Deposit and Withdrawal describe the cash direction. Choose the economic classification independently.</source>
+        <target state="translated">Deposito e Prelievo indicano la direzione del movimento di cassa. Scegli la classificazione economica in modo indipendente.</target>
+      </trans-unit>
+<trans-unit id="cashClassificationCsvVersion" datatype="html">
+        <source>Economic classification requires CSV version 2.</source>
+        <target state="translated">La classificazione economica richiede la versione 2 del CSV.</target>
+      </trans-unit>
+<trans-unit id="cashClassificationManualOnly" datatype="html">
+        <source>Economic classification is available only for manual cash movements.</source>
+        <target state="translated">La classificazione economica è disponibile solo per i movimenti di cassa manuali.</target>
+      </trans-unit>
+<trans-unit id="cashClassificationConflict" datatype="html">
+        <source>This movement already has a different economic classification. Edit the movement explicitly; import will not overwrite it.</source>
+        <target state="translated">Questo movimento ha già una classificazione economica diversa. Modifica esplicitamente il movimento: l’importazione non lo sovrascriverà.</target>
+      </trans-unit>
+</body>
   </file>
 </xliff>
