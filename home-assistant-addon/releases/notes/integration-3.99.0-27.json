@@ -1,0 +1,14 @@
+{
+  "schema_version": 1,
+  "identity": {
+    "integration_tag": "integration-3.99.0-27",
+    "source_commit": "a881f79d87a65003254b575fef6525c1e677758a",
+    "source_image": "ghcr.io/piggei/ghostfolio-ng@sha256:1e13c87a0b4c3f7c6b75b472290b697014c5f59f18b093b3f22ff7ea627f414f",
+    "ghostfolio_version": "3.99.0",
+    "addon_source_revision": "d78d0e7939c4e7b70eeda9b628244e9f5c47656c"
+  },
+  "sections": [
+    "## Official Ghostfolio updates\n\nNo new official Ghostfolio release since the previous integration build (3.99.0).\n\n### Additional upstream changes\n\n#### Changed\n\n- Upgraded `@modelcontextprotocol/core` and `@modelcontextprotocol/server` from version `2.3.1` to `2.4.0`\n- Upgraded `@modelcontextprotocol/node` from version `2.1.1` to `2.1.2`\n- Upgraded `@rekog/mcp-nest` from version `2.0.8` to `2.0.9`",
+    "## Integration-specific changes\n\n- fix(ng): isolate portfolio module provider registration test (a881f79d8)\n- fix(ng): update API security snapshot and isolate ESM tests (79400b573)\n- feat(ng): finalize integrated distribution and documentation (2957c0974)\n- feat(ng): expose gated MWR and TWR benchmark comparison modes (219f72bf9)\n- feat(benchmark): evaluate annualized activity-matched MWR series (32d0b8727)\n- refactor(mwr): extract XIRR with strict legacy numerical parity (82d0bc7b4)\n- feat(benchmark): add incremental daily TWR evaluator (afc67fa84)\n- merge(ng): integrate activity-matched benchmark (6ca7cd8ac)\n- docs(ng): fix README file permissions (f7e69bd18)\n- docs(ng): add feature screenshots and distribution README (67d094447)"
+  ]
+}
