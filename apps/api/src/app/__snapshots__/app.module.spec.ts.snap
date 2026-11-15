@@ -1534,6 +1534,18 @@ exports[`AppModule should keep the security of each route 1`] = `
       "portfolio:read",
     ],
   },
+  "POST /portfolio/performance/daily (version 2)": {
+    "guards": [
+      "AuthGuard('jwt')",
+      "HasPermissionGuard",
+      "ImpersonationGuard",
+      "ScopeGuard",
+    ],
+    "interceptors": [],
+    "scopes": [
+      "portfolio:read",
+    ],
+  },
   "POST /subscription/redeem-coupon": {
     "allowDuringImpersonation": true,
     "guards": [
