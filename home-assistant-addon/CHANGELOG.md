@@ -1,5 +1,32 @@
 # Ghostfolio-NG Home Assistant Add-on Changelog
 
+## 3.99.4
+
+### Official Ghostfolio updates
+
+No new official Ghostfolio release since the previous integration build (3.99.0).
+
+#### Additional upstream changes
+
+##### Changed
+
+- Upgraded `@modelcontextprotocol/core` and `@modelcontextprotocol/server` from version `2.3.1` to `2.4.0`
+- Upgraded `@modelcontextprotocol/node` from version `2.1.1` to `2.1.2`
+- Upgraded `@rekog/mcp-nest` from version `2.0.8` to `2.0.9`
+
+### Integration-specific changes
+
+- fix(ng): isolate portfolio module provider registration test (a881f79d8)
+- fix(ng): update API security snapshot and isolate ESM tests (79400b573)
+- feat(ng): finalize integrated distribution and documentation (2957c0974)
+- feat(ng): expose gated MWR and TWR benchmark comparison modes (219f72bf9)
+- feat(benchmark): evaluate annualized activity-matched MWR series (32d0b8727)
+- refactor(mwr): extract XIRR with strict legacy numerical parity (82d0bc7b4)
+- feat(benchmark): add incremental daily TWR evaluator (afc67fa84)
+- merge(ng): integrate activity-matched benchmark (6ca7cd8ac)
+- docs(ng): fix README file permissions (f7e69bd18)
+- docs(ng): add feature screenshots and distribution README (67d094447)
+
 ## 3.99.3
 
 ### Integration-specific changes
