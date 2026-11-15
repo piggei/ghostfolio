@@ -1,6 +1,6 @@
 {
   "schema_version": 1,
-  "generation": 47,
+  "generation": 48,
   "baseline_version": "3.97.0",
   "current_release": "integration-3.99.0-24",
   "releases": [
@@ -290,12 +290,17 @@
         "addon_source_revision": "d78d0e7939c4e7b70eeda9b628244e9f5c47656c"
       },
       "addon_version": "3.99.4",
-      "state": "reserved",
+      "state": "qualified",
       "qualified": {
         "amd64": {
           "os": "linux",
           "architecture": "amd64",
           "digest": "sha256:bf145c03d0b0ca060213ac5e51d7c631f1d7c87c70fe3c46539497a0353abaf8"
+        },
+        "aarch64": {
+          "os": "linux",
+          "architecture": "arm64",
+          "digest": "sha256:5039e6d3f5353e01e2531e64b2fb4d0ade40a6d868e396d7c6aa6ed8484347d0"
         }
       },
       "published": {}
