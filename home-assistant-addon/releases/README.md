@@ -192,6 +192,39 @@ causes publication to fail. A missing image for an already activated
 release requires maintainer intervention; it is not silently rebuilt
 or replaced.
 
+## Current production example
+
+The current registry has baseline `3.97.0` and points to
+`integration-3.99.0-24`. That record is activated as add-on
+version `3.99.3`.
+
+Its immutable identity includes:
+
+- NG source commit:
+  `f0c04418df139244ff6a41443a2ca08407993a01`
+- NG source image:
+  `ghcr.io/piggei/ghostfolio-ng@sha256:c5836caab45f808db74413cbc832699c4d9cf68244801bd984710ba822e06e15`
+- Upstream Ghostfolio version: `3.99.0`
+- Approved HA publisher revision:
+  `d78d0e7939c4e7b70eeda9b628244e9f5c47656c`
+
+The activated record contains matching qualification and publication
+evidence for both architectures:
+
+| Home Assistant architecture | OCI architecture | Final image digest |
+| --- | --- | --- |
+| `amd64` | `amd64` | `sha256:5ed631d44a459e36f29ec09cb409bd9a7d854e3727f57ba7932344686224b020` |
+| `aarch64` | `arm64` | `sha256:2940d65f723371b4d7e08719ed5ec3d79484503a24c4c3e70e6bb18d6e2c8b89` |
+
+The registry also retains earlier reservations and activated releases.
+For example, reserved versions `3.97.1` and `3.97.2` remain allocated
+even though they were not activated. Reservations are historical
+records, not versions available for installation.
+
+These values describe the verified registry snapshot at the time of
+this documentation update. The registry and current manifest remain
+authoritative for subsequent releases.
+
 ## Tests
 
 Run the release state contract tests from the repository root:
