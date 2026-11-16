@@ -46,7 +46,39 @@ export class PortfolioRestoreController {
   restore(@Body() input: PortfolioRestoreDto) {
     return this.run(input, false);
   }
-  private run(input: PortfolioRestoreDto, preview: boolean) {
+  @RequiresScope(
+    scopes.accountCreate,
+    scopes.activityCreate,
+    scopes.accountUpdate,
+    scopes.portfolioReadValues,
+    scopes.accountDelete,
+    scopes.activityDelete
+  )
+  @Post('replace/preview')
+  @HasPermission(permissions.deleteActivity)
+  replacePreview(@Body() input: PortfolioRestoreDto) {
+    return this.run(input, true, 'REPLACE');
+  }
+
+  @RequiresScope(
+    scopes.accountCreate,
+    scopes.activityCreate,
+    scopes.accountUpdate,
+    scopes.portfolioReadValues,
+    scopes.accountDelete,
+    scopes.activityDelete
+  )
+  @Post('replace')
+  @HasPermission(permissions.deleteActivity)
+  replace(@Body() input: PortfolioRestoreDto) {
+    return this.run(input, false, 'REPLACE');
+  }
+
+  private run(
+    input: PortfolioRestoreDto,
+    preview: boolean,
+    mode: 'IMPORT' | 'REPLACE' = 'IMPORT'
+  ) {
     if (
       !hasPermission(this.request.user.permissions, permissions.createAccount)
     )
@@ -59,6 +91,24 @@ export class PortfolioRestoreController {
         'Restore data only from your own unrestricted profile.'
       );
     }
-    return this.service.run(input, this.request.user.id, preview);
+    if (
+      mode === 'REPLACE' &&
+      (!hasPermission(
+        this.request.user.permissions,
+        permissions.createActivity
+      ) ||
+        !hasPermission(
+          this.request.user.permissions,
+          permissions.deleteActivity
+        ) ||
+        !hasPermission(
+          this.request.user.permissions,
+          permissions.deleteAccount
+        ))
+    ) {
+      throw new ForbiddenException();
+    }
+
+    return this.service.run(input, this.request.user.id, preview, mode);
   }
 }

@@ -2,12 +2,14 @@ import { ImpersonationStorageService } from '@ghostfolio/client/services/imperso
 import { SettingsStorageService } from '@ghostfolio/client/services/settings-storage.service';
 import { UserService } from '@ghostfolio/client/services/user/user.service';
 import { WebAuthnService } from '@ghostfolio/client/services/web-authn.service';
+import { permissions } from '@ghostfolio/common/permissions';
 import { PerformanceCalculationType } from '@ghostfolio/common/types/performance-calculation-type.type';
 import { NotificationService } from '@ghostfolio/ui/notifications';
 import { DataService } from '@ghostfolio/ui/services';
 import { GfValueComponent } from '@ghostfolio/ui/value';
 
 import { TestBed } from '@angular/core/testing';
+import { MatDialog } from '@angular/material/dialog';
 import { MatSelect } from '@angular/material/select';
 import { MatSnackBar } from '@angular/material/snack-bar';
 import { By } from '@angular/platform-browser';
@@ -28,13 +30,22 @@ jest.mock(
 );
 
 describe('NG benchmark settings selector', () => {
-  async function create(ng: boolean, experimental = true) {
+  async function create(
+    ng: boolean,
+    experimental = true,
+    options: {
+      userPermissions?: string[];
+      impersonated?: boolean;
+      restricted?: boolean;
+    } = {}
+  ) {
     const user = {
       id: 'user',
-      permissions: [],
+      permissions: options.userPermissions ?? [],
       settings: {
         baseCurrency: 'EUR',
         isExperimentalFeatures: experimental,
+        isRestrictedView: options.restricted ?? false,
         performanceCalculationType: PerformanceCalculationType.ROAI
       }
     };
@@ -57,7 +68,9 @@ describe('NG benchmark settings selector', () => {
         },
         {
           provide: ImpersonationStorageService,
-          useValue: { onChangeHasImpersonation: () => of(false) }
+          useValue: {
+            onChangeHasImpersonation: () => of(options.impersonated ?? false)
+          }
         },
         {
           provide: SettingsStorageService,
@@ -76,6 +89,10 @@ describe('NG benchmark settings selector', () => {
         remove: { imports: [IonIcon, GfValueComponent] }
       })
       .compileComponents();
+    const dialogOpen = jest
+      .spyOn(TestBed.inject(MatDialog), 'open')
+      .mockImplementation(() => null!);
+
     const fixture = TestBed.createComponent(GfUserAccountSettingsComponent);
     fixture.detectChanges();
     const element = fixture.debugElement.query(
@@ -85,6 +102,7 @@ describe('NG benchmark settings selector', () => {
       fixture,
       user,
       putUserSetting,
+      dialogOpen,
       select: element?.componentInstance as MatSelect | undefined
     };
   }
@@ -131,5 +149,112 @@ describe('NG benchmark settings selector', () => {
     expect(user.settings.performanceCalculationType).toBe(
       PerformanceCalculationType.ROAI
     );
+  });
+
+  const replacementPermissions = [
+    permissions.createAccount,
+    permissions.createActivity,
+    permissions.deleteAccount,
+    permissions.deleteActivity
+  ];
+
+  function actionButton(
+    fixture: Awaited<ReturnType<typeof create>>['fixture'],
+    label: string
+  ): HTMLButtonElement | undefined {
+    return Array.from(
+      fixture.nativeElement.querySelectorAll(
+        'button'
+      ) as NodeListOf<HTMLButtonElement>
+    ).find((button) => button.textContent?.trim() === label);
+  }
+
+  it('opens the original import dialog in IMPORT mode', async () => {
+    const { fixture, dialogOpen } = await create(true);
+
+    const button = actionButton(fixture, 'Import Data');
+
+    expect(button).toBeDefined();
+    button!.click();
+
+    expect(dialogOpen).toHaveBeenCalledWith(
+      expect.anything(),
+      expect.objectContaining({
+        disableClose: true,
+        data: { mode: 'IMPORT' }
+      })
+    );
+  });
+
+  it('shows and opens Replace Data for an authorized user', async () => {
+    const { fixture, dialogOpen } = await create(true, true, {
+      userPermissions: replacementPermissions
+    });
+
+    expect(actionButton(fixture, 'Export Data')).toBeDefined();
+    expect(actionButton(fixture, 'Import Data')).toBeDefined();
+
+    const button = actionButton(fixture, 'Replace Data');
+
+    expect(button).toBeDefined();
+    button!.click();
+
+    expect(dialogOpen).toHaveBeenCalledWith(
+      expect.anything(),
+      expect.objectContaining({
+        disableClose: true,
+        data: { mode: 'REPLACE' }
+      })
+    );
+  });
+
+  it('hides replacement when a required permission is missing', async () => {
+    for (const missingPermission of replacementPermissions) {
+      const { fixture, dialogOpen } = await create(true, true, {
+        userPermissions: replacementPermissions.filter(
+          (permission) => permission !== missingPermission
+        )
+      });
+
+      expect(actionButton(fixture, 'Export Data')).toBeDefined();
+      expect(actionButton(fixture, 'Import Data')).toBeDefined();
+      expect(actionButton(fixture, 'Replace Data')).toBeUndefined();
+
+      fixture.componentInstance['onReplaceData']();
+
+      expect(dialogOpen).not.toHaveBeenCalled();
+
+      TestBed.resetTestingModule();
+    }
+  });
+
+  it('hides import and replacement during impersonation', async () => {
+    const { fixture, dialogOpen } = await create(true, true, {
+      userPermissions: replacementPermissions,
+      impersonated: true
+    });
+
+    expect(actionButton(fixture, 'Export Data')).toBeDefined();
+    expect(actionButton(fixture, 'Import Data')).toBeUndefined();
+    expect(actionButton(fixture, 'Replace Data')).toBeUndefined();
+
+    fixture.componentInstance['onReplaceData']();
+
+    expect(dialogOpen).not.toHaveBeenCalled();
+  });
+
+  it('hides import and replacement in restricted view', async () => {
+    const { fixture, dialogOpen } = await create(true, true, {
+      userPermissions: replacementPermissions,
+      restricted: true
+    });
+
+    expect(actionButton(fixture, 'Export Data')).toBeDefined();
+    expect(actionButton(fixture, 'Import Data')).toBeUndefined();
+    expect(actionButton(fixture, 'Replace Data')).toBeUndefined();
+
+    fixture.componentInstance['onReplaceData']();
+
+    expect(dialogOpen).not.toHaveBeenCalled();
   });
 });

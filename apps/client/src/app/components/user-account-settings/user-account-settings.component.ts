@@ -96,6 +96,7 @@ export class GfUserAccountSettingsComponent implements OnInit {
   });
   protected hasImpersonationId: boolean;
   protected hasPermissionToDeleteOwnUser: boolean;
+  protected hasPermissionToReplaceData = false;
   protected hasPermissionToEnableGhostfolioAi: boolean;
   protected hasPermissionToRequestOwnUserDeletion: boolean;
   protected hasPermissionToUpdateOwnAccessToken: boolean;
@@ -194,6 +195,15 @@ export class GfUserAccountSettingsComponent implements OnInit {
           this.hasPermissionToDeleteOwnUser = hasPermission(
             this.user.permissions,
             permissions.deleteOwnUser
+          );
+
+          this.hasPermissionToReplaceData = [
+            permissions.createAccount,
+            permissions.createActivity,
+            permissions.deleteAccount,
+            permissions.deleteActivity
+          ].every((permission) =>
+            hasPermission(this.user.permissions, permission)
           );
 
           this.hasPermissionToEnableGhostfolioAi = hasPermission(
@@ -337,10 +347,27 @@ export class GfUserAccountSettingsComponent implements OnInit {
   private readonly restoreDialog = inject(MatDialog);
 
   protected onImportData() {
+    this.openRestoreDialog('IMPORT');
+  }
+
+  protected onReplaceData() {
+    if (
+      this.hasImpersonationId ||
+      this.user?.settings?.isRestrictedView ||
+      !this.hasPermissionToReplaceData
+    ) {
+      return;
+    }
+
+    this.openRestoreDialog('REPLACE');
+  }
+
+  private openRestoreDialog(mode: 'IMPORT' | 'REPLACE') {
     this.restoreDialog.open(GfPortfolioRestoreDialogComponent, {
       width: '52rem',
       maxWidth: '96vw',
-      disableClose: true
+      disableClose: true,
+      data: { mode }
     });
   }
 
