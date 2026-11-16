@@ -386,13 +386,12 @@
       </div>
       <div class="align-items-center d-flex py-1">
         <div class="pe-1 w-50" i18n>Portfolio data (JSON)</div>
-        <div class="ps-1 w-50">
-          <button color="primary" i18n mat-flat-button (click)="onExport()">
+        <div class="d-flex flex-wrap gap-2 ps-1 w-50">
+          <button color="primary" i18n mat-stroked-button (click)="onExport()">
             Export Data
           </button>
           @if (!hasImpersonationId && !user?.settings?.isRestrictedView) {
             <button
-              class="ms-2"
               color="primary"
               i18n
               mat-stroked-button
@@ -400,6 +399,16 @@
             >
               Import Data
             </button>
+            @if (hasPermissionToReplaceData) {
+              <button
+                color="primary"
+                i18n
+                mat-stroked-button
+                (click)="onReplaceData()"
+              >
+                Replace Data
+              </button>
+            }
           }
         </div>
       </div>
