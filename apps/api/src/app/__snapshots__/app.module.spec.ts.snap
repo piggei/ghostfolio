@@ -1497,6 +1497,46 @@ exports[`AppModule should keep the security of each route 1`] = `
       "portfolio:read:values",
     ],
   },
+  "POST /import/restore/replace": {
+    "guards": [
+      "AuthGuard('jwt')",
+      "HasPermissionGuard",
+      "ImpersonationGuard",
+      "ScopeGuard",
+    ],
+    "interceptors": [
+      "TransformDataSourceInRequestInterceptor",
+    ],
+    "permission": "deleteActivity",
+    "scopes": [
+      "account:create",
+      "activity:create",
+      "account:update",
+      "portfolio:read:values",
+      "account:delete",
+      "activity:delete",
+    ],
+  },
+  "POST /import/restore/replace/preview": {
+    "guards": [
+      "AuthGuard('jwt')",
+      "HasPermissionGuard",
+      "ImpersonationGuard",
+      "ScopeGuard",
+    ],
+    "interceptors": [
+      "TransformDataSourceInRequestInterceptor",
+    ],
+    "permission": "deleteActivity",
+    "scopes": [
+      "account:create",
+      "activity:create",
+      "account:update",
+      "portfolio:read:values",
+      "account:delete",
+      "activity:delete",
+    ],
+  },
   "POST /market-data/:dataSource/:symbol": {
     "allowDuringImpersonation": true,
     "guards": [

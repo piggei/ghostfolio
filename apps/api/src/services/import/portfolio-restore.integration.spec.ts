@@ -2,6 +2,7 @@ import { CashManagementService } from '@ghostfolio/api/app/account-balance/cash-
 import { ExportService } from '@ghostfolio/api/app/endpoints/export/export.service';
 import { AccountBalanceService } from '@ghostfolio/api/services/account-balance/account-balance.service';
 import { PrismaService } from '@ghostfolio/api/services/prisma/prisma.service';
+import { PROPERTY_BENCHMARKS } from '@ghostfolio/common/config';
 import type { ExportResponse } from '@ghostfolio/common/interfaces';
 
 import { ValidationPipe } from '@nestjs/common';
@@ -825,6 +826,815 @@ describeDb('Portfolio JSON restore with PostgreSQL', () => {
     ).rejects.toThrow('changed');
     expect(await prisma.order.count({ where: { userId } })).toBe(1);
   });
+  it('rejects confirmation when an existing cash event changes after preview', async () => {
+    await commit(fixture());
+
+    const input = fixture();
+    const plan = await service.run(input, userId, true);
+    expect(plan.errors).toEqual([]);
+
+    const existingEvent = await prisma.cashEvent.findFirstOrThrow({
+      where: { userId }
+    });
+
+    await prisma.cashEvent.update({
+      where: { id: existingEvent.id },
+      data: { comment: 'Changed after preview' }
+    });
+
+    await expect(
+      service.run({ ...input, digest: plan.digest }, userId, false)
+    ).rejects.toThrow('changed');
+
+    expect(await prisma.account.count({ where: { userId } })).toBe(1);
+    expect(await prisma.order.count({ where: { userId } })).toBe(1);
+    expect(await prisma.cashEvent.count({ where: { userId } })).toBe(2);
+  });
+
+  it('requires every backup account to be recreated in REPLACE mode', async () => {
+    const input = fixture();
+    input.choices[0].targetId = 'SKIP';
+
+    await expect(service.run(input, userId, true, 'REPLACE')).rejects.toThrow(
+      'Replacement requires every source account to be recreated.'
+    );
+
+    expect(await prisma.account.count({ where: { userId } })).toBe(0);
+  });
+
+  it('replaces existing accounts, orders and cash events atomically', async () => {
+    await commit(fixture());
+
+    const oldAccount = await prisma.account.findFirstOrThrow({
+      where: { userId }
+    });
+    const oldOrder = await prisma.order.findFirstOrThrow({
+      where: { userId }
+    });
+    const oldEventIds = (
+      await prisma.cashEvent.findMany({
+        where: { userId },
+        select: { id: true }
+      })
+    ).map(({ id }) => id);
+
+    const input = fixture();
+    const preview = await service.run(input, userId, true, 'REPLACE');
+
+    expect(preview.errors).toEqual([]);
+    expect(preview.newActivities).toBe(1);
+    expect(preview.duplicates).toBe(0);
+
+    await service.run(
+      { ...input, digest: preview.digest },
+      userId,
+      false,
+      'REPLACE'
+    );
+
+    const accounts = await prisma.account.findMany({ where: { userId } });
+    const orders = await prisma.order.findMany({ where: { userId } });
+    const events = await prisma.cashEvent.findMany({ where: { userId } });
+
+    expect(accounts).toHaveLength(1);
+    expect(orders).toHaveLength(1);
+    expect(events).toHaveLength(2);
+
+    expect(accounts[0].id).not.toBe(oldAccount.id);
+    expect(orders[0].id).not.toBe(oldOrder.id);
+    expect(orders[0].accountId).toBe(accounts[0].id);
+    expect(events.every(({ id }) => !oldEventIds.includes(id))).toBe(true);
+    expect(events.some(({ orderId }) => orderId === orders[0].id)).toBe(true);
+
+    expect(
+      await prisma.account.count({
+        where: { id: oldAccount.id, userId }
+      })
+    ).toBe(0);
+    expect(
+      await prisma.order.count({
+        where: { id: oldOrder.id, userId }
+      })
+    ).toBe(0);
+  });
+
+  it('preserves historical manual profiles and prices while replacing financial activities', async () => {
+    await commit(fixture());
+
+    const oldProfile = await prisma.symbolProfile.findFirstOrThrow({
+      where: { userId, dataSource: 'MANUAL' }
+    });
+
+    const oldOrder = await prisma.order.findFirstOrThrow({
+      where: { userId }
+    });
+
+    const oldPrices = await prisma.marketData.findMany({
+      where: {
+        dataSource: 'MANUAL',
+        symbol: oldProfile.symbol
+      },
+      orderBy: { date: 'asc' }
+    });
+
+    expect(oldPrices).toHaveLength(1);
+
+    const input = fixture();
+    const preview = await service.run(input, userId, true, 'REPLACE');
+
+    expect(preview.errors).toEqual([]);
+
+    await service.run(
+      { ...input, digest: preview.digest },
+      userId,
+      false,
+      'REPLACE'
+    );
+
+    expect(
+      await prisma.symbolProfile.findUnique({
+        where: { id: oldProfile.id }
+      })
+    ).toEqual(oldProfile);
+
+    expect(
+      await prisma.marketData.findMany({
+        where: {
+          dataSource: 'MANUAL',
+          symbol: oldProfile.symbol
+        },
+        orderBy: { date: 'asc' }
+      })
+    ).toEqual(oldPrices);
+
+    expect(
+      await prisma.order.count({
+        where: { userId, id: oldOrder.id }
+      })
+    ).toBe(0);
+
+    const newOrders = await prisma.order.findMany({
+      where: { userId }
+    });
+
+    expect(newOrders).toHaveLength(1);
+    expect(newOrders[0].symbolProfileId).not.toBe(oldProfile.id);
+
+    expect(
+      await prisma.symbolProfile.count({
+        where: { userId, dataSource: 'MANUAL' }
+      })
+    ).toBe(2);
+  });
+
+  it('preserves watched private manual profiles and their prices during REPLACE', async () => {
+    await commit(fixture());
+
+    const oldProfile = await prisma.symbolProfile.findFirstOrThrow({
+      where: { userId, dataSource: 'MANUAL' }
+    });
+    const oldOrder = await prisma.order.findFirstOrThrow({
+      where: { userId }
+    });
+
+    await prisma.user.update({
+      where: { id: userId },
+      data: {
+        watchlist: {
+          connect: { id: oldProfile.id }
+        }
+      }
+    });
+
+    const oldPrices = await prisma.marketData.findMany({
+      where: {
+        dataSource: 'MANUAL',
+        symbol: oldProfile.symbol
+      },
+      orderBy: { date: 'asc' }
+    });
+
+    expect(oldPrices).toHaveLength(1);
+
+    const input = fixture();
+    const preview = await service.run(input, userId, true, 'REPLACE');
+    expect(preview.errors).toEqual([]);
+
+    await service.run(
+      { ...input, digest: preview.digest },
+      userId,
+      false,
+      'REPLACE'
+    );
+
+    expect(
+      await prisma.symbolProfile.findUnique({
+        where: { id: oldProfile.id }
+      })
+    ).toEqual(oldProfile);
+
+    expect(
+      await prisma.marketData.findMany({
+        where: {
+          dataSource: 'MANUAL',
+          symbol: oldProfile.symbol
+        },
+        orderBy: { date: 'asc' }
+      })
+    ).toEqual(oldPrices);
+
+    const user = await prisma.user.findUniqueOrThrow({
+      where: { id: userId },
+      include: { watchlist: true }
+    });
+
+    expect(user.watchlist.map(({ id }) => id)).toContain(oldProfile.id);
+
+    expect(
+      await prisma.order.count({
+        where: { id: oldOrder.id, userId }
+      })
+    ).toBe(0);
+
+    expect(
+      await prisma.order.count({
+        where: { userId }
+      })
+    ).toBe(1);
+
+    expect(
+      await prisma.symbolProfile.count({
+        where: { userId, dataSource: 'MANUAL' }
+      })
+    ).toBe(2);
+  });
+
+  it('preserves benchmark manual profiles and historical prices during REPLACE', async () => {
+    await commit(fixture());
+
+    const profile = await prisma.symbolProfile.findFirstOrThrow({
+      where: { userId, dataSource: 'MANUAL' }
+    });
+    const oldOrder = await prisma.order.findFirstOrThrow({
+      where: { userId }
+    });
+    const prices = await prisma.marketData.findMany({
+      where: { dataSource: 'MANUAL', symbol: profile.symbol },
+      orderBy: { date: 'asc' }
+    });
+
+    const originalProperty = await prisma.property.findUnique({
+      where: { key: PROPERTY_BENCHMARKS }
+    });
+
+    try {
+      const benchmarks = originalProperty
+        ? JSON.parse(originalProperty.value)
+        : [];
+
+      expect(Array.isArray(benchmarks)).toBe(true);
+
+      await prisma.property.upsert({
+        where: { key: PROPERTY_BENCHMARKS },
+        create: {
+          key: PROPERTY_BENCHMARKS,
+          value: JSON.stringify([
+            ...benchmarks,
+            { symbolProfileId: profile.id }
+          ])
+        },
+        update: {
+          value: JSON.stringify([
+            ...benchmarks,
+            { symbolProfileId: profile.id }
+          ])
+        }
+      });
+
+      const input = fixture();
+      const preview = await service.run(input, userId, true, 'REPLACE');
+      expect(preview.errors).toEqual([]);
+
+      await service.run(
+        { ...input, digest: preview.digest },
+        userId,
+        false,
+        'REPLACE'
+      );
+
+      expect(
+        await prisma.symbolProfile.findUnique({
+          where: { id: profile.id }
+        })
+      ).toEqual(profile);
+
+      expect(
+        await prisma.marketData.findMany({
+          where: { dataSource: 'MANUAL', symbol: profile.symbol },
+          orderBy: { date: 'asc' }
+        })
+      ).toEqual(prices);
+
+      expect(
+        await prisma.order.count({
+          where: { id: oldOrder.id, userId }
+        })
+      ).toBe(0);
+
+      expect(
+        await prisma.order.count({
+          where: { userId }
+        })
+      ).toBe(1);
+
+      const configured = await prisma.property.findUniqueOrThrow({
+        where: { key: PROPERTY_BENCHMARKS }
+      });
+      expect(
+        JSON.parse(configured.value).some(
+          (item: { symbolProfileId: string }) =>
+            item.symbolProfileId === profile.id
+        )
+      ).toBe(true);
+    } finally {
+      if (originalProperty) {
+        await prisma.property.upsert({
+          where: { key: PROPERTY_BENCHMARKS },
+          create: originalProperty,
+          update: { value: originalProperty.value }
+        });
+      } else {
+        await prisma.property.deleteMany({
+          where: { key: PROPERTY_BENCHMARKS }
+        });
+      }
+    }
+  });
+
+  it('preserves malformed benchmark configuration without blocking REPLACE', async () => {
+    await commit(fixture());
+
+    const oldProfile = await prisma.symbolProfile.findFirstOrThrow({
+      where: { userId, dataSource: 'MANUAL' }
+    });
+
+    const oldOrder = await prisma.order.findFirstOrThrow({
+      where: { userId }
+    });
+
+    const originalProperty = await prisma.property.findUnique({
+      where: { key: PROPERTY_BENCHMARKS }
+    });
+
+    try {
+      for (const invalidValue of [
+        JSON.stringify([{ invalid: true }]),
+        '{invalid-json'
+      ]) {
+        await prisma.property.upsert({
+          where: { key: PROPERTY_BENCHMARKS },
+          create: {
+            key: PROPERTY_BENCHMARKS,
+            value: invalidValue
+          },
+          update: { value: invalidValue }
+        });
+
+        const input = fixture();
+        const preview = await service.run(input, userId, true, 'REPLACE');
+
+        expect(preview.errors).toEqual([]);
+
+        await service.run(
+          { ...input, digest: preview.digest },
+          userId,
+          false,
+          'REPLACE'
+        );
+
+        expect(
+          await prisma.property.findUniqueOrThrow({
+            where: { key: PROPERTY_BENCHMARKS }
+          })
+        ).toMatchObject({ value: invalidValue });
+
+        expect(
+          await prisma.symbolProfile.findUnique({
+            where: { id: oldProfile.id }
+          })
+        ).toEqual(oldProfile);
+
+        expect(
+          await prisma.order.count({
+            where: { userId, id: oldOrder.id }
+          })
+        ).toBe(0);
+
+        expect(await prisma.order.count({ where: { userId } })).toBe(1);
+      }
+    } finally {
+      if (originalProperty) {
+        await prisma.property.upsert({
+          where: { key: PROPERTY_BENCHMARKS },
+          create: originalProperty,
+          update: { value: originalProperty.value }
+        });
+      } else {
+        await prisma.property.deleteMany({
+          where: { key: PROPERTY_BENCHMARKS }
+        });
+      }
+    }
+  });
+
+  it('keeps REPLACE confirmation valid after a benchmark change', async () => {
+    await commit(fixture());
+
+    const oldProfile = await prisma.symbolProfile.findFirstOrThrow({
+      where: { userId, dataSource: 'MANUAL' }
+    });
+
+    const oldOrder = await prisma.order.findFirstOrThrow({
+      where: { userId }
+    });
+
+    const originalProperty = await prisma.property.findUnique({
+      where: { key: PROPERTY_BENCHMARKS }
+    });
+
+    const input = fixture();
+    const preview = await service.run(input, userId, true, 'REPLACE');
+
+    expect(preview.errors).toEqual([]);
+
+    try {
+      const benchmarks = originalProperty
+        ? JSON.parse(originalProperty.value)
+        : [];
+
+      expect(Array.isArray(benchmarks)).toBe(true);
+
+      const updatedBenchmarks = [
+        ...benchmarks,
+        { symbolProfileId: oldProfile.id }
+      ];
+
+      const updatedValue = JSON.stringify(updatedBenchmarks);
+
+      await prisma.property.upsert({
+        where: { key: PROPERTY_BENCHMARKS },
+        create: {
+          key: PROPERTY_BENCHMARKS,
+          value: updatedValue
+        },
+        update: { value: updatedValue }
+      });
+
+      await service.run(
+        { ...input, digest: preview.digest },
+        userId,
+        false,
+        'REPLACE'
+      );
+
+      expect(
+        await prisma.property.findUniqueOrThrow({
+          where: { key: PROPERTY_BENCHMARKS }
+        })
+      ).toMatchObject({ value: updatedValue });
+
+      expect(
+        await prisma.symbolProfile.findUnique({
+          where: { id: oldProfile.id }
+        })
+      ).toEqual(oldProfile);
+
+      expect(
+        await prisma.order.count({
+          where: { userId, id: oldOrder.id }
+        })
+      ).toBe(0);
+
+      expect(await prisma.order.count({ where: { userId } })).toBe(1);
+
+      const newPreview = await service.run(input, userId, true, 'REPLACE');
+
+      expect(newPreview.errors).toEqual([]);
+    } finally {
+      if (originalProperty) {
+        await prisma.property.upsert({
+          where: { key: PROPERTY_BENCHMARKS },
+          create: originalProperty,
+          update: { value: originalProperty.value }
+        });
+      } else {
+        await prisma.property.deleteMany({
+          where: { key: PROPERTY_BENCHMARKS }
+        });
+      }
+    }
+  });
+
+  it('previews REPLACE deletion counts without changing the IMPORT contract', async () => {
+    await commit(fixture());
+
+    const input = fixture();
+
+    const importPreview = await service.run(input, userId, true, 'IMPORT');
+    expect(importPreview).not.toHaveProperty('replacement');
+
+    const replacePreview = await service.run(input, userId, true, 'REPLACE');
+
+    expect(replacePreview.errors).toEqual([]);
+    expect(replacePreview.replacement).toEqual({
+      accountsToDelete: 1,
+      activitiesToDelete: 1,
+      cashEventsToDelete: 2
+    });
+    expect(replacePreview.accounts).toHaveLength(1);
+    expect(replacePreview.newActivities).toBe(1);
+    expect(replacePreview.duplicates).toBe(0);
+    expect(replacePreview.cashEvents).toBe(2);
+    expect(replacePreview.digest).not.toBe(importPreview.digest);
+
+    expect(replacePreview.warnings.join(' ')).toContain('will be replaced');
+    expect(replacePreview.warnings.join(' ')).not.toContain(
+      'Existing data is retained'
+    );
+
+    expect(await prisma.account.count({ where: { userId } })).toBe(1);
+    expect(await prisma.order.count({ where: { userId } })).toBe(1);
+    expect(await prisma.cashEvent.count({ where: { userId } })).toBe(2);
+  });
+
+  it('preserves personal settings in REPLACE even for an empty portfolio', async () => {
+    const input = fixture();
+    input.restoreSettings = true;
+    input.backup.user = {
+      settings: {
+        currency: 'USD',
+        performanceCalculationType: 'ROI'
+      }
+    };
+
+    await prisma.settings.upsert({
+      where: { userId },
+      create: {
+        userId,
+        settings: {
+          baseCurrency: 'CHF',
+          performanceCalculationType: 'MWR'
+        }
+      },
+      update: {
+        settings: {
+          baseCurrency: 'CHF',
+          performanceCalculationType: 'MWR'
+        }
+      }
+    });
+
+    const before = await prisma.settings.findUnique({
+      where: { userId }
+    });
+
+    const preview = await service.run(input, userId, true, 'REPLACE');
+
+    expect(preview.errors).toEqual([]);
+    expect(preview.replacement).toEqual({
+      accountsToDelete: 0,
+      activitiesToDelete: 0,
+      cashEventsToDelete: 0
+    });
+
+    await service.run(
+      { ...input, digest: preview.digest },
+      userId,
+      false,
+      'REPLACE'
+    );
+
+    expect(await prisma.settings.findUnique({ where: { userId } })).toEqual(
+      before
+    );
+
+    expect(await prisma.account.count({ where: { userId } })).toBe(1);
+    expect(await prisma.order.count({ where: { userId } })).toBe(1);
+  });
+
+  it('rolls back the complete previous portfolio when REPLACE reconstruction fails', async () => {
+    await commit(fixture());
+
+    const snapshot = async () => ({
+      accounts: await prisma.account.findMany({
+        where: { userId },
+        orderBy: { id: 'asc' },
+        include: { balances: true, cashState: true, tags: true }
+      }),
+      orders: await prisma.order.findMany({
+        where: { userId },
+        orderBy: { id: 'asc' }
+      }),
+      cashEvents: await prisma.cashEvent.findMany({
+        where: { userId },
+        orderBy: { id: 'asc' }
+      }),
+      settings: await prisma.settings.findUnique({
+        where: { userId }
+      })
+    });
+
+    const before = await snapshot();
+    const input = fixture();
+    const preview = await service.run(input, userId, true, 'REPLACE');
+
+    expect(preview.errors).toEqual([]);
+
+    const restore = jest
+      .spyOn(cash, 'restoreInTransaction')
+      .mockRejectedValueOnce(
+        new Error('simulated replacement reconstruction failure')
+      );
+
+    try {
+      await expect(
+        service.run(
+          { ...input, digest: preview.digest },
+          userId,
+          false,
+          'REPLACE'
+        )
+      ).rejects.toThrow('simulated replacement reconstruction failure');
+    } finally {
+      restore.mockRestore();
+    }
+
+    expect(await snapshot()).toEqual(before);
+  });
+
+  it('does not modify another user portfolio during REPLACE', async () => {
+    const otherUserId = randomUUID();
+    users.push(otherUserId);
+    await prisma.user.create({ data: { id: otherUserId } });
+
+    const otherInput = fixture();
+    const otherPreview = await service.run(otherInput, otherUserId, true);
+    expect(otherPreview.errors).toEqual([]);
+    await service.run(
+      { ...otherInput, digest: otherPreview.digest },
+      otherUserId,
+      false
+    );
+
+    const snapshot = async () => ({
+      accounts: await prisma.account.findMany({
+        where: { userId: otherUserId },
+        orderBy: { id: 'asc' },
+        include: { balances: true, cashState: true, tags: true }
+      }),
+      orders: await prisma.order.findMany({
+        where: { userId: otherUserId },
+        orderBy: { id: 'asc' }
+      }),
+      cashEvents: await prisma.cashEvent.findMany({
+        where: { userId: otherUserId },
+        orderBy: { id: 'asc' }
+      }),
+      settings: await prisma.settings.findUnique({
+        where: { userId: otherUserId }
+      })
+    });
+
+    const before = await snapshot();
+
+    await commit(fixture());
+
+    const replacement = fixture();
+    const preview = await service.run(replacement, userId, true, 'REPLACE');
+    expect(preview.errors).toEqual([]);
+
+    await service.run(
+      { ...replacement, digest: preview.digest },
+      userId,
+      false,
+      'REPLACE'
+    );
+
+    expect(await snapshot()).toEqual(before);
+    expect(
+      await prisma.account.count({
+        where: { userId }
+      })
+    ).toBe(1);
+  });
+
+  it('replaces reciprocal transfers without retaining old cash references', async () => {
+    const transferFixture = () => {
+      const input = fixture();
+      const first = input.backup.accounts[0];
+      const secondId = randomUUID();
+      const transferId = randomUUID();
+
+      first.cashManagement.events.push({
+        id: randomUUID(),
+        date: '2026-03-01',
+        sequence: 3,
+        type: 'MOVEMENT',
+        amount: '-20',
+        transferId
+      });
+
+      input.backup.accounts.push({
+        id: secondId,
+        name: 'Transfer destination',
+        currency: 'EUR',
+        platformId: null,
+        cashManagement: {
+          ...first.cashManagement,
+          events: [
+            {
+              id: randomUUID(),
+              date: '2026-03-01',
+              sequence: 1,
+              type: 'MOVEMENT',
+              amount: '20',
+              transferId
+            }
+          ]
+        }
+      });
+
+      input.choices.push({ sourceId: secondId, targetId: 'NEW' });
+
+      return input;
+    };
+
+    await commit(transferFixture());
+
+    const oldAccounts = await prisma.account.findMany({
+      where: { userId },
+      select: { id: true }
+    });
+    const oldEvents = await prisma.cashEvent.findMany({
+      where: { userId },
+      select: { id: true, transferId: true }
+    });
+
+    expect(oldAccounts).toHaveLength(2);
+    expect(oldEvents.filter((event) => event.transferId)).toHaveLength(2);
+
+    const replacement = transferFixture();
+    const preview = await service.run(replacement, userId, true, 'REPLACE');
+
+    expect(preview.errors).toEqual([]);
+
+    await service.run(
+      { ...replacement, digest: preview.digest },
+      userId,
+      false,
+      'REPLACE'
+    );
+
+    const accounts = await prisma.account.findMany({
+      where: { userId }
+    });
+    const events = await prisma.cashEvent.findMany({
+      where: { userId }
+    });
+
+    expect(accounts).toHaveLength(2);
+    expect(events).toHaveLength(4);
+
+    const oldAccountIds = new Set(oldAccounts.map(({ id }) => id));
+    const oldEventIds = new Set(oldEvents.map(({ id }) => id));
+    const newAccountIds = new Set(accounts.map(({ id }) => id));
+
+    expect(accounts.every(({ id }) => !oldAccountIds.has(id))).toBe(true);
+    expect(events.every(({ id }) => !oldEventIds.has(id))).toBe(true);
+    expect(events.every(({ accountId }) => newAccountIds.has(accountId))).toBe(
+      true
+    );
+
+    const transfers = events.filter(({ transferId }) => transferId !== null);
+    expect(transfers).toHaveLength(2);
+    expect(transfers[0].transferId).toBe(transfers[1].transferId);
+    expect(transfers[0].transferId).not.toBeNull();
+
+    const oldTransferIds = new Set(
+      oldEvents.map(({ transferId }) => transferId).filter(Boolean)
+    );
+    expect(oldTransferIds.has(transfers[0].transferId)).toBe(false);
+
+    expect(transfers[0].accountId).not.toBe(transfers[1].accountId);
+    expect(
+      events.every(
+        ({ transferCounterpartyAccountId }) =>
+          transferCounterpartyAccountId === null ||
+          newAccountIds.has(transferCounterpartyAccountId)
+      )
+    ).toBe(true);
+  });
+
   it('requires both sides of a transfer and remaps transfer identifiers', async () => {
     const input = fixture(),
       first = input.backup.accounts[0],

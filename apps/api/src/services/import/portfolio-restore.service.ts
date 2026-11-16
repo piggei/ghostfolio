@@ -31,7 +31,8 @@ export class PortfolioRestoreService {
   public async run(
     input: PortfolioRestoreDto,
     userId: string,
-    preview: boolean
+    preview: boolean,
+    mode: 'IMPORT' | 'REPLACE' = 'IMPORT'
   ) {
     const result = await this.prisma.$transaction(
       async (tx) => {
@@ -50,6 +51,10 @@ export class PortfolioRestoreService {
           where: { userId },
           orderBy: { id: 'asc' }
         });
+        const cashEvents = await tx.cashEvent.findMany({
+          where: { userId },
+          orderBy: { id: 'asc' }
+        });
         const settings = await tx.settings.findUnique({ where: { userId } });
         const profileState = await tx.symbolProfile.findMany({
           where: {
@@ -64,10 +69,12 @@ export class PortfolioRestoreService {
           .update(
             JSON.stringify({
               backup: input.backup,
+              mode,
               choices: input.choices,
               restoreSettings: input.restoreSettings,
               destination,
               orders,
+              cashEvents,
               settings,
               profileState
             })
@@ -101,6 +108,16 @@ export class PortfolioRestoreService {
           choices.some((c) => !ids.includes(c.sourceId))
         )
           throw new BadRequestException('Invalid account choices.');
+        if (
+          mode === 'REPLACE' &&
+          (choices.length !== sources.length ||
+            choices.some((c) => c.targetId !== 'NEW'))
+        ) {
+          throw new BadRequestException(
+            'Replacement requires every source account to be recreated.'
+          );
+        }
+
         const choice = new Map(choices.map((c) => [c.sourceId, c.targetId]));
         const included = sources.filter((a) => choice.get(a.id) !== 'SKIP');
         const selected = new Set(included.map((a) => a.id));
@@ -316,6 +333,7 @@ export class PortfolioRestoreService {
             invalid();
           }
         }
+        const matchingOrders = mode === 'REPLACE' ? [] : orders;
         const matches = activities.map((a) => {
           const target = accountPlan.find(
             (p) => p.sourceId === a.accountId
@@ -323,7 +341,7 @@ export class PortfolioRestoreService {
           const same =
             a.accountId && !target
               ? []
-              : orders.filter(
+              : matchingOrders.filter(
                   (o) =>
                     o.accountId === (target ?? null) &&
                     o.date.toISOString() === new Date(a.date).toISOString() &&
@@ -421,7 +439,7 @@ export class PortfolioRestoreService {
                 (a.cashState.lastSequence > 0 ||
                   !a.cashState.openingBalance.isZero()))
           );
-        if (hasDestinationData)
+        if (mode === 'IMPORT' && hasDestinationData)
           warnings.push(
             'Existing data is retained. Only explicitly selected destination accounts are reused; account names are never matched automatically.'
           );
@@ -429,9 +447,13 @@ export class PortfolioRestoreService {
           warnings.push(
             'Some activities have no account and will remain unassigned.'
           );
-        if (input.restoreSettings && hasDestinationData)
+        if (mode === 'IMPORT' && input.restoreSettings && hasDestinationData)
           warnings.push(
             'Settings are restored only into an empty portfolio. Existing settings will be retained.'
+          );
+        if (mode === 'REPLACE')
+          warnings.push(
+            'Existing portfolio accounts, activities and cash movements will be replaced. Personal settings and watchlist entries will be retained.'
           );
         const plan = {
           digest,
@@ -445,11 +467,28 @@ export class PortfolioRestoreService {
           newActivities: activities.length - duplicateMap.size,
           duplicates: duplicateMap.size,
           cashEvents: accountPlan.reduce((n, a) => n + a.cashEvents, 0),
+          ...(mode === 'REPLACE'
+            ? {
+                replacement: {
+                  accountsToDelete: destination.length,
+                  activitiesToDelete: orders.length,
+                  cashEventsToDelete: cashEvents.length
+                }
+              }
+            : {}),
           errors: [...new Set(errors)],
           warnings
         };
         if (preview) return plan;
         if (errors.length) throw new BadRequestException(plan.errors.join(' '));
+        if (mode === 'REPLACE') {
+          // Remove the complete financial state before rebuilding it.
+          // Cash events must be removed first because transfers can
+          // restrict account deletion.
+          await tx.cashEvent.deleteMany({ where: { userId } });
+          await tx.order.deleteMany({ where: { userId } });
+          await tx.account.deleteMany({ where: { userId } });
+        }
         const platforms = new Map<string, string>();
         for (const p of backup.platforms ?? []) {
           const platform = await tx.platform.upsert({
@@ -658,6 +697,7 @@ export class PortfolioRestoreService {
             );
           }
         if (
+          mode === 'IMPORT' &&
           input.restoreSettings &&
           !hasDestinationData &&
           backup.user?.settings
