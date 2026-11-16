@@ -1,5 +1,29 @@
 # Ghostfolio-NG Home Assistant Add-on Changelog
 
+## 3.100.0
+
+### Official Ghostfolio updates
+
+#### [Ghostfolio 3.100.0](https://github.com/ghostfolio/ghostfolio/releases/tag/3.100.0)
+
+##### Changed
+
+- Upgraded the `Node.js` engine from version `>=22.23.4` to `>=22.23.5` (`package.json`)
+- Upgraded `dotenv` from version `18.0.3` to `18.0.9`
+- Upgraded `stripe` from version `23.0.1` to `23.1.0`
+- Upgraded `undici` from version `8.12.3` to `8.12.4`
+
+##### Special Thanks
+
+- @dtslvr
+- @KenTandrian
+- @ZainnQureshii
+
+### Integration-specific changes
+
+- fix(ci): align distribution workflows with Node.js 22.23.5 (a106bb1c2)
+- chore(ng): merge upstream Ghostfolio 3.100.0 (28fae438c)
+
 ## 3.99.4
 
 ### Official Ghostfolio updates

@@ -1,36 +1,36 @@
 {
   "schema_version": 1,
   "identity": {
-    "integration_tag": "integration-3.99.0-27",
-    "source_commit": "a881f79d87a65003254b575fef6525c1e677758a",
-    "source_image": "ghcr.io/piggei/ghostfolio-ng@sha256:1e13c87a0b4c3f7c6b75b472290b697014c5f59f18b093b3f22ff7ea627f414f",
-    "ghostfolio_version": "3.99.0",
+    "integration_tag": "integration-3.100.0-28",
+    "source_commit": "a106bb1c261b1e38e2282512e37d57be4bea889b",
+    "source_image": "ghcr.io/piggei/ghostfolio-ng@sha256:94391b840df0bf9ccb504f598ec7e9de0d57ce476771ed4a7f9aa0bfabe71c81",
+    "ghostfolio_version": "3.100.0",
     "addon_source_revision": "d78d0e7939c4e7b70eeda9b628244e9f5c47656c"
   },
-  "addon_version": "3.99.4",
+  "addon_version": "3.100.0",
   "state": "activated",
   "qualified": {
     "amd64": {
       "os": "linux",
       "architecture": "amd64",
-      "digest": "sha256:bf145c03d0b0ca060213ac5e51d7c631f1d7c87c70fe3c46539497a0353abaf8"
+      "digest": "sha256:5d4ecc8c5f77038ec0d560c813b5c635d24b83645ba65960cdd3d7c713bb1796"
     },
     "aarch64": {
       "os": "linux",
       "architecture": "arm64",
-      "digest": "sha256:5039e6d3f5353e01e2531e64b2fb4d0ade40a6d868e396d7c6aa6ed8484347d0"
+      "digest": "sha256:56b23ab3f756e805ed480cfa2d4b5d6bd02deb40476fa1e471dbcb221f54db21"
     }
   },
   "published": {
     "amd64": {
       "os": "linux",
       "architecture": "amd64",
-      "digest": "sha256:bf145c03d0b0ca060213ac5e51d7c631f1d7c87c70fe3c46539497a0353abaf8"
+      "digest": "sha256:5d4ecc8c5f77038ec0d560c813b5c635d24b83645ba65960cdd3d7c713bb1796"
     },
     "aarch64": {
       "os": "linux",
       "architecture": "arm64",
-      "digest": "sha256:5039e6d3f5353e01e2531e64b2fb4d0ade40a6d868e396d7c6aa6ed8484347d0"
+      "digest": "sha256:56b23ab3f756e805ed480cfa2d4b5d6bd02deb40476fa1e471dbcb221f54db21"
     }
   }
 }
