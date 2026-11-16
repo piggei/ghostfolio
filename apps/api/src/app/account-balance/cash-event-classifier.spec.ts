@@ -560,9 +560,7 @@ describe('Verified native cash event classification', () => {
     );
 
     expect(result.coverage).toBe('verified');
-    expect(result.externalFlows).toEqual([
-      { currency: 'EUR', amount: '0' }
-    ]);
+    expect(result.externalFlows).toEqual([{ currency: 'EUR', amount: '0' }]);
     expect(result.items[0].issues).toEqual([]);
   });
 
@@ -582,9 +580,7 @@ describe('Verified native cash event classification', () => {
     });
 
     expect(day(data).coverage).toBe('verified');
-    expect(day(data).externalFlows).toEqual([
-      { currency: 'JPY', amount: '0' }
-    ]);
+    expect(day(data).externalFlows).toEqual([{ currency: 'JPY', amount: '0' }]);
   });
 
   it('uses three minor-unit digits for KWD settlements', () => {
@@ -603,9 +599,7 @@ describe('Verified native cash event classification', () => {
     });
 
     expect(day(data).coverage).toBe('verified');
-    expect(day(data).externalFlows).toEqual([
-      { currency: 'KWD', amount: '0' }
-    ]);
+    expect(day(data).externalFlows).toEqual([{ currency: 'KWD', amount: '0' }]);
   });
 
   it('still rejects a genuine one-cent EUR settlement mismatch', () => {
@@ -624,9 +618,7 @@ describe('Verified native cash event classification', () => {
 
     expect(result.coverage).toBe('unavailable');
     expect(result.externalFlows).toBeNull();
-    expect(result.items[0].issues).toContain(
-      'ORDER_CASH_AMOUNT_MISMATCH'
-    );
+    expect(result.items[0].issues).toContain('ORDER_CASH_AMOUNT_MISMATCH');
   });
 
   it('rejects linked amount mismatch and historical gross-only tax coverage', () => {

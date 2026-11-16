@@ -365,8 +365,14 @@ test('renders documented Cash Management integration with description', () => {
   assert.match(markdown, /### Cash Management/);
   assert.match(markdown, /cash-activity-tax-integration/);
   assert.match(markdown, /Correctly accounts for taxes and fees exactly once/);
-  assert.match(markdown, /\[#8252\]\(https:\/\/github\.com\/ghostfolio\/ghostfolio\/pull\/8252\)/);
-  assert.match(markdown, /\[#8305\]\(https:\/\/github\.com\/ghostfolio\/ghostfolio\/pull\/8305\)/);
+  assert.match(
+    markdown,
+    /\[#8252\]\(https:\/\/github\.com\/ghostfolio\/ghostfolio\/pull\/8252\)/
+  );
+  assert.match(
+    markdown,
+    /\[#8305\]\(https:\/\/github\.com\/ghostfolio\/ghostfolio\/pull\/8305\)/
+  );
   assert.match(markdown, /\[Integration commit\]/);
   assert.match(markdown, /\[Documentation\]/);
 });
@@ -382,10 +388,11 @@ test('rejects conflicting or invalid local patch provenance', () => {
 
   for (const patch of invalid) {
     assert.throws(
-      () => localPatchesMarkdown({
-        pullRequests: [],
-        localPatches: [patch]
-      }),
+      () =>
+        localPatchesMarkdown({
+          pullRequests: [],
+          localPatches: [patch]
+        }),
       /Invalid local patch entry/
     );
   }

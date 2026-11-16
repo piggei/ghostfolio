@@ -39,15 +39,15 @@ describe('upstream historical range parity (no calculator construction)', () => 
         // current snapshot. An empty snapshot represents history without
         // intraday invested-capital adjustments.
         // No constructor, database, HTTP or external services are initialized.
-        const calculator = Object.assign(
-          Object.create(Calculator.prototype),
-          { snapshot: {} }
-        ) as any;
+        const calculator = Object.assign(Object.create(Calculator.prototype), {
+          snapshot: {}
+        }) as any;
 
-        const upstream =
-          calculator.calculatePerformancePercentagesForDateRange({
+        const upstream = calculator.calculatePerformancePercentagesForDateRange(
+          {
             historicalDataItems
-          });
+          }
+        );
         for (const point of evaluateRange(
           points,
           method,
