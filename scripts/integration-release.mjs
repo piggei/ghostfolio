@@ -102,8 +102,7 @@ export function localPatchesMarkdown(manifest) {
       !patch.source.trim() ||
       typeof patch.integrationCommit !== 'string' ||
       !/^[0-9a-f]{40}$/.test(patch.integrationCommit) ||
-      (patch.manifest === undefined) ===
-        (patch.documentation === undefined) ||
+      (patch.manifest === undefined) === (patch.documentation === undefined) ||
       (patch.manifest !== undefined &&
         patch.manifest !== `docker/patches/${patch.id}.json`) ||
       (patch.documentation !== undefined &&

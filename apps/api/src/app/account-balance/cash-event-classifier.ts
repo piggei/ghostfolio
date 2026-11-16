@@ -410,11 +410,7 @@ export function classifyCashEvents(
       .mul(['BUY', 'FEE'].includes(order.type) ? -1 : 1);
     const expected = principal.minus(order.fee).minus(order.tax);
     if (
-      !matchesSettledAmount(
-        expected.toString(),
-        event.value,
-        orderCurrency
-      )
+      !matchesSettledAmount(expected.toString(), event.value, orderCurrency)
     ) {
       fail(result, 'ORDER_CASH_AMOUNT_MISMATCH', false);
       continue;
