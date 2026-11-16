@@ -1,6 +1,6 @@
 {
   "schema_version": 1,
-  "generation": 54,
+  "generation": 55,
   "baseline_version": "3.97.0",
   "current_release": "integration-3.99.0-27",
   "releases": [
@@ -338,7 +338,13 @@
           "digest": "sha256:56b23ab3f756e805ed480cfa2d4b5d6bd02deb40476fa1e471dbcb221f54db21"
         }
       },
-      "published": {}
+      "published": {
+        "amd64": {
+          "os": "linux",
+          "architecture": "amd64",
+          "digest": "sha256:5d4ecc8c5f77038ec0d560c813b5c635d24b83645ba65960cdd3d7c713bb1796"
+        }
+      }
     }
   ]
 }
