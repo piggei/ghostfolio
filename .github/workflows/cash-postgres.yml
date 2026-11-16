@@ -19,16 +19,16 @@ jobs:
           POSTGRES_PASSWORD: cash_ci_disposable
           POSTGRES_DB: cash_test_ci
         ports:
-          - 5432:5432
+          - 5433:5432
         options: >-
           --health-cmd pg_isready
           --health-interval 5s
           --health-timeout 5s
           --health-retries 10
     env:
-      DATABASE_URL: postgresql://cash_ci:cash_ci_disposable@127.0.0.1:5432/cash_test_ci
-      DIRECT_URL: postgresql://cash_ci:cash_ci_disposable@127.0.0.1:5432/cash_test_ci
-      CASH_TEST_DATABASE_URL: postgresql://cash_ci:cash_ci_disposable@127.0.0.1:5432/cash_test_ci
+      DATABASE_URL: postgresql://cash_ci:cash_ci_disposable@127.0.0.1:5433/cash_test_ci
+      DIRECT_URL: postgresql://cash_ci:cash_ci_disposable@127.0.0.1:5433/cash_test_ci
+      CASH_TEST_DATABASE_URL: postgresql://cash_ci:cash_ci_disposable@127.0.0.1:5433/cash_test_ci
       TEST_TZ: ${{ matrix.timezone }}
       TZ: ${{ matrix.timezone }}
       NX_DAEMON: 'false'
