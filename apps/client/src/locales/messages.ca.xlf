@@ -11876,6 +11876,34 @@
         <source>Activity-Matched TWR (cumulative)</source>
         <target state="new">Activity-Matched TWR (cumulative)</target>
       </trans-unit>
+      <trans-unit id="182568157886708525" datatype="html">
+        <source>Replacing an existing portfolio</source>
+        <target state="translated">Substitució d'una cartera existent</target>
+      </trans-unit>
+      <trans-unit id="2201368997396042144" datatype="html">
+        <source>Import Data adds accepted records to your existing portfolio. To replace the existing portfolio instead, open your user settings and choose Replace Data. Export your current portfolio first: replacement cannot be undone.</source>
+        <target state="translated">Import Data afegeix els registres acceptats a la cartera existent. Per substituir-la, obriu la configuració d'usuari i seleccioneu Replace Data. Exporteu primer la cartera actual: aquesta operació no es pot desfer.</target>
+      </trans-unit>
+      <trans-unit id="8424519232487085214" datatype="html">
+        <source>Select a Ghostfolio JSON backup. Every account in the backup must be recreated; existing destination accounts cannot be selected or retained.</source>
+        <target state="translated">Seleccioneu una còpia de seguretat JSON de Ghostfolio. Cal tornar a crear tots els comptes de la còpia; no es poden seleccionar ni conservar els comptes de destinació existents.</target>
+      </trans-unit>
+      <trans-unit id="4118247772398039395" datatype="html">
+        <source>Review the preview carefully. It shows how many existing accounts, financial activities and cash movements will be deleted, together with the data to be restored.</source>
+        <target state="translated">Reviseu atentament la vista prèvia. Mostra quants comptes, activitats financeres i moviments d'efectiu existents s'eliminaran, juntament amb les dades que es restauraran.</target>
+      </trans-unit>
+      <trans-unit id="3259028177441857509" datatype="html">
+        <source>Explicitly acknowledge the permanent replacement and confirm Replace Data. Nothing is deleted during preview.</source>
+        <target state="translated">Reconegueu explícitament la substitució permanent i confirmeu Replace Data. Durant la vista prèvia no s'elimina res.</target>
+      </trans-unit>
+      <trans-unit id="2420230742771462204" datatype="html">
+        <source>Replacement deletes the existing portfolio accounts, financial activities and cash movements and reconstructs them from the selected backup in one database transaction. If reconstruction fails, the previous portfolio remains unchanged.</source>
+        <target state="translated">La substitució elimina els comptes, les activitats financeres i els moviments d'efectiu existents i els reconstrueix a partir de la còpia seleccionada en una única transacció de base de dades. Si la reconstrucció falla, la cartera anterior es manté intacta.</target>
+      </trans-unit>
+      <trans-unit id="4705561314252005522" datatype="html">
+        <source>Personal settings, login credentials, watchlist, configured benchmarks, and historical manual asset profiles and prices are preserved. Replacement does not erase these records or repair missing information in an incomplete backup.</source>
+        <target state="translated">Es conserven la configuració personal, les credencials d'accés, la llista de seguiment, els índexs de referència configurats i els perfils històrics dels actius manuals amb els seus preus. La substitució no elimina aquests registres ni recupera informació absent d'una còpia incompleta.</target>
+      </trans-unit>
       </body>
   </file>
 </xliff>

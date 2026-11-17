@@ -11859,6 +11859,34 @@
         <source>Activity-Matched TWR (cumulative)</source>
         <target state="new">Activity-Matched TWR (cumulative)</target>
       </trans-unit>
+      <trans-unit id="182568157886708525" datatype="html">
+        <source>Replacing an existing portfolio</source>
+        <target state="translated">Remplacer un portefeuille existant</target>
+      </trans-unit>
+      <trans-unit id="2201368997396042144" datatype="html">
+        <source>Import Data adds accepted records to your existing portfolio. To replace the existing portfolio instead, open your user settings and choose Replace Data. Export your current portfolio first: replacement cannot be undone.</source>
+        <target state="translated">Import Data ajoute les enregistrements acceptés à votre portefeuille existant. Pour remplacer celui-ci, ouvrez vos paramètres utilisateur et choisissez Replace Data. Exportez d'abord votre portefeuille actuel : cette opération est irréversible.</target>
+      </trans-unit>
+      <trans-unit id="8424519232487085214" datatype="html">
+        <source>Select a Ghostfolio JSON backup. Every account in the backup must be recreated; existing destination accounts cannot be selected or retained.</source>
+        <target state="translated">Sélectionnez une sauvegarde JSON Ghostfolio. Tous les comptes de la sauvegarde doivent être recréés ; les comptes de destination existants ne peuvent être ni sélectionnés ni conservés.</target>
+      </trans-unit>
+      <trans-unit id="4118247772398039395" datatype="html">
+        <source>Review the preview carefully. It shows how many existing accounts, financial activities and cash movements will be deleted, together with the data to be restored.</source>
+        <target state="translated">Examinez attentivement l'aperçu. Il indique combien de comptes, d'opérations financières et de mouvements de trésorerie existants seront supprimés, ainsi que les données à restaurer.</target>
+      </trans-unit>
+      <trans-unit id="3259028177441857509" datatype="html">
+        <source>Explicitly acknowledge the permanent replacement and confirm Replace Data. Nothing is deleted during preview.</source>
+        <target state="translated">Reconnaissez explicitement le caractère définitif du remplacement et confirmez Replace Data. Aucune donnée n'est supprimée pendant l'aperçu.</target>
+      </trans-unit>
+      <trans-unit id="2420230742771462204" datatype="html">
+        <source>Replacement deletes the existing portfolio accounts, financial activities and cash movements and reconstructs them from the selected backup in one database transaction. If reconstruction fails, the previous portfolio remains unchanged.</source>
+        <target state="translated">Le remplacement supprime les comptes, opérations financières et mouvements de trésorerie existants, puis les reconstruit à partir de la sauvegarde sélectionnée dans une seule transaction de base de données. En cas d'échec, le portefeuille précédent reste inchangé.</target>
+      </trans-unit>
+      <trans-unit id="4705561314252005522" datatype="html">
+        <source>Personal settings, login credentials, watchlist, configured benchmarks, and historical manual asset profiles and prices are preserved. Replacement does not erase these records or repair missing information in an incomplete backup.</source>
+        <target state="translated">Les paramètres personnels, identifiants de connexion, liste de suivi, indices de référence configurés ainsi que les profils historiques d'actifs manuels et leurs prix sont conservés. Le remplacement ne supprime pas ces éléments et ne rétablit pas les informations absentes d'une sauvegarde incomplète.</target>
+      </trans-unit>
     </body>
   </file>
 </xliff>

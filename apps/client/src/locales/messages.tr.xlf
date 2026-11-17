@@ -11876,6 +11876,34 @@
         <source>Activity-Matched TWR (cumulative)</source>
         <target state="new">Activity-Matched TWR (cumulative)</target>
       </trans-unit>
+      <trans-unit id="182568157886708525" datatype="html">
+        <source>Replacing an existing portfolio</source>
+        <target state="translated">Mevcut bir portföyü değiştirme</target>
+      </trans-unit>
+      <trans-unit id="2201368997396042144" datatype="html">
+        <source>Import Data adds accepted records to your existing portfolio. To replace the existing portfolio instead, open your user settings and choose Replace Data. Export your current portfolio first: replacement cannot be undone.</source>
+        <target state="translated">Import Data, kabul edilen kayıtları mevcut portföyünüze ekler. Portföyü değiştirmek için kullanıcı ayarlarınızı açın ve Replace Data seçeneğini belirleyin. Önce mevcut portföyünüzü dışa aktarın: bu işlem geri alınamaz.</target>
+      </trans-unit>
+      <trans-unit id="8424519232487085214" datatype="html">
+        <source>Select a Ghostfolio JSON backup. Every account in the backup must be recreated; existing destination accounts cannot be selected or retained.</source>
+        <target state="translated">Bir Ghostfolio JSON yedeği seçin. Yedekteki tüm hesaplar yeniden oluşturulmalıdır; mevcut hedef hesaplar seçilemez veya korunamaz.</target>
+      </trans-unit>
+      <trans-unit id="4118247772398039395" datatype="html">
+        <source>Review the preview carefully. It shows how many existing accounts, financial activities and cash movements will be deleted, together with the data to be restored.</source>
+        <target state="translated">Önizlemeyi dikkatlice inceleyin. Silinecek mevcut hesapların, finansal işlemlerin ve nakit hareketlerinin sayısını ve geri yüklenecek verileri gösterir.</target>
+      </trans-unit>
+      <trans-unit id="3259028177441857509" datatype="html">
+        <source>Explicitly acknowledge the permanent replacement and confirm Replace Data. Nothing is deleted during preview.</source>
+        <target state="translated">Kalıcı değiştirme işlemini açıkça onaylayın ve Replace Data seçeneğini doğrulayın. Önizleme sırasında hiçbir veri silinmez.</target>
+      </trans-unit>
+      <trans-unit id="2420230742771462204" datatype="html">
+        <source>Replacement deletes the existing portfolio accounts, financial activities and cash movements and reconstructs them from the selected backup in one database transaction. If reconstruction fails, the previous portfolio remains unchanged.</source>
+        <target state="translated">Değiştirme işlemi mevcut portföy hesaplarını, finansal işlemleri ve nakit hareketlerini siler ve seçilen yedekten tek bir veritabanı işlemi içinde yeniden oluşturur. Yeniden oluşturma başarısız olursa önceki portföy değişmeden kalır.</target>
+      </trans-unit>
+      <trans-unit id="4705561314252005522" datatype="html">
+        <source>Personal settings, login credentials, watchlist, configured benchmarks, and historical manual asset profiles and prices are preserved. Replacement does not erase these records or repair missing information in an incomplete backup.</source>
+        <target state="translated">Kişisel ayarlar, oturum açma bilgileri, izleme listesi, yapılandırılmış karşılaştırma ölçütleri ve elle eklenen varlıkların geçmiş profilleri ile fiyatları korunur. Bu kayıtlar silinmez ve eksik bir yedekte bulunmayan bilgiler geri getirilemez.</target>
+      </trans-unit>
       </body>
   </file>
 </xliff>
