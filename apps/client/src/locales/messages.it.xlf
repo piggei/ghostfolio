@@ -10218,7 +10218,7 @@
       </trans-unit>
       <trans-unit id="7241677841926471699" datatype="html">
         <source>Restore a JSON file created with Export Data. Accounts, financial activities and account cash are restored together. Your login credentials are not imported.</source>
-        <target state="translated">Ripristina un file JSON creato con Esporta dati. Conti, attività finanziarie e liquidità vengono ripristinati insieme. Le credenziali di accesso non vengono importate.</target>
+        <target state="translated">Ripristina un file JSON creato con Esporta dati. Conti, operazioni finanziarie e liquidità vengono ripristinati insieme. Le credenziali di accesso non vengono importate.</target>
       </trans-unit>
       <trans-unit id="7264838797878508480" datatype="html">
         <source>Import Data</source>
@@ -11373,6 +11373,58 @@
       <trans-unit id="4705561314252005522" datatype="html">
         <source>Personal settings, login credentials, watchlist, configured benchmarks, and historical manual asset profiles and prices are preserved. Replacement does not erase these records or repair missing information in an incomplete backup.</source>
         <target state="translated">Le impostazioni personali, le credenziali di accesso, la watchlist, i benchmark configurati e i profili storici degli strumenti manuali con i relativi prezzi vengono conservati. La sostituzione non elimina questi dati né recupera le informazioni mancanti da un backup incompleto.</target>
+      </trans-unit>
+      <trans-unit id="1688919451892877117" datatype="html">
+        <source>Preview import</source>
+        <target state="translated">Anteprima dell'importazione</target>
+      </trans-unit>
+      <trans-unit id="4301332859389365347" datatype="html">
+        <source>Preview replacement</source>
+        <target state="translated">Anteprima della sostituzione</target>
+      </trans-unit>
+      <trans-unit id="464539777100755499" datatype="html">
+        <source> This operation permanently replaces your existing portfolio accounts, activities and cash movements with the selected JSON backup. It cannot be undone. </source>
+        <target state="translated">Questa operazione sostituisce definitivamente i conti, le operazioni finanziarie e i movimenti di liquidità del portafoglio esistente con quelli del backup JSON selezionato. L'operazione non può essere annullata.</target>
+      </trans-unit>
+      <trans-unit id="5432325108000928172" datatype="html">
+        <source>Replacement summary</source>
+        <target state="translated">Riepilogo della sostituzione</target>
+      </trans-unit>
+      <trans-unit id="5530632815790254330" datatype="html">
+        <source>Replace Data</source>
+        <target state="translated">Sostituisci dati</target>
+      </trans-unit>
+      <trans-unit id="6462770237800128862" datatype="html">
+        <source> I understand that my existing portfolio data will be permanently replaced. </source>
+        <target state="translated">Comprendo che i dati del mio portafoglio esistente saranno sostituiti definitivamente.</target>
+      </trans-unit>
+      <trans-unit id="731813689913544683" datatype="html">
+        <source> Existing data to delete: <x id="INTERPOLATION" equiv-text="{{ replacement.accountsToDelete }}"/> accounts, <x id="INTERPOLATION_1" equiv-text="{{ replacement.activitiesToDelete }}"/> activities and <x id="INTERPOLATION_2" equiv-text="{{ replacement.cashEventsToDelete }}"/> cash movements. </source>
+        <target state="translated">Dati esistenti da eliminare: <x id="INTERPOLATION" equiv-text="{{ replacement.accountsToDelete }}"/> conti, <x id="INTERPOLATION_1" equiv-text="{{ replacement.activitiesToDelete }}"/> operazioni finanziarie e <x id="INTERPOLATION_2" equiv-text="{{ replacement.cashEventsToDelete }}"/> movimenti di liquidità.</target>
+      </trans-unit>
+      <trans-unit id="798019187921862124" datatype="html">
+        <source>Select a Ghostfolio JSON backup</source>
+        <target state="translated">Seleziona un backup JSON di Ghostfolio</target>
+      </trans-unit>
+      <trans-unit id="8057594014461775458" datatype="html">
+        <source> Your personal settings, login credentials, watchlist, configured benchmarks, and historical manual asset profiles and prices are preserved. Export your current data before proceeding. </source>
+        <target state="translated">Le impostazioni personali, le credenziali di accesso, la lista di osservazione, i benchmark configurati, i profili storici degli strumenti manuali e i relativi prezzi vengono conservati. Esporta i dati attuali prima di procedere.</target>
+      </trans-unit>
+      <trans-unit id="8103423970024029483" datatype="html">
+        <source> Data to import: <x id="INTERPOLATION" equiv-text="{{ plan.accounts.length }}"/> accounts, <x id="INTERPOLATION_1" equiv-text="{{ plan.newActivities }}"/> activities and <x id="INTERPOLATION_2" equiv-text="{{ plan.cashEvents }}"/> cash movements. </source>
+        <target state="translated">Dati da importare: <x id="INTERPOLATION" equiv-text="{{ plan.accounts.length }}"/> conti, <x id="INTERPOLATION_1" equiv-text="{{ plan.newActivities }}"/> operazioni finanziarie e <x id="INTERPOLATION_2" equiv-text="{{ plan.cashEvents }}"/> movimenti di liquidità.</target>
+      </trans-unit>
+      <trans-unit id="8151950475493176284" datatype="html">
+        <source> The replacement is performed as one transaction. If an error occurs, the existing portfolio is preserved. </source>
+        <target state="translated">La sostituzione viene eseguita in un'unica transazione. Se si verifica un errore, il portafoglio esistente viene conservato senza modifiche.</target>
+      </trans-unit>
+      <trans-unit id="9070904295955121346" datatype="html">
+        <source> Replace Data </source>
+        <target state="translated">Sostituisci dati</target>
+      </trans-unit>
+      <trans-unit id="924739497731560128" datatype="html">
+        <source> Every account in the backup will be created as a new account. Existing accounts cannot be retained or matched. </source>
+        <target state="translated">Ogni conto presente nel backup verrà creato come nuovo conto. I conti esistenti non possono essere mantenuti né associati.</target>
       </trans-unit>
 </body>
   </file>

@@ -106,6 +106,7 @@ interface RestorePreview {
       <input
         accept=".json,application/json"
         aria-label="Select a Ghostfolio JSON backup"
+        i18n-aria-label
         type="file"
         [disabled]="busy()"
         (change)="readFile($event)"
