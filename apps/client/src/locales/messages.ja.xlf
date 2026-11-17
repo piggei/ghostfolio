@@ -11879,6 +11879,34 @@
         <source>Activity-Matched TWR (cumulative)</source>
         <target state="new">Activity-Matched TWR (cumulative)</target>
       </trans-unit>
+      <trans-unit id="182568157886708525" datatype="html">
+        <source>Replacing an existing portfolio</source>
+        <target state="translated">既存のポートフォリオを置き換える</target>
+      </trans-unit>
+      <trans-unit id="2201368997396042144" datatype="html">
+        <source>Import Data adds accepted records to your existing portfolio. To replace the existing portfolio instead, open your user settings and choose Replace Data. Export your current portfolio first: replacement cannot be undone.</source>
+        <target state="translated">Import Data は、受け入れられたデータを既存のポートフォリオに追加します。既存のポートフォリオを置き換えるには、ユーザー設定から Replace Data を選択してください。操作は元に戻せないため、先に現在のポートフォリオをエクスポートしてください。</target>
+      </trans-unit>
+      <trans-unit id="8424519232487085214" datatype="html">
+        <source>Select a Ghostfolio JSON backup. Every account in the backup must be recreated; existing destination accounts cannot be selected or retained.</source>
+        <target state="translated">Ghostfolio の JSON バックアップを選択してください。バックアップ内のすべての口座は新しく作成する必要があり、既存の移行先口座を選択したり保持したりすることはできません。</target>
+      </trans-unit>
+      <trans-unit id="4118247772398039395" datatype="html">
+        <source>Review the preview carefully. It shows how many existing accounts, financial activities and cash movements will be deleted, together with the data to be restored.</source>
+        <target state="translated">プレビューを慎重に確認してください。削除される既存の口座、金融取引、現金の入出金の件数と、復元されるデータが表示されます。</target>
+      </trans-unit>
+      <trans-unit id="3259028177441857509" datatype="html">
+        <source>Explicitly acknowledge the permanent replacement and confirm Replace Data. Nothing is deleted during preview.</source>
+        <target state="translated">完全な置き換えであることを明示的に承認し、Replace Data を確定してください。プレビュー中にデータが削除されることはありません。</target>
+      </trans-unit>
+      <trans-unit id="2420230742771462204" datatype="html">
+        <source>Replacement deletes the existing portfolio accounts, financial activities and cash movements and reconstructs them from the selected backup in one database transaction. If reconstruction fails, the previous portfolio remains unchanged.</source>
+        <target state="translated">置き換えでは、既存の口座、金融取引、現金の入出金を削除し、選択したバックアップから単一のデータベーストランザクション内で再構築します。再構築に失敗した場合、以前のポートフォリオは変更されません。</target>
+      </trans-unit>
+      <trans-unit id="4705561314252005522" datatype="html">
+        <source>Personal settings, login credentials, watchlist, configured benchmarks, and historical manual asset profiles and prices are preserved. Replacement does not erase these records or repair missing information in an incomplete backup.</source>
+        <target state="translated">個人設定、ログイン認証情報、ウォッチリスト、設定済みのベンチマーク、手動登録した資産の過去のプロファイルと価格は保持されます。置き換えによってこれらの情報が削除されることはなく、不完全なバックアップに欠けている情報が補完されることもありません。</target>
+      </trans-unit>
       </body>
   </file>
 </xliff>

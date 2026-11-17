@@ -11879,6 +11879,34 @@
         <source>Activity-Matched TWR (cumulative)</source>
         <target state="new">Activity-Matched TWR (cumulative)</target>
       </trans-unit>
+      <trans-unit id="182568157886708525" datatype="html">
+        <source>Replacing an existing portfolio</source>
+        <target state="translated">替换现有投资组合</target>
+      </trans-unit>
+      <trans-unit id="2201368997396042144" datatype="html">
+        <source>Import Data adds accepted records to your existing portfolio. To replace the existing portfolio instead, open your user settings and choose Replace Data. Export your current portfolio first: replacement cannot be undone.</source>
+        <target state="translated">Import Data 会将符合要求的记录添加到现有投资组合中。如果要替换现有投资组合，请打开用户设置并选择 Replace Data。请先导出当前投资组合：此操作无法撤销。</target>
+      </trans-unit>
+      <trans-unit id="8424519232487085214" datatype="html">
+        <source>Select a Ghostfolio JSON backup. Every account in the backup must be recreated; existing destination accounts cannot be selected or retained.</source>
+        <target state="translated">选择 Ghostfolio JSON 备份。备份中的所有账户都必须重新创建；不能选择或保留现有的目标账户。</target>
+      </trans-unit>
+      <trans-unit id="4118247772398039395" datatype="html">
+        <source>Review the preview carefully. It shows how many existing accounts, financial activities and cash movements will be deleted, together with the data to be restored.</source>
+        <target state="translated">请仔细检查预览。预览会显示将被删除的现有账户、金融交易和现金流水的数量，以及将要恢复的数据。</target>
+      </trans-unit>
+      <trans-unit id="3259028177441857509" datatype="html">
+        <source>Explicitly acknowledge the permanent replacement and confirm Replace Data. Nothing is deleted during preview.</source>
+        <target state="translated">明确确认永久替换操作，然后确认 Replace Data。预览期间不会删除任何数据。</target>
+      </trans-unit>
+      <trans-unit id="2420230742771462204" datatype="html">
+        <source>Replacement deletes the existing portfolio accounts, financial activities and cash movements and reconstructs them from the selected backup in one database transaction. If reconstruction fails, the previous portfolio remains unchanged.</source>
+        <target state="translated">替换操作会删除现有的投资组合账户、金融交易和现金流水，并在单个数据库事务中根据所选备份重新创建这些数据。如果重建失败，原有投资组合将保持不变。</target>
+      </trans-unit>
+      <trans-unit id="4705561314252005522" datatype="html">
+        <source>Personal settings, login credentials, watchlist, configured benchmarks, and historical manual asset profiles and prices are preserved. Replacement does not erase these records or repair missing information in an incomplete backup.</source>
+        <target state="translated">个人设置、登录凭据、关注列表、已配置的基准，以及手动添加资产的历史资料和价格都会保留。替换操作不会删除这些记录，也不会恢复不完整备份中缺失的信息。</target>
+      </trans-unit>
       </body>
   </file>
 </xliff>

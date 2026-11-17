@@ -31,6 +31,37 @@ POST /api/v1/import/restore. Legacy activity-only import remains available.
 Partial CSV import/export below remains separate. Do not load a cash CSV again
 after a full JSON restore; its movements are already present.
 
+Replacing an existing portfolio (JSON)
+
+User settings also offer Replace Data. Unlike Import Data, this operation
+replaces the user's existing portfolio accounts, financial activities and
+cash movements with the selected JSON backup. Every source account must be
+recreated; existing destination accounts cannot be reused or excluded.
+The preview reports the existing accounts, activities and cash movements
+to be deleted. It performs no writes. Confirmation requires the preview
+digest and an explicit acknowledgement in the user interface.
+
+Replacement deletes and reconstructs the financial portfolio in one
+database transaction. Any validation or reconstruction failure rolls
+back the operation, preserving the previous portfolio. Changes to the
+destination portfolio's financial state or the import choices invalidate
+the preview digest and require a new preview.
+
+Personal settings, login credentials, watchlist, configured benchmarks,
+and historical manual asset profiles and prices are preserved.
+Replacement does not remove unrelated user or server configuration.
+Export the current portfolio before proceeding: a successful replacement
+cannot be undone.
+
+Replacement endpoints under /api/v1/import/restore:
+POST replace/preview
+POST replace
+
+These endpoints require the appropriate account and activity creation,
+deletion and reading permissions and scopes. Replacement is unavailable
+during impersonation or in restricted view. The original Import Data
+endpoints and their behavior remain unchanged.
+
 Cash Balances CSV import and export
 
 Open Accounts, select an account, then Cash Balances. Export CSV downloads the
