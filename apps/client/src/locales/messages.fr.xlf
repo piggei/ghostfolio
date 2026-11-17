@@ -9993,7 +9993,7 @@
       </trans-unit>
 <trans-unit id="1528785906944905722" datatype="html">
         <source>Currency not set</source>
-        <target state="new">Currency not set</target>
+        <target state="translated">Devise non définie</target>
         <context-group purpose="location">
           <context context-type="sourcefile">apps/client/src/app/components/portfolio-restore-dialog/portfolio-restore-dialog.component.ts</context>
           <context context-type="linenumber">217</context>
@@ -10021,7 +10021,7 @@
       </trans-unit>
 <trans-unit id="1784286428578141467" datatype="html">
         <source>Cash movements:</source>
-        <target state="new">Cash movements:</target>
+        <target state="translated">Mouvements de trésorerie :</target>
         <context-group purpose="location">
           <context context-type="sourcefile">apps/client/src/app/components/portfolio-restore-dialog/portfolio-restore-dialog.component.ts</context>
           <context context-type="linenumber">173</context>
@@ -10029,7 +10029,7 @@
       </trans-unit>
 <trans-unit id="1802392088130455634" datatype="html">
         <source>Existing data is retained. Restore cash into a new or empty account, or an account whose activities match the backup and has no cash ledger. Transfers require both accounts. Nothing is saved during preview.</source>
-        <target state="new">Existing data is retained. Restore cash into a new or empty account, or an account whose activities match the backup and has no cash ledger. Transfers require both accounts. Nothing is saved during preview.</target>
+        <target state="translated">Les données existantes sont conservées. Restaurez la trésorerie dans un compte nouveau ou vide, ou dans un compte dont les opérations correspondent à la sauvegarde et qui ne possède pas de journal de trésorerie. Les transferts nécessitent les deux comptes. Aucun enregistrement n'est effectué pendant l'aperçu.</target>
         <context-group purpose="location">
           <context context-type="sourcefile">apps/client/src/app/components/portfolio-restore-dialog/portfolio-restore-dialog.component.ts</context>
           <context context-type="linenumber">130</context>
@@ -10077,7 +10077,7 @@
       </trans-unit>
 <trans-unit id="2330577642930707695" datatype="html">
         <source>Cancel</source>
-        <target state="new">Cancel</target>
+        <target state="translated">Annuler</target>
         <context-group purpose="location">
           <context context-type="sourcefile">apps/client/src/app/components/account-csv-import-dialog/account-csv-import-dialog.component.ts</context>
           <context context-type="linenumber">244</context>
@@ -10113,7 +10113,7 @@
       </trans-unit>
 <trans-unit id="2486732028739751975" datatype="html">
         <source>Processing data…</source>
-        <target state="new">Processing data…</target>
+        <target state="translated">Traitement des données…</target>
         <context-group purpose="location">
           <context context-type="sourcefile">apps/client/src/app/components/account-csv-import-dialog/account-csv-import-dialog.component.ts</context>
           <context context-type="linenumber">239</context>
@@ -10125,7 +10125,7 @@
       </trans-unit>
 <trans-unit id="2774868576744554132" datatype="html">
         <source>Import summary</source>
-        <target state="new">Import summary</target>
+        <target state="translated">Résumé de l'importation</target>
         <context-group purpose="location">
           <context context-type="sourcefile">apps/client/src/app/components/portfolio-restore-dialog/portfolio-restore-dialog.component.ts</context>
           <context context-type="linenumber">149</context>
@@ -10141,7 +10141,7 @@
       </trans-unit>
 <trans-unit id="2928157094104449368" datatype="html">
         <source>Import failed. Preview the file again.</source>
-        <target state="new">Import failed. Preview the file again.</target>
+        <target state="translated">Échec de l'importation. Affichez de nouveau l'aperçu du fichier.</target>
         <context-group purpose="location">
           <context context-type="sourcefile">apps/client/src/app/components/portfolio-restore-dialog/portfolio-restore-dialog.component.ts</context>
           <context context-type="linenumber">332</context>
@@ -10177,7 +10177,7 @@
       </trans-unit>
 <trans-unit id="3251054269066691027" datatype="html">
         <source>Cash balance:</source>
-        <target state="new">Cash balance:</target>
+        <target state="translated">Solde de trésorerie :</target>
         <context-group purpose="location">
           <context context-type="sourcefile">apps/client/src/app/components/portfolio-restore-dialog/portfolio-restore-dialog.component.ts</context>
           <context context-type="linenumber">164</context>
@@ -10201,7 +10201,7 @@
       </trans-unit>
 <trans-unit id="3510368925425726029" datatype="html">
         <source>Confirm only after checking the selected accounts. All accepted data is saved together; an error cancels the whole restore.</source>
-        <target state="new">Confirm only after checking the selected accounts. All accepted data is saved together; an error cancels the whole restore.</target>
+        <target state="translated">Confirmez uniquement après avoir vérifié les comptes sélectionnés. Toutes les données acceptées sont enregistrées ensemble ; une erreur annule toute la restauration.</target>
         <context-group purpose="location">
           <context context-type="sourcefile">apps/client/src/app/components/portfolio-restore-dialog/portfolio-restore-dialog.component.ts</context>
           <context context-type="linenumber">182</context>
@@ -10293,7 +10293,7 @@
       </trans-unit>
 <trans-unit id="4386920621005005841" datatype="html">
         <source>Existing account</source>
-        <target state="new">Existing account</target>
+        <target state="translated">Compte existant</target>
         <context-group purpose="location">
           <context context-type="sourcefile">apps/client/src/app/components/portfolio-restore-dialog/portfolio-restore-dialog.component.ts</context>
           <context context-type="linenumber">157</context>
@@ -10301,7 +10301,7 @@
       </trans-unit>
 <trans-unit id="4474222713366070999" datatype="html">
         <source>Choose a destination for each source account. Accounts are never matched automatically by name.</source>
-        <target state="new">Choose a destination for each source account. Accounts are never matched automatically by name.</target>
+        <target state="translated">Choisissez une destination pour chaque compte source. Les comptes ne sont jamais associés automatiquement par leur nom.</target>
         <context-group purpose="location">
           <context context-type="sourcefile">apps/client/src/app/components/portfolio-restore-dialog/portfolio-restore-dialog.component.ts</context>
           <context context-type="linenumber">92</context>
@@ -10317,7 +10317,7 @@
       </trans-unit>
 <trans-unit id="4668958435641699719" datatype="html">
         <source>The JSON backup must not exceed 10 MB.</source>
-        <target state="new">The JSON backup must not exceed 10 MB.</target>
+        <target state="translated">La sauvegarde JSON ne doit pas dépasser 10 Mo.</target>
         <context-group purpose="location">
           <context context-type="sourcefile">apps/client/src/app/components/portfolio-restore-dialog/portfolio-restore-dialog.component.ts</context>
           <context context-type="linenumber">255</context>
@@ -10353,7 +10353,7 @@
       </trans-unit>
 <trans-unit id="4815532365267521652" datatype="html">
         <source>New account</source>
-        <target state="new">New account</target>
+        <target state="translated">Nouveau compte</target>
         <context-group purpose="location">
           <context context-type="sourcefile">apps/client/src/app/components/portfolio-restore-dialog/portfolio-restore-dialog.component.ts</context>
           <context context-type="linenumber">155</context>
@@ -10369,7 +10369,7 @@
       </trans-unit>
 <trans-unit id="5008175190726097996" datatype="html">
         <source>New activities:</source>
-        <target state="new">New activities:</target>
+        <target state="translated">Nouvelles opérations :</target>
         <context-group purpose="location">
           <context context-type="sourcefile">apps/client/src/app/components/portfolio-restore-dialog/portfolio-restore-dialog.component.ts</context>
           <context context-type="linenumber">171</context>
@@ -10493,7 +10493,7 @@
       </trans-unit>
 <trans-unit id="5815563916448873642" datatype="html">
         <source>Already present:</source>
-        <target state="new">Already present:</target>
+        <target state="translated">Déjà présents :</target>
         <context-group purpose="location">
           <context context-type="sourcefile">apps/client/src/app/components/account-csv-import-dialog/account-csv-import-dialog.component.ts</context>
           <context context-type="linenumber">143</context>
@@ -10645,7 +10645,7 @@
       </trans-unit>
 <trans-unit id="6884089523183972489" datatype="html">
         <source>Restore base currency and performance method when the destination portfolio is empty</source>
-        <target state="new">Restore base currency and performance method when the destination portfolio is empty</target>
+        <target state="translated">Restaurer la devise de base et la méthode de calcul de performance lorsque le portefeuille de destination est vide</target>
         <context-group purpose="location">
           <context context-type="sourcefile">apps/client/src/app/components/portfolio-restore-dialog/portfolio-restore-dialog.component.ts</context>
           <context context-type="linenumber">126</context>
@@ -10661,7 +10661,7 @@
       </trans-unit>
 <trans-unit id="6969445338945867053" datatype="html">
         <source>Create a new account</source>
-        <target state="new">Create a new account</target>
+        <target state="translated">Créer un nouveau compte</target>
         <context-group purpose="location">
           <context context-type="sourcefile">apps/client/src/app/components/account-csv-import-dialog/account-csv-import-dialog.component.ts</context>
           <context context-type="linenumber">97</context>
@@ -10709,7 +10709,7 @@
       </trans-unit>
 <trans-unit id="7241677841926471699" datatype="html">
         <source>Restore a JSON file created with Export Data. Accounts, financial activities and account cash are restored together. Your login credentials are not imported.</source>
-        <target state="new">Restore a JSON file created with Export Data. Accounts, financial activities and account cash are restored together. Your login credentials are not imported.</target>
+        <target state="translated">Restaurez un fichier JSON créé avec Exporter les données. Les comptes, les opérations financières et la trésorerie des comptes sont restaurés ensemble. Les identifiants de connexion ne sont pas importés.</target>
         <context-group purpose="location">
           <context context-type="sourcefile">apps/client/src/app/components/portfolio-restore-dialog/portfolio-restore-dialog.component.ts</context>
           <context context-type="linenumber">74</context>
@@ -10717,7 +10717,7 @@
       </trans-unit>
 <trans-unit id="7264838797878508480" datatype="html">
         <source>Import Data</source>
-        <target state="new">Import Data</target>
+        <target state="translated">Importer des données</target>
         <context-group purpose="location">
           <context context-type="sourcefile">apps/client/src/app/components/portfolio-restore-dialog/portfolio-restore-dialog.component.ts</context>
           <context context-type="linenumber">71</context>
@@ -10769,7 +10769,7 @@
       </trans-unit>
 <trans-unit id="7729298162050391480" datatype="html">
         <source>Choose a Ghostfolio Export Data JSON file.</source>
-        <target state="new">Choose a Ghostfolio Export Data JSON file.</target>
+        <target state="translated">Choisissez un fichier JSON Ghostfolio créé avec Exporter les données.</target>
         <context-group purpose="location">
           <context context-type="sourcefile">apps/client/src/app/components/portfolio-restore-dialog/portfolio-restore-dialog.component.ts</context>
           <context context-type="linenumber">263</context>
@@ -10865,7 +10865,7 @@
       </trans-unit>
 <trans-unit id="9042753203304665653" datatype="html">
         <source>Exclude this account</source>
-        <target state="new">Exclude this account</target>
+        <target state="translated">Exclure ce compte</target>
         <context-group purpose="location">
           <context context-type="sourcefile">apps/client/src/app/components/portfolio-restore-dialog/portfolio-restore-dialog.component.ts</context>
           <context context-type="linenumber">111</context>
@@ -10885,7 +10885,7 @@
       </trans-unit>
 <trans-unit id="9180299238162026813" datatype="html">
         <source>For CSV files, use Import Activities or Import CSV in the account's Cash Balances.</source>
-        <target state="new">For CSV files, use Import Activities or Import CSV in the account's Cash Balances.</target>
+        <target state="translated">Pour les fichiers CSV, utilisez Importer des opérations ou Importer un CSV dans les soldes de trésorerie du compte.</target>
         <context-group purpose="location">
           <context context-type="sourcefile">apps/client/src/app/components/portfolio-restore-dialog/portfolio-restore-dialog.component.ts</context>
           <context context-type="linenumber">79</context>
@@ -11886,6 +11886,58 @@
       <trans-unit id="4705561314252005522" datatype="html">
         <source>Personal settings, login credentials, watchlist, configured benchmarks, and historical manual asset profiles and prices are preserved. Replacement does not erase these records or repair missing information in an incomplete backup.</source>
         <target state="translated">Les paramètres personnels, identifiants de connexion, liste de suivi, indices de référence configurés ainsi que les profils historiques d'actifs manuels et leurs prix sont conservés. Le remplacement ne supprime pas ces éléments et ne rétablit pas les informations absentes d'une sauvegarde incomplète.</target>
+      </trans-unit>
+      <trans-unit id="5530632815790254330" datatype="html">
+        <source>Replace Data</source>
+        <target state="translated">Remplacer les données</target>
+      </trans-unit>
+      <trans-unit id="464539777100755499" datatype="html">
+        <source> This operation permanently replaces your existing portfolio accounts, activities and cash movements with the selected JSON backup. It cannot be undone. </source>
+        <target state="translated">Cette opération remplace définitivement les comptes, les opérations financières et les mouvements de trésorerie du portefeuille existant par ceux de la sauvegarde JSON sélectionnée. Elle est irréversible.</target>
+      </trans-unit>
+      <trans-unit id="8057594014461775458" datatype="html">
+        <source> Your personal settings, login credentials, watchlist, configured benchmarks, and historical manual asset profiles and prices are preserved. Export your current data before proceeding. </source>
+        <target state="translated">Les paramètres personnels, les identifiants de connexion, la liste de suivi, les indices de référence configurés ainsi que les profils et cours historiques des actifs manuels sont conservés. Exportez vos données actuelles avant de continuer.</target>
+      </trans-unit>
+      <trans-unit id="798019187921862124" datatype="html">
+        <source>Select a Ghostfolio JSON backup</source>
+        <target state="translated">Sélectionner une sauvegarde JSON Ghostfolio</target>
+      </trans-unit>
+      <trans-unit id="924739497731560128" datatype="html">
+        <source> Every account in the backup will be created as a new account. Existing accounts cannot be retained or matched. </source>
+        <target state="translated">Chaque compte de la sauvegarde sera créé comme un nouveau compte. Les comptes existants ne peuvent être ni conservés ni associés.</target>
+      </trans-unit>
+      <trans-unit id="4301332859389365347" datatype="html">
+        <source>Preview replacement</source>
+        <target state="translated">Aperçu du remplacement</target>
+      </trans-unit>
+      <trans-unit id="1688919451892877117" datatype="html">
+        <source>Preview import</source>
+        <target state="translated">Aperçu de l'importation</target>
+      </trans-unit>
+      <trans-unit id="5432325108000928172" datatype="html">
+        <source>Replacement summary</source>
+        <target state="translated">Résumé du remplacement</target>
+      </trans-unit>
+      <trans-unit id="731813689913544683" datatype="html">
+        <source> Existing data to delete: <x id="INTERPOLATION" equiv-text="{{ replacement.accountsToDelete }}"/> accounts, <x id="INTERPOLATION_1" equiv-text="{{ replacement.activitiesToDelete }}"/> activities and <x id="INTERPOLATION_2" equiv-text="{{ replacement.cashEventsToDelete }}"/> cash movements. </source>
+        <target state="translated">Données existantes à supprimer : <x id="INTERPOLATION" equiv-text="{{ replacement.accountsToDelete }}"/> comptes, <x id="INTERPOLATION_1" equiv-text="{{ replacement.activitiesToDelete }}"/> opérations financières et <x id="INTERPOLATION_2" equiv-text="{{ replacement.cashEventsToDelete }}"/> mouvements de trésorerie.</target>
+      </trans-unit>
+      <trans-unit id="8103423970024029483" datatype="html">
+        <source> Data to import: <x id="INTERPOLATION" equiv-text="{{ plan.accounts.length }}"/> accounts, <x id="INTERPOLATION_1" equiv-text="{{ plan.newActivities }}"/> activities and <x id="INTERPOLATION_2" equiv-text="{{ plan.cashEvents }}"/> cash movements. </source>
+        <target state="translated">Données à importer : <x id="INTERPOLATION" equiv-text="{{ plan.accounts.length }}"/> comptes, <x id="INTERPOLATION_1" equiv-text="{{ plan.newActivities }}"/> opérations financières et <x id="INTERPOLATION_2" equiv-text="{{ plan.cashEvents }}"/> mouvements de trésorerie.</target>
+      </trans-unit>
+      <trans-unit id="8151950475493176284" datatype="html">
+        <source> The replacement is performed as one transaction. If an error occurs, the existing portfolio is preserved. </source>
+        <target state="translated">Le remplacement s'effectue en une seule transaction. En cas d'erreur, le portefeuille existant est conservé.</target>
+      </trans-unit>
+      <trans-unit id="6462770237800128862" datatype="html">
+        <source> I understand that my existing portfolio data will be permanently replaced. </source>
+        <target state="translated">Je comprends que les données de mon portefeuille existant seront définitivement remplacées.</target>
+      </trans-unit>
+      <trans-unit id="9070904295955121346" datatype="html">
+        <source> Replace Data </source>
+        <target state="translated">Remplacer les données</target>
       </trans-unit>
     </body>
   </file>

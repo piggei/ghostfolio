@@ -9993,7 +9993,7 @@
       </trans-unit>
 <trans-unit id="1528785906944905722" datatype="html">
         <source>Currency not set</source>
-        <target state="new">Currency not set</target>
+        <target state="translated">Валюту не встановлено</target>
         <context-group purpose="location">
           <context context-type="sourcefile">apps/client/src/app/components/portfolio-restore-dialog/portfolio-restore-dialog.component.ts</context>
           <context context-type="linenumber">217</context>
@@ -10021,7 +10021,7 @@
       </trans-unit>
 <trans-unit id="1784286428578141467" datatype="html">
         <source>Cash movements:</source>
-        <target state="new">Cash movements:</target>
+        <target state="translated">Рух коштів:</target>
         <context-group purpose="location">
           <context context-type="sourcefile">apps/client/src/app/components/portfolio-restore-dialog/portfolio-restore-dialog.component.ts</context>
           <context context-type="linenumber">173</context>
@@ -10029,7 +10029,7 @@
       </trans-unit>
 <trans-unit id="1802392088130455634" datatype="html">
         <source>Existing data is retained. Restore cash into a new or empty account, or an account whose activities match the backup and has no cash ledger. Transfers require both accounts. Nothing is saved during preview.</source>
-        <target state="new">Existing data is retained. Restore cash into a new or empty account, or an account whose activities match the backup and has no cash ledger. Transfers require both accounts. Nothing is saved during preview.</target>
+        <target state="translated">Наявні дані зберігаються. Відновлюйте кошти на новий або порожній рахунок чи на рахунок, операції якого збігаються з резервною копією та який не має журналу руху коштів. Для переказів потрібні обидва рахунки. Під час попереднього перегляду нічого не зберігається.</target>
         <context-group purpose="location">
           <context context-type="sourcefile">apps/client/src/app/components/portfolio-restore-dialog/portfolio-restore-dialog.component.ts</context>
           <context context-type="linenumber">130</context>
@@ -10077,7 +10077,7 @@
       </trans-unit>
 <trans-unit id="2330577642930707695" datatype="html">
         <source>Cancel</source>
-        <target state="new">Cancel</target>
+        <target state="translated">Скасувати</target>
         <context-group purpose="location">
           <context context-type="sourcefile">apps/client/src/app/components/account-csv-import-dialog/account-csv-import-dialog.component.ts</context>
           <context context-type="linenumber">244</context>
@@ -10113,7 +10113,7 @@
       </trans-unit>
 <trans-unit id="2486732028739751975" datatype="html">
         <source>Processing data…</source>
-        <target state="new">Processing data…</target>
+        <target state="translated">Обробка даних…</target>
         <context-group purpose="location">
           <context context-type="sourcefile">apps/client/src/app/components/account-csv-import-dialog/account-csv-import-dialog.component.ts</context>
           <context context-type="linenumber">239</context>
@@ -10125,7 +10125,7 @@
       </trans-unit>
 <trans-unit id="2774868576744554132" datatype="html">
         <source>Import summary</source>
-        <target state="new">Import summary</target>
+        <target state="translated">Підсумок імпорту</target>
         <context-group purpose="location">
           <context context-type="sourcefile">apps/client/src/app/components/portfolio-restore-dialog/portfolio-restore-dialog.component.ts</context>
           <context context-type="linenumber">149</context>
@@ -10141,7 +10141,7 @@
       </trans-unit>
 <trans-unit id="2928157094104449368" datatype="html">
         <source>Import failed. Preview the file again.</source>
-        <target state="new">Import failed. Preview the file again.</target>
+        <target state="translated">Не вдалося імпортувати дані. Повторно перегляньте файл.</target>
         <context-group purpose="location">
           <context context-type="sourcefile">apps/client/src/app/components/portfolio-restore-dialog/portfolio-restore-dialog.component.ts</context>
           <context context-type="linenumber">332</context>
@@ -10177,7 +10177,7 @@
       </trans-unit>
 <trans-unit id="3251054269066691027" datatype="html">
         <source>Cash balance:</source>
-        <target state="new">Cash balance:</target>
+        <target state="translated">Залишок коштів:</target>
         <context-group purpose="location">
           <context context-type="sourcefile">apps/client/src/app/components/portfolio-restore-dialog/portfolio-restore-dialog.component.ts</context>
           <context context-type="linenumber">164</context>
@@ -10201,7 +10201,7 @@
       </trans-unit>
 <trans-unit id="3510368925425726029" datatype="html">
         <source>Confirm only after checking the selected accounts. All accepted data is saved together; an error cancels the whole restore.</source>
-        <target state="new">Confirm only after checking the selected accounts. All accepted data is saved together; an error cancels the whole restore.</target>
+        <target state="translated">Підтверджуйте лише після перевірки вибраних рахунків. Усі прийняті дані зберігаються разом; помилка скасовує все відновлення.</target>
         <context-group purpose="location">
           <context context-type="sourcefile">apps/client/src/app/components/portfolio-restore-dialog/portfolio-restore-dialog.component.ts</context>
           <context context-type="linenumber">182</context>
@@ -10293,7 +10293,7 @@
       </trans-unit>
 <trans-unit id="4386920621005005841" datatype="html">
         <source>Existing account</source>
-        <target state="new">Existing account</target>
+        <target state="translated">Наявний рахунок</target>
         <context-group purpose="location">
           <context context-type="sourcefile">apps/client/src/app/components/portfolio-restore-dialog/portfolio-restore-dialog.component.ts</context>
           <context context-type="linenumber">157</context>
@@ -10301,7 +10301,7 @@
       </trans-unit>
 <trans-unit id="4474222713366070999" datatype="html">
         <source>Choose a destination for each source account. Accounts are never matched automatically by name.</source>
-        <target state="new">Choose a destination for each source account. Accounts are never matched automatically by name.</target>
+        <target state="translated">Виберіть рахунок призначення для кожного вихідного рахунку. Рахунки ніколи не зіставляються автоматично за назвою.</target>
         <context-group purpose="location">
           <context context-type="sourcefile">apps/client/src/app/components/portfolio-restore-dialog/portfolio-restore-dialog.component.ts</context>
           <context context-type="linenumber">92</context>
@@ -10317,7 +10317,7 @@
       </trans-unit>
 <trans-unit id="4668958435641699719" datatype="html">
         <source>The JSON backup must not exceed 10 MB.</source>
-        <target state="new">The JSON backup must not exceed 10 MB.</target>
+        <target state="translated">Розмір резервної копії JSON не має перевищувати 10 МБ.</target>
         <context-group purpose="location">
           <context context-type="sourcefile">apps/client/src/app/components/portfolio-restore-dialog/portfolio-restore-dialog.component.ts</context>
           <context context-type="linenumber">255</context>
@@ -10353,7 +10353,7 @@
       </trans-unit>
 <trans-unit id="4815532365267521652" datatype="html">
         <source>New account</source>
-        <target state="new">New account</target>
+        <target state="translated">Новий рахунок</target>
         <context-group purpose="location">
           <context context-type="sourcefile">apps/client/src/app/components/portfolio-restore-dialog/portfolio-restore-dialog.component.ts</context>
           <context context-type="linenumber">155</context>
@@ -10369,7 +10369,7 @@
       </trans-unit>
 <trans-unit id="5008175190726097996" datatype="html">
         <source>New activities:</source>
-        <target state="new">New activities:</target>
+        <target state="translated">Нові операції:</target>
         <context-group purpose="location">
           <context context-type="sourcefile">apps/client/src/app/components/portfolio-restore-dialog/portfolio-restore-dialog.component.ts</context>
           <context context-type="linenumber">171</context>
@@ -10493,7 +10493,7 @@
       </trans-unit>
 <trans-unit id="5815563916448873642" datatype="html">
         <source>Already present:</source>
-        <target state="new">Already present:</target>
+        <target state="translated">Уже наявні:</target>
         <context-group purpose="location">
           <context context-type="sourcefile">apps/client/src/app/components/account-csv-import-dialog/account-csv-import-dialog.component.ts</context>
           <context context-type="linenumber">143</context>
@@ -10645,7 +10645,7 @@
       </trans-unit>
 <trans-unit id="6884089523183972489" datatype="html">
         <source>Restore base currency and performance method when the destination portfolio is empty</source>
-        <target state="new">Restore base currency and performance method when the destination portfolio is empty</target>
+        <target state="translated">Відновити базову валюту та метод розрахунку дохідності, якщо цільовий портфель порожній</target>
         <context-group purpose="location">
           <context context-type="sourcefile">apps/client/src/app/components/portfolio-restore-dialog/portfolio-restore-dialog.component.ts</context>
           <context context-type="linenumber">126</context>
@@ -10661,7 +10661,7 @@
       </trans-unit>
 <trans-unit id="6969445338945867053" datatype="html">
         <source>Create a new account</source>
-        <target state="new">Create a new account</target>
+        <target state="translated">Створити новий рахунок</target>
         <context-group purpose="location">
           <context context-type="sourcefile">apps/client/src/app/components/account-csv-import-dialog/account-csv-import-dialog.component.ts</context>
           <context context-type="linenumber">97</context>
@@ -10709,7 +10709,7 @@
       </trans-unit>
 <trans-unit id="7241677841926471699" datatype="html">
         <source>Restore a JSON file created with Export Data. Accounts, financial activities and account cash are restored together. Your login credentials are not imported.</source>
-        <target state="new">Restore a JSON file created with Export Data. Accounts, financial activities and account cash are restored together. Your login credentials are not imported.</target>
+        <target state="translated">Відновіть файл JSON, створений за допомогою функції Експортувати дані. Рахунки, фінансові операції та кошти на рахунках відновлюються разом. Дані для входу не імпортуються.</target>
         <context-group purpose="location">
           <context context-type="sourcefile">apps/client/src/app/components/portfolio-restore-dialog/portfolio-restore-dialog.component.ts</context>
           <context context-type="linenumber">74</context>
@@ -10717,7 +10717,7 @@
       </trans-unit>
 <trans-unit id="7264838797878508480" datatype="html">
         <source>Import Data</source>
-        <target state="new">Import Data</target>
+        <target state="translated">Імпортувати дані</target>
         <context-group purpose="location">
           <context context-type="sourcefile">apps/client/src/app/components/portfolio-restore-dialog/portfolio-restore-dialog.component.ts</context>
           <context context-type="linenumber">71</context>
@@ -10769,7 +10769,7 @@
       </trans-unit>
 <trans-unit id="7729298162050391480" datatype="html">
         <source>Choose a Ghostfolio Export Data JSON file.</source>
-        <target state="new">Choose a Ghostfolio Export Data JSON file.</target>
+        <target state="translated">Виберіть файл JSON Ghostfolio, створений за допомогою Експортувати дані.</target>
         <context-group purpose="location">
           <context context-type="sourcefile">apps/client/src/app/components/portfolio-restore-dialog/portfolio-restore-dialog.component.ts</context>
           <context context-type="linenumber">263</context>
@@ -10865,7 +10865,7 @@
       </trans-unit>
 <trans-unit id="9042753203304665653" datatype="html">
         <source>Exclude this account</source>
-        <target state="new">Exclude this account</target>
+        <target state="translated">Виключити цей рахунок</target>
         <context-group purpose="location">
           <context context-type="sourcefile">apps/client/src/app/components/portfolio-restore-dialog/portfolio-restore-dialog.component.ts</context>
           <context context-type="linenumber">111</context>
@@ -10885,7 +10885,7 @@
       </trans-unit>
 <trans-unit id="9180299238162026813" datatype="html">
         <source>For CSV files, use Import Activities or Import CSV in the account's Cash Balances.</source>
-        <target state="new">For CSV files, use Import Activities or Import CSV in the account's Cash Balances.</target>
+        <target state="translated">Для файлів CSV використовуйте Імпортувати операції або Імпортувати CSV в розділі Залишки коштів рахунку.</target>
         <context-group purpose="location">
           <context context-type="sourcefile">apps/client/src/app/components/portfolio-restore-dialog/portfolio-restore-dialog.component.ts</context>
           <context context-type="linenumber">79</context>
@@ -11905,6 +11905,58 @@
       <trans-unit id="4705561314252005522" datatype="html">
         <source>Personal settings, login credentials, watchlist, configured benchmarks, and historical manual asset profiles and prices are preserved. Replacement does not erase these records or repair missing information in an incomplete backup.</source>
         <target state="translated">Особисті налаштування, облікові дані для входу, список спостереження, налаштовані бенчмарки, а також історичні профілі активів, доданих вручну, та їхні ціни зберігаються. Заміна не видаляє ці записи й не відновлює відомості, відсутні в неповній резервній копії.</target>
+      </trans-unit>
+      <trans-unit id="5530632815790254330" datatype="html">
+        <source>Replace Data</source>
+        <target state="translated">Замінити дані</target>
+      </trans-unit>
+      <trans-unit id="464539777100755499" datatype="html">
+        <source> This operation permanently replaces your existing portfolio accounts, activities and cash movements with the selected JSON backup. It cannot be undone. </source>
+        <target state="translated">Ця операція назавжди замінить наявні рахунки портфеля, фінансові операції та рух коштів даними з вибраної резервної копії JSON. Її неможливо скасувати.</target>
+      </trans-unit>
+      <trans-unit id="8057594014461775458" datatype="html">
+        <source> Your personal settings, login credentials, watchlist, configured benchmarks, and historical manual asset profiles and prices are preserved. Export your current data before proceeding. </source>
+        <target state="translated">Особисті налаштування, облікові дані для входу, список спостереження, налаштовані бенчмарки, а також історичні профілі й ціни активів, доданих вручну, буде збережено. Перед продовженням експортуйте поточні дані.</target>
+      </trans-unit>
+      <trans-unit id="798019187921862124" datatype="html">
+        <source>Select a Ghostfolio JSON backup</source>
+        <target state="translated">Вибрати резервну копію JSON Ghostfolio</target>
+      </trans-unit>
+      <trans-unit id="924739497731560128" datatype="html">
+        <source> Every account in the backup will be created as a new account. Existing accounts cannot be retained or matched. </source>
+        <target state="translated">Кожен рахунок із резервної копії буде створено як новий. Наявні рахунки не можна зберегти або зіставити.</target>
+      </trans-unit>
+      <trans-unit id="4301332859389365347" datatype="html">
+        <source>Preview replacement</source>
+        <target state="translated">Попередній перегляд заміни</target>
+      </trans-unit>
+      <trans-unit id="1688919451892877117" datatype="html">
+        <source>Preview import</source>
+        <target state="translated">Попередній перегляд імпорту</target>
+      </trans-unit>
+      <trans-unit id="5432325108000928172" datatype="html">
+        <source>Replacement summary</source>
+        <target state="translated">Підсумок заміни</target>
+      </trans-unit>
+      <trans-unit id="731813689913544683" datatype="html">
+        <source> Existing data to delete: <x id="INTERPOLATION" equiv-text="{{ replacement.accountsToDelete }}"/> accounts, <x id="INTERPOLATION_1" equiv-text="{{ replacement.activitiesToDelete }}"/> activities and <x id="INTERPOLATION_2" equiv-text="{{ replacement.cashEventsToDelete }}"/> cash movements. </source>
+        <target state="translated">Наявні дані для видалення: <x id="INTERPOLATION" equiv-text="{{ replacement.accountsToDelete }}"/> рахунків, <x id="INTERPOLATION_1" equiv-text="{{ replacement.activitiesToDelete }}"/> фінансових операцій і <x id="INTERPOLATION_2" equiv-text="{{ replacement.cashEventsToDelete }}"/> рухів коштів.</target>
+      </trans-unit>
+      <trans-unit id="8103423970024029483" datatype="html">
+        <source> Data to import: <x id="INTERPOLATION" equiv-text="{{ plan.accounts.length }}"/> accounts, <x id="INTERPOLATION_1" equiv-text="{{ plan.newActivities }}"/> activities and <x id="INTERPOLATION_2" equiv-text="{{ plan.cashEvents }}"/> cash movements. </source>
+        <target state="translated">Дані для імпорту: <x id="INTERPOLATION" equiv-text="{{ plan.accounts.length }}"/> рахунків, <x id="INTERPOLATION_1" equiv-text="{{ plan.newActivities }}"/> фінансових операцій і <x id="INTERPOLATION_2" equiv-text="{{ plan.cashEvents }}"/> рухів коштів.</target>
+      </trans-unit>
+      <trans-unit id="8151950475493176284" datatype="html">
+        <source> The replacement is performed as one transaction. If an error occurs, the existing portfolio is preserved. </source>
+        <target state="translated">Заміна виконується в межах однієї транзакції бази даних. У разі помилки наявний портфель зберігається.</target>
+      </trans-unit>
+      <trans-unit id="6462770237800128862" datatype="html">
+        <source> I understand that my existing portfolio data will be permanently replaced. </source>
+        <target state="translated">Я розумію, що дані мого наявного портфеля буде замінено назавжди.</target>
+      </trans-unit>
+      <trans-unit id="9070904295955121346" datatype="html">
+        <source> Replace Data </source>
+        <target state="translated">Замінити дані</target>
       </trans-unit>
       </body>
   </file>

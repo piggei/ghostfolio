@@ -10735,6 +10735,101 @@
           <context context-type="linenumber">87</context>
         </context-group>
       </trans-unit>
+      <trans-unit id="1688919451892877117" datatype="html">
+        <source>Preview import</source>
+        <context-group purpose="location">
+          <context context-type="sourcefile">apps/client/src/app/components/portfolio-restore-dialog/portfolio-restore-dialog.component.ts</context>
+          <context context-type="linenumber">171,175</context>
+        </context-group>
+      </trans-unit>
+      <trans-unit id="4301332859389365347" datatype="html">
+        <source>Preview replacement</source>
+        <context-group purpose="location">
+          <context context-type="sourcefile">apps/client/src/app/components/portfolio-restore-dialog/portfolio-restore-dialog.component.ts</context>
+          <context context-type="linenumber">169,171</context>
+        </context-group>
+      </trans-unit>
+      <trans-unit id="464539777100755499" datatype="html">
+        <source> This operation permanently replaces your existing portfolio accounts, activities and cash movements with the selected JSON backup. It cannot be undone. </source>
+        <context-group purpose="location">
+          <context context-type="sourcefile">apps/client/src/app/components/portfolio-restore-dialog/portfolio-restore-dialog.component.ts</context>
+          <context context-type="linenumber">86,91</context>
+        </context-group>
+      </trans-unit>
+      <trans-unit id="5432325108000928172" datatype="html">
+        <source>Replacement summary</source>
+        <context-group purpose="location">
+          <context context-type="sourcefile">apps/client/src/app/components/portfolio-restore-dialog/portfolio-restore-dialog.component.ts</context>
+          <context context-type="linenumber">182,184</context>
+        </context-group>
+      </trans-unit>
+      <trans-unit id="5530632815790254330" datatype="html">
+        <source>Replace Data</source>
+        <context-group purpose="location">
+          <context context-type="sourcefile">apps/client/src/app/components/portfolio-restore-dialog/portfolio-restore-dialog.component.ts</context>
+          <context context-type="linenumber">78,80</context>
+        </context-group>
+        <context-group purpose="location">
+          <context context-type="sourcefile">apps/client/src/app/components/portfolio-restore-dialog/portfolio-restore-dialog.component.ts</context>
+          <context context-type="linenumber">277,279</context>
+        </context-group>
+      </trans-unit>
+      <trans-unit id="6462770237800128862" datatype="html">
+        <source> I understand that my existing portfolio data will be permanently replaced. </source>
+        <context-group purpose="location">
+          <context context-type="sourcefile">apps/client/src/app/components/portfolio-restore-dialog/portfolio-restore-dialog.component.ts</context>
+          <context context-type="linenumber">245,248</context>
+        </context-group>
+      </trans-unit>
+      <trans-unit id="731813689913544683" datatype="html">
+        <source> Existing data to delete: <x id="INTERPOLATION" equiv-text="{{ replacement.accountsToDelete }}"/> accounts, <x id="INTERPOLATION_1" equiv-text="{{ replacement.activitiesToDelete }}"/> activities and <x id="INTERPOLATION_2" equiv-text="{{ replacement.cashEventsToDelete }}"/> cash movements. </source>
+        <context-group purpose="location">
+          <context context-type="sourcefile">apps/client/src/app/components/portfolio-restore-dialog/portfolio-restore-dialog.component.ts</context>
+          <context context-type="linenumber">189,194</context>
+        </context-group>
+      </trans-unit>
+      <trans-unit id="798019187921862124" datatype="html">
+        <source>Select a Ghostfolio JSON backup</source>
+        <context-group purpose="location">
+          <context context-type="sourcefile">apps/client/src/app/components/portfolio-restore-dialog/portfolio-restore-dialog.component.ts</context>
+          <context context-type="linenumber">108,111</context>
+        </context-group>
+      </trans-unit>
+      <trans-unit id="8057594014461775458" datatype="html">
+        <source> Your personal settings, login credentials, watchlist, configured benchmarks, and historical manual asset profiles and prices are preserved. Export your current data before proceeding. </source>
+        <context-group purpose="location">
+          <context context-type="sourcefile">apps/client/src/app/components/portfolio-restore-dialog/portfolio-restore-dialog.component.ts</context>
+          <context context-type="linenumber">91,96</context>
+        </context-group>
+      </trans-unit>
+      <trans-unit id="8103423970024029483" datatype="html">
+        <source> Data to import: <x id="INTERPOLATION" equiv-text="{{ plan.accounts.length }}"/> accounts, <x id="INTERPOLATION_1" equiv-text="{{ plan.newActivities }}"/> activities and <x id="INTERPOLATION_2" equiv-text="{{ plan.cashEvents }}"/> cash movements. </source>
+        <context-group purpose="location">
+          <context context-type="sourcefile">apps/client/src/app/components/portfolio-restore-dialog/portfolio-restore-dialog.component.ts</context>
+          <context context-type="linenumber">195,198</context>
+        </context-group>
+      </trans-unit>
+      <trans-unit id="8151950475493176284" datatype="html">
+        <source> The replacement is performed as one transaction. If an error occurs, the existing portfolio is preserved. </source>
+        <context-group purpose="location">
+          <context context-type="sourcefile">apps/client/src/app/components/portfolio-restore-dialog/portfolio-restore-dialog.component.ts</context>
+          <context context-type="linenumber">235,238</context>
+        </context-group>
+      </trans-unit>
+      <trans-unit id="9070904295955121346" datatype="html">
+        <source> Replace Data </source>
+        <context-group purpose="location">
+          <context context-type="sourcefile">apps/client/src/app/components/user-account-settings/user-account-settings.html</context>
+          <context context-type="linenumber">409,413</context>
+        </context-group>
+      </trans-unit>
+      <trans-unit id="924739497731560128" datatype="html">
+        <source> Every account in the backup will be created as a new account. Existing accounts cannot be retained or matched. </source>
+        <context-group purpose="location">
+          <context context-type="sourcefile">apps/client/src/app/components/portfolio-restore-dialog/portfolio-restore-dialog.component.ts</context>
+          <context context-type="linenumber">118,122</context>
+        </context-group>
+      </trans-unit>
 </body>
   </file>
 </xliff>
