@@ -128,26 +128,50 @@ describe('Ghostfolio-NG guide', () => {
     expect(page.textContent).not.toMatch(/TODO|Coming soon|placeholder/i);
   });
 
-  it('provides working chapter fragments and return links on the same route', async () => {
+  it('keeps chapter links on the guide route and scrolls chapter targets', async () => {
     const { page, harness } = await renderGuide();
+
     const links = Array.from(
-      page.querySelectorAll<HTMLAnchorElement>('a[href*="#"]')
+      page.querySelectorAll<HTMLAnchorElement>('a[fragment]')
     );
+
     expect(links).toHaveLength(12);
+
     for (const link of links) {
       expect(link.pathname).toBe('/about/ghostfolio-ng');
       expect(page.querySelector(link.hash)).not.toBeNull();
     }
-    const cash =
-      page.querySelector<HTMLAnchorElement>(
-        'nav a[fragment="cash-management"]'
-      ) ??
-      page.querySelector<HTMLAnchorElement>('nav a[href$="#cash-management"]');
-    cash.click();
+
+    const cashTarget = page.querySelector<HTMLElement>('#cash-management');
+    const cashScroll = jest.fn();
+    cashTarget.scrollIntoView = cashScroll;
+
+    page
+      .querySelector<HTMLAnchorElement>('nav a[fragment="cash-management"]')
+      .click();
+
     await harness.fixture.whenStable();
-    expect(
-      harness.routeNativeElement.querySelector('#cash-management')
-    ).not.toBeNull();
+
+    expect(cashScroll).toHaveBeenCalledWith({
+      behavior: 'smooth',
+      block: 'start'
+    });
+
+    const chaptersTarget = page.querySelector<HTMLElement>('#chapters');
+    const chaptersScroll = jest.fn();
+    chaptersTarget.scrollIntoView = chaptersScroll;
+
+    page
+      .querySelector<HTMLAnchorElement>('section > a[fragment="chapters"]')
+      .click();
+
+    await harness.fixture.whenStable();
+
+    expect(chaptersScroll).toHaveBeenCalledWith({
+      behavior: 'smooth',
+      block: 'start'
+    });
+
     const ids = Array.from(page.querySelectorAll('[id]')).map(({ id }) => id);
     expect(new Set(ids).size).toBe(ids.length);
   });

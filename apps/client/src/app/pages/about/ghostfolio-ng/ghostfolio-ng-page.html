@@ -14,22 +14,38 @@
     <h2 class="h5" i18n="@@ngGuideContents" id="chapters-heading">Chapters</h2>
     <ol class="chapter-index mb-0">
       <li>
-        <a fragment="team" i18n="@@ngGuideTeam" [routerLink]="[]"
+        <a
+          fragment="team"
+          i18n="@@ngGuideTeam"
+          [routerLink]="[]"
+          (click)="scrollToFragment('team')"
           >The Ghostfolio-NG Team</a
         >
       </li>
       <li>
-        <a fragment="cash-management" i18n="@@ngGuideCash" [routerLink]="[]"
+        <a
+          fragment="cash-management"
+          i18n="@@ngGuideCash"
+          [routerLink]="[]"
+          (click)="scrollToFragment('cash-management')"
           >Cash Management</a
         >
       </li>
       <li>
-        <a fragment="tax-management" i18n="@@ngGuideTax" [routerLink]="[]"
+        <a
+          fragment="tax-management"
+          i18n="@@ngGuideTax"
+          [routerLink]="[]"
+          (click)="scrollToFragment('tax-management')"
           >Tax Management</a
         >
       </li>
       <li>
-        <a fragment="pnl-calendar" i18n="@@ngGuideCalendar" [routerLink]="[]"
+        <a
+          fragment="pnl-calendar"
+          i18n="@@ngGuideCalendar"
+          [routerLink]="[]"
+          (click)="scrollToFragment('pnl-calendar')"
           >Profit and Loss Calendar</a
         >
       </li>
@@ -38,6 +54,7 @@
           fragment="financial-returns"
           i18n="@@ngGuideReturns"
           [routerLink]="[]"
+          (click)="scrollToFragment('financial-returns')"
           >Financial Performance and Returns</a
         >
       </li>
@@ -46,6 +63,7 @@
           fragment="other-improvements"
           i18n="@@ngGuideImprovements"
           [routerLink]="[]"
+          (click)="scrollToFragment('other-improvements')"
           >Other Ghostfolio-NG Improvements</a
         >
       </li>
@@ -57,6 +75,7 @@
       fragment="chapters"
       i18n="@@ngGuideBackToIndex"
       [routerLink]="[]"
+      (click)="scrollToFragment('chapters')"
       >Back to chapters</a
     >
   </section>
@@ -71,6 +90,7 @@
       fragment="chapters"
       i18n="@@ngGuideBackToIndex"
       [routerLink]="[]"
+      (click)="scrollToFragment('chapters')"
       >Back to chapters</a
     >
   </section>
@@ -85,6 +105,7 @@
       fragment="chapters"
       i18n="@@ngGuideBackToIndex"
       [routerLink]="[]"
+      (click)="scrollToFragment('chapters')"
       >Back to chapters</a
     >
   </section>
@@ -99,6 +120,7 @@
       fragment="chapters"
       i18n="@@ngGuideBackToIndex"
       [routerLink]="[]"
+      (click)="scrollToFragment('chapters')"
       >Back to chapters</a
     >
   </section>
@@ -113,6 +135,7 @@
       fragment="chapters"
       i18n="@@ngGuideBackToIndex"
       [routerLink]="[]"
+      (click)="scrollToFragment('chapters')"
       >Back to chapters</a
     >
   </section>
@@ -127,6 +150,7 @@
       fragment="chapters"
       i18n="@@ngGuideBackToIndex"
       [routerLink]="[]"
+      (click)="scrollToFragment('chapters')"
       >Back to chapters</a
     >
   </section>
