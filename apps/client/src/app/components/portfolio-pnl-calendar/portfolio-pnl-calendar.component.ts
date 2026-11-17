@@ -17,8 +17,9 @@ import { catchError, of, switchMap } from 'rxjs';
 import {
   addCalendarDays,
   aggregatePnlCalendarDays,
-  aggregatePnlCalendarWeekInMonth,
+  aggregatePnlCalendarWeek,
   getLocalTodayKey,
+  getPnlCalendarDataRange,
   getMonday,
   getPnlCalendarDays,
   type PnlCalendarPeriod
@@ -181,10 +182,8 @@ export class GfPortfolioPnlCalendarComponent {
         const endDate = addCalendarDays(startDate, 6);
 
         return {
-          ...aggregatePnlCalendarWeekInMonth({
+          ...aggregatePnlCalendarWeek({
             days,
-            monthEnd,
-            monthStart,
             weekStart: startDate,
             requireComplete: true,
             firstHistoricalDate: this.firstHistoricalDate()
@@ -245,30 +244,11 @@ export class GfPortfolioPnlCalendarComponent {
       return null;
     }
 
-    const referenceDate = this.referenceDate();
-    const year = referenceDate.getFullYear();
-    const month = referenceDate.getMonth();
-    const today = getLocalTodayKey();
-    const rolling = this.view() === 'last30';
-    const annual = this.view() === 'monthly';
-
-    const requestedEnd = rolling
-      ? this.toDateKey(year, month, referenceDate.getDate())
-      : addCalendarDays(this.toDateKey(year, annual ? 12 : month + 1, 1), -1);
-
-    const endDate = requestedEnd > today ? today : requestedEnd;
-
-    let startDate = rolling
-      ? addCalendarDays(endDate, -29)
-      : this.toDateKey(year, annual ? 0 : month, 1);
-
-    const firstHistoricalDate = this.firstHistoricalDate();
-
-    if (firstHistoricalDate && firstHistoricalDate > startDate) {
-      startDate = firstHistoricalDate;
-    }
-
-    return startDate <= endDate ? { startDate, endDate } : null;
+    return getPnlCalendarDataRange({
+      referenceDate: this.referenceDate(),
+      view: this.view(),
+      firstHistoricalDate: this.firstHistoricalDate()
+    });
   });
 
   private readonly percentageRequest = computed(() => {

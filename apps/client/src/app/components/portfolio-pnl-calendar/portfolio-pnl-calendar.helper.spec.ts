@@ -1,8 +1,9 @@
 import {
   addCalendarDays,
   aggregatePnlCalendarDays,
-  aggregatePnlCalendarWeekInMonth,
+  aggregatePnlCalendarWeek,
   getLocalTodayKey,
+  getPnlCalendarDataRange,
   getMonday,
   getPnlCalendarDays
 } from './portfolio-pnl-calendar.helper';
@@ -105,7 +106,7 @@ describe('PnL calendar', () => {
     ).toBeUndefined();
   });
 
-  it('clips weeks crossing month boundaries without changing the month total', () => {
+  it('preserves complete weeks across month boundaries while keeping monthly totals independent', () => {
     const days = [
       { date: '2026-09-30', amount: 200, percentagePoints: 2 },
       { date: '2026-10-01', amount: 10, percentagePoints: 0.1 },
@@ -114,30 +115,100 @@ describe('PnL calendar', () => {
       { date: '2026-10-31', amount: 5, percentagePoints: 0.05 },
       { date: '2026-11-01', amount: 100, percentagePoints: 1 }
     ];
-    const weeks = Array.from({ length: 5 }, (_, index) =>
-      aggregatePnlCalendarWeekInMonth({
-        days,
-        monthStart: '2026-10-01',
-        monthEnd: '2026-10-31',
-        weekStart: addCalendarDays('2026-09-28', index * 7)
-      })
-    );
-    const october = aggregatePnlCalendarDays({
+
+    const septemberWeekStart = getMonday('2026-09-30');
+    const octoberWeekStart = getMonday('2026-10-01');
+
+    expect(septemberWeekStart).toBe(octoberWeekStart);
+
+    const week = aggregatePnlCalendarWeek({
+      days,
+      weekStart: octoberWeekStart
+    });
+
+    expect(week).toEqual({
+      amount: 208,
+      percentagePoints: 2.08,
+      startDate: '2026-09-28',
+      endDate: '2026-10-04'
+    });
+
+    const octoberTotal = aggregatePnlCalendarDays({
       days,
       startDate: '2026-10-01',
       endDate: '2026-10-31'
     });
 
-    expect(weeks[0]).toEqual({
-      amount: 8,
-      percentagePoints: 0.08,
-      startDate: '2026-10-01',
-      endDate: '2026-10-04'
+    expect(octoberTotal.amount).toBe(16);
+  });
+
+  it('requests the complete weekly grid without changing other calendar ranges', () => {
+    const april = getPnlCalendarDataRange({
+      referenceDate: new Date(2026, 3, 15),
+      view: 'weekly',
+      today: '2026-12-31'
     });
-    expect(weeks[4].amount).toBe(5);
-    expect(weeks.reduce((sum, week) => sum + (week.amount ?? 0), 0)).toBe(
-      october.amount
-    );
+
+    const may = getPnlCalendarDataRange({
+      referenceDate: new Date(2026, 4, 15),
+      view: 'weekly',
+      today: '2026-12-31'
+    });
+
+    expect(april).toEqual({
+      startDate: '2026-03-30',
+      endDate: '2026-05-03'
+    });
+
+    expect(may).toEqual({
+      startDate: '2026-04-27',
+      endDate: '2026-05-31'
+    });
+
+    expect(
+      getPnlCalendarDataRange({
+        referenceDate: new Date(2026, 3, 15),
+        view: 'weekly',
+        today: '2026-12-31',
+        firstHistoricalDate: '2026-04-02'
+      })
+    ).toEqual({
+      startDate: '2026-04-02',
+      endDate: '2026-05-03'
+    });
+
+    expect(
+      getPnlCalendarDataRange({
+        referenceDate: new Date(2026, 3, 15),
+        view: 'daily',
+        today: '2026-12-31'
+      })
+    ).toEqual({
+      startDate: '2026-04-01',
+      endDate: '2026-04-30'
+    });
+
+    expect(
+      getPnlCalendarDataRange({
+        referenceDate: new Date(2026, 3, 15),
+        view: 'monthly',
+        today: '2027-12-31'
+      })
+    ).toEqual({
+      startDate: '2026-01-01',
+      endDate: '2026-12-31'
+    });
+
+    expect(
+      getPnlCalendarDataRange({
+        referenceDate: new Date(2026, 3, 15),
+        view: 'last30',
+        today: '2026-12-31'
+      })
+    ).toEqual({
+      startDate: '2026-03-17',
+      endDate: '2026-04-15'
+    });
   });
 
   it('never approximates a financial return from the opening portfolio value', () => {

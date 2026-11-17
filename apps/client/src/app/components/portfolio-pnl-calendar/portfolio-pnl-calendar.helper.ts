@@ -37,6 +37,53 @@ export function getMonday(date: string): string {
   return addCalendarDays(date, -((weekday + 6) % 7));
 }
 
+export function getPnlCalendarDataRange({
+  referenceDate,
+  view,
+  today = getLocalTodayKey(),
+  firstHistoricalDate
+}: {
+  referenceDate: Date;
+  view: 'daily' | 'weekly' | 'monthly' | 'last30';
+  today?: string;
+  firstHistoricalDate?: string;
+}): { startDate: string; endDate: string } | null {
+  const year = referenceDate.getFullYear();
+  const month = referenceDate.getMonth();
+
+  const toDateKey = (dateYear: number, dateMonth: number, day: number) =>
+    new Date(Date.UTC(dateYear, dateMonth, day)).toISOString().slice(0, 10);
+
+  const monthStart = toDateKey(year, month, 1);
+  const monthEnd = addCalendarDays(toDateKey(year, month + 1, 1), -1);
+  const rolling = view === 'last30';
+  const annual = view === 'monthly';
+
+  const requestedEnd = rolling
+    ? toDateKey(year, month, referenceDate.getDate())
+    : view === 'weekly'
+      ? addCalendarDays(getMonday(monthEnd), 6)
+      : annual
+        ? addCalendarDays(toDateKey(year, 12, 1), -1)
+        : monthEnd;
+
+  const endDate = requestedEnd > today ? today : requestedEnd;
+
+  let startDate = rolling
+    ? addCalendarDays(endDate, -29)
+    : view === 'weekly'
+      ? getMonday(monthStart)
+      : annual
+        ? toDateKey(year, 0, 1)
+        : monthStart;
+
+  if (firstHistoricalDate && firstHistoricalDate > startDate) {
+    startDate = firstHistoricalDate;
+  }
+
+  return startDate <= endDate ? { startDate, endDate } : null;
+}
+
 /**
  * The portfolio performance chart contains cumulative values for its range.
  * Their differences give the period's monetary PnL and the CHANGE in the
@@ -177,30 +224,24 @@ export function aggregatePnlCalendarDays({
   };
 }
 
-/** Aggregate only the portion of an ISO Monday-Sunday week in the selected month. */
-export function aggregatePnlCalendarWeekInMonth({
+/** Aggregate the complete ISO Monday-Sunday week. */
+export function aggregatePnlCalendarWeek({
   days,
-  monthEnd,
-  monthStart,
   weekStart,
   requireComplete = false,
   asOfDate,
   firstHistoricalDate
 }: {
   days: PnlCalendarDay[];
-  monthEnd: string;
-  monthStart: string;
   weekStart: string;
   requireComplete?: boolean;
   asOfDate?: string;
   firstHistoricalDate?: string;
 }): PnlCalendarPeriod {
-  const weekEnd = addCalendarDays(weekStart, 6);
-
   return aggregatePnlCalendarDays({
     days,
-    startDate: weekStart < monthStart ? monthStart : weekStart,
-    endDate: weekEnd > monthEnd ? monthEnd : weekEnd,
+    startDate: weekStart,
+    endDate: addCalendarDays(weekStart, 6),
     requireComplete,
     asOfDate,
     firstHistoricalDate
