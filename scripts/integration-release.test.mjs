@@ -219,6 +219,84 @@ test('rejects invalid integration commit hashes', () => {
   }
 });
 
+test('supports an independent immutable documentation reference', () => {
+  const integrationCommit = 'a'.repeat(40);
+  const documentationRef = 'b'.repeat(40);
+  const documentation = 'docs/ng-portfolio-data-replacement.md';
+
+  const markdown = localPatchesMarkdown({
+    pullRequests: [],
+    localPatches: [
+      {
+        ...localPatch,
+        manifest: undefined,
+        documentation,
+        integrationCommit,
+        documentationRef
+      }
+    ]
+  });
+
+  assert.ok(
+    markdown.includes(
+      `github.com/piggei/ghostfolio/commit/${integrationCommit}`
+    )
+  );
+  assert.ok(
+    markdown.includes(
+      `github.com/piggei/ghostfolio/blob/${documentationRef}/${documentation}`
+    )
+  );
+});
+
+test('preserves legacy documentation links without documentationRef', () => {
+  const documentation = 'docs/ng-portfolio-data-replacement.md';
+
+  const markdown = localPatchesMarkdown({
+    pullRequests: [],
+    localPatches: [
+      {
+        ...localPatch,
+        manifest: undefined,
+        documentation
+      }
+    ]
+  });
+
+  assert.ok(
+    markdown.includes(
+      `github.com/piggei/ghostfolio/blob/${localPatch.integrationCommit}/${documentation}`
+    )
+  );
+});
+
+test('rejects malformed documentation references', () => {
+  for (const documentationRef of [
+    '',
+    'abc123',
+    'integration/ghostfolio-all-pr',
+    '../main',
+    'z'.repeat(40),
+    123
+  ]) {
+    assert.throws(
+      () =>
+        localPatchesMarkdown({
+          pullRequests: [],
+          localPatches: [
+            {
+              ...localPatch,
+              manifest: undefined,
+              documentation: 'docs/ng-portfolio-data-replacement.md',
+              documentationRef
+            }
+          ]
+        }),
+      /Invalid local patch entry/
+    );
+  }
+});
+
 test('does not assign upstream PR numbers to local patches', () => {
   const markdown = localPatchesMarkdown({
     pullRequests: [],

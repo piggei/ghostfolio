@@ -102,6 +102,9 @@ export function localPatchesMarkdown(manifest) {
       !patch.source.trim() ||
       typeof patch.integrationCommit !== 'string' ||
       !/^[0-9a-f]{40}$/.test(patch.integrationCommit) ||
+      (patch.documentationRef !== undefined &&
+        (typeof patch.documentationRef !== 'string' ||
+          !/^[0-9a-f]{40}$/.test(patch.documentationRef))) ||
       (patch.manifest === undefined) === (patch.documentation === undefined) ||
       (patch.manifest !== undefined &&
         patch.manifest !== `docker/patches/${patch.id}.json`) ||
@@ -135,7 +138,7 @@ export function localPatchesMarkdown(manifest) {
             ? `source: \`${patch.source}\`; ` +
               `[provenance](https://github.com/piggei/ghostfolio/blob/${patch.integrationCommit}/${patch.manifest})`
             : `[Integration commit](https://github.com/piggei/ghostfolio/commit/${patch.integrationCommit}); ` +
-              `[Documentation](https://github.com/piggei/ghostfolio/blob/${patch.integrationCommit}/${patch.documentation})`)
+              `[Documentation](https://github.com/piggei/ghostfolio/blob/${patch.documentationRef ?? patch.integrationCommit}/${patch.documentation})`)
       );
   }
 

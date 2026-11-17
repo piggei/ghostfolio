@@ -68,6 +68,16 @@
       "documentation": "docs/ng-cash-activity-tax-integration.md",
       "integrationCommit": "0cfcd69fb0c7a3251ab71aa4dcac9ff322314cd1",
       "description": "Correctly accounts for taxes and fees exactly once, handles tax-only edits, and preserves tax data during JSON portfolio restoration. Applies to the Ghostfolio-NG integration of upstream PRs [#8252](https://github.com/ghostfolio/ghostfolio/pull/8252) and [#8305](https://github.com/ghostfolio/ghostfolio/pull/8305)."
+    },
+    {
+      "id": "portfolio-data-replacement",
+      "title": "Replace existing portfolio data from a JSON backup",
+      "category": "Portfolio features",
+      "source": "feat/ghostfolio-ng-replace-portfolio",
+      "documentation": "docs/ng-portfolio-data-replacement.md",
+      "integrationCommit": "758a28bfba4b811ad1a0589ad0705b2fbe1b9338",
+      "description": "Adds transactional portfolio replacement with deletion preview, explicit confirmation, rollback on failure, preservation of personal settings and historical manual asset data, and a user guide localized in 13 languages. Developed independently in Ghostfolio-NG [PR #10](https://github.com/piggei/ghostfolio/pull/10).",
+      "documentationRef": "f25fa72828c90a6dcd58f41ef981d6fdcf308d01"
     }
   ]
 }
