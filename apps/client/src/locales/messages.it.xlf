@@ -11346,6 +11346,34 @@
         <source>This movement already has a different economic classification. Edit the movement explicitly; import will not overwrite it.</source>
         <target state="translated">Questo movimento ha già una classificazione economica diversa. Modifica esplicitamente il movimento: l’importazione non lo sovrascriverà.</target>
       </trans-unit>
+      <trans-unit id="182568157886708525" datatype="html">
+        <source>Replacing an existing portfolio</source>
+        <target state="translated">Sostituire un portafoglio esistente</target>
+      </trans-unit>
+      <trans-unit id="2201368997396042144" datatype="html">
+        <source>Import Data adds accepted records to your existing portfolio. To replace the existing portfolio instead, open your user settings and choose Replace Data. Export your current portfolio first: replacement cannot be undone.</source>
+        <target state="translated">Importa dati aggiunge i record accettati al portafoglio esistente. Per sostituire invece il portafoglio, apri le impostazioni utente e seleziona Sostituisci dati. Esporta prima il portafoglio attuale: l'operazione non può essere annullata.</target>
+      </trans-unit>
+      <trans-unit id="8424519232487085214" datatype="html">
+        <source>Select a Ghostfolio JSON backup. Every account in the backup must be recreated; existing destination accounts cannot be selected or retained.</source>
+        <target state="translated">Seleziona un backup JSON di Ghostfolio. Tutti gli account presenti nel backup devono essere ricreati; non è possibile selezionare o mantenere gli account di destinazione esistenti.</target>
+      </trans-unit>
+      <trans-unit id="4118247772398039395" datatype="html">
+        <source>Review the preview carefully. It shows how many existing accounts, financial activities and cash movements will be deleted, together with the data to be restored.</source>
+        <target state="translated">Esamina attentamente l'anteprima. Mostra quanti account, attività finanziarie e movimenti di liquidità esistenti verranno eliminati, insieme ai dati che saranno ripristinati.</target>
+      </trans-unit>
+      <trans-unit id="3259028177441857509" datatype="html">
+        <source>Explicitly acknowledge the permanent replacement and confirm Replace Data. Nothing is deleted during preview.</source>
+        <target state="translated">Conferma esplicitamente di voler effettuare la sostituzione permanente e seleziona Sostituisci dati. Durante l'anteprima non viene eliminato nulla.</target>
+      </trans-unit>
+      <trans-unit id="2420230742771462204" datatype="html">
+        <source>Replacement deletes the existing portfolio accounts, financial activities and cash movements and reconstructs them from the selected backup in one database transaction. If reconstruction fails, the previous portfolio remains unchanged.</source>
+        <target state="translated">La sostituzione elimina gli account, le attività finanziarie e i movimenti di liquidità esistenti e li ricostruisce dal backup selezionato in un'unica transazione del database. Se la ricostruzione non riesce, il portafoglio precedente rimane invariato.</target>
+      </trans-unit>
+      <trans-unit id="4705561314252005522" datatype="html">
+        <source>Personal settings, login credentials, watchlist, configured benchmarks, and historical manual asset profiles and prices are preserved. Replacement does not erase these records or repair missing information in an incomplete backup.</source>
+        <target state="translated">Le impostazioni personali, le credenziali di accesso, la watchlist, i benchmark configurati e i profili storici degli strumenti manuali con i relativi prezzi vengono conservati. La sostituzione non elimina questi dati né recupera le informazioni mancanti da un backup incompleto.</target>
+      </trans-unit>
 </body>
   </file>
 </xliff>

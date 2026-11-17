@@ -54,6 +54,41 @@
           and historical prices in the upstream export. Verify these instruments
           after restoring; this cash feature does not change that export limit.
         </p>
+        <h3 class="h5" i18n>Replacing an existing portfolio</h3>
+        <p i18n>
+          Import Data adds accepted records to your existing portfolio. To
+          replace the existing portfolio instead, open your user settings and
+          choose Replace Data. Export your current portfolio first: replacement
+          cannot be undone.
+        </p>
+        <ol>
+          <li i18n>
+            Select a Ghostfolio JSON backup. Every account in the backup must be
+            recreated; existing destination accounts cannot be selected or
+            retained.
+          </li>
+          <li i18n>
+            Review the preview carefully. It shows how many existing accounts,
+            financial activities and cash movements will be deleted, together
+            with the data to be restored.
+          </li>
+          <li i18n>
+            Explicitly acknowledge the permanent replacement and confirm Replace
+            Data. Nothing is deleted during preview.
+          </li>
+        </ol>
+        <p i18n>
+          Replacement deletes the existing portfolio accounts, financial
+          activities and cash movements and reconstructs them from the selected
+          backup in one database transaction. If reconstruction fails, the
+          previous portfolio remains unchanged.
+        </p>
+        <p i18n>
+          Personal settings, login credentials, watchlist, configured
+          benchmarks, and historical manual asset profiles and prices are
+          preserved. Replacement does not erase these records or repair missing
+          information in an incomplete backup.
+        </p>
       </section>
       <p i18n>
         Exporting and restoring does not activate cash management on historical

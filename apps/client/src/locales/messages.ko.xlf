@@ -11879,6 +11879,34 @@
         <source>Activity-Matched TWR (cumulative)</source>
         <target state="new">Activity-Matched TWR (cumulative)</target>
       </trans-unit>
+      <trans-unit id="182568157886708525" datatype="html">
+        <source>Replacing an existing portfolio</source>
+        <target state="translated">기존 포트폴리오 교체</target>
+      </trans-unit>
+      <trans-unit id="2201368997396042144" datatype="html">
+        <source>Import Data adds accepted records to your existing portfolio. To replace the existing portfolio instead, open your user settings and choose Replace Data. Export your current portfolio first: replacement cannot be undone.</source>
+        <target state="translated">Import Data는 허용된 기록을 기존 포트폴리오에 추가합니다. 기존 포트폴리오를 교체하려면 사용자 설정에서 Replace Data를 선택하세요. 이 작업은 되돌릴 수 없으므로 먼저 현재 포트폴리오를 내보내세요.</target>
+      </trans-unit>
+      <trans-unit id="8424519232487085214" datatype="html">
+        <source>Select a Ghostfolio JSON backup. Every account in the backup must be recreated; existing destination accounts cannot be selected or retained.</source>
+        <target state="translated">Ghostfolio JSON 백업을 선택하세요. 백업에 포함된 모든 계정은 새로 생성해야 하며 기존 대상 계정을 선택하거나 유지할 수 없습니다.</target>
+      </trans-unit>
+      <trans-unit id="4118247772398039395" datatype="html">
+        <source>Review the preview carefully. It shows how many existing accounts, financial activities and cash movements will be deleted, together with the data to be restored.</source>
+        <target state="translated">미리보기를 주의 깊게 확인하세요. 삭제될 기존 계정, 금융 거래 및 현금 이동의 수와 복원될 데이터가 표시됩니다.</target>
+      </trans-unit>
+      <trans-unit id="3259028177441857509" datatype="html">
+        <source>Explicitly acknowledge the permanent replacement and confirm Replace Data. Nothing is deleted during preview.</source>
+        <target state="translated">영구적인 교체 작업임을 명시적으로 확인한 후 Replace Data를 확정하세요. 미리보기 중에는 데이터가 삭제되지 않습니다.</target>
+      </trans-unit>
+      <trans-unit id="2420230742771462204" datatype="html">
+        <source>Replacement deletes the existing portfolio accounts, financial activities and cash movements and reconstructs them from the selected backup in one database transaction. If reconstruction fails, the previous portfolio remains unchanged.</source>
+        <target state="translated">교체 작업은 기존 포트폴리오 계정, 금융 거래 및 현금 이동을 삭제하고 선택한 백업을 사용하여 하나의 데이터베이스 트랜잭션에서 다시 생성합니다. 재구성에 실패하면 이전 포트폴리오는 변경되지 않습니다.</target>
+      </trans-unit>
+      <trans-unit id="4705561314252005522" datatype="html">
+        <source>Personal settings, login credentials, watchlist, configured benchmarks, and historical manual asset profiles and prices are preserved. Replacement does not erase these records or repair missing information in an incomplete backup.</source>
+        <target state="translated">개인 설정, 로그인 자격 증명, 관심 목록, 설정된 벤치마크, 수동 등록 자산의 과거 프로필 및 가격은 유지됩니다. 교체 작업은 이러한 기록을 삭제하지 않으며 불완전한 백업에서 누락된 정보를 복구하지도 않습니다.</target>
+      </trans-unit>
       </body>
   </file>
 </xliff>
