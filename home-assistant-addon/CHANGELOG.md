@@ -1,5 +1,17 @@
 # Ghostfolio-NG Home Assistant Add-on Changelog
 
+## 3.100.1
+
+### Integration-specific changes
+
+- fix(i18n): localize portfolio replacement across supported languages (19b56ee7b)
+- docs(distribution): register portfolio replacement in release notes (ff4922822)
+- docs(portfolio): add NG replacement integration reference (f25fa7282)
+- docs(portfolio): document replacement and localize user guide (676e86070)
+- feat(portfolio): add transactional portfolio data replacement (758a28bfb)
+- style: normalize Ghostfolio-NG integration baseline formatting (71ced2d2a)
+- fix(ci): align cash PostgreSQL port mapping with test guards (06032d561)
+
 ## 3.100.0
 
 ### Official Ghostfolio updates
