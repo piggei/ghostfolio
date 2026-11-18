@@ -1,5 +1,12 @@
 # Ghostfolio-NG Home Assistant Add-on Changelog
 
+## 3.100.2
+
+### Integration-specific changes
+
+- fix(about): support chapter navigation in scroll container (b53f21f71)
+- fix(portfolio): preserve complete weekly PnL across months (088491ae5)
+
 ## 3.100.1
 
 ### Integration-specific changes
