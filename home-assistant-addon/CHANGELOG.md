@@ -1,5 +1,11 @@
 # Ghostfolio-NG Home Assistant Add-on Changelog
 
+## 3.100.3
+
+### Integration-specific changes
+
+- i18n(it): improve Italian localization in Ghostfolio NG (90a493835)
+
 ## 3.100.2
 
 ### Integration-specific changes
