@@ -1,0 +1,13 @@
+{
+  "schema_version": 1,
+  "identity": {
+    "integration_tag": "integration-3.100.0-30",
+    "source_commit": "b53f21f7101d115a1d3330e4b8d072a4b1f42d69",
+    "source_image": "ghcr.io/piggei/ghostfolio-ng@sha256:f489a1f97beb3e8ed391f60996cb6d44bb3b1ce288612c6567f0a8c68d305b0d",
+    "ghostfolio_version": "3.100.0",
+    "addon_source_revision": "d78d0e7939c4e7b70eeda9b628244e9f5c47656c"
+  },
+  "sections": [
+    "## Integration-specific changes\n\n- fix(about): support chapter navigation in scroll container (b53f21f71)\n- fix(portfolio): preserve complete weekly PnL across months (088491ae5)"
+  ]
+}
