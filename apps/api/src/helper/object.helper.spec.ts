@@ -27,6 +27,29 @@ describe('query', () => {
 });
 
 describe('redactAttributes', () => {
+  it('redacts independent summary cash with the centralized paths', () => {
+    expect(
+      redactPaths({
+        object: { summary: { accountCashInBaseCurrency: 0.01 } },
+        paths: DEFAULT_REDACTED_PATHS
+      })
+    ).toEqual({ summary: { accountCashInBaseCurrency: null } });
+  });
+
+  it('redacts NG cash projections on accounts and platforms', () => {
+    expect(
+      redactPaths({
+        object: {
+          accounts: { a: { cashValueInBaseCurrency: 100 } },
+          platforms: { p: { cashValueInBaseCurrency: 100 } }
+        },
+        paths: DEFAULT_REDACTED_PATHS
+      })
+    ).toEqual({
+      accounts: { a: { cashValueInBaseCurrency: null } },
+      platforms: { p: { cashValueInBaseCurrency: null } }
+    });
+  });
   it('should redact provided attributes', () => {
     expect(redactPaths({ object: {}, paths: [] })).toStrictEqual({});
 

@@ -32,6 +32,14 @@ Explore portfolio profit and loss on the Home overview in daily, weekly, monthly
 
 The calendar represents investment performance, not account deposits or total cash balance changes. Percentage values are calculated separately using ROAI and may be unavailable with other selected performance methods. See [upstream PR #8158](https://github.com/ghostfolio/ghostfolio/pull/8158).
 
+### Portfolio Targets
+
+Open **Portfolio → Targets** to choose a preset or configure your desired allocation across asset classes. Compare it with the whole portfolio or one account using the portfolio value, allocation drift, chart and per-class tolerance indicators. The saved target remains global when selecting an account.
+
+Targets respects accounts excluded from analysis and NG's **Include cash in portfolio** preference. It uses independently valued account cash, without reconstructing it from emergency-fund-adjusted figures. Missing or inconsistent data and unsupported short, negative-cash or liability exposures show an informational state instead of allocation percentages. Targets does not generate trades or automatic rebalancing instructions.
+
+See [upstream PR #8458](https://github.com/ghostfolio/ghostfolio/pull/8458) and the [NG integration notes](docs/ng-portfolio-targets-integration.md).
+
 ### Financial Performance and Returns
 
 ![Performance calculation selector](apps/client/src/assets/images/ghostfolio-ng/performance-calculation.webp)
@@ -69,6 +77,7 @@ These pull requests are included in Ghostfolio-NG's integration inventory. **Inc
 | [#8305](https://github.com/ghostfolio/ghostfolio/pull/8305) | Introduce unified account cash ledger and portfolio restore |
 | [#8315](https://github.com/ghostfolio/ghostfolio/pull/8315) | Allow renaming fee activities                               |
 | [#8366](https://github.com/ghostfolio/ghostfolio/pull/8366) | Handle background snapshot refresh rejection                |
+| [#8458](https://github.com/ghostfolio/ghostfolio/pull/8458) | Add portfolio allocation targets and drift analysis         |
 
 Local integration corrections are tracked separately in [docker/integrated-prs.json](docker/integrated-prs.json); they are not represented as upstream PRs.
 

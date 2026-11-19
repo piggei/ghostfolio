@@ -2,7 +2,6 @@ import { HasPermission } from '@ghostfolio/api/decorators/has-permission.decorat
 import { Impersonation } from '@ghostfolio/api/decorators/impersonation.decorator';
 import { RequiresScope } from '@ghostfolio/api/decorators/requires-scope.decorator';
 import {
-  hasNotDefinedValuesInObject,
   nullifyValuesInObject,
   nullifyValuesInObjects
 } from '@ghostfolio/api/helper/object.helper';
@@ -129,7 +128,17 @@ export class PortfolioController {
       withSummary: true
     });
 
-    if (hasErrors || hasNotDefinedValuesInObject(holdings)) {
+    // Optional profile/market metadata may be absent on a valid holding.
+    // Check the financial values of every holding instead of recursively
+    // treating missing metadata as a valuation error.
+    const hasInvalidHoldingValues = holdings.some(
+      ({ investment, marketPrice, quantity, valueInBaseCurrency }) =>
+        [investment, marketPrice, quantity, valueInBaseCurrency].some(
+          (value) => !Number.isFinite(value)
+        )
+    );
+
+    if (hasErrors || hasInvalidHoldingValues) {
       hasError = true;
     }
 
@@ -160,6 +169,7 @@ export class PortfolioController {
       });
 
       portfolioSummary = nullifyValuesInObject(summary, [
+        'accountCashInBaseCurrency',
         'cash',
         'currentNetWorth',
         'currentValueInBaseCurrency',

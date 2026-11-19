@@ -9,6 +9,8 @@ import type { BenchmarkComparisonMode } from '@ghostfolio/common/types';
 import { PerformanceCalculationType } from '@ghostfolio/common/types/performance-calculation-type.type';
 import { AssetClass } from '@ghostfolio/prisma/enums';
 
+import { PortfolioTargetsSettings } from './portfolio-targets.interface';
+
 export interface UserSettings {
   annualInterestRate?: number;
   baseCurrency?: string;
@@ -29,6 +31,7 @@ export interface UserSettings {
   language?: string;
   locale?: string;
   performanceCalculationType?: PerformanceCalculationType;
+  portfolioTargets?: PortfolioTargetsSettings;
   projectedTotalAmount?: number;
   retirementDate?: string;
   safeWithdrawalRate?: number;

@@ -49,6 +49,11 @@
       "number": 8366,
       "title": "Handle background snapshot refresh rejection",
       "category": "Portfolio calculations"
+    },
+    {
+      "number": 8458,
+      "title": "Add portfolio allocation targets and drift analysis",
+      "category": "Portfolio features"
     }
   ],
   "localPatches": [
