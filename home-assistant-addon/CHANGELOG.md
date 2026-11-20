@@ -1,5 +1,15 @@
 # Ghostfolio-NG Home Assistant Add-on Changelog
 
+## 3.100.4
+
+### Integration-specific changes
+
+- test(ng): update About guide assertions for portfolio targets (151ce040a)
+- i18n(it): refine fixed income terminology (ec0be3726)
+- docs(ng): document portfolio targets and update release references (c74aeabaf)
+- feat(ng): integrate portfolio targets and drift analysis (ebde0bd0e)
+- fix(dev): align Node.js version with engine requirement (84676134d)
+
 ## 3.100.3
 
 ### Integration-specific changes
