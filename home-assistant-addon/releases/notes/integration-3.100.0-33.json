@@ -1,0 +1,13 @@
+{
+  "schema_version": 1,
+  "identity": {
+    "integration_tag": "integration-3.100.0-33",
+    "source_commit": "151ce040a950c6e74723d3f1b1238853b97c45dc",
+    "source_image": "ghcr.io/piggei/ghostfolio-ng@sha256:1128a6efe41ea743f307295b8344ccda91367bf0909f05dc1370f8be52ade4af",
+    "ghostfolio_version": "3.100.0",
+    "addon_source_revision": "d78d0e7939c4e7b70eeda9b628244e9f5c47656c"
+  },
+  "sections": [
+    "## Integration-specific changes\n\n- test(ng): update About guide assertions for portfolio targets (151ce040a)\n- i18n(it): refine fixed income terminology (ec0be3726)\n- docs(ng): document portfolio targets and update release references (c74aeabaf)\n- feat(ng): integrate portfolio targets and drift analysis (ebde0bd0e)\n- fix(dev): align Node.js version with engine requirement (84676134d)"
+  ]
+}
