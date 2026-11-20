@@ -1,5 +1,11 @@
 # Ghostfolio-NG Home Assistant Add-on Changelog
 
+## 3.100.5
+
+### Integration-specific changes
+
+- fix(ng): preserve synthetic cash activity precision (0ace723fa)
+
 ## 3.100.4
 
 ### Integration-specific changes
