@@ -12318,6 +12318,42 @@
           <context context-type="linenumber">1</context>
         </context-group>
       </trans-unit>
-    </body>
+          <trans-unit id="ngGuideTargets" datatype="html">
+        <source>Portfolio Targets</source>
+        <target state="needs-translation">Portfolio Targets</target>
+      </trans-unit>
+      <trans-unit id="ngGuideTargetsIntro" datatype="html">
+        <source>Open Portfolio → Targets to compare your current asset allocation with a desired allocation. Choose one of five editable presets or configure your own targets.</source>
+        <target state="needs-translation">Open Portfolio → Targets to compare your current asset allocation with a desired allocation. Choose one of five editable presets or configure your own targets.</target>
+      </trans-unit>
+      <trans-unit id="ngGuideTargetsOverviewAlt" datatype="html">
+        <source>Portfolio Targets overview with allocation chart and drift indicators</source>
+        <target state="needs-translation">Portfolio Targets overview with allocation chart and drift indicators</target>
+      </trans-unit>
+      <trans-unit id="ngGuideTargetsConfiguration" datatype="html">
+        <source>Configure the target percentages and permitted deviation, then save. The target configuration is global: selecting an individual account changes the comparison, not the saved targets.</source>
+        <target state="needs-translation">Configure the target percentages and permitted deviation, then save. The target configuration is global: selecting an individual account changes the comparison, not the saved targets.</target>
+      </trans-unit>
+      <trans-unit id="ngGuideTargetsConfigurationAlt" datatype="html">
+        <source>Dialog for configuring target allocation and tolerance</source>
+        <target state="needs-translation">Dialog for configuring target allocation and tolerance</target>
+      </trans-unit>
+      <trans-unit id="ngGuideTargetsComparison" datatype="html">
+        <source>The portfolio value, total allocation drift, maximum deviation and allocation chart refer to the same selected portfolio or account. Review the asset-class details to identify differences from your targets and values outside tolerance.</source>
+        <target state="needs-translation">The portfolio value, total allocation drift, maximum deviation and allocation chart refer to the same selected portfolio or account. Review the asset-class details to identify differences from your targets and values outside tolerance.</target>
+      </trans-unit>
+      <trans-unit id="ngGuideTargetsDetailsAlt" datatype="html">
+        <source>Asset-class allocation deviations and tolerance details</source>
+        <target state="needs-translation">Asset-class allocation deviations and tolerance details</target>
+      </trans-unit>
+      <trans-unit id="ngGuideTargetsCash" datatype="html">
+        <source>Targets respects excluded accounts and Ghostfolio-NG cash inclusion preferences. Eligible account cash is reconciled separately from securities to avoid double-counting it. Cash excluded from analysis is not added to the allocation.</source>
+        <target state="needs-translation">Targets respects excluded accounts and Ghostfolio-NG cash inclusion preferences. Eligible account cash is reconciled separately from securities to avoid double-counting it. Cash excluded from analysis is not added to the allocation.</target>
+      </trans-unit>
+      <trans-unit id="ngGuideTargetsLimits" datatype="html">
+        <source>Missing or inconsistent financial data can make the comparison unavailable. This long-only version does not support included negative cash exposures, short positions or liabilities. Portfolio Targets provides analysis only: it does not execute trades, automatically rebalance or provide investment recommendations.</source>
+        <target state="needs-translation">Missing or inconsistent financial data can make the comparison unavailable. This long-only version does not support included negative cash exposures, short positions or liabilities. Portfolio Targets provides analysis only: it does not execute trades, automatically rebalance or provide investment recommendations.</target>
+      </trans-unit>
+</body>
   </file>
 </xliff>

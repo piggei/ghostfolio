@@ -34,11 +34,31 @@ The calendar represents investment performance, not account deposits or total ca
 
 ### Portfolio Targets
 
-Open **Portfolio → Targets** to choose a preset or configure your desired allocation across asset classes. Compare it with the whole portfolio or one account using the portfolio value, allocation drift, chart and per-class tolerance indicators. The saved target remains global when selecting an account.
+![Portfolio Targets overview](apps/client/src/assets/images/portfolio-targets-overview.webp)
 
-Targets respects accounts excluded from analysis and NG's **Include cash in portfolio** preference. It uses independently valued account cash, without reconstructing it from emergency-fund-adjusted figures. Missing or inconsistent data and unsupported short, negative-cash or liability exposures show an informational state instead of allocation percentages. Targets does not generate trades or automatic rebalancing instructions.
+Define your preferred asset allocation and compare it with your current portfolio under **Portfolio → Targets**. Choose from five editable allocation presets or create a custom strategy.
 
-See [upstream PR #8458](https://github.com/ghostfolio/ghostfolio/pull/8458) and the [NG integration notes](docs/ng-portfolio-targets-integration.md).
+The overview shows the portfolio value, actual versus target allocation, total allocation drift and maximum deviation. A portfolio-wide view and individual account selection are available.
+
+**Configure your allocation**
+
+![Portfolio Targets configuration](apps/client/src/assets/images/portfolio-targets-configuration.webp)
+
+Adjust the asset-class percentages and allowed deviation, then save your configuration. Targets are saved globally: selecting an individual account changes the comparison without modifying the saved allocation strategy.
+
+**Analyze allocation deviations**
+
+![Portfolio Targets deviation details](apps/client/src/assets/images/portfolio-targets-deviation-details.webp)
+
+Review each asset class to see its actual allocation, target percentage, deviation and tolerance status. The comparison helps identify where the portfolio differs from the desired allocation.
+
+**Ghostfolio-NG compatibility**
+
+Portfolio Targets respects excluded accounts and NG's **Include cash in portfolio** preference. Eligible account cash is reconciled separately from securities to avoid double-counting.
+
+Missing or inconsistent financial data and unsupported exposures may make the allocation analysis unavailable. The feature is informational: it does not execute trades, provide investment recommendations or perform automatic rebalancing.
+
+For additional instructions, see **About → Ghostfolio-NG → Portfolio Targets**. Technical details are documented in the [NG integration notes](docs/ng-portfolio-targets-integration.md). See also [upstream PR #8458](https://github.com/ghostfolio/ghostfolio/pull/8458).
 
 ### Financial Performance and Returns
 

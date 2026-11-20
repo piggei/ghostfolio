@@ -279,6 +279,9 @@ export function generateRelease() {
     `along with a small set of documented integration-specific patches.\n\n` +
     `This release is built from the \`integration/ghostfolio-all-pr\` branch ` +
     `and is based on Ghostfolio **${version}**.\n\n` +
+    `For an overview of the additional features, screenshots and usage ` +
+    `instructions, see the [Ghostfolio-NG documentation]` +
+    `(https://github.com/${repository}/blob/integration/ghostfolio-all-pr/README-NG.md).\n\n` +
     `## Release information\n\n` +
     `- Source commit: [${sha.slice(0, 9)}](https://github.com/${repository}/commit/${sha})\n` +
     `- Docker image: \`${image}:${tag}\`\n` +

@@ -45,3 +45,11 @@ export class GfNgGuideReturnsComponent {}
   templateUrl: './improvements.chapter.html'
 })
 export class GfNgGuideImprovementsComponent {}
+
+@Component({
+  changeDetection: ChangeDetectionStrategy.OnPush,
+  selector: 'gf-ng-guide-targets',
+  styleUrls: ['./screenshot.chapter.scss'],
+  templateUrl: './targets.chapter.html'
+})
+export class GfNgGuideTargetsComponent {}

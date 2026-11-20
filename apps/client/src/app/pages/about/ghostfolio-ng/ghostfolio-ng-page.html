@@ -51,6 +51,15 @@
       </li>
       <li>
         <a
+          fragment="portfolio-targets"
+          i18n="@@ngGuideTargets"
+          [routerLink]="[]"
+          (click)="scrollToFragment('portfolio-targets')"
+          >Portfolio Targets</a
+        >
+      </li>
+      <li>
+        <a
           fragment="financial-returns"
           i18n="@@ngGuideReturns"
           [routerLink]="[]"
@@ -116,6 +125,21 @@
     tabindex="-1"
   >
     <gf-ng-guide-calendar /><a
+      class="small"
+      fragment="chapters"
+      i18n="@@ngGuideBackToIndex"
+      [routerLink]="[]"
+      (click)="scrollToFragment('chapters')"
+      >Back to chapters</a
+    >
+  </section>
+  <section
+    aria-labelledby="targets-heading"
+    class="mb-5"
+    id="portfolio-targets"
+    tabindex="-1"
+  >
+    <gf-ng-guide-targets /><a
       class="small"
       fragment="chapters"
       i18n="@@ngGuideBackToIndex"

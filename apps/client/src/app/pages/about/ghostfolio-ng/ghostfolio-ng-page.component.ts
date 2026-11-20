@@ -11,6 +11,7 @@ import {
   GfNgGuideCashComponent,
   GfNgGuideImprovementsComponent,
   GfNgGuideReturnsComponent,
+  GfNgGuideTargetsComponent,
   GfNgGuideTaxComponent,
   GfNgGuideTeamComponent
 } from './chapters/ghostfolio-ng-chapters';
@@ -24,6 +25,7 @@ import {
     GfNgGuideTaxComponent,
     GfNgGuideCalendarComponent,
     GfNgGuideReturnsComponent,
+    GfNgGuideTargetsComponent,
     GfNgGuideImprovementsComponent
   ],
   selector: 'gf-ghostfolio-ng-page',

@@ -11786,6 +11786,42 @@
           <context context-type="linenumber">1</context>
         </context-group>
       </trans-unit>
+      <trans-unit id="ngGuideTargets" datatype="html">
+        <source>Portfolio Targets</source>
+        <target state="translated">Obiettivi di portafoglio</target>
+      </trans-unit>
+      <trans-unit id="ngGuideTargetsIntro" datatype="html">
+        <source>Open Portfolio → Targets to compare your current asset allocation with a desired allocation. Choose one of five editable presets or configure your own targets.</source>
+        <target state="translated">Apri Portafoglio → Obiettivi per confrontare l'allocazione attuale con quella desiderata. Scegli uno dei cinque modelli modificabili oppure configura obiettivi personalizzati.</target>
+      </trans-unit>
+      <trans-unit id="ngGuideTargetsOverviewAlt" datatype="html">
+        <source>Portfolio Targets overview with allocation chart and drift indicators</source>
+        <target state="translated">Panoramica degli obiettivi con grafico di allocazione e indicatori di scostamento</target>
+      </trans-unit>
+      <trans-unit id="ngGuideTargetsConfiguration" datatype="html">
+        <source>Configure the target percentages and permitted deviation, then save. The target configuration is global: selecting an individual account changes the comparison, not the saved targets.</source>
+        <target state="translated">Configura le percentuali obiettivo e lo scostamento consentito, quindi salva. La configurazione è globale: selezionare un singolo conto modifica il confronto, non gli obiettivi salvati.</target>
+      </trans-unit>
+      <trans-unit id="ngGuideTargetsConfigurationAlt" datatype="html">
+        <source>Dialog for configuring target allocation and tolerance</source>
+        <target state="translated">Finestra di configurazione delle allocazioni obiettivo e della tolleranza</target>
+      </trans-unit>
+      <trans-unit id="ngGuideTargetsComparison" datatype="html">
+        <source>The portfolio value, total allocation drift, maximum deviation and allocation chart refer to the same selected portfolio or account. Review the asset-class details to identify differences from your targets and values outside tolerance.</source>
+        <target state="translated">Il valore del portafoglio, lo scostamento complessivo, la deviazione massima e il grafico si riferiscono allo stesso portafoglio o conto selezionato. Consulta il dettaglio delle classi di investimento per individuare gli scostamenti dagli obiettivi e i valori fuori tolleranza.</target>
+      </trans-unit>
+      <trans-unit id="ngGuideTargetsDetailsAlt" datatype="html">
+        <source>Asset-class allocation deviations and tolerance details</source>
+        <target state="translated">Scostamenti delle classi di investimento e dettagli delle tolleranze</target>
+      </trans-unit>
+      <trans-unit id="ngGuideTargetsCash" datatype="html">
+        <source>Targets respects excluded accounts and Ghostfolio-NG cash inclusion preferences. Eligible account cash is reconciled separately from securities to avoid double-counting it. Cash excluded from analysis is not added to the allocation.</source>
+        <target state="translated">Gli obiettivi rispettano i conti esclusi e le preferenze di Ghostfolio-NG sull'inclusione della liquidità. La liquidità ammessa viene riconciliata separatamente dai titoli per evitare doppi conteggi. La liquidità esclusa dall'analisi non viene aggiunta all'allocazione.</target>
+      </trans-unit>
+      <trans-unit id="ngGuideTargetsLimits" datatype="html">
+        <source>Missing or inconsistent financial data can make the comparison unavailable. This long-only version does not support included negative cash exposures, short positions or liabilities. Portfolio Targets provides analysis only: it does not execute trades, automatically rebalance or provide investment recommendations.</source>
+        <target state="translated">Dati finanziari mancanti o incoerenti possono rendere il confronto non disponibile. Questa versione, dedicata alle posizioni lunghe, non supporta esposizioni di liquidità negative incluse, posizioni corte o passività. Gli obiettivi forniscono soltanto un'analisi: non eseguono operazioni, non ribilanciano automaticamente e non costituiscono raccomandazioni di investimento.</target>
+      </trans-unit>
 </body>
   </file>
 </xliff>
