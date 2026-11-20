@@ -41,6 +41,7 @@ const chapterIds = [
   'cash-management',
   'tax-management',
   'pnl-calendar',
+  'portfolio-targets',
   'financial-returns',
   'other-improvements'
 ];
@@ -111,7 +112,7 @@ describe('Ghostfolio-NG guide', () => {
     }
   );
 
-  it('renders all six complete chapters in the required order', async () => {
+  it('renders all seven complete chapters in the required order', async () => {
     const { page } = await renderGuide();
     const sections = Array.from(page.querySelectorAll('section'));
     expect(sections.map(({ id }) => id)).toEqual(chapterIds);
@@ -135,7 +136,7 @@ describe('Ghostfolio-NG guide', () => {
       page.querySelectorAll<HTMLAnchorElement>('a[fragment]')
     );
 
-    expect(links).toHaveLength(12);
+    expect(links).toHaveLength(14);
 
     for (const link of links) {
       expect(link.pathname).toBe('/about/ghostfolio-ng');
@@ -189,7 +190,7 @@ describe('Ghostfolio-NG guide', () => {
     expect(image.alt).toContain('PJ on his shirt');
     expect(image.alt).toContain('AI assistants');
     expect(page.textContent).toContain('not human contributors');
-    expect(page.querySelectorAll('.chapter-index a')).toHaveLength(6);
+    expect(page.querySelectorAll('.chapter-index a')).toHaveLength(7);
   });
 
   it('contains only the verified external attribution links with safe new-tab attributes', async () => {
