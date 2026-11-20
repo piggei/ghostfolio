@@ -1,6 +1,6 @@
 {
   "schema_version": 1,
-  "generation": 82,
+  "generation": 83,
   "baseline_version": "3.97.0",
   "current_release": "integration-3.100.0-33",
   "releases": [
@@ -501,7 +501,13 @@
       },
       "addon_version": "3.100.5",
       "state": "reserved",
-      "qualified": {},
+      "qualified": {
+        "amd64": {
+          "os": "linux",
+          "architecture": "amd64",
+          "digest": "sha256:f98ddccdf7a228870f3187f20cdc7301e075f8cf0546ab672f52839acfb6bd67"
+        }
+      },
       "published": {}
     }
   ]
