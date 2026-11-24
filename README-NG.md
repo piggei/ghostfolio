@@ -60,6 +60,20 @@ Missing or inconsistent financial data and unsupported exposures may make the al
 
 For additional instructions, see **About → Ghostfolio-NG → Portfolio Targets**. Technical details are documented in the [NG integration notes](docs/ng-portfolio-targets-integration.md). See also [upstream PR #8458](https://github.com/ghostfolio/ghostfolio/pull/8458).
 
+### ETF Composition
+
+Ghostfolio-NG enriches ETF country and sector allocations using composition data published by supported ETF issuers.
+
+The initial implementation supports selected ETFs from **iShares (BlackRock)**, **Vanguard**, and **Xtrackers (DWS)**.
+
+Country and sector exposures are normalized to Ghostfolio's existing classifications and integrated into the portfolio allocation views. Incomplete allocations are preserved without artificially scaling them to 100%, and unclassified country exposure remains visible.
+
+Data availability depends on each issuer's published information. Not every ETF is necessarily supported, and issuer data may be delayed or temporarily unavailable.
+
+The shared normalization foundation is proposed in [upstream PR #8469](https://github.com/ghostfolio/ghostfolio/pull/8469). Issuer-specific enhancers are currently maintained in Ghostfolio-NG.
+
+For implementation details, data-quality safeguards and limitations, see the [ETF Composition integration notes](docs/ng-etf-composition-integration.md).
+
 ### Financial Performance and Returns
 
 ![Performance calculation selector](apps/client/src/assets/images/ghostfolio-ng/performance-calculation.webp)
