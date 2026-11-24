@@ -1,5 +1,13 @@
 # Ghostfolio-NG Home Assistant Add-on Changelog
 
+## 3.100.6
+
+### Integration-specific changes
+
+- docs(ng): pin ETF integration documentation reference (a15864298)
+- docs(ng): document ETF composition integration (0fa814791)
+- feat(ng): integrate ETF composition data enhancers (b6ebe398b)
+
 ## 3.100.5
 
 ### Integration-specific changes
