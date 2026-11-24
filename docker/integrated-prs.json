@@ -96,7 +96,8 @@
       "source": "feat/etf-composition-data-enhancers",
       "documentation": "docs/ng-etf-composition-integration.md",
       "integrationCommit": "b6ebe398b164fdb4a34743e9129c966dd7fdd23a",
-      "description": "Adds issuer-specific ETF composition enhancers for selected iShares, Vanguard, and Xtrackers funds, with country and sector normalization, coverage validation, and preservation of unclassified exposures. The shared normalizer is proposed separately in upstream PR #8469."
+      "description": "Adds issuer-specific ETF composition enhancers for selected iShares, Vanguard, and Xtrackers funds, with country and sector normalization, coverage validation, and preservation of unclassified exposures. The shared normalizer is proposed separately in upstream PR #8469.",
+      "documentationRef": "0fa814791d7f4619fa4a69325850ba380e4dd937"
     }
   ]
 }
