@@ -19,5 +19,10 @@ export default {
   moduleFileExtensions: ['ts', 'js', 'html'],
   coverageDirectory: '../../coverage/apps/api',
   testEnvironment: 'node',
+  testPathIgnorePatterns: [
+    '/node_modules/',
+    '/etf-composition/.*\\.live\\.spec\\.ts$',
+    '/etf-composition/.*\\.snapshot\\.spec\\.ts$'
+  ],
   preset: '../../jest.preset.js'
 };

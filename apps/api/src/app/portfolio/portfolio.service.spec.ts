@@ -333,6 +333,31 @@ describe('PortfolioService', () => {
   });
 
   describe('getAggregatedMarkets', () => {
+    it('preserves unclassified exposure for partial country allocations', () => {
+      const assetProfile = {
+        countries: [
+          { code: 'US', weight: 0.6 },
+          { code: 'JP', weight: 0.3 }
+        ]
+      };
+
+      const result = (
+        portfolioService as unknown as {
+          getMarkets: (input: { assetProfile: typeof assetProfile }) => {
+            markets: Record<string, number>;
+            marketsAdvanced: Record<string, number>;
+          };
+        }
+      ).getMarkets({ assetProfile });
+
+      expect(result.markets.developedMarkets).toBeCloseTo(0.9, 10);
+      expect(result.markets[UNKNOWN_KEY]).toBeCloseTo(0.1, 10);
+
+      expect(result.marketsAdvanced.northAmerica).toBeCloseTo(0.6, 10);
+      expect(result.marketsAdvanced.japan).toBeCloseTo(0.3, 10);
+      expect(result.marketsAdvanced[UNKNOWN_KEY]).toBeCloseTo(0.1, 10);
+    });
+
     const getAggregatedMarkets = (holdings: object[]) => {
       return (
         portfolioService as unknown as {

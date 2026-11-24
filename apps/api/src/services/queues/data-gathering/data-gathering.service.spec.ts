@@ -1,3 +1,5 @@
+import { IsharesDataEnhancerService } from '@ghostfolio/api/services/data-provider/data-enhancer/etf-composition/ishares/ishares.service';
+import { XtrackersDataEnhancerService } from '@ghostfolio/api/services/data-provider/data-enhancer/etf-composition/xtrackers/xtrackers.service';
 import {
   DATA_GATHERING_QUEUE_PRIORITY_HIGH,
   GATHER_HISTORICAL_MARKET_DATA_COOLDOWN_IN_MS
@@ -5,6 +7,10 @@ import {
 import { parseDate } from '@ghostfolio/common/helper';
 
 import { DataGatheringService } from './data-gathering.service';
+
+jest.mock('@ghostfolio/api/services/fetch/fetch.service', () => ({
+  FetchService: jest.fn()
+}));
 
 describe('DataGatheringService', () => {
   let dataGatheringQueue: { addBulk: jest.Mock; clean: jest.Mock };
@@ -106,6 +112,412 @@ describe('DataGatheringService', () => {
       expect(update).toEqual(
         expect.objectContaining({ countries, holdings, sectors })
       );
+    });
+  });
+
+  describe('ETF enhancer integration', () => {
+    const identifier = {
+      dataSource: 'YAHOO' as const,
+      symbol: 'XMME.MI'
+    };
+
+    const countries = [{ code: 'TW', weight: 0.25237036 }];
+    const sectors = [{ name: 'Technology', weight: 0.36779921 }];
+
+    beforeEach(() => {
+      dataProviderService.getAssetProfiles.mockResolvedValue({
+        'XMME.MI': {
+          ...identifier,
+          assetClass: 'EQUITY',
+          assetSubClass: 'ETF'
+        }
+      });
+    });
+
+    it('persists ETF distributions supplied by an enhancer', async () => {
+      const enhance = jest.fn().mockImplementation(async ({ response }) => ({
+        ...response,
+        countries,
+        sectors
+      }));
+
+      const service = new DataGatheringService(
+        [{ enhance, getName: () => 'XTRACKERS' }] as any,
+        dataGatheringQueue as any,
+        dataProviderService as any,
+        null,
+        null,
+        prismaService as any,
+        null,
+        symbolProfileService as any
+      );
+
+      await service.gatherAssetProfiles([identifier]);
+
+      expect(enhance).toHaveBeenCalledWith(
+        expect.objectContaining({
+          symbol: 'XMME.MI',
+          response: expect.objectContaining(identifier)
+        })
+      );
+
+      expect(prismaService.symbolProfile.upsert).toHaveBeenCalledTimes(1);
+
+      const { update } = prismaService.symbolProfile.upsert.mock.calls[0][0];
+
+      expect(update.countries).toEqual(countries);
+      expect(update.sectors).toEqual(sectors);
+    });
+
+    it('preserves original profile data when an enhancer fails', async () => {
+      const enhance = jest.fn().mockRejectedValue(new Error('DWS unavailable'));
+
+      const service = new DataGatheringService(
+        [{ enhance, getName: () => 'XTRACKERS' }] as any,
+        dataGatheringQueue as any,
+        dataProviderService as any,
+        null,
+        null,
+        prismaService as any,
+        null,
+        symbolProfileService as any
+      );
+
+      await service.gatherAssetProfiles([identifier]);
+
+      expect(enhance).toHaveBeenCalledTimes(1);
+      expect(prismaService.symbolProfile.upsert).toHaveBeenCalledTimes(1);
+
+      const { update } = prismaService.symbolProfile.upsert.mock.calls[0][0];
+
+      expect(update.countries).toBeUndefined();
+      expect(update.sectors).toBeUndefined();
+    });
+  });
+
+  describe('Xtrackers real enhancer integration', () => {
+    it('processes real Xtrackers enhancer through data gathering', async () => {
+      const fetchService = {
+        fetch: jest.fn().mockResolvedValue(
+          Response.json({
+            tables: [
+              {
+                columns: [
+                  { key: 'column_1', value: '% Weight' },
+                  { key: 'column_3', value: 'Country' },
+                  { key: 'column_4', value: 'Industry' }
+                ],
+                values: [
+                  {
+                    column_1: { sortValue: 70 },
+                    column_3: { value: 'Taiwan' },
+                    column_4: { value: 'Information Technology' }
+                  },
+                  {
+                    column_1: { sortValue: 30 },
+                    column_3: { value: 'Korea, Republic of' },
+                    column_4: { value: 'Financials' }
+                  }
+                ]
+              }
+            ]
+          })
+        )
+      };
+
+      const enhancer = new XtrackersDataEnhancerService(
+        { get: jest.fn().mockReturnValue(1000) } as any,
+        fetchService as any
+      );
+
+      const service = new DataGatheringService(
+        [enhancer],
+        dataGatheringQueue as any,
+        dataProviderService as any,
+        null,
+        null,
+        prismaService as any,
+        null,
+        symbolProfileService as any
+      );
+
+      const identifier = {
+        dataSource: 'YAHOO' as const,
+        symbol: 'XMME.MI'
+      };
+
+      dataProviderService.getAssetProfiles.mockResolvedValue({
+        'XMME.MI': {
+          ...identifier,
+          assetClass: 'EQUITY',
+          assetSubClass: 'ETF'
+        }
+      });
+
+      await service.gatherAssetProfiles([identifier]);
+
+      expect(fetchService.fetch).toHaveBeenCalledTimes(1);
+      expect(fetchService.fetch.mock.calls[0][0]).toContain('IE00BTJRMP35');
+
+      expect(prismaService.symbolProfile.upsert).toHaveBeenCalledTimes(1);
+
+      const { create, update } =
+        prismaService.symbolProfile.upsert.mock.calls[0][0];
+
+      const expectedCountries = [
+        { code: 'TW', weight: 0.7 },
+        { code: 'KR', weight: 0.3 }
+      ];
+
+      const expectedSectors = [
+        { name: 'Technology', weight: 0.7 },
+        { name: 'Financial Services', weight: 0.3 }
+      ];
+
+      expect(create.countries).toEqual(expectedCountries);
+      expect(update.countries).toEqual(expectedCountries);
+      expect(update.sectors).toEqual(expectedSectors);
+    });
+  });
+
+  describe('iShares real enhancer integration', () => {
+    const identifier = {
+      dataSource: 'YAHOO' as const,
+      symbol: 'SWDA.MI'
+    };
+
+    const page =
+      '<div webqc-datapoint="holdings-as-of-dates" data-as-of-dates="{&quot;all&quot;:20261120}"></div>';
+
+    const csv = [
+      'Fund Holdings as of,"20/Nov/2026"',
+      '',
+      'Ticker,Name,Sector,Asset Class,Market Value,Weight (%),Notional Value,Location,Market Currency',
+      '"AAPL","APPLE","Information Technology","Equity","600.00","60.00","600.00","United States","USD"',
+      '"ASML","ASML HOLDING","Information Technology","Equity","390.00","39.00","390.00","Netherlands","EUR"',
+      '"USD","USD CASH","Cash and/or Derivatives","Cash","10.00","1.00","10.00","United States","USD"'
+    ].join('\n');
+
+    function createService(fetch: jest.Mock) {
+      const enhancer = new IsharesDataEnhancerService(
+        { get: jest.fn().mockReturnValue(30000) } as any,
+        { fetch } as any
+      );
+
+      return new DataGatheringService(
+        [enhancer],
+        dataGatheringQueue as any,
+        dataProviderService as any,
+        null,
+        null,
+        prismaService as any,
+        null,
+        symbolProfileService as any
+      );
+    }
+
+    beforeEach(() => {
+      dataProviderService.getAssetProfiles.mockResolvedValue({
+        'SWDA.MI': {
+          ...identifier,
+          assetClass: 'EQUITY',
+          assetSubClass: 'ETF',
+          isin: 'IE00B4L5Y983'
+        }
+      });
+    });
+
+    it('persists iShares allocations without equity renormalization', async () => {
+      const fetch = jest
+        .fn()
+        .mockResolvedValueOnce(new Response(page))
+        .mockResolvedValueOnce(
+          new Response(csv, {
+            headers: { 'Content-Type': 'text/csv' }
+          })
+        );
+
+      const service = createService(fetch);
+
+      await service.gatherAssetProfiles([identifier]);
+
+      expect(fetch).toHaveBeenCalledTimes(2);
+
+      const documentUrl = new URL(fetch.mock.calls[1][0]);
+
+      expect(documentUrl.searchParams.get('portfolioId')).toBe('251882');
+      expect(documentUrl.searchParams.get('asOfDate')).toBe('20261120');
+
+      expect(prismaService.symbolProfile.upsert).toHaveBeenCalledTimes(1);
+
+      const { create, update } =
+        prismaService.symbolProfile.upsert.mock.calls[0][0];
+
+      const expectedCountries = [
+        { code: 'US', weight: 0.6 },
+        { code: 'NL', weight: 0.39 }
+      ];
+
+      const expectedSectors = [{ name: 'Technology', weight: 0.99 }];
+
+      expect(create.countries).toEqual(expectedCountries);
+      expect(create.sectors).toEqual(expectedSectors);
+      expect(update.countries).toEqual(expectedCountries);
+      expect(update.sectors).toEqual(expectedSectors);
+    });
+
+    it('preserves existing countries and fills missing sectors', async () => {
+      const existingCountries = [{ code: 'DE', weight: 1 }];
+
+      dataProviderService.getAssetProfiles.mockResolvedValue({
+        'SWDA.MI': {
+          ...identifier,
+          assetClass: 'EQUITY',
+          assetSubClass: 'ETF',
+          isin: 'IE00B4L5Y983',
+          countries: existingCountries
+        }
+      });
+
+      const fetch = jest
+        .fn()
+        .mockResolvedValueOnce(new Response(page))
+        .mockResolvedValueOnce(
+          new Response(csv, {
+            headers: { 'Content-Type': 'text/csv' }
+          })
+        );
+
+      await createService(fetch).gatherAssetProfiles([identifier]);
+
+      const { update } = prismaService.symbolProfile.upsert.mock.calls[0][0];
+
+      expect(update.countries).toEqual(existingCountries);
+      expect(update.sectors).toEqual([{ name: 'Technology', weight: 0.99 }]);
+    });
+
+    it('does not persist partial allocations after a document failure', async () => {
+      const fetch = jest
+        .fn()
+        .mockResolvedValueOnce(new Response(page))
+        .mockRejectedValueOnce(new Error('BlackRock unavailable'));
+
+      await createService(fetch).gatherAssetProfiles([identifier]);
+
+      expect(fetch).toHaveBeenCalledTimes(2);
+      expect(prismaService.symbolProfile.upsert).toHaveBeenCalledTimes(1);
+
+      const { create, update } =
+        prismaService.symbolProfile.upsert.mock.calls[0][0];
+
+      expect(create.countries).toBeUndefined();
+      expect(create.sectors).toBeUndefined();
+      expect(update.countries).toBeUndefined();
+      expect(update.sectors).toBeUndefined();
+    });
+
+    describe('symbol mapping', () => {
+      const mappedIdentifier = {
+        dataSource: 'YAHOO' as const,
+        symbol: 'CUSTOM.MI'
+      };
+
+      function mockMappedProfile(isin?: string) {
+        dataProviderService.getAssetProfiles.mockResolvedValue({
+          'CUSTOM.MI': {
+            ...mappedIdentifier,
+            assetClass: 'EQUITY',
+            assetSubClass: 'ETF',
+            isin
+          }
+        });
+
+        symbolProfileService.getSymbolProfiles.mockResolvedValue([
+          {
+            ...mappedIdentifier,
+            symbolMapping: {
+              ISHARES: 'SWDA.MI'
+            }
+          }
+        ]);
+      }
+
+      function mockDocument() {
+        return jest
+          .fn()
+          .mockResolvedValueOnce(new Response(page))
+          .mockResolvedValueOnce(
+            new Response(csv, {
+              headers: { 'Content-Type': 'text/csv' }
+            })
+          );
+      }
+
+      it('uses the mapped iShares symbol while persisting the original symbol', async () => {
+        mockMappedProfile('IE00B4L5Y983');
+
+        const fetch = mockDocument();
+
+        await createService(fetch).gatherAssetProfiles([mappedIdentifier]);
+
+        expect(fetch).toHaveBeenCalledTimes(2);
+
+        const { create, update, where } =
+          prismaService.symbolProfile.upsert.mock.calls[0][0];
+
+        expect(create.symbol).toBe('CUSTOM.MI');
+        expect(where).toEqual(
+          expect.objectContaining({
+            dataSource_symbol: expect.objectContaining({
+              symbol: 'CUSTOM.MI'
+            })
+          })
+        );
+
+        expect(create.countries).toEqual([
+          { code: 'US', weight: 0.6 },
+          { code: 'NL', weight: 0.39 }
+        ]);
+
+        expect(update.sectors).toEqual([{ name: 'Technology', weight: 0.99 }]);
+      });
+
+      it('rejects a mapped symbol with a conflicting ISIN', async () => {
+        mockMappedProfile('IE00BTJRMP35');
+
+        const fetch = jest.fn();
+
+        await createService(fetch).gatherAssetProfiles([mappedIdentifier]);
+
+        expect(fetch).not.toHaveBeenCalled();
+
+        const { create, update } =
+          prismaService.symbolProfile.upsert.mock.calls[0][0];
+
+        expect(create.symbol).toBe('CUSTOM.MI');
+        expect(create.countries).toBeUndefined();
+        expect(create.sectors).toBeUndefined();
+        expect(update.countries).toBeUndefined();
+        expect(update.sectors).toBeUndefined();
+      });
+
+      it('accepts an explicitly mapped Yahoo symbol without ISIN', async () => {
+        mockMappedProfile();
+
+        const fetch = mockDocument();
+
+        await createService(fetch).gatherAssetProfiles([mappedIdentifier]);
+
+        expect(fetch).toHaveBeenCalledTimes(2);
+
+        const { create } = prismaService.symbolProfile.upsert.mock.calls[0][0];
+
+        expect(create.symbol).toBe('CUSTOM.MI');
+        expect(create.countries).toEqual([
+          { code: 'US', weight: 0.6 },
+          { code: 'NL', weight: 0.39 }
+        ]);
+      });
     });
   });
 
