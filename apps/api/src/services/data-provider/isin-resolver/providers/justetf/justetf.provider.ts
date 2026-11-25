@@ -158,10 +158,25 @@ export class JustEtfProvider implements IsinProviderInterface {
 
       const response = await this.request(url.toString());
 
-      const canonicalIsin =
-        /<link\s+rel="canonical"\s+href="[^"]*etf-profile\.html\?isin=([A-Z]{2}[A-Z0-9]{9}[0-9])"/.exec(
-          response.body
-        )?.[1];
+      const canonicalTag = /<link\b[^>]*>/i.exec(response.body)?.[0];
+
+      const canonicalRel = canonicalTag
+        ? /\brel=["']([^"']+)["']/i.exec(canonicalTag)?.[1]
+        : undefined;
+
+      const canonicalHref = canonicalTag
+        ? /\bhref=["']([^"']+)["']/i.exec(canonicalTag)?.[1]
+        : undefined;
+
+      let canonicalIsin: string | undefined;
+
+      if (canonicalRel?.split(/\s+/).includes('canonical') && canonicalHref) {
+        const canonicalUrl = new URL(canonicalHref, BASE_URL);
+
+        if (canonicalUrl.pathname.endsWith('/etf-profile.html')) {
+          canonicalIsin = canonicalUrl.searchParams.get('isin') ?? undefined;
+        }
+      }
 
       if (canonicalIsin !== candidate.isin) {
         return { status: 'UNAVAILABLE' };
