@@ -262,6 +262,43 @@ describe('DataGatheringService', () => {
     );
   });
 
+  it.each(['INVESCO', 'AMUNDI'])(
+    'retains verified identity from the %s issuer enhancer',
+    async (issuer) => {
+      const identifier = { dataSource: 'YAHOO' as const, symbol: 'ANY.MI' };
+      const sectors = [{ name: 'Technology', weight: 1 }];
+      symbolProfileService.getSymbolProfiles.mockResolvedValue([
+        { ...identifier, assetClass: 'EQUITY', assetSubClass: 'ETF', sectors }
+      ]);
+      dataProviderService.getAssetProfiles.mockResolvedValue({
+        asset: { ...identifier, name: issuer + ' ETF' }
+      });
+      const enhancer = {
+        getName: () => issuer,
+        enhance: async ({ response }) => ({
+          ...response,
+          isin: 'IE00B3YCGJ38',
+          countries: [{ code: 'US', weight: 1 }]
+        })
+      };
+      const service = new DataGatheringService(
+        [enhancer] as any,
+        dataGatheringQueue as any,
+        dataProviderService as any,
+        null,
+        null,
+        prismaService as any,
+        null,
+        symbolProfileService as any
+      );
+      await service.gatherAssetProfiles([identifier]);
+      const { update } = prismaService.symbolProfile.upsert.mock.calls[0][0];
+      expect(update.isin).toBe('IE00B3YCGJ38');
+      expect(update.sectors).toEqual(sectors);
+      expect(update.countries).toEqual([{ code: 'US', weight: 1 }]);
+    }
+  );
+
   describe('Xtrackers real enhancer integration', () => {
     it('processes real Xtrackers enhancer through data gathering', async () => {
       const fetchService = {

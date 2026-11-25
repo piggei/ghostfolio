@@ -1,6 +1,10 @@
 import { execFileSync } from 'node:child_process';
 
 import { IsharesDataEnhancerService } from './ishares/ishares.service';
+import {
+  AmundiDataEnhancerService,
+  InvescoDataEnhancerService
+} from './issuer-api/issuer-api.service';
 import { VanguardDataEnhancerService } from './vanguard/vanguard.service';
 import { WisdomtreeDataEnhancerService } from './wisdomtree/wisdomtree.service';
 import { XtrackersDataEnhancerService } from './xtrackers/xtrackers.service';
@@ -33,6 +37,12 @@ jest.mock('./wisdomtree/wisdomtree.parser', () => {
 
 // Explicit opt-in; ordinary CI excludes *.live.spec.ts.
 const cases = [
+  [InvescoDataEnhancerService, 'Invesco ETF', 'IE00B3YCGJ38'],
+  [InvescoDataEnhancerService, 'Invesco ETF', 'IE0032077012'],
+  [InvescoDataEnhancerService, 'Invesco ETF', 'IE00B60SX394'],
+  [AmundiDataEnhancerService, 'Amundi ETF', 'LU0908500753'],
+  [AmundiDataEnhancerService, 'Amundi ETF', 'FR0007052782'],
+  [AmundiDataEnhancerService, 'Amundi ETF', 'FR0010375766'],
   [IsharesDataEnhancerService, 'iShares ETF', 'IE00B4L5Y983'],
   [IsharesDataEnhancerService, 'iShares ETF', 'IE00B5BMR087'],
   [IsharesDataEnhancerService, 'iShares ETF', 'IE00BKM4GZ66'],
@@ -144,5 +154,49 @@ const cases = [
         ).find(({ code }) => code === 'US')!.weight
       ).toBeGreaterThan(0.95);
     }, 120000);
+  }
+);
+
+(process.env.LIVE_ETF === '1' ? describe : describe.skip)(
+  'new issuer missing-ISIN qualification',
+  () => {
+    it.each([
+      [
+        InvescoDataEnhancerService,
+        'SPXS.MI',
+        'Invesco S&P 500 UCITS ETF',
+        'IE00B3YCGJ38'
+      ],
+      [
+        AmundiDataEnhancerService,
+        'MEUD.MI',
+        'Amundi Core Stoxx Europe 600 UCITS ETF Acc',
+        'LU0908500753'
+      ]
+    ] as const)(
+      '%s resolves %s',
+      async (Service, symbol, name, isin) => {
+        const service = new Service(
+          { get: () => 15000 } as any,
+          { fetch: (url, init) => fetch(url, init) } as any
+        );
+        const result = await service.enhance({
+          response: {
+            name,
+            assetClass: 'EQUITY',
+            assetSubClass: 'ETF',
+            dataSource: 'YAHOO'
+          },
+          symbol
+        });
+        console.log(JSON.stringify({ symbol, result }));
+        expect(result.isin).toBe(isin);
+        expect(Array.isArray(result.countries)).toBe(true);
+        expect(
+          (result.countries as any[]).reduce((sum, row) => sum + row.weight, 0)
+        ).toBeGreaterThan(0.95);
+      },
+      120000
+    );
   }
 );

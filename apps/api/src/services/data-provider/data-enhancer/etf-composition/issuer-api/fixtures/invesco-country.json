@@ -1,0 +1,18 @@
+{
+  "isin": "IE00B3YCGJ38",
+  "effectiveDate": "2026-10-09",
+  "holdingWeights": [
+    {
+      "name": "UnitedStates",
+      "value": 99.8
+    },
+    {
+      "name": "Switzerland",
+      "value": 0.1
+    },
+    {
+      "name": "Netherlands",
+      "value": 0.1
+    }
+  ]
+}

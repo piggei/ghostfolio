@@ -12,6 +12,10 @@ import { FetchModule } from '@ghostfolio/api/services/fetch/fetch.module';
 import { Module } from '@nestjs/common';
 
 import { DataEnhancerService } from './data-enhancer.service';
+import {
+  InvescoDataEnhancerService,
+  AmundiDataEnhancerService
+} from './etf-composition/issuer-api/issuer-api.service';
 
 @Module({
   exports: [
@@ -23,6 +27,8 @@ import { DataEnhancerService } from './data-enhancer.service';
     VanguardDataEnhancerService,
     IsharesDataEnhancerService,
     WisdomtreeDataEnhancerService,
+    InvescoDataEnhancerService,
+    AmundiDataEnhancerService,
     'DataEnhancers'
   ],
   imports: [ConfigurationModule, CryptocurrencyModule, FetchModule],
@@ -35,6 +41,8 @@ import { DataEnhancerService } from './data-enhancer.service';
     VanguardDataEnhancerService,
     IsharesDataEnhancerService,
     WisdomtreeDataEnhancerService,
+    InvescoDataEnhancerService,
+    AmundiDataEnhancerService,
     {
       inject: [
         OpenFigiDataEnhancerService,
@@ -43,7 +51,9 @@ import { DataEnhancerService } from './data-enhancer.service';
         XtrackersDataEnhancerService,
         VanguardDataEnhancerService,
         IsharesDataEnhancerService,
-        WisdomtreeDataEnhancerService
+        WisdomtreeDataEnhancerService,
+        InvescoDataEnhancerService,
+        AmundiDataEnhancerService
       ],
       provide: 'DataEnhancers',
       useFactory: (
@@ -53,7 +63,9 @@ import { DataEnhancerService } from './data-enhancer.service';
         xtrackers,
         vanguard,
         ishares,
-        wisdomtree
+        wisdomtree,
+        invesco,
+        amundi
       ) => [
         openfigi,
         trackinsight,
@@ -61,7 +73,9 @@ import { DataEnhancerService } from './data-enhancer.service';
         xtrackers,
         vanguard,
         ishares,
-        wisdomtree
+        wisdomtree,
+        invesco,
+        amundi
       ]
     }
   ]

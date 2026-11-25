@@ -172,9 +172,14 @@ export class DataGatheringService {
             // Preserve identity supplied by the profile. Missing identities may
             // only be assigned by the issuer flow after listing verification.
             if (
-              !['ISHARES', 'VANGUARD', 'XTRACKERS', 'WISDOMTREE'].includes(
-                dataEnhancer.getName()
-              )
+              ![
+                'ISHARES',
+                'VANGUARD',
+                'XTRACKERS',
+                'WISDOMTREE',
+                'INVESCO',
+                'AMUNDI'
+              ].includes(dataEnhancer.getName())
             ) {
               enhancedAssetProfile.isin = previous.isin;
             }

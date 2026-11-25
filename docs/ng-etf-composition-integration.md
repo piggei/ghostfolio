@@ -12,7 +12,8 @@ compares saved and incoming countries/sectors independently throughout the
 enhancer chain. Non-ETF processing retains its existing behavior. Symbol-profile
 matching includes both data source and symbol.
 
-The four existing Nest enhancers keep their module registration and ordering.
+The four existing Nest enhancers keep their module registration and ordering;
+Invesco and Amundi are appended after them.
 Shared discovery, quality and date helpers sit beside the existing normalizer.
 No database migration, portfolio calculation, release workflow or deployment
 change is required.
@@ -34,7 +35,9 @@ invalid identifiers are rejected. No fund-specific exceptions or ticker guesses
 are used. The fallback supports .MI (ETFP/XMIL), .DE (XETR), .AS (XAMS) and .L
 (XLON) only when the issuer publishes the exact requested RIC. The original
 justETF provider still verifies .MI listings only; missing ISINs on other markets
-remain unsupported for the other issuers. Unverified identities preserve the
+remain unsupported for issuers without an official listing fallback. Amundi adds
+the exact-RIC catalogue fallback documented below for .MI, .DE, .PA and .L.
+Unverified identities preserve the
 existing profile.
 
 The instrument name routes to exactly one supported issuer; it is a hint, never
@@ -56,13 +59,17 @@ All requests have bounded timeouts and there are no automatic retry storms.
 | Vanguard   | Portfolio IDs from the official home-page configuration, then GPX GraphQL profile identifiers | Exactly one portfolio must publish the requested ISIN. Existing cursor pagination retrieves holdings, with GICS or ICB industry classification.      |
 | Xtrackers  | Official UK sitemap entry containing the exact ISIN                                           | Official PDP client route uses the discovered complete product identifier. Holdings must link to the requested fund's official constituent download. |
 | WisdomTree | Official factsheet endpoint parameterized by verified ISIN                                    | PDF signature/content type and document ISIN are checked. Allocation page is found by heading, with multiline labels and variable category counts.   |
+| Invesco    | Official DNG API addressed by verified ISIN                                                   | fundDetails proves ISIN and replication method; independently dated fund/index allocation responses echo the ISIN.                                   |
+| Amundi     | Official ProductAPI addressed by verified ISIN, with exact-RIC catalogue fallback             | Unique product ID, ISIN, equity class, replication scope and scope-specific allocation date are checked.                                             |
 
 Sources:
 [iShares search](https://www.ishares.com/varnish-api/core-search/search/products),
 [iShares sitemap](https://www.ishares.com/uk/product-sitemap.xml),
 [Vanguard](https://www.ie.vanguard/home),
 [Xtrackers sitemap](https://etf.deutsche-am.com/en-gb/sitemap.xml),
-[WisdomTree cloud factsheet](https://dataspanapi.wisdomtree.com/pdr/documents/FACTSHEET/UCITS/EU/EN-GB/IE00BJGWQN72/).
+[WisdomTree cloud factsheet](https://dataspanapi.wisdomtree.com/pdr/documents/FACTSHEET/UCITS/EU/EN-GB/IE00BJGWQN72/),
+[Invesco product](https://www.invesco.com/ie/en/financial-products/etfs/invesco-sp-500-ucits-etf-acc.html),
+[Amundi product](https://www.amundietf.lu/en/individual/products/equity/amundi-core-stoxx-europe-600-ucits-etf-acc/lu0908500753).
 
 Document dates must be valid, nonfuture and at most 75 days old. Vanguard pages
 must retain the same effective date; known SEDOL identifiers cannot repeat.
@@ -232,3 +239,70 @@ Follow-up validation on 2026-11-25:
   - Tests: 178 skipped, 2211 passed, 2389 total
 - Normal pre-commit API lint and formatting checks are required; no hooks are bypassed.
 - The database was inspected read-only; this fix does not insert an ISIN or country weights manually.
+
+## Follow-up: Invesco and Amundi (2026-11-25)
+
+The test database was inspected read-only: SPXS.MI and MEUD.MI were equity ETF
+profiles with NULL ISIN and countries and existing complete sector compositions.
+Both issuers are now registered after the existing ETF enhancers. Their verified
+identities are retained by the data-gathering pipeline. Complete existing sectors
+remain protected when filling missing geography.
+
+Invesco uses its official DNG API, addressed by a verified ISIN. The fundDetails
+response must echo that ISIN and publish a fresh date and supported replication
+method. Physical funds use weightedHoldings/fund; synthetic funds use
+weightedHoldings/index, so the collateral basket is never presented as the index
+exposure. Each allocation endpoint independently verifies its own ISIN, date and
+weights. No product URL, ticker-to-ISIN table or product-specific identifier is
+embedded in production code.
+
+Amundi uses its official ProductAPI. It verifies the unique product ID, ISIN,
+equity classification and replication method. Direct(Physical) selects FUND
+allocations; Indirect(Swap Based) selects INDEX allocations, with the corresponding
+source date. Decimal weights are preserved without rescaling. If justETF is
+unavailable or cannot resolve a missing Yahoo ISIN, the cached official catalogue
+must publish one exact RIC and matching exchange. Ambiguous primary identities,
+stored invalid identities, duplicate listings and unsupported markets are rejected.
+The catalogue is bounded to 5,000 products and uses the existing five-minute cache.
+
+Observed live results from the production enhancers, without database writes:
+
+| Symbol  | Verified ISIN | Country result                                         |
+| ------- | ------------- | ------------------------------------------------------ |
+| SPXS.MI | IE00B3YCGJ38  | US 99.8%, Switzerland 0.1%, Netherlands 0.1%           |
+| MEUD.MI | LU0908500753  | 18 published country rows, approximately 100% coverage |
+
+Both exact symbols succeeded starting without an ISIN. The source dates were
+2026-10-09 for SPXS index allocations and 2026-11-23 for MEUD fund allocations.
+The 21-case live suite passed: three different products per issuer across all six
+issuers, plus missing-ISIN VUSA.MI, SPXS.MI and MEUD.MI. The first run had a transient
+Amundi connection failure; the complete repeat passed.
+
+Limits observed in additional Invesco products are retained explicitly: EQQQ
+(IE0032077012) country weights include -0.11% cash/derivatives, so geography is
+rejected while valid sectors remain available. MSCI World (IE00B60SX394) index
+sector weights sum to 100.1%, so sectors are rejected while countries remain
+available. Neither case is silently clipped or normalized. Missing country labels
+such as Other remain unclassified; the published weights are not redistributed.
+
+Deterministic fixtures include the public official allocation responses. Tests
+cover percentage versus decimal units, camelCase labels, synthetic exposure,
+wrong ISINs, invalid/stale/future dates, negative/nonfinite/overweight/duplicate
+allocations, missing dimensions, listing market verification, ambiguity, complete
+composition protection and identity persistence in data gathering.
+
+No database migration, manual database repair, push or deployment is part of this
+change. A running test instance must load the new code before its normal asset
+refresh can persist the newly recovered data.
+
+Final validation for the Invesco/Amundi follow-up:
+
+- All 21 opt-in official-source live checks passed (one earlier Amundi network failure was not counted as a pass).
+- Full-project Nx regression passed for four projects: API executed; common, UI and client used valid local cache entries.
+  - API suites: 196 passed, 12 skipped, 208 total.
+  - API tests: 2,264 passed, 178 skipped, 2,442 total.
+  - This adds 53 deterministic passing tests to the previous API result.
+- API TypeScript passed on the final code.
+- Scoped typed ESLint reported zero errors; warnings remain (339 in the initial scoped run).
+- The normal pre-commit API lint and formatting checks run without bypassing hooks.
+- A separate baseline run, Docker build, migration and deployment were not performed.

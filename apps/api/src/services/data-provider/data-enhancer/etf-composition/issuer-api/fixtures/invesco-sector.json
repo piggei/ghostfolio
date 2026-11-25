@@ -1,0 +1,46 @@
+{
+  "isin": "IE00B3YCGJ38",
+  "effectiveDate": "2026-10-09",
+  "holdingWeights": [
+    {
+      "name": "informationTechnology",
+      "value": 39.6
+    },
+    {
+      "name": "financials",
+      "value": 11.5
+    },
+    {
+      "name": "communicationServices",
+      "value": 9.5
+    },
+    {
+      "name": "healthCare",
+      "value": 9.2
+    },
+    {
+      "name": "consumerDiscretionary",
+      "value": 8.9
+    },
+    {
+      "name": "industrials",
+      "value": 8
+    },
+    {
+      "name": "consumerStaples",
+      "value": 4.4
+    },
+    {
+      "name": "energy",
+      "value": 3.5
+    },
+    {
+      "name": "utilities",
+      "value": 1.9
+    },
+    {
+      "name": "other",
+      "value": 3.4
+    }
+  ]
+}

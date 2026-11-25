@@ -8,7 +8,14 @@ import { FetchService } from '@ghostfolio/api/services/fetch/fetch.service';
 
 import { SymbolProfile } from '@prisma/client';
 
-type Issuer = 'ISHARES' | 'VANGUARD' | 'XTRACKERS' | 'WISDOMTREE';
+import {
+  AMUNDI_URL,
+  AmundiProduct,
+  amundiBody
+} from './issuer-api/issuer-api.client';
+
+type Issuer =
+  'ISHARES' | 'VANGUARD' | 'XTRACKERS' | 'WISDOMTREE' | 'INVESCO' | 'AMUNDI';
 
 export interface DiscoveredEtf {
   isin: string;
@@ -18,6 +25,8 @@ export interface DiscoveredEtf {
 }
 
 const ISSUERS: Record<Issuer, RegExp> = {
+  INVESCO: /\binvesco\b/i,
+  AMUNDI: /\bamundi\b/i,
   ISHARES: /\bishares\b/i,
   VANGUARD: /\bvanguard\b/i,
   XTRACKERS: /\b(?:xtrackers|db x-trackers)\b/i,
@@ -175,6 +184,72 @@ export class EtfCompositionDiscovery {
     return { ...resolution, source: 'VANGUARD' };
   }
 
+  private async resolveAmundiListing(
+    symbol: string,
+    timeout: number
+  ): Promise<IsinResolution> {
+    const markets: Record<string, readonly string[]> = {
+      MI: ['Borsa Italiana'],
+      DE: ['Xetra'],
+      PA: ['Euronext Paris'],
+      L: ['LSE']
+    };
+    const normalizedSymbol = symbol.toUpperCase();
+    const exchange = normalizedSymbol.slice(
+      normalizedSymbol.lastIndexOf('.') + 1
+    );
+    if (!markets[exchange]) throw new Error('Unsupported Amundi market');
+    const catalogue = await this.cached(
+      'amundi:catalogue',
+      async (): Promise<AmundiProduct[]> => {
+        const data = await (
+          await this.request(AMUNDI_URL, timeout, {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify(amundiBody())
+          })
+        ).json();
+        if (
+          !Array.isArray(data.products) ||
+          !data.products.length ||
+          data.products.length > 5000
+        )
+          throw new Error('Invalid Amundi catalogue');
+        return data.products;
+      }
+    );
+    const matches = catalogue.flatMap((product) =>
+      (product.characteristics?.LISTINGS ?? [])
+        .filter(
+          (listing) =>
+            listing.ric === normalizedSymbol &&
+            markets[exchange].includes(listing.exchangePlace)
+        )
+        .map(() => product)
+    );
+    if (matches.length !== 1)
+      throw new Error('Missing or ambiguous Amundi listing');
+    const product = matches[0];
+    if (
+      product.productId !== product.characteristics.ISIN ||
+      product.characteristics.ASSET_CLASS !== 'Equity'
+    )
+      throw new Error('Invalid Amundi listing identity');
+    const resolution = new IsinResolverService().resolveVerifiedListings({
+      symbol: normalizedSymbol,
+      listings: [
+        {
+          isin: product.productId,
+          symbol: normalizedSymbol,
+          exchange,
+          verified: true
+        }
+      ]
+    });
+    if (!resolution) throw new Error('Invalid Amundi ISIN');
+    return { ...resolution, source: 'AMUNDI' };
+  }
+
   public async discover(
     issuer: Issuer,
     response: Partial<SymbolProfile>,
@@ -216,13 +291,16 @@ export class EtfCompositionDiscovery {
         if (
           result.status !== 'RESOLVED' &&
           result.status !== 'AMBIGUOUS' &&
-          issuer === 'VANGUARD' &&
+          (issuer === 'VANGUARD' || issuer === 'AMUNDI') &&
           !response.isin &&
           response.dataSource === 'YAHOO'
         ) {
           return {
             status: 'RESOLVED',
-            resolution: await this.resolveVanguardListing(symbol, timeout)
+            resolution:
+              issuer === 'VANGUARD'
+                ? await this.resolveVanguardListing(symbol, timeout)
+                : await this.resolveAmundiListing(symbol, timeout)
           };
         }
         return result;
@@ -234,7 +312,12 @@ export class EtfCompositionDiscovery {
     return this.cached(issuer + ':' + isin, async () => {
       const get = (url: string, init?: RequestInit) =>
         this.request(url, timeout, init);
-      if (issuer === 'WISDOMTREE') return { isin };
+      if (
+        issuer === 'WISDOMTREE' ||
+        issuer === 'INVESCO' ||
+        issuer === 'AMUNDI'
+      )
+        return { isin };
       if (issuer === 'ISHARES') {
         const query = new URLSearchParams({
           site: 'ishares-uk',

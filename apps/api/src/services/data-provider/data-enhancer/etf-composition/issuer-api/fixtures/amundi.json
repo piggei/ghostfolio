@@ -1,0 +1,478 @@
+{
+  "products": [
+    {
+      "productId": "LU0908500753",
+      "characteristics": {
+        "ISIN": "LU0908500753",
+        "SHARE_MARKETING_NAME": "Amundi Core Stoxx Europe 600 UCITS ETF Acc",
+        "FUND_REPLICATION_METHODOLOGY": "Direct(Physical)",
+        "FUND_BREAKDOWNS_AS_OF_DATE": "2026-11-23",
+        "INDEX_BREAKDOWNS_AS_OF_DATE": "2026-11-23",
+        "LISTINGS": [
+          {
+            "ticker": "LYP6 GY",
+            "ric": "LYP6.DE",
+            "exchangePlace": "Xetra",
+            "tradingCurrency": "EUR",
+            "mainListing": "false",
+            "firstCotationDate": "2024-02-09T00:00:00.000+00:00",
+            "openingHours": "08h00 / 16h30",
+            "fxRisk": false,
+            "isin": null,
+            "inavTicker": null,
+            "inavRic": null,
+            "inavSGX": null
+          },
+          {
+            "ticker": "MEUD FP",
+            "ric": "MEUD.PA",
+            "exchangePlace": "Euronext Paris",
+            "tradingCurrency": "EUR",
+            "mainListing": "true",
+            "firstCotationDate": "2024-02-09T00:00:00.000+00:00",
+            "openingHours": "08h00 / 16h30",
+            "fxRisk": false,
+            "isin": null,
+            "inavTicker": null,
+            "inavRic": null,
+            "inavSGX": null
+          },
+          {
+            "ticker": "MEUD IM",
+            "ric": "MEUD.MI",
+            "exchangePlace": "Borsa Italiana",
+            "tradingCurrency": "EUR",
+            "mainListing": "false",
+            "firstCotationDate": "2024-02-09T00:00:00.000+00:00",
+            "openingHours": null,
+            "fxRisk": false,
+            "isin": null,
+            "inavTicker": null,
+            "inavRic": null,
+            "inavSGX": null
+          },
+          {
+            "ticker": "MEUD LN",
+            "ric": "MEUD.L",
+            "exchangePlace": "LSE",
+            "tradingCurrency": "GBp",
+            "mainListing": "false",
+            "firstCotationDate": "2024-02-09T00:00:00.000+00:00",
+            "openingHours": "08h00 / 16h30",
+            "fxRisk": false,
+            "isin": null,
+            "inavTicker": null,
+            "inavRic": null,
+            "inavSGX": null
+          },
+          {
+            "ticker": "MEUDN MM",
+            "ric": "MEUDN.MCO",
+            "exchangePlace": "BMV",
+            "tradingCurrency": "MXN",
+            "mainListing": "false",
+            "firstCotationDate": "2024-02-09T00:00:00.000+00:00",
+            "openingHours": "14h00 / 21h00",
+            "fxRisk": false,
+            "isin": null,
+            "inavTicker": null,
+            "inavRic": null,
+            "inavSGX": null
+          },
+          {
+            "ticker": "MEUS LN",
+            "ric": "MEUS.L",
+            "exchangePlace": "LSE",
+            "tradingCurrency": "USD",
+            "mainListing": "false",
+            "firstCotationDate": "2024-02-09T00:00:00.000+00:00",
+            "openingHours": "08h00 / 16h30",
+            "fxRisk": false,
+            "isin": null,
+            "inavTicker": null,
+            "inavRic": null,
+            "inavSGX": null
+          },
+          {
+            "ticker": "MEUD SW",
+            "ric": "MEUD.S",
+            "exchangePlace": "SIX Swiss Ex",
+            "tradingCurrency": "CHF",
+            "mainListing": "false",
+            "firstCotationDate": "2026-11-09T00:00:00.000+00:00",
+            "openingHours": null,
+            "fxRisk": false,
+            "isin": null,
+            "inavTicker": null,
+            "inavRic": null,
+            "inavSGX": null
+          }
+        ],
+        "ASSET_CLASS": "Equity",
+        "FUND_LEGAL_FORM": "SICAV"
+      },
+      "productType": "PRODUCT",
+      "currencies": {
+        "CURRENCY": "EUR",
+        "BASE_CURRENCY": "EUR",
+        "INDEX_CURRENCY": "EUR"
+      },
+      "metrics": [],
+      "historics": [],
+      "passportingCountries": null,
+      "composition": null,
+      "breakDowns": [
+        {
+          "aggregationField": "FUND_SECTORS",
+          "breakDownData": [
+            {
+              "aggregationName": "Financials",
+              "weight": 0.25345170809232,
+              "adjustedWeight": 0.25345170809232,
+              "additionalProperties": null
+            },
+            {
+              "aggregationName": "Industrials",
+              "weight": 0.18281670787342,
+              "adjustedWeight": 0.18281670787342,
+              "additionalProperties": null
+            },
+            {
+              "aggregationName": "Health Care",
+              "weight": 0.13614029355043,
+              "adjustedWeight": 0.13614029355043,
+              "additionalProperties": null
+            },
+            {
+              "aggregationName": "Consumer Staples",
+              "weight": 0.08587796097623,
+              "adjustedWeight": 0.08587796097623,
+              "additionalProperties": null
+            },
+            {
+              "aggregationName": "Information Technology",
+              "weight": 0.0786795651334,
+              "adjustedWeight": 0.0786795651334,
+              "additionalProperties": null
+            },
+            {
+              "aggregationName": "Consumer Discretionary",
+              "weight": 0.06498870198567,
+              "adjustedWeight": 0.06498870198567,
+              "additionalProperties": null
+            },
+            {
+              "aggregationName": "Energy",
+              "weight": 0.05648080631229,
+              "adjustedWeight": 0.05648080631229,
+              "additionalProperties": null
+            },
+            {
+              "aggregationName": "Materials",
+              "weight": 0.0539333099613,
+              "adjustedWeight": 0.0539333099613,
+              "additionalProperties": null
+            },
+            {
+              "aggregationName": "Utilities",
+              "weight": 0.05006723771519,
+              "adjustedWeight": 0.05006723771519,
+              "additionalProperties": null
+            },
+            {
+              "aggregationName": "Others",
+              "weight": 0.03756370839974,
+              "adjustedWeight": 0.03756370839974,
+              "additionalProperties": null
+            }
+          ]
+        },
+        {
+          "aggregationField": "FUND_COUNTRIES",
+          "breakDownData": [
+            {
+              "aggregationName": "United Kingdom",
+              "weight": 0.23118776852512,
+              "adjustedWeight": 0.23118776852512,
+              "additionalProperties": null
+            },
+            {
+              "aggregationName": "France",
+              "weight": 0.14777026983677,
+              "adjustedWeight": 0.14777026983677,
+              "additionalProperties": null
+            },
+            {
+              "aggregationName": "Switzerland",
+              "weight": 0.14709065320064,
+              "adjustedWeight": 0.14709065320064,
+              "additionalProperties": null
+            },
+            {
+              "aggregationName": "Germany",
+              "weight": 0.13032732335168,
+              "adjustedWeight": 0.13032732335168,
+              "additionalProperties": null
+            },
+            {
+              "aggregationName": "Netherlands",
+              "weight": 0.07341496557002,
+              "adjustedWeight": 0.07341496557002,
+              "additionalProperties": null
+            },
+            {
+              "aggregationName": "Spain",
+              "weight": 0.0586298404591,
+              "adjustedWeight": 0.0586298404591,
+              "additionalProperties": null
+            },
+            {
+              "aggregationName": "Italy",
+              "weight": 0.05377408797033,
+              "adjustedWeight": 0.05377408797033,
+              "additionalProperties": null
+            },
+            {
+              "aggregationName": "Sweden",
+              "weight": 0.04852047755802,
+              "adjustedWeight": 0.04852047755802,
+              "additionalProperties": null
+            },
+            {
+              "aggregationName": "Denmark",
+              "weight": 0.02742301625167,
+              "adjustedWeight": 0.02742301625167,
+              "additionalProperties": null
+            },
+            {
+              "aggregationName": "Belgium",
+              "weight": 0.0197439750043,
+              "adjustedWeight": 0.0197439750043,
+              "additionalProperties": null
+            },
+            {
+              "aggregationName": "Finland",
+              "weight": 0.01826447024726,
+              "adjustedWeight": 0.01826447024726,
+              "additionalProperties": null
+            },
+            {
+              "aggregationName": "Norway",
+              "weight": 0.0124401557646,
+              "adjustedWeight": 0.0124401557646,
+              "additionalProperties": null
+            },
+            {
+              "aggregationName": "Poland",
+              "weight": 0.00994136865518,
+              "adjustedWeight": 0.00994136865518,
+              "additionalProperties": null
+            },
+            {
+              "aggregationName": "Ireland",
+              "weight": 0.00728304379536,
+              "adjustedWeight": 0.00728304379536,
+              "additionalProperties": null
+            },
+            {
+              "aggregationName": "Austria",
+              "weight": 0.00607903797023,
+              "adjustedWeight": 0.00607903797023,
+              "additionalProperties": null
+            },
+            {
+              "aggregationName": "Greece",
+              "weight": 0.00498619762061,
+              "adjustedWeight": 0.00498619762061,
+              "additionalProperties": null
+            },
+            {
+              "aggregationName": "Portugal",
+              "weight": 0.00312334821823,
+              "adjustedWeight": 0.00312334821823,
+              "additionalProperties": null
+            },
+            {
+              "aggregationName": "UAE",
+              "weight": 8.8e-13,
+              "adjustedWeight": 8.8e-13,
+              "additionalProperties": null
+            }
+          ]
+        },
+        {
+          "aggregationField": "INDEX_SECTORS",
+          "breakDownData": [
+            {
+              "aggregationName": "Financials",
+              "weight": 0.25342959257974,
+              "adjustedWeight": 0.25342959257974,
+              "additionalProperties": null
+            },
+            {
+              "aggregationName": "Industrials",
+              "weight": 0.18280018120762,
+              "adjustedWeight": 0.18280018120762,
+              "additionalProperties": null
+            },
+            {
+              "aggregationName": "Health Care",
+              "weight": 0.13613197276966,
+              "adjustedWeight": 0.13613197276966,
+              "additionalProperties": null
+            },
+            {
+              "aggregationName": "Consumer Staples",
+              "weight": 0.08586630772794,
+              "adjustedWeight": 0.08586630772794,
+              "additionalProperties": null
+            },
+            {
+              "aggregationName": "Information Technology",
+              "weight": 0.07869303663812,
+              "adjustedWeight": 0.07869303663812,
+              "additionalProperties": null
+            },
+            {
+              "aggregationName": "Consumer Discretionary",
+              "weight": 0.06499111041269,
+              "adjustedWeight": 0.06499111041269,
+              "additionalProperties": null
+            },
+            {
+              "aggregationName": "Energy",
+              "weight": 0.05647061144012,
+              "adjustedWeight": 0.05647061144012,
+              "additionalProperties": null
+            },
+            {
+              "aggregationName": "Materials",
+              "weight": 0.053927852137,
+              "adjustedWeight": 0.053927852137,
+              "additionalProperties": null
+            },
+            {
+              "aggregationName": "Utilities",
+              "weight": 0.05009421021438,
+              "adjustedWeight": 0.05009421021438,
+              "additionalProperties": null
+            },
+            {
+              "aggregationName": "Others",
+              "weight": 0.03759512487274,
+              "adjustedWeight": 0.03759512487274,
+              "additionalProperties": null
+            }
+          ]
+        },
+        {
+          "aggregationField": "INDEX_COUNTRIES",
+          "breakDownData": [
+            {
+              "aggregationName": "United Kingdom",
+              "weight": 0.23143425741889,
+              "adjustedWeight": 0.23143425741889,
+              "additionalProperties": null
+            },
+            {
+              "aggregationName": "France",
+              "weight": 0.14794688145124,
+              "adjustedWeight": 0.14794688145124,
+              "additionalProperties": null
+            },
+            {
+              "aggregationName": "Switzerland",
+              "weight": 0.14701804032595,
+              "adjustedWeight": 0.14701804032595,
+              "additionalProperties": null
+            },
+            {
+              "aggregationName": "Germany",
+              "weight": 0.13025395632041,
+              "adjustedWeight": 0.13025395632041,
+              "additionalProperties": null
+            },
+            {
+              "aggregationName": "Netherlands",
+              "weight": 0.07334954696065,
+              "adjustedWeight": 0.07334954696065,
+              "additionalProperties": null
+            },
+            {
+              "aggregationName": "Spain",
+              "weight": 0.05868952419213,
+              "adjustedWeight": 0.05868952419213,
+              "additionalProperties": null
+            },
+            {
+              "aggregationName": "Italy",
+              "weight": 0.05383477557685,
+              "adjustedWeight": 0.05383477557685,
+              "additionalProperties": null
+            },
+            {
+              "aggregationName": "Sweden",
+              "weight": 0.04845750508332,
+              "adjustedWeight": 0.04845750508332,
+              "additionalProperties": null
+            },
+            {
+              "aggregationName": "Denmark",
+              "weight": 0.02736373727339,
+              "adjustedWeight": 0.02736373727339,
+              "additionalProperties": null
+            },
+            {
+              "aggregationName": "Belgium",
+              "weight": 0.0196804743047,
+              "adjustedWeight": 0.0196804743047,
+              "additionalProperties": null
+            },
+            {
+              "aggregationName": "Finland",
+              "weight": 0.0181997878677,
+              "adjustedWeight": 0.0181997878677,
+              "additionalProperties": null
+            },
+            {
+              "aggregationName": "Norway",
+              "weight": 0.01237426522628,
+              "adjustedWeight": 0.01237426522628,
+              "additionalProperties": null
+            },
+            {
+              "aggregationName": "Poland",
+              "weight": 0.00998594303504,
+              "adjustedWeight": 0.00998594303504,
+              "additionalProperties": null
+            },
+            {
+              "aggregationName": "Ireland",
+              "weight": 0.0072841461048,
+              "adjustedWeight": 0.0072841461048,
+              "additionalProperties": null
+            },
+            {
+              "aggregationName": "Austria",
+              "weight": 0.00602224688414,
+              "adjustedWeight": 0.00602224688414,
+              "additionalProperties": null
+            },
+            {
+              "aggregationName": "Greece",
+              "weight": 0.00503435500354,
+              "adjustedWeight": 0.00503435500354,
+              "additionalProperties": null
+            },
+            {
+              "aggregationName": "Portugal",
+              "weight": 0.00307055697097,
+              "adjustedWeight": 0.00307055697097,
+              "additionalProperties": null
+            }
+          ]
+        }
+      ]
+    }
+  ]
+}
