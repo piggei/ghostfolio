@@ -1,3 +1,7 @@
+import {
+  IsinResolution,
+  IsinResolveResult
+} from '@ghostfolio/api/services/data-provider/isin-resolver/isin-resolver.interface';
 import { IsinResolverService } from '@ghostfolio/api/services/data-provider/isin-resolver/isin-resolver.service';
 import { JustEtfProvider } from '@ghostfolio/api/services/data-provider/isin-resolver/providers/justetf/justetf.provider';
 import { FetchService } from '@ghostfolio/api/services/fetch/fetch.service';
@@ -18,6 +22,32 @@ const ISSUERS: Record<Issuer, RegExp> = {
   VANGUARD: /\bvanguard\b/i,
   XTRACKERS: /\b(?:xtrackers|db x-trackers)\b/i,
   WISDOMTREE: /\bwisdomtree\b/i
+};
+
+interface VanguardIdentifier {
+  altId: string;
+  altIdValue: string;
+}
+
+interface VanguardFund {
+  profile: {
+    portId: string;
+    identifiers: VanguardIdentifier[];
+    assetClassificationLevel1?: string;
+    polarisPdtTypeIndicator?: string;
+    listings?: {
+      stockExchangeMarketIdentifierCode: string;
+      identifiers: VanguardIdentifier[];
+    }[];
+  };
+}
+
+// Yahoo suffixes are checked against the market published by the issuer.
+const VANGUARD_MARKETS: Record<string, readonly string[]> = {
+  MI: ['ETFP', 'XMIL'],
+  DE: ['XETR'],
+  AS: ['XAMS'],
+  L: ['XLON']
 };
 
 export class EtfCompositionDiscovery {
@@ -44,6 +74,107 @@ export class EtfCompositionDiscovery {
     return entry.value;
   }
 
+  private async request(
+    url: string,
+    timeout: number,
+    init?: RequestInit
+  ): Promise<Response> {
+    const result = await this.fetchService.fetch(url, {
+      ...init,
+      signal: AbortSignal.timeout(timeout)
+    });
+    if (!result.ok) throw new Error('Issuer discovery HTTP ' + result.status);
+    return result;
+  }
+
+  private getVanguardCatalogue(timeout: number): Promise<VanguardFund[]> {
+    return this.cached('vanguard:catalogue', async () => {
+      const home = await (
+        await this.request('https://www.ie.vanguard/home', timeout)
+      ).text();
+      const ids = /portIds[^0-9]+([0-9,]+)/
+        .exec(home)?.[1]
+        .split(',')
+        .filter(Boolean);
+      if (!ids?.length || ids.length > 2000)
+        throw new Error('Missing Vanguard catalogue identifiers');
+      const data = await (
+        await this.request('https://www.ie.vanguard/gpx/graphql', timeout, {
+          method: 'POST',
+          headers: {
+            'Content-Type': 'application/json',
+            'x-consumer-id': 'ie0'
+          },
+          body: JSON.stringify({
+            query:
+              'query ($portIds: [String!]!) { funds(portIds: $portIds) { profile { portId assetClassificationLevel1 polarisPdtTypeIndicator identifiers(altIds: ["ISIN"]) { altId altIdValue } listings { stockExchangeMarketIdentifierCode identifiers(altIds: ["RIC"]) { altId altIdValue } } } } }',
+            variables: { portIds: ids }
+          })
+        })
+      ).json();
+      if (data.errors || !Array.isArray(data.data?.funds))
+        throw new Error('Malformed Vanguard catalogue');
+      return data.data.funds as VanguardFund[];
+    });
+  }
+
+  private async resolveVanguardListing(
+    symbol: string,
+    timeout: number
+  ): Promise<IsinResolution> {
+    const normalizedSymbol = symbol.toUpperCase();
+    const exchange = normalizedSymbol.slice(
+      normalizedSymbol.lastIndexOf('.') + 1
+    );
+    const markets = VANGUARD_MARKETS[exchange];
+    if (!markets) throw new Error('Unsupported Vanguard listing market');
+    const catalogue = await this.getVanguardCatalogue(timeout);
+    const matches = catalogue.flatMap(({ profile }) => {
+      if (!Array.isArray(profile?.listings)) return [];
+      // Keep duplicates: more than one published matching listing is ambiguous.
+      return profile.listings
+        .filter(
+          (listing) =>
+            markets.includes(listing.stockExchangeMarketIdentifierCode) &&
+            Array.isArray(listing.identifiers) &&
+            listing.identifiers.some(
+              (id) => id.altId === 'RIC' && id.altIdValue === normalizedSymbol
+            )
+        )
+        .map(() => profile);
+    });
+    if (matches.length !== 1)
+      throw new Error('Missing or ambiguous Vanguard listing');
+    const profile = matches[0];
+    if (
+      profile.assetClassificationLevel1 !== 'Equity' ||
+      profile.polarisPdtTypeIndicator !== 'ETF'
+    )
+      throw new Error('Unsupported Vanguard instrument');
+    if (!/^\d+$/.test(profile.portId))
+      throw new Error('Invalid Vanguard portfolio ID');
+    const isins = profile.identifiers?.filter((id) => id.altId === 'ISIN');
+    if (
+      !Array.isArray(isins) ||
+      isins.length !== 1 ||
+      typeof isins[0].altIdValue !== 'string'
+    )
+      throw new Error('Missing or ambiguous Vanguard listing ISIN');
+    const resolution = new IsinResolverService().resolveVerifiedListings({
+      symbol: normalizedSymbol,
+      listings: [
+        {
+          isin: isins[0].altIdValue,
+          symbol: normalizedSymbol,
+          exchange,
+          verified: true
+        }
+      ]
+    });
+    if (!resolution) throw new Error('Invalid Vanguard listing ISIN');
+    return { ...resolution, source: 'VANGUARD' };
+  }
+
   public async discover(
     issuer: Issuer,
     response: Partial<SymbolProfile>,
@@ -57,9 +188,9 @@ export class EtfCompositionDiscovery {
     if (matches.length !== 1 || matches[0] !== issuer) return undefined;
     const identity = await this.cached(
       'identity:' +
-        JSON.stringify([response.dataSource, symbol, response.isin]),
-      () =>
-        new IsinResolverService().resolve({
+        JSON.stringify([issuer, response.dataSource, symbol, response.isin]),
+      async (): Promise<IsinResolveResult> => {
+        const result = await new IsinResolverService().resolve({
           request: {
             dataSource: response.dataSource ?? 'MANUAL',
             symbol,
@@ -81,21 +212,28 @@ export class EtfCompositionDiscovery {
               };
             }
           })
-        })
+        });
+        if (
+          result.status !== 'RESOLVED' &&
+          result.status !== 'AMBIGUOUS' &&
+          issuer === 'VANGUARD' &&
+          !response.isin &&
+          response.dataSource === 'YAHOO'
+        ) {
+          return {
+            status: 'RESOLVED',
+            resolution: await this.resolveVanguardListing(symbol, timeout)
+          };
+        }
+        return result;
+      }
     );
     if (identity.status !== 'RESOLVED')
       throw new Error('ETF identity: ' + identity.status);
     const isin = identity.resolution.isin;
     return this.cached(issuer + ':' + isin, async () => {
-      const get = async (url: string, init?: RequestInit) => {
-        const result = await this.fetchService.fetch(url, {
-          ...init,
-          signal: AbortSignal.timeout(timeout)
-        });
-        if (!result.ok)
-          throw new Error('Issuer discovery HTTP ' + result.status);
-        return result;
-      };
+      const get = (url: string, init?: RequestInit) =>
+        this.request(url, timeout, init);
       if (issuer === 'WISDOMTREE') return { isin };
       if (issuer === 'ISHARES') {
         const query = new URLSearchParams({
@@ -157,34 +295,7 @@ export class EtfCompositionDiscovery {
         return { isin, portfolioId, pageUrl };
       }
       if (issuer === 'VANGUARD') {
-        const catalogue = await this.cached('vanguard:catalogue', async () => {
-          const home = await (await get('https://www.ie.vanguard/home')).text();
-          const ids = /portIds[^0-9]+([0-9,]+)/.exec(home)?.[1].split(',');
-          if (!ids?.length || ids.length > 2000)
-            throw new Error('Missing Vanguard catalogue identifiers');
-          const data = await (
-            await get('https://www.ie.vanguard/gpx/graphql', {
-              method: 'POST',
-              headers: {
-                'Content-Type': 'application/json',
-                'x-consumer-id': 'ie0'
-              },
-              body: JSON.stringify({
-                query:
-                  'query ($portIds: [String!]!) { funds(portIds: $portIds) { profile { portId identifiers(altIds: ["ISIN"]) { altId altIdValue } } } }',
-                variables: { portIds: ids }
-              })
-            })
-          ).json();
-          if (data.errors || !Array.isArray(data.data?.funds))
-            throw new Error('Malformed Vanguard catalogue');
-          return data.data.funds as {
-            profile: {
-              portId: string;
-              identifiers: { altId: string; altIdValue: string }[];
-            };
-          }[];
-        });
+        const catalogue = await this.getVanguardCatalogue(timeout);
         const matches = catalogue.filter(({ profile }) =>
           profile?.identifiers?.some(
             (id) => id.altId === 'ISIN' && id.altIdValue === isin

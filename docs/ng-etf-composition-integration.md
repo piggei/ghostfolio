@@ -20,13 +20,22 @@ change is required.
 ## Identity and routing
 
 An existing checksum-valid ISIN is used without a justETF lookup. Invalid existing
-ISINs are preserved and enrichment stops. Missing ISINs use the existing resolver:
-a unique candidate must have a verified canonical ISIN and exchange listing.
-Ambiguous, missing or unavailable resolution leaves the profile unchanged.
-The existing justETF provider currently verifies Yahoo Borsa Italiana (.MI)
-listings; other exchanges can use a supplied valid ISIN but missing-ISIN
-resolution on those exchanges remains unsupported. Canonical metadata is selected
-independently of link order and must be unique and on the justETF origin.
+ISINs are preserved and enrichment stops. Missing ISINs first use the existing
+justETF resolver: a unique candidate must have a verified canonical ISIN and
+exchange listing. Canonical metadata must be unique and on the justETF origin.
+An ambiguous primary resolution always stops enrichment.
+
+For Vanguard Yahoo profiles without a stored ISIN, a NOT_FOUND or UNAVAILABLE
+justETF result can fall back to the official Vanguard catalogue. Exactly one
+equity ETF listing must publish the full requested RIC on the expected market;
+its single ISIN must pass the shared checksum and verified-listing checks.
+Duplicate listings, multiple matching products, incompatible fund types and
+invalid identifiers are rejected. No fund-specific exceptions or ticker guesses
+are used. The fallback supports .MI (ETFP/XMIL), .DE (XETR), .AS (XAMS) and .L
+(XLON) only when the issuer publishes the exact requested RIC. The original
+justETF provider still verifies .MI listings only; missing ISINs on other markets
+remain unsupported for the other issuers. Unverified identities preserve the
+existing profile.
 
 The instrument name routes to exactly one supported issuer; it is a hint, never
 proof of product identity. Unknown or conflicting issuer names cause no issuer
@@ -35,7 +44,7 @@ when an ISIN is present. New tickers require no production configuration.
 
 Discovery and identity results use a bounded, five-minute, process-local cache.
 Fund discovery keys include issuer and verified ISIN; listing-resolution keys
-include data source, exchange-qualified symbol and existing ISIN. Shared issuer
+include issuer, data source, exchange-qualified symbol and existing ISIN. Shared issuer
 catalogues are cached separately. Failed discovery requests are not cached.
 All requests have bounded timeouts and there are no automatic retry storms.
 
@@ -114,27 +123,30 @@ allocation parser; this workaround does not modify the application parser.
 - `apps/api/src/services/data-provider/data-enhancer/etf-composition/etf-composition.date.ts`
 - `apps/api/src/services/data-provider/data-enhancer/etf-composition/etf-composition.discovery.spec.ts`
 - `apps/api/src/services/data-provider/data-enhancer/etf-composition/etf-composition.discovery.ts`
+- `apps/api/src/services/data-provider/data-enhancer/etf-composition/etf-composition.normalizer.ts`
 - `apps/api/src/services/data-provider/data-enhancer/etf-composition/etf-composition.quality.spec.ts`
 - `apps/api/src/services/data-provider/data-enhancer/etf-composition/etf-composition.quality.ts`
 - `apps/api/src/services/data-provider/data-enhancer/etf-composition/generic.live.spec.ts`
-- `apps/api/src/services/data-provider/data-enhancer/etf-composition/wisdomtree/__fixtures__/IE00BDVPNG13.json`
-- `apps/api/src/services/data-provider/data-enhancer/etf-composition/wisdomtree/__fixtures__/IE00BJGWQN72.json`
-- `apps/api/src/services/data-provider/data-enhancer/etf-composition/wisdomtree/wisdomtree.pdf.spec.ts`
-- `apps/api/src/services/data-provider/data-enhancer/etf-composition/etf-composition.normalizer.ts`
 - `apps/api/src/services/data-provider/data-enhancer/etf-composition/ishares/ishares.client.spec.ts`
 - `apps/api/src/services/data-provider/data-enhancer/etf-composition/ishares/ishares.client.ts`
 - `apps/api/src/services/data-provider/data-enhancer/etf-composition/ishares/ishares.service.spec.ts`
 - `apps/api/src/services/data-provider/data-enhancer/etf-composition/ishares/ishares.service.ts`
+- `apps/api/src/services/data-provider/data-enhancer/etf-composition/vanguard/__fixtures__/official-listings.json`
+- `apps/api/src/services/data-provider/data-enhancer/etf-composition/vanguard/__fixtures__/vusa-justetf-profile.html`
 - `apps/api/src/services/data-provider/data-enhancer/etf-composition/vanguard/vanguard.client.spec.ts`
 - `apps/api/src/services/data-provider/data-enhancer/etf-composition/vanguard/vanguard.client.ts`
+- `apps/api/src/services/data-provider/data-enhancer/etf-composition/vanguard/vanguard.identity.spec.ts`
 - `apps/api/src/services/data-provider/data-enhancer/etf-composition/vanguard/vanguard.parser.spec.ts`
 - `apps/api/src/services/data-provider/data-enhancer/etf-composition/vanguard/vanguard.parser.ts`
 - `apps/api/src/services/data-provider/data-enhancer/etf-composition/vanguard/vanguard.service.spec.ts`
 - `apps/api/src/services/data-provider/data-enhancer/etf-composition/vanguard/vanguard.service.ts`
+- `apps/api/src/services/data-provider/data-enhancer/etf-composition/wisdomtree/__fixtures__/IE00BDVPNG13.json`
+- `apps/api/src/services/data-provider/data-enhancer/etf-composition/wisdomtree/__fixtures__/IE00BJGWQN72.json`
 - `apps/api/src/services/data-provider/data-enhancer/etf-composition/wisdomtree/wisdomtree.client.spec.ts`
 - `apps/api/src/services/data-provider/data-enhancer/etf-composition/wisdomtree/wisdomtree.client.ts`
 - `apps/api/src/services/data-provider/data-enhancer/etf-composition/wisdomtree/wisdomtree.parser.spec.ts`
 - `apps/api/src/services/data-provider/data-enhancer/etf-composition/wisdomtree/wisdomtree.parser.ts`
+- `apps/api/src/services/data-provider/data-enhancer/etf-composition/wisdomtree/wisdomtree.pdf.spec.ts`
 - `apps/api/src/services/data-provider/data-enhancer/etf-composition/wisdomtree/wisdomtree.service.spec.ts`
 - `apps/api/src/services/data-provider/data-enhancer/etf-composition/wisdomtree/wisdomtree.service.ts`
 - `apps/api/src/services/data-provider/data-enhancer/etf-composition/xtrackers/xtrackers.service.spec.ts`
@@ -145,7 +157,7 @@ allocation parser; this workaround does not modify the application parser.
 - `apps/api/src/services/queues/data-gathering/data-gathering.service.ts`
 - `docs/ng-etf-composition-integration.md`
 
-## Validation results
+## Initial qualification results
 
 Qualification on 2026-11-25 used Node 22.23.5, bounded 2 GiB Node heaps and sequential execution.
 
@@ -189,3 +201,34 @@ LIVE_ETF=1 node_modules/.bin/jest --config apps/api/jest.config.ts --runInBand -
 
 The normal test run excludes live and snapshot qualification specs. Existing
 repository skips are retained; no tests or commit hooks are bypassed.
+
+## Follow-up: Vanguard profiles without an ISIN
+
+The test database contained VUSA.MI with the expected name but NULL ISIN and
+countries. Live justETF returned an empty Milan Reuters field, so the strict
+primary resolver stopped before holdings retrieval. Vanguard independently
+published RIC VUSA.MI on ETFP and ISIN IE00B3XXRP09.
+
+The issuer catalogue now supplies the verified fallback described above and is
+reused by normal product discovery, avoiding duplicate catalogue requests. The
+normal enhancer still controls freshness, composition replacement and persistence;
+there are no direct database updates or migrations in this fix.
+
+Reduced public-source fixtures reproduce the empty Reuters field and official
+listings for three different Vanguard products. Tests cover missing identity,
+existing valid/invalid ISINs, ambiguity, duplicate listings, wrong markets, wrong
+exchange suffixes, invalid checksums, non-ETF and non-equity products, unavailable
+issuer responses and cache isolation for identical tickers on different markets.
+The opt-in live suite additionally starts from VUSA.MI with no supplied ISIN.
+
+Follow-up validation on 2026-11-25:
+
+- 308 targeted tests passed across 27 suites.
+- API TypeScript passed; scoped typed ESLint reported zero errors (114 warnings).
+- All 13 live checks passed, including VUSA.MI starting with NULL ISIN and countries.
+- The missing-ISIN live case returned IE00B3XXRP09 and US weight 0.9999993 (99.99993%).
+- Full-project regression passed for all four projects: API executed, the other three used valid Nx cache entries.
+  - Test Suites: 12 skipped, 195 passed, 195 of 207 total
+  - Tests: 178 skipped, 2211 passed, 2389 total
+- Normal pre-commit API lint and formatting checks are required; no hooks are bypassed.
+- The database was inspected read-only; this fix does not insert an ISIN or country weights manually.

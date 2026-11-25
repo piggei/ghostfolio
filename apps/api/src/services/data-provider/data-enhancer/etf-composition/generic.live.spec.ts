@@ -93,3 +93,56 @@ const cases = [
     );
   }
 );
+
+(process.env.LIVE_ETF === '1' ? describe : describe.skip)(
+  'official Vanguard missing-ISIN qualification',
+  () => {
+    it('resolves VUSA.MI and retrieves countries without a supplied ISIN', async () => {
+      const requests: { url: string; status: number }[] = [];
+      const fetchService = {
+        fetch: async (url: RequestInfo | URL, init?: RequestInit) => {
+          const result = await fetch(url, init);
+          requests.push({ url: String(url), status: result.status });
+          return result;
+        }
+      };
+      const service = new VanguardDataEnhancerService(
+        { get: () => 15000 } as any,
+        fetchService as any
+      );
+      const result = await service.enhance({
+        symbol: 'VUSA.MI',
+        requestTimeout: 15000,
+        response: {
+          name: 'Vanguard S&P 500 UCITS ETF',
+          dataSource: 'YAHOO',
+          assetClass: 'EQUITY',
+          assetSubClass: 'ETF',
+          isin: null,
+          countries: null
+        }
+      });
+      console.log(
+        JSON.stringify({
+          issuer: 'VANGUARD',
+          symbol: 'VUSA.MI',
+          startedWithoutIsin: true,
+          isin: result.isin,
+          countries: result.countries,
+          requests
+        })
+      );
+      expect(result.isin).toBe('IE00B3XXRP09');
+      expect(result.countries).toEqual(
+        expect.arrayContaining([
+          expect.objectContaining({ code: 'US', weight: expect.any(Number) })
+        ])
+      );
+      expect(
+        (
+          result.countries as unknown as { code: string; weight: number }[]
+        ).find(({ code }) => code === 'US')!.weight
+      ).toBeGreaterThan(0.95);
+    }, 120000);
+  }
+);

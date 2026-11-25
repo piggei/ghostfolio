@@ -1,0 +1,222 @@
+{
+  "data": {
+    "funds": [
+      {
+        "profile": {
+          "portId": "9503",
+          "assetClassificationLevel1": "Equity",
+          "polarisPdtTypeIndicator": "ETF",
+          "identifiers": [
+            {
+              "altId": "ISIN",
+              "altIdValue": "IE00B3XXRP09"
+            }
+          ],
+          "listings": [
+            {
+              "stockExchangeMarketIdentifierCode": "XLON",
+              "identifiers": [
+                {
+                  "altId": "RIC",
+                  "altIdValue": "VUSD.L"
+                }
+              ]
+            },
+            {
+              "stockExchangeMarketIdentifierCode": "XLON",
+              "identifiers": [
+                {
+                  "altId": "RIC",
+                  "altIdValue": "VUSA.L"
+                }
+              ]
+            },
+            {
+              "stockExchangeMarketIdentifierCode": "XSWX",
+              "identifiers": [
+                {
+                  "altId": "RIC",
+                  "altIdValue": "VUSA.S"
+                }
+              ]
+            },
+            {
+              "stockExchangeMarketIdentifierCode": "XAMS",
+              "identifiers": [
+                {
+                  "altId": "RIC",
+                  "altIdValue": "VUSA.AS"
+                }
+              ]
+            },
+            {
+              "stockExchangeMarketIdentifierCode": "XETR",
+              "identifiers": [
+                {
+                  "altId": "RIC",
+                  "altIdValue": "VUSA.DE"
+                }
+              ]
+            },
+            {
+              "stockExchangeMarketIdentifierCode": "XMEX",
+              "identifiers": [
+                {
+                  "altId": "RIC",
+                  "altIdValue": "VUSDN.MX"
+                }
+              ]
+            },
+            {
+              "stockExchangeMarketIdentifierCode": "ETFP",
+              "identifiers": [
+                {
+                  "altId": "RIC",
+                  "altIdValue": "VUSA.MI"
+                }
+              ]
+            }
+          ]
+        }
+      },
+      {
+        "profile": {
+          "portId": "9509",
+          "assetClassificationLevel1": "Equity",
+          "polarisPdtTypeIndicator": "ETF",
+          "identifiers": [
+            {
+              "altId": "ISIN",
+              "altIdValue": "IE00B810Q511"
+            }
+          ],
+          "listings": [
+            {
+              "stockExchangeMarketIdentifierCode": "XLON",
+              "identifiers": [
+                {
+                  "altId": "RIC",
+                  "altIdValue": "VUKE.L"
+                }
+              ]
+            },
+            {
+              "stockExchangeMarketIdentifierCode": "XSWX",
+              "identifiers": [
+                {
+                  "altId": "RIC",
+                  "altIdValue": "VUKE.S"
+                }
+              ]
+            },
+            {
+              "stockExchangeMarketIdentifierCode": "XETR",
+              "identifiers": [
+                {
+                  "altId": "RIC",
+                  "altIdValue": "VUKE.DE"
+                }
+              ]
+            },
+            {
+              "stockExchangeMarketIdentifierCode": "XMEX",
+              "identifiers": [
+                {
+                  "altId": "RIC",
+                  "altIdValue": "VUKEN.MX"
+                }
+              ]
+            },
+            {
+              "stockExchangeMarketIdentifierCode": "ETFP",
+              "identifiers": [
+                {
+                  "altId": "RIC",
+                  "altIdValue": "VUKE.MI"
+                }
+              ]
+            }
+          ]
+        }
+      },
+      {
+        "profile": {
+          "portId": "9679",
+          "assetClassificationLevel1": "Equity",
+          "polarisPdtTypeIndicator": "ETF",
+          "identifiers": [
+            {
+              "altId": "ISIN",
+              "altIdValue": "IE00BK5BQT80"
+            }
+          ],
+          "listings": [
+            {
+              "stockExchangeMarketIdentifierCode": "XAMS",
+              "identifiers": [
+                {
+                  "altId": "RIC",
+                  "altIdValue": "VWCE.AS"
+                }
+              ]
+            },
+            {
+              "stockExchangeMarketIdentifierCode": "XLON",
+              "identifiers": [
+                {
+                  "altId": "RIC",
+                  "altIdValue": "VWRP.L"
+                }
+              ]
+            },
+            {
+              "stockExchangeMarketIdentifierCode": "XLON",
+              "identifiers": [
+                {
+                  "altId": "RIC",
+                  "altIdValue": "VWRA.L"
+                }
+              ]
+            },
+            {
+              "stockExchangeMarketIdentifierCode": "BIVA",
+              "identifiers": [
+                {
+                  "altId": "RIC",
+                  "altIdValue": "VWRAN.BIV"
+                }
+              ]
+            },
+            {
+              "stockExchangeMarketIdentifierCode": "XETR",
+              "identifiers": [
+                {
+                  "altId": "RIC",
+                  "altIdValue": "VWCE.DE"
+                }
+              ]
+            },
+            {
+              "stockExchangeMarketIdentifierCode": "ETFP",
+              "identifiers": [
+                {
+                  "altId": "RIC",
+                  "altIdValue": "VWCE.MI"
+                }
+              ]
+            },
+            {
+              "stockExchangeMarketIdentifierCode": "XSWX",
+              "identifiers": [
+                {
+                  "altId": "RIC",
+                  "altIdValue": "VWRA.S"
+                }
+              ]
+            }
+          ]
+        }
+      }
+    ]
+  }
+}
