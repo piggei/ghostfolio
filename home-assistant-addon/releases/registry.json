@@ -1,6 +1,6 @@
 {
   "schema_version": 1,
-  "generation": 93,
+  "generation": 94,
   "baseline_version": "3.97.0",
   "current_release": "integration-3.100.0-35",
   "releases": [
@@ -560,6 +560,19 @@
           "digest": "sha256:1fb76dc3e83aea376be16edf25492841d659c6e773f41a1f03f5bcab6296a791"
         }
       }
+    },
+    {
+      "identity": {
+        "integration_tag": "integration-3.100.0-37",
+        "source_commit": "f9516068c91070613677fadbab27f6601110ad50",
+        "source_image": "ghcr.io/piggei/ghostfolio-ng@sha256:3751febab2e3c009c002083c0cd373c61f7ac6a61ab885c237f749049afee93f",
+        "ghostfolio_version": "3.100.0",
+        "addon_source_revision": "d78d0e7939c4e7b70eeda9b628244e9f5c47656c"
+      },
+      "addon_version": "3.100.7",
+      "state": "reserved",
+      "qualified": {},
+      "published": {}
     }
   ]
 }
