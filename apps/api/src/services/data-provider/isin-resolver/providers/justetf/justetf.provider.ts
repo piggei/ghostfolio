@@ -158,7 +158,14 @@ export class JustEtfProvider implements IsinProviderInterface {
 
       const response = await this.request(url.toString());
 
-      const canonicalTag = /<link\b[^>]*>/i.exec(response.body)?.[0];
+      const canonicalTags = (
+        response.body.match(/<link\b[^>]*>/gi) ?? []
+      ).filter((tag) => {
+        const rel = /\brel=["']([^"']+)["']/i.exec(tag)?.[1];
+        return rel?.toLowerCase().split(/\s+/).includes('canonical');
+      });
+      if (canonicalTags.length !== 1) return { status: 'UNAVAILABLE' };
+      const canonicalTag = canonicalTags[0];
 
       const canonicalRel = canonicalTag
         ? /\brel=["']([^"']+)["']/i.exec(canonicalTag)?.[1]
@@ -173,7 +180,10 @@ export class JustEtfProvider implements IsinProviderInterface {
       if (canonicalRel?.split(/\s+/).includes('canonical') && canonicalHref) {
         const canonicalUrl = new URL(canonicalHref, BASE_URL);
 
-        if (canonicalUrl.pathname.endsWith('/etf-profile.html')) {
+        if (
+          canonicalUrl.origin === BASE_URL &&
+          canonicalUrl.pathname.endsWith('/etf-profile.html')
+        ) {
           canonicalIsin = canonicalUrl.searchParams.get('isin') ?? undefined;
         }
       }

@@ -488,3 +488,44 @@ describe('justETF provider', () => {
     });
   });
 });
+
+describe('justETF canonical metadata verification', () => {
+  it('accepts a unique canonical link after stylesheet links with reversed attributes', async () => {
+    const body = profileResponse()
+      .replace('<head>', '<head><link rel="stylesheet" href="styles.css">')
+      .replace(
+        'rel="canonical" href="https://www.justetf.com/it/etf-profile.html?isin=' +
+          XMME +
+          '"',
+        'href="https://www.justetf.com/it/etf-profile.html?isin=' +
+          XMME +
+          '" rel="canonical"'
+      );
+    const provider = new JustEtfProvider(new MockHttpClient([{ body }]));
+    expect(
+      (
+        await provider.verifyListing({
+          candidate: { isin: XMME },
+          request: { symbol: 'XMME.MI', dataSource: 'YAHOO' }
+        })
+      ).status
+    ).toBe('VERIFIED');
+  });
+  it('rejects ambiguous canonical links', async () => {
+    const body = profileResponse().replace(
+      '</head>',
+      '<link rel="canonical" href="https://www.justetf.com/it/etf-profile.html?isin=' +
+        XAIX +
+        '"></head>'
+    );
+    const provider = new JustEtfProvider(new MockHttpClient([{ body }]));
+    expect(
+      (
+        await provider.verifyListing({
+          candidate: { isin: XMME },
+          request: { symbol: 'XMME.MI', dataSource: 'YAHOO' }
+        })
+      ).status
+    ).toBe('UNAVAILABLE');
+  });
+});
