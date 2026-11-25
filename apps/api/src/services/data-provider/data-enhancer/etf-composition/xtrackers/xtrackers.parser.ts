@@ -13,7 +13,8 @@ interface DwsCell {
 const REQUIRED_COLUMNS = {
   weight: '% Weight',
   country: 'Country',
-  sector: 'Industry'
+  sector: 'Industry',
+  assetClass: 'Asset class'
 } as const;
 
 function isRecord(value: unknown): value is Record<string, unknown> {
@@ -91,6 +92,16 @@ export function parseXtrackersHoldings(
 
   const countries = [];
   const sectors = [];
+  const assetClassKey = columns.get(REQUIRED_COLUMNS.assetClass);
+  let positiveCash = new Big(0);
+  let negativeCash = new Big(0);
+  let netTotal = new Big(0);
+  let hasNegativeCash = false;
+  const cashCountries: { name: string; weight: number }[] = [];
+  const cashSectors: { name: string; weight: number }[] = [];
+
+  // A missing asset-class column remains valid for older positive-only feeds.
+  // Negative holdings require explicit evidence that they are cash.
 
   for (const row of table.values) {
     if (!isRecord(row)) {
@@ -99,15 +110,39 @@ export function parseXtrackersHoldings(
 
     const rawWeight = getCell(row, weightKey).sortValue;
 
-    if (
-      typeof rawWeight !== 'number' ||
-      !Number.isFinite(rawWeight) ||
-      rawWeight < 0
-    ) {
+    if (typeof rawWeight !== 'number' || !Number.isFinite(rawWeight)) {
       throw new Error('Invalid Xtrackers holding weight');
     }
 
-    const weight = new Big(rawWeight).div(100).toNumber();
+    const raw = new Big(rawWeight);
+    netTotal = netTotal.plus(raw);
+
+    if (raw.lt(0)) {
+      if (!assetClassKey || getText(getCell(row, assetClassKey)) !== 'Cash') {
+        throw new Error('Invalid Xtrackers holding weight');
+      }
+      hasNegativeCash = true;
+      negativeCash = negativeCash.plus(raw);
+      continue;
+    }
+
+    if (assetClassKey && getText(getCell(row, assetClassKey)) === 'Cash') {
+      positiveCash = positiveCash.plus(raw);
+      const weight = raw.div(100).toNumber();
+      const country = getText(getCell(row, countryKey));
+      const sector = getText(getCell(row, sectorKey));
+      cashCountries.push({
+        name: country === '--' ? 'Other' : country,
+        weight
+      });
+      cashSectors.push({
+        name: sector === 'Unknown' ? 'Other' : sector,
+        weight
+      });
+      continue;
+    }
+
+    const weight = raw.div(100).toNumber();
 
     const country = getText(getCell(row, countryKey));
     const sector = getText(getCell(row, sectorKey));
@@ -121,6 +156,28 @@ export function parseXtrackersHoldings(
       name: sector === 'Unknown' ? 'Other' : sector,
       weight
     });
+  }
+
+  if (hasNegativeCash) {
+    // Only offset cash against cash; never alter equity weights or attribute
+    // currency balances to an equity country or industry.
+    const netCash = positiveCash.plus(negativeCash);
+    if (netCash.lt(0)) {
+      throw new Error('Negative Xtrackers net cash balance');
+    }
+    // Holdings feeds with negative cash must reconcile to the portfolio total.
+    if (netTotal.minus(100).abs().gt(0.001)) {
+      throw new Error('Invalid Xtrackers net holdings total');
+    }
+    const weight = netCash.div(100).toNumber();
+    if (weight > 0) {
+      countries.push({ name: 'Other', weight });
+      sectors.push({ name: 'Other', weight });
+    }
+  } else {
+    // Preserve existing XMME behavior when there is no negative cash.
+    countries.push(...cashCountries);
+    sectors.push(...cashSectors);
   }
 
   return normalizeEtfComposition({ countries, sectors });

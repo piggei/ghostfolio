@@ -48,7 +48,8 @@ const SECTOR_ALIASES: Record<string, SectorName> = {
   Financials: 'Financial Services',
   'Health Care': 'Healthcare',
   'Information Technology': 'Technology',
-  Materials: 'Basic Materials'
+  Materials: 'Basic Materials',
+  Telecommunications: 'Communication Services'
 };
 
 function validateExposure({ name, weight }: EtfExposure): void {

@@ -200,4 +200,16 @@ describe('ETF composition normalizer', () => {
     expect(absent.missingCountryWeight).toBe(1);
     expect(empty.missingCountryWeight).toBe(1);
   });
+
+  it('maps Telecommunications to Communication Services', () => {
+    const result = normalizeEtfComposition({
+      sectors: [{ name: 'Telecommunications', weight: 0.125 }]
+    });
+
+    expect(result.sectors).toEqual([
+      { name: 'Communication Services', weight: 0.125 }
+    ]);
+
+    expect(result.classifiedSectorCoverage).toBe(0.125);
+  });
 });
