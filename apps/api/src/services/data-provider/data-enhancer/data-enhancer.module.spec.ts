@@ -35,7 +35,8 @@ describe('DataEnhancerModule registration', () => {
       'YahooFinanceDataEnhancerService',
       'XtrackersDataEnhancerService',
       'VanguardDataEnhancerService',
-      'IsharesDataEnhancerService'
+      'IsharesDataEnhancerService',
+      'WisdomtreeDataEnhancerService'
     ]);
 
     for (const service of factory.inject) {

@@ -2,6 +2,7 @@ import { ConfigurationModule } from '@ghostfolio/api/services/configuration/conf
 import { CryptocurrencyModule } from '@ghostfolio/api/services/cryptocurrency/cryptocurrency.module';
 import { IsharesDataEnhancerService } from '@ghostfolio/api/services/data-provider/data-enhancer/etf-composition/ishares/ishares.service';
 import { VanguardDataEnhancerService } from '@ghostfolio/api/services/data-provider/data-enhancer/etf-composition/vanguard/vanguard.service';
+import { WisdomtreeDataEnhancerService } from '@ghostfolio/api/services/data-provider/data-enhancer/etf-composition/wisdomtree/wisdomtree.service';
 import { XtrackersDataEnhancerService } from '@ghostfolio/api/services/data-provider/data-enhancer/etf-composition/xtrackers/xtrackers.service';
 import { OpenFigiDataEnhancerService } from '@ghostfolio/api/services/data-provider/data-enhancer/openfigi/openfigi.service';
 import { TrackinsightDataEnhancerService } from '@ghostfolio/api/services/data-provider/data-enhancer/trackinsight/trackinsight.service';
@@ -21,6 +22,7 @@ import { DataEnhancerService } from './data-enhancer.service';
     XtrackersDataEnhancerService,
     VanguardDataEnhancerService,
     IsharesDataEnhancerService,
+    WisdomtreeDataEnhancerService,
     'DataEnhancers'
   ],
   imports: [ConfigurationModule, CryptocurrencyModule, FetchModule],
@@ -32,6 +34,7 @@ import { DataEnhancerService } from './data-enhancer.service';
     XtrackersDataEnhancerService,
     VanguardDataEnhancerService,
     IsharesDataEnhancerService,
+    WisdomtreeDataEnhancerService,
     {
       inject: [
         OpenFigiDataEnhancerService,
@@ -39,7 +42,8 @@ import { DataEnhancerService } from './data-enhancer.service';
         YahooFinanceDataEnhancerService,
         XtrackersDataEnhancerService,
         VanguardDataEnhancerService,
-        IsharesDataEnhancerService
+        IsharesDataEnhancerService,
+        WisdomtreeDataEnhancerService
       ],
       provide: 'DataEnhancers',
       useFactory: (
@@ -48,8 +52,17 @@ import { DataEnhancerService } from './data-enhancer.service';
         yahooFinance,
         xtrackers,
         vanguard,
-        ishares
-      ) => [openfigi, trackinsight, yahooFinance, xtrackers, vanguard, ishares]
+        ishares,
+        wisdomtree
+      ) => [
+        openfigi,
+        trackinsight,
+        yahooFinance,
+        xtrackers,
+        vanguard,
+        ishares,
+        wisdomtree
+      ]
     }
   ]
 })
