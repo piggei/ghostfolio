@@ -11855,6 +11855,14 @@
         <source>In Activities, edit a standalone Fee activity to correct its name. A shared or administrator-owned instrument profile is separated when necessary so renaming your fee does not rename other activities. This changes the description, not the fee amount; check both fields before saving.</source>
         <target state="translated">Em Operações, edite uma operação autónoma de Comissão para corrigir o respetivo nome. Quando necessário, o perfil de um instrumento partilhado ou pertencente ao administrador é separado, para que mudar o nome da sua comissão não altere outras operações. Isto altera a descrição, não o montante da comissão; confira ambos os campos antes de guardar.</target>
       </trans-unit>
+      <trans-unit id="ngGuideEtfComposition" datatype="html">
+        <source>ETF Composition Enrichment</source>
+        <target state="translated">Enriquecimento da composição dos ETF</target>
+      </trans-unit>
+      <trans-unit id="ngGuideEtfCompositionDescription" datatype="html">
+        <source>Automatically resolves ETF identifiers and retrieves geographic and sector allocations from official issuer sources, including iShares, Vanguard, Xtrackers, WisdomTree, Invesco, and Amundi. Incomplete compositions are improved when more comprehensive, verified data are available, while existing information is preserved when no reliable improvement can be made.</source>
+        <target state="translated">Identifica automaticamente os ETF e obtém as distribuições geográficas e setoriais a partir de fontes oficiais dos emitentes, incluindo iShares, Vanguard, Xtrackers, WisdomTree, Invesco e Amundi. As composições incompletas são melhoradas quando existem dados verificados mais completos, enquanto as informações existentes são preservadas quando não é possível obter uma melhoria fiável.</target>
+      </trans-unit>
       <trans-unit id="ngBenchmarkMwrAnnualized" datatype="html">
         <source>Activity-Matched MWR (annualized)</source>
         <target state="new">Activity-Matched MWR (annualized)</target>

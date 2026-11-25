@@ -10623,6 +10623,12 @@
       <trans-unit id="ngGuideFeeNamesDescription" datatype="html">
         <source>In Activities, edit a standalone Fee activity to correct its name. A shared or administrator-owned instrument profile is separated when necessary so renaming your fee does not rename other activities. This changes the description, not the fee amount; check both fields before saving.</source>
       </trans-unit>
+      <trans-unit id="ngGuideEtfComposition" datatype="html">
+        <source>ETF Composition Enrichment</source>
+      </trans-unit>
+      <trans-unit id="ngGuideEtfCompositionDescription" datatype="html">
+        <source>Automatically resolves ETF identifiers and retrieves geographic and sector allocations from official issuer sources, including iShares, Vanguard, Xtrackers, WisdomTree, Invesco, and Amundi. Incomplete compositions are improved when more comprehensive, verified data are available, while existing information is preserved when no reliable improvement can be made.</source>
+      </trans-unit>
       <trans-unit id="ngGuidePageIntro" datatype="html">
         <source>Meet the team and learn how to use the additional features integrated into Ghostfolio-NG. This guide describes the application’s behavior, including its current limits.</source>
       </trans-unit>

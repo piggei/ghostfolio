@@ -11839,6 +11839,14 @@
         <source>In Activities, edit a standalone Fee activity to correct its name. A shared or administrator-owned instrument profile is separated when necessary so renaming your fee does not rename other activities. This changes the description, not the fee amount; check both fields before saving.</source>
         <target state="translated">在“交易”中编辑独立的手续费交易，可以修正其名称。必要时，系统会分离共享或管理员所有的金融工具资料，避免修改自己的手续费名称时连带更改其他交易。这只会修改描述，不会改变手续费金额；保存前请检查这两个字段。</target>
       </trans-unit>
+      <trans-unit id="ngGuideEtfComposition" datatype="html">
+        <source>ETF Composition Enrichment</source>
+        <target state="translated">ETF 持仓构成信息补充</target>
+      </trans-unit>
+      <trans-unit id="ngGuideEtfCompositionDescription" datatype="html">
+        <source>Automatically resolves ETF identifiers and retrieves geographic and sector allocations from official issuer sources, including iShares, Vanguard, Xtrackers, WisdomTree, Invesco, and Amundi. Incomplete compositions are improved when more comprehensive, verified data are available, while existing information is preserved when no reliable improvement can be made.</source>
+        <target state="translated">自动识别 ETF 标识符，并从 iShares、Vanguard、Xtrackers、WisdomTree、Invesco 和 Amundi 等发行商的官方来源获取地域及行业配置数据。当有更完整且经过验证的数据时，系统会改进不完整的配置；如果无法可靠地改进，则保留现有信息。</target>
+      </trans-unit>
       <trans-unit id="ngGuideRoaiDefinition" datatype="html">
         <source>ROAI divides net monetary investment performance by average invested capital. For a holding’s whole history, remaining invested cost is weighted by elapsed calendar intervals between investment activities and the terminal valuation. The portfolio sums the included holdings’ averages. For a selected date range, the calculator includes opening unrealized performance in the opening capital and counts the final valuation day in the daily average. These conventions can produce different averages in whole-history holding statistics and date-range charts. Calendar-day weighting avoids daylight-saving distortions. ROAI is neither TWR nor an annualized XIRR.</source>
         <target state="translated">ROAI 将净投资收益金额除以平均投入资本。对于持仓的完整历史，剩余投资成本按照投资活动之间及截至最终估值日的实际日历天数加权。投资组合汇总所包含持仓的平均值。对于选定日期范围，计算器将期初未实现损益计入期初资本，并将最终估值日纳入日均值计算。因此，持仓完整历史统计与区间图表的平均值可能不同。按日历天数加权可避免夏令时造成的偏差。ROAI 既不是 TWR，也不是年化 XIRR。</target>

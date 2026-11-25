@@ -11839,6 +11839,14 @@
         <source>In Activities, edit a standalone Fee activity to correct its name. A shared or administrator-owned instrument profile is separated when necessary so renaming your fee does not rename other activities. This changes the description, not the fee amount; check both fields before saving.</source>
         <target state="translated">「取引」で独立した「手数料」取引を編集すると、その名前を修正できます。必要に応じて、共有または管理者所有の金融商品プロファイルが分離されるため、自分の手数料名を変更しても他の取引名は変わりません。変更されるのは説明であり、手数料額ではありません。保存前に両方の項目を確認してください。</target>
       </trans-unit>
+      <trans-unit id="ngGuideEtfComposition" datatype="html">
+        <source>ETF Composition Enrichment</source>
+        <target state="translated">ETF構成情報の補完</target>
+      </trans-unit>
+      <trans-unit id="ngGuideEtfCompositionDescription" datatype="html">
+        <source>Automatically resolves ETF identifiers and retrieves geographic and sector allocations from official issuer sources, including iShares, Vanguard, Xtrackers, WisdomTree, Invesco, and Amundi. Incomplete compositions are improved when more comprehensive, verified data are available, while existing information is preserved when no reliable improvement can be made.</source>
+        <target state="translated">ETFの識別情報を自動的に特定し、iShares、Vanguard、Xtrackers、WisdomTree、Invesco、Amundiなどの運用会社の公式情報源から国・地域別およびセクター別の構成比率を取得します。より網羅的で検証済みのデータが利用できる場合は不完全な構成情報を改善し、信頼できる改善ができない場合は既存の情報を保持します。</target>
+      </trans-unit>
       <trans-unit id="ngGuideRoaiDefinition" datatype="html">
         <source>ROAI divides net monetary investment performance by average invested capital. For a holding’s whole history, remaining invested cost is weighted by elapsed calendar intervals between investment activities and the terminal valuation. The portfolio sums the included holdings’ averages. For a selected date range, the calculator includes opening unrealized performance in the opening capital and counts the final valuation day in the daily average. These conventions can produce different averages in whole-history holding statistics and date-range charts. Calendar-day weighting avoids daylight-saving distortions. ROAI is neither TWR nor an annualized XIRR.</source>
         <target state="translated">ROAIは投資の純損益額を平均投下資本で割った値です。保有銘柄の全期間では、投資取引間および最終評価日までの経過暦日数に応じて残存取得原価を加重平均します。ポートフォリオでは対象銘柄の平均値を合計します。指定期間では、期首の未実現損益を期首資本に含め、最終評価日も日次平均の計算に含めます。この違いにより、保有銘柄の全期間統計と期間指定チャートの平均値が異なる場合があります。暦日による加重は夏時間の影響を避けます。ROAIはTWRでも年率換算XIRRでもありません。</target>

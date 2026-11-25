@@ -11855,6 +11855,14 @@
         <source>In Activities, edit a standalone Fee activity to correct its name. A shared or administrator-owned instrument profile is separated when necessary so renaming your fee does not rename other activities. This changes the description, not the fee amount; check both fields before saving.</source>
         <target state="translated">Dans Opérations, modifiez une opération de frais autonome pour corriger son nom. Le profil d’un instrument partagé ou appartenant à un administrateur est séparé si nécessaire afin que le renommage de vos frais ne renomme pas d’autres opérations. Cela modifie la description, pas le montant des frais ; vérifiez les deux champs avant d’enregistrer.</target>
       </trans-unit>
+      <trans-unit id="ngGuideEtfComposition" datatype="html">
+        <source>ETF Composition Enrichment</source>
+        <target state="translated">Enrichissement de la composition des ETF</target>
+      </trans-unit>
+      <trans-unit id="ngGuideEtfCompositionDescription" datatype="html">
+        <source>Automatically resolves ETF identifiers and retrieves geographic and sector allocations from official issuer sources, including iShares, Vanguard, Xtrackers, WisdomTree, Invesco, and Amundi. Incomplete compositions are improved when more comprehensive, verified data are available, while existing information is preserved when no reliable improvement can be made.</source>
+        <target state="translated">Identifie automatiquement les ETF et récupère les répartitions géographiques et sectorielles auprès des sources officielles des émetteurs, notamment iShares, Vanguard, Xtrackers, WisdomTree, Invesco et Amundi. Les compositions incomplètes sont améliorées lorsque des données vérifiées plus complètes sont disponibles, tandis que les informations existantes sont conservées lorsqu'aucune amélioration fiable n'est possible.</target>
+      </trans-unit>
       <trans-unit id="ngBenchmarkMwrAnnualized" datatype="html">
         <source>Activity-Matched MWR (annualized)</source>
         <target state="new">Activity-Matched MWR (annualized)</target>
