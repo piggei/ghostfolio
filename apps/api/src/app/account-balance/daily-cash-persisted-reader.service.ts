@@ -94,6 +94,9 @@ export class DailyCashPersistedReader {
       select: {
         id: true,
         currency: true,
+        // Inspect the complete account history, not only this date window.
+        // A future balance or an old activity must prevent an inferred zero.
+        _count: { select: { activities: true, balances: true } },
         cashState: {
           select: {
             accountId: true,
@@ -247,6 +250,9 @@ export class DailyCashPersistedReader {
         .sort(([left], [right]) => left.localeCompare(right))
         .map(([date, value]) => ({ date, value }));
 
+      const isEmptyAccount =
+        account._count?.activities === 0 && account._count?.balances === 0;
+
       return {
         accountId: account.id,
         currency: account.currency ?? baseCurrency,
@@ -254,7 +260,10 @@ export class DailyCashPersistedReader {
         included: true,
         revision: null,
         balances: projectDailyCashBalances({
-          balances,
+          balances:
+            balances.length === 0 && isEmptyAccount
+              ? [{ date: startDate, value: new Big(0) }]
+              : balances,
           startDate,
           endDate
         })

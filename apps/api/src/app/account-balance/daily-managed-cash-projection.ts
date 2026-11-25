@@ -122,12 +122,9 @@ export function projectDailyManagedCash({
     events
   });
 
-  // For a zero-based automatic ledger without checkpoints, the implicit
-  // opening is technical. The first movement establishes availability.
-  const dailyBalances =
-    snapshot.isAutomaticOpening && !firstCheckpoint
-      ? calculation.balances.slice(1)
-      : calculation.balances;
+  // Without migrated checkpoints the persisted automatic zero opening is
+  // the ledger baseline, including days before its first movement. A migrated
+  // checkpoint still establishes the first reliable balance above.
 
   return {
     accountId: snapshot.accountId,
@@ -135,7 +132,7 @@ export function projectDailyManagedCash({
     included: snapshot.includeCashInPortfolio ?? true,
     revision: snapshot.revision,
     balances: projectDailyCashBalances({
-      balances: dailyBalances,
+      balances: calculation.balances,
       startDate,
       endDate
     })

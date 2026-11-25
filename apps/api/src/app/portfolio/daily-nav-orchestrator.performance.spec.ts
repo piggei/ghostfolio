@@ -1,5 +1,7 @@
+import { classifyCashEvents } from '@ghostfolio/api/app/account-balance/cash-event-classifier';
 import type { CashClassificationInput } from '@ghostfolio/api/app/account-balance/cash-event-classifier';
 import type { DailyCashPersistedResult } from '@ghostfolio/api/app/account-balance/daily-cash-persisted-reader.service';
+import { projectDailyManagedCash } from '@ghostfolio/api/app/account-balance/daily-managed-cash-projection';
 import type { HoldingBalance } from '@ghostfolio/api/app/portfolio/interfaces/holding-balance.interface';
 
 import { AssetSubClass, DataSource, MarketDataState } from '@prisma/client';
@@ -138,6 +140,114 @@ describe('DailyNavOrchestratorService financial calculations', () => {
 
     return service;
   }
+
+  it.each([
+    [false, 'EUR'],
+    [false, 'USD'],
+    [true, 'EUR']
+  ] as const)(
+    'retains PnL when adding an automatic account (deposit: %s, currency: %s)',
+    async (withDeposit, currency) => {
+      const snapshot = createSnapshot({
+        marketData: [close(baselineDate, 100), close(startDate, 110)],
+        baselineCash: '2000',
+        closingCash: '2000',
+        externalFlows: []
+      });
+      const request = {
+        userId: 'user-id',
+        startDate,
+        endDate,
+        baseCurrency: 'EUR'
+      };
+      const original =
+        await createService(snapshot).calculateDailyPerformance(request);
+      const projection = projectDailyManagedCash({
+        snapshot: {
+          accountId: 'new-account',
+          currency,
+          includeCashInPortfolio: true,
+          isAutomaticOpening: true,
+          revision: 1,
+          openingBalance: { date: '0001-01-01', sequence: 0, balance: '0' },
+          events: withDeposit
+            ? [
+                {
+                  date: startDate,
+                  sequence: 1,
+                  type: 'MOVEMENT',
+                  amount: '200'
+                }
+              ]
+            : []
+        },
+        startDate: baselineDate,
+        endDate
+      });
+      snapshot.cash.accounts.push({
+        accountId: 'new-account',
+        currency,
+        source: 'managed',
+        included: projection.included,
+        revision: 1,
+        balances: projection.balances
+      });
+      snapshot.classifications = classifyCashEvents({
+        userId: 'user-id',
+        startDate,
+        endDate,
+        accounts: [
+          {
+            id: 'new-account',
+            userId: 'user-id',
+            currency,
+            excluded: false,
+            cashState: {
+              currency,
+              openingDate: '0001-01-01',
+              openingBalance: '0',
+              revision: 1,
+              includeCashInPortfolio: true
+            }
+          }
+        ],
+        orders: [],
+        events: withDeposit
+          ? [
+              {
+                id: 'deposit',
+                userId: 'user-id',
+                accountId: 'new-account',
+                date: startDate,
+                sequence: 1,
+                type: 'MOVEMENT',
+                value: '200',
+                fee: '0',
+                economicClassification: 'EXTERNAL_CAPITAL',
+                orderId: null,
+                transferId: null,
+                transferCounterpartyAccountId: null,
+                transferCounterpartyMode: null,
+                transferCounterpartyAmount: null,
+                transferCounterpartyCurrency: null
+              }
+            ]
+          : []
+      });
+      const result =
+        await createService(snapshot).calculateDailyPerformance(request);
+      expect(original.days[0].pnl).toEqual({
+        status: 'available',
+        dailyPnl: '100'
+      });
+      expect(result.days[0].pnl).toEqual(original.days[0].pnl);
+      expect(result.days[0].nav).toEqual({
+        date: startDate,
+        status: 'available',
+        nav: withDeposit ? '3300' : '3100'
+      });
+    }
+  );
 
   it('calculates NAV and PnL correctly when an external deposit increases cash', async () => {
     const snapshot = createSnapshot({

@@ -225,7 +225,7 @@ describe('Daily managed cash projection', () => {
     ]);
   });
 
-  it('starts zero-based automatic history at the first movement', () => {
+  it('preserves automatic zero history before the first movement', () => {
     const result = project(
       {
         isAutomaticOpening: true,
@@ -248,18 +248,13 @@ describe('Daily managed cash projection', () => {
     );
 
     expect(result.balances).toEqual([
-      {
-        date: '2026-10-01',
-        status: 'unavailable',
-        balance: null,
-        reason: 'no_opening_balance'
-      },
+      { date: '2026-10-01', status: 'available', balance: '0' },
       { date: '2026-10-02', status: 'available', balance: '125' },
       { date: '2026-10-03', status: 'available', balance: '125' }
     ]);
   });
 
-  it('does not invent history for an empty automatic ledger', () => {
+  it('preserves zero history for an empty automatic ledger', () => {
     const result = project(
       {
         isAutomaticOpening: true,
@@ -275,7 +270,9 @@ describe('Daily managed cash projection', () => {
     );
 
     expect(
-      result.balances.every(({ status }) => status === 'unavailable')
+      result.balances.every(
+        (row) => row.status === 'available' && row.balance === '0'
+      )
     ).toBe(true);
   });
 });

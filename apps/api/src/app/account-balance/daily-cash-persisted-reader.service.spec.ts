@@ -201,6 +201,76 @@ describe('DailyCashPersistedReader', () => {
     });
   });
 
+  describe('empty legacy account history', () => {
+    it('projects a verified empty account as zero across the requested range', async () => {
+      const { reader, accountFindMany } = setup({
+        accounts: [
+          {
+            id: 'empty',
+            currency: 'EUR',
+            cashState: null,
+            _count: { activities: 0, balances: 0 }
+          }
+        ]
+      });
+      const result = await reader.read(scope);
+      expect(result.accounts[0].balances).toEqual([
+        { date: '2026-10-01', status: 'available', balance: '0' },
+        { date: '2026-10-02', status: 'available', balance: '0' }
+      ]);
+      expect(accountFindMany.mock.calls[0][0].select._count).toEqual({
+        select: { activities: true, balances: true }
+      });
+    });
+
+    it.each([
+      { activities: 1, balances: 0 },
+      { activities: 0, balances: 1 },
+      { activities: 1, balances: 1 }
+    ])(
+      'does not infer zero with history outside the requested range: %j',
+      async (counts) => {
+        const { reader } = setup({
+          accounts: [
+            { id: 'legacy', currency: 'EUR', cashState: null, _count: counts }
+          ]
+        });
+        const result = await reader.read(scope);
+        expect(
+          result.accounts[0].balances.every(
+            (row) => row.status === 'unavailable'
+          )
+        ).toBe(true);
+      }
+    );
+
+    it('does not backfill before a real legacy balance', async () => {
+      const { reader } = setup({
+        accounts: [
+          {
+            id: 'legacy',
+            currency: 'EUR',
+            cashState: null,
+            _count: { activities: 0, balances: 1 }
+          }
+        ],
+        legacyRows: [
+          { accountId: 'legacy', date: day('2026-10-02'), value: 200 }
+        ]
+      });
+      const result = await reader.read(scope);
+      expect(result.accounts[0].balances).toEqual([
+        {
+          date: '2026-10-01',
+          status: 'unavailable',
+          balance: null,
+          reason: 'no_opening_balance'
+        },
+        { date: '2026-10-02', status: 'available', balance: '200' }
+      ]);
+    });
+  });
+
   describe('autonomous transaction', () => {
     it('opens a RepeatableRead transaction when no external client is supplied', async () => {
       const { reader, prisma, transactionClient } = setup();

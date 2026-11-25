@@ -275,35 +275,65 @@ describeDatabase('Daily cash persisted reader (PostgreSQL)', () => {
     ]);
   });
 
-  it('does not invent a zero balance for an account without history', async () => {
+  it('preserves zero for a verified empty account without a ledger', async () => {
     const userId = await createUser();
     const account = await createAccount(userId);
-
     const result = await read(userId);
-
-    expect(result.accounts).toHaveLength(1);
     expect(result.accounts[0].accountId).toBe(account.id);
     expect(result.accounts[0].source).toBe('legacy');
-
     expect(result.accounts[0].balances).toEqual([
-      {
-        date: '2026-10-01',
-        status: 'unavailable',
-        balance: null,
-        reason: 'no_opening_balance'
-      },
-      {
-        date: '2026-10-02',
-        status: 'unavailable',
-        balance: null,
-        reason: 'no_opening_balance'
-      },
-      {
-        date: '2026-10-03',
-        status: 'unavailable',
-        balance: null,
-        reason: 'no_opening_balance'
+      { date: '2026-10-01', status: 'available', balance: '0' },
+      { date: '2026-10-02', status: 'available', balance: '0' },
+      { date: '2026-10-03', status: 'available', balance: '0' }
+    ]);
+  });
+
+  it('does not infer zero when a legacy balance exists after the requested period', async () => {
+    const userId = await createUser();
+    const account = await createAccount(userId);
+    await prisma.accountBalance.create({
+      data: {
+        accountId: account.id,
+        userId,
+        date: day('2026-11-15'),
+        value: 200
       }
+    });
+    const result = await read(userId);
+    expect(
+      result.accounts[0].balances.every((row) => row.status === 'unavailable')
+    ).toBe(true);
+  });
+
+  it('retains automatic zero history before the first external deposit', async () => {
+    const userId = await createUser();
+    const account = await createAccount(userId);
+    await prisma.accountCashState.create({
+      data: {
+        accountId: account.id,
+        userId,
+        currency: 'EUR',
+        openingDate: day('0001-01-01'),
+        openingBalance: '0',
+        isAutomaticOpening: true
+      }
+    });
+    await prisma.cashEvent.create({
+      data: {
+        accountId: account.id,
+        userId,
+        date: day('2026-10-02'),
+        sequence: 1,
+        type: 'MOVEMENT',
+        value: '200',
+        economicClassification: 'EXTERNAL_CAPITAL'
+      }
+    });
+    const result = await read(userId);
+    expect(result.accounts[0].balances).toEqual([
+      { date: '2026-10-01', status: 'available', balance: '0' },
+      { date: '2026-10-02', status: 'available', balance: '200' },
+      { date: '2026-10-03', status: 'available', balance: '200' }
     ]);
   });
 
