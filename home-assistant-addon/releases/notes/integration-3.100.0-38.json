@@ -1,0 +1,13 @@
+{
+  "schema_version": 1,
+  "identity": {
+    "integration_tag": "integration-3.100.0-38",
+    "source_commit": "f5130d8e5a7373a2c518a9a1926ab941288c6631",
+    "source_image": "ghcr.io/piggei/ghostfolio-ng@sha256:f4aba924e513d769e9c3a0d0249fbf530f7ebf02bec82f3699ff3d4cafc4d823",
+    "ghostfolio_version": "3.100.0",
+    "addon_source_revision": "d78d0e7939c4e7b70eeda9b628244e9f5c47656c"
+  },
+  "sections": [
+    "## Integration-specific changes\n\n- fix(portfolio): preserve PnL history when adding empty accounts (f5130d8e5)\n- docs(ng): document ETF enrichment in all supported languages (ec2a595f1)\n- feat(data-provider): add Invesco and Amundi ETF compositions (62c1c5d6d)\n- fix(data-provider): verify Vanguard listings when justETF is incomplete (c4339f51e)\n- fix(data-gathering): preserve ETF identities and complete compositions (91bb320e8)\n- feat(data-provider): discover ETF compositions by verified identity (ab9a5a7b8)\n- fix(data-provider): verify unique justETF canonical identity (a365239e1)"
+  ]
+}
