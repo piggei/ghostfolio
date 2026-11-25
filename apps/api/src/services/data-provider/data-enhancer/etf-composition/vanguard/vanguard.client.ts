@@ -25,6 +25,7 @@ export async function fetchVanguardHoldings({
 
   const holdings: VanguardHolding[] = [];
   const cursors = new Set<string>();
+  const identifiers = new Set<string>();
 
   let lastItemKey: string | null = null;
   let expectedTotal: number | undefined;
@@ -60,6 +61,11 @@ export async function fetchVanguardHoldings({
       throw new Error('Vanguard holdings exceed declared total');
     }
 
+    for (const holding of page.holdings) {
+      if (holding.id && identifiers.has(holding.id))
+        throw new Error('Duplicate Vanguard holding');
+      if (holding.id) identifiers.add(holding.id);
+    }
     holdings.push(...page.holdings);
 
     if (holdings.length === expectedTotal) {

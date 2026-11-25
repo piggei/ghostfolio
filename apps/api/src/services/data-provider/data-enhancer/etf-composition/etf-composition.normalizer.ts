@@ -34,6 +34,7 @@ const COUNTRY_ALIASES: Record<string, string> = {
   'Korea, Republic of': 'KR',
   'Russian Federation': 'RU',
   'South Korea': 'KR',
+  'Korea (South)': 'KR',
   Taiwan: 'TW',
   Turkey: 'TR',
   'United Kingdom': 'GB',

@@ -102,3 +102,30 @@ describe('Vanguard holdings page parser', () => {
     expect(result.lastItemKey).toBe('cursor-2');
   });
 });
+
+describe('Vanguard ICB classification', () => {
+  it('uses published ICB industries when GICS is absent', () => {
+    const page = parseVanguardHoldingsPage({
+      data: {
+        borHoldings: [
+          {
+            holdings: {
+              totalHoldings: 1,
+              lastItemKey: null,
+              items: [
+                {
+                  securityType: 'EQ.STOCK',
+                  marketValuePercentage: 100,
+                  bloombergIsoCountry: 'GB',
+                  gicsSectorDescription: null,
+                  icbIndustryDescription: 'Industrials'
+                }
+              ]
+            }
+          }
+        ]
+      }
+    });
+    expect(page.holdings[0].sector).toBe('Industrials');
+  });
+});

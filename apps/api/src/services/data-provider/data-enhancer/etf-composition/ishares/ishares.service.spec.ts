@@ -1,4 +1,9 @@
+import { getEtfCompositionDiscovery } from '../etf-composition.discovery';
 import { IsharesDataEnhancerService } from './ishares.service';
+
+jest.mock('../etf-composition.discovery', () => ({
+  getEtfCompositionDiscovery: jest.fn()
+}));
 
 jest.mock('@ghostfolio/api/services/fetch/fetch.service', () => ({
   FetchService: jest.fn()
@@ -58,6 +63,11 @@ function csv({
   ].join('\n');
 }
 
+beforeEach(() =>
+  jest.spyOn(Date, 'now').mockReturnValue(Date.parse('2026-11-25T12:00:00Z'))
+);
+afterEach(() => jest.restoreAllMocks());
+
 describe('IsharesDataEnhancerService', () => {
   const fetchService = {
     fetch: jest.fn()
@@ -91,6 +101,15 @@ describe('IsharesDataEnhancerService', () => {
 
   beforeEach(() => {
     jest.clearAllMocks();
+    (getEtfCompositionDiscovery as jest.Mock).mockReturnValue({
+      discover: jest.fn().mockImplementation(async (_issuer, response) => ({
+        isin: response.isin ?? 'IE00B4L5Y983',
+        portfolioId: '251882',
+        pageUrl: 'https://www.ishares.com/uk/individual/en/products/251882/',
+        holdingsUrl:
+          'https://etf.deutsche-am.com/api/pdp/en-gb/etf/discovered/holdings'
+      }))
+    });
     mockResponses();
   });
 
@@ -163,7 +182,7 @@ describe('IsharesDataEnhancerService', () => {
     expect(fetchService.fetch).not.toHaveBeenCalled();
   });
 
-  it('accepts verified Yahoo symbols without ISIN', async () => {
+  it('uses an identity supplied by discovery', async () => {
     const result = await service.enhance({
       response: { ...profile, isin: undefined },
       symbol: 'IWDA.AS'
@@ -172,45 +191,11 @@ describe('IsharesDataEnhancerService', () => {
     expect(result.countries).toEqual([{ code: 'US', weight: 1 }]);
   });
 
-  it('rejects conflicting ISINs', async () => {
-    await service.enhance({
-      response: {
-        ...profile,
-        isin: 'IE00BTJRMP35'
-      },
-      symbol: 'SWDA.MI'
-    });
-
-    expect(fetchService.fetch).not.toHaveBeenCalled();
-  });
-
-  it('rejects unrelated symbols', async () => {
-    await service.enhance({
-      response: { ...profile },
-      symbol: 'XMME.MI'
-    });
-
-    expect(fetchService.fetch).not.toHaveBeenCalled();
-  });
-
   it('rejects non-ETF assets', async () => {
     await service.enhance({
       response: {
         ...profile,
         assetSubClass: 'STOCK'
-      } as any,
-      symbol: 'SWDA.MI'
-    });
-
-    expect(fetchService.fetch).not.toHaveBeenCalled();
-  });
-
-  it('rejects unverified sources without ISIN', async () => {
-    await service.enhance({
-      response: {
-        ...profile,
-        dataSource: 'MANUAL',
-        isin: undefined
       } as any,
       symbol: 'SWDA.MI'
     });

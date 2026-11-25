@@ -156,6 +156,10 @@ export async function fetchIsharesHoldings({
   const html = await pageResponse.text();
   const asOfDate = parseIsharesHoldingsDate(html);
 
+  if (Date.now() - parseDate(asOfDate).getTime() > 75 * 86400000) {
+    throw new Error('Stale iShares holdings date');
+  }
+
   if (parseDate(asOfDate).getTime() > Date.now()) {
     throw new Error('Future iShares holdings date');
   }

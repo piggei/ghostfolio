@@ -1,0 +1,126 @@
+[
+  {
+    "str": "Top 10 Countries (% Weight)",
+    "transform": [6.96, 0, 0, 6.96, 387.48, 684.29]
+  },
+  {
+    "str": "76.72%",
+    "transform": [6, 0, 0, 6, 469.9, 652.08]
+  },
+  {
+    "str": "6.49%",
+    "transform": [6, 0, 0, 6, 444.38, 635.18]
+  },
+  {
+    "str": "6.11%",
+    "transform": [6, 0, 0, 6, 444.24, 618.26]
+  },
+  {
+    "str": "3.61%",
+    "transform": [6, 0, 0, 6, 443.33, 601.37]
+  },
+  {
+    "str": "2.72%",
+    "transform": [6, 0, 0, 6, 443.02, 584.45]
+  },
+  {
+    "str": "2.25%",
+    "transform": [6, 0, 0, 6, 442.85, 567.55]
+  },
+  {
+    "str": "2.08%",
+    "transform": [6, 0, 0, 6, 442.78, 550.63]
+  },
+  {
+    "str": "United States",
+    "transform": [6.024, 0, 0, 6.024, 396.38, 652.49]
+  },
+  {
+    "str": "South Korea",
+    "transform": [6, 0, 0, 6, 399.31, 635.57]
+  },
+  {
+    "str": "Netherlands",
+    "transform": [6, 0, 0, 6, 399.43, 618.65]
+  },
+  {
+    "str": "China",
+    "transform": [6, 0, 0, 6, 415.85, 601.75]
+  },
+  {
+    "str": "Israel",
+    "transform": [6, 0, 0, 6, 416.62, 584.83]
+  },
+  {
+    "str": "Japan",
+    "transform": [6, 0, 0, 6, 414.79, 567.94]
+  },
+  {
+    "str": "Taiwan",
+    "transform": [6, 0, 0, 6, 412.01, 551.02]
+  },
+  {
+    "str": "Fund Sector Exposure (% Weight)",
+    "transform": [6.96, 0, 0, 6.96, 218.83, 684.29]
+  },
+  {
+    "str": "77.48%",
+    "transform": [6, 0, 0, 6, 315.94, 648.91]
+  },
+  {
+    "str": "7.14%",
+    "transform": [6.024, 0, 0, 6.024, 279.07, 624.26]
+  },
+  {
+    "str": "6.24%",
+    "transform": [6, 0, 0, 6, 278.59, 599.59]
+  },
+  {
+    "str": "4.87%",
+    "transform": [6.024, 0, 0, 6.024, 277.87, 574.94]
+  },
+  {
+    "str": "4.27%",
+    "transform": [6, 0, 0, 6, 277.56, 550.27]
+  },
+  {
+    "str": "Information",
+    "transform": [6, 0, 0, 6, 233.66, 653.06]
+  },
+  {
+    "str": "Technology",
+    "transform": [6, 0, 0, 6, 233.98, 645.53]
+  },
+  {
+    "str": "Communication",
+    "transform": [6, 0, 0, 6, 223.2, 628.42]
+  },
+  {
+    "str": "Services",
+    "transform": [6, 0, 0, 6, 233.04, 620.86]
+  },
+  {
+    "str": "Consumer",
+    "transform": [6, 0, 0, 6, 234.05, 603.74]
+  },
+  {
+    "str": "Discretionary",
+    "transform": [6, 0, 0, 6, 230.23, 596.21]
+  },
+  {
+    "str": "Health Care",
+    "transform": [6, 0, 0, 6, 234.19, 575.33]
+  },
+  {
+    "str": "Industrials",
+    "transform": [6, 0, 0, 6, 237, 550.66]
+  },
+  {
+    "str": "NB: Sources for all tables/charts on these pages: WisdomTree UK, Bloomberg. All data as of 30/10/2026",
+    "transform": [6.96, 0, 0, 6.96, 37.392, 516]
+  },
+  {
+    "str": "IE00BDVPNG13",
+    "transform": [6.96, 0, 0, 6.96, 349.87, 454.03]
+  }
+]

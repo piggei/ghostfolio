@@ -1,4 +1,9 @@
+import { getEtfCompositionDiscovery } from '../etf-composition.discovery';
 import { XtrackersDataEnhancerService } from './xtrackers.service';
+
+jest.mock('../etf-composition.discovery', () => ({
+  getEtfCompositionDiscovery: jest.fn()
+}));
 
 jest.mock('@ghostfolio/api/services/fetch/fetch.service', () => {
   return {
@@ -16,6 +21,23 @@ function holdings(weight = 100) {
   return {
     tables: [
       {
+        disclaimers: [
+          {
+            text:
+              'Source: DWS ' +
+              new Date()
+                .toISOString()
+                .slice(0, 10)
+                .split('-')
+                .reverse()
+                .join('/')
+          }
+        ],
+        downloadLinks: [
+          {
+            href: 'https://etf.deutsche-am.com/etfdata/export/GBR/ENG/excel/product/constituent/IE00BTJRMP35/'
+          }
+        ],
         columns,
         values: [
           {
@@ -41,6 +63,15 @@ describe('XtrackersDataEnhancerService', () => {
   };
 
   beforeEach(() => {
+    (getEtfCompositionDiscovery as jest.Mock).mockReturnValue({
+      discover: jest.fn().mockImplementation(async (_issuer, response) => ({
+        isin: response.isin ?? 'IE00BTJRMP35',
+        portfolioId: '',
+        pageUrl: 'https://www.ishares.com/uk/individual/en/products//',
+        holdingsUrl:
+          'https://etf.deutsche-am.com/api/pdp/en-gb/etf/discovered/holdings'
+      }))
+    });
     fetchService = { fetch: jest.fn() };
     service = new XtrackersDataEnhancerService(
       { get: jest.fn().mockReturnValue(1000) } as any,
@@ -89,20 +120,7 @@ describe('XtrackersDataEnhancerService', () => {
     expect(fetchService.fetch).not.toHaveBeenCalled();
   });
 
-  it.each([
-    ['another symbol', 'VWCE.MI', 'IE00BTJRMP35'],
-    ['wrong ISIN', 'XMME.MI', 'IE00B4L5Y983'],
-    ['unverified alias', 'XMME', undefined]
-  ])('skips %s', async (_, symbol, isin) => {
-    await service.enhance({
-      response: { ...profile, isin },
-      symbol
-    });
-
-    expect(fetchService.fetch).not.toHaveBeenCalled();
-  });
-
-  it('accepts verified Yahoo symbol without ISIN', async () => {
+  it('uses an identity supplied by discovery', async () => {
     fetchService.fetch.mockResolvedValue(Response.json(holdings()));
 
     const result = await service.enhance({
@@ -114,24 +132,15 @@ describe('XtrackersDataEnhancerService', () => {
     expect(fetchService.fetch).toHaveBeenCalledTimes(1);
   });
 
-  it('rejects an unverified data source without ISIN', async () => {
+  it('preserves data when identity discovery fails', async () => {
+    (getEtfCompositionDiscovery as jest.Mock).mockReturnValue({
+      discover: jest.fn().mockRejectedValue(new Error('NOT_FOUND'))
+    });
     await service.enhance({
       response: {
         ...profile,
         dataSource: 'MANUAL',
         isin: undefined
-      },
-      symbol: 'XMME.MI'
-    });
-
-    expect(fetchService.fetch).not.toHaveBeenCalled();
-  });
-
-  it('rejects a conflicting ISIN for Yahoo', async () => {
-    await service.enhance({
-      response: {
-        ...profile,
-        isin: 'IE00B4L5Y983'
       },
       symbol: 'XMME.MI'
     });

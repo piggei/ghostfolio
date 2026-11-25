@@ -1,3 +1,6 @@
+import { readFileSync } from 'node:fs';
+import { join } from 'node:path';
+
 import {
   parseWisdomtreeFactsheet,
   WisdomtreeTextItem
@@ -76,9 +79,19 @@ describe('WisdomTree GGRA factsheet parser', () => {
   it('rejects unknown abbreviated sector labels', () => {
     const items = fixture();
     items.find((item) => item.str === 'Consumer…')!.str = 'Unknown…';
-    expect(() => parseWisdomtreeFactsheet(items)).toThrow(
-      'Unknown WisdomTree sector'
-    );
+    const result = parseWisdomtreeFactsheet(items);
+    expect(result.countries.length).toBeGreaterThan(0);
+    expect(result.sectors).toEqual([]);
+    expect(result.warnings.join()).toContain('Unknown WisdomTree sector');
+  });
+
+  it('preserves countries when a truncated consumer label cannot be disambiguated', () => {
+    const items = fixture();
+    items.find((item) => item.str === 'Consumer Staples')!.str = 'Other';
+    const result = parseWisdomtreeFactsheet(items);
+    expect(result.countries.length).toBeGreaterThan(0);
+    expect(result.sectors).toEqual([]);
+    expect(result.warnings.join()).toContain('Ambiguous truncated');
   });
 
   it('rejects incorrect fund identity', () => {
@@ -90,9 +103,10 @@ describe('WisdomTree GGRA factsheet parser', () => {
 
   it('rejects missing allocation rows', () => {
     const items = fixture().filter((item) => item.str !== 'Netherlands');
-    expect(() => parseWisdomtreeFactsheet(items)).toThrow(
-      'allocation table structure'
-    );
+    const result = parseWisdomtreeFactsheet(items);
+    expect(result.countries).toEqual([]);
+    expect(result.sectors.length).toBeGreaterThan(0);
+    expect(result.warnings.join()).toContain('allocation table structure');
   });
 
   it('rejects invalid allocation dates', () => {
@@ -101,4 +115,20 @@ describe('WisdomTree GGRA factsheet parser', () => {
     source.str = source.str.replace('30/10/2026', '31/02/2026');
     expect(() => parseWisdomtreeFactsheet(items)).toThrow('Invalid or future');
   });
+});
+
+describe('generic WisdomTree official text fixtures', () => {
+  it.each(['IE00BDVPNG13', 'IE00BJGWQN72'])(
+    'parses %s without a listing whitelist or ten-category requirement',
+    (isin) => {
+      const items = JSON.parse(
+        readFileSync(join(__dirname, '__fixtures__', isin + '.json'), 'utf8')
+      );
+      const result = parseWisdomtreeFactsheet(items, isin);
+      expect(result.isin).toBe(isin);
+      expect(result.countryCoverage).toBeGreaterThan(0.99);
+      expect(result.sectorCoverage).toBeGreaterThan(0.99);
+      expect(result.sectors.length).toBeLessThan(10);
+    }
+  );
 });

@@ -1,4 +1,9 @@
+import { getEtfCompositionDiscovery } from '../etf-composition.discovery';
 import { VanguardDataEnhancerService } from './vanguard.service';
+
+jest.mock('../etf-composition.discovery', () => ({
+  getEtfCompositionDiscovery: jest.fn()
+}));
 
 jest.mock('@ghostfolio/api/services/fetch/fetch.service', () => ({
   FetchService: jest.fn()
@@ -16,6 +21,7 @@ function holding({
   weight?: number;
 } = {}) {
   return {
+    effectiveDate: new Date().toISOString().slice(0, 10),
     bloombergIsoCountry: country,
     gicsSectorDescription: sector,
     marketValuePercentage: weight,
@@ -70,6 +76,15 @@ describe('VanguardDataEnhancerService', () => {
 
   beforeEach(() => {
     jest.clearAllMocks();
+    (getEtfCompositionDiscovery as jest.Mock).mockReturnValue({
+      discover: jest.fn().mockImplementation(async (_issuer, response) => ({
+        isin: response.isin ?? 'IE00BK5BQT80',
+        portfolioId: '9679',
+        pageUrl: 'https://www.ishares.com/uk/individual/en/products/9679/',
+        holdingsUrl:
+          'https://etf.deutsche-am.com/api/pdp/en-gb/etf/discovered/holdings'
+      }))
+    });
 
     fetchService.fetch.mockResolvedValue(Response.json(graphqlResponse()));
   });
@@ -172,7 +187,7 @@ describe('VanguardDataEnhancerService', () => {
     expect(result.countries).toHaveLength(1);
   });
 
-  it('accepts verified Yahoo symbols without ISIN', async () => {
+  it('uses an identity supplied by discovery', async () => {
     const result = await service.enhance({
       response: {
         ...profile,
@@ -184,45 +199,11 @@ describe('VanguardDataEnhancerService', () => {
     expect(result.countries).toEqual([{ code: 'US', weight: 1 }]);
   });
 
-  it('rejects conflicting ISINs', async () => {
-    await service.enhance({
-      response: {
-        ...profile,
-        isin: 'IE00BTJRMP35'
-      },
-      symbol: 'VWCE.DE'
-    });
-
-    expect(fetchService.fetch).not.toHaveBeenCalled();
-  });
-
-  it('rejects unrelated symbols', async () => {
-    await service.enhance({
-      response: { ...profile },
-      symbol: 'XMME.MI'
-    });
-
-    expect(fetchService.fetch).not.toHaveBeenCalled();
-  });
-
   it('rejects non-ETF assets', async () => {
     await service.enhance({
       response: {
         ...profile,
         assetSubClass: 'STOCK'
-      } as any,
-      symbol: 'VWCE.DE'
-    });
-
-    expect(fetchService.fetch).not.toHaveBeenCalled();
-  });
-
-  it('rejects unverified data sources without ISIN', async () => {
-    await service.enhance({
-      response: {
-        ...profile,
-        dataSource: 'MANUAL',
-        isin: undefined
       } as any,
       symbol: 'VWCE.DE'
     });

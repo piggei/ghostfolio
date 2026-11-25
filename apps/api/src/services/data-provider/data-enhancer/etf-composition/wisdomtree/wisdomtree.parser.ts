@@ -13,9 +13,9 @@ export interface WisdomtreeComposition {
   countryCoverage: number;
   sectorCoverage: number;
   missingCountryWeight: number;
+  warnings?: string[];
 }
 
-const ISIN = 'IE00BZ56SW52';
 const SECTOR_LABELS: Record<string, string> = {
   'Health Care': 'Health Care',
   'Information…': 'Information Technology',
@@ -26,7 +26,12 @@ const SECTOR_LABELS: Record<string, string> = {
   'Communication…': 'Communication',
   Materials: 'Materials',
   Energy: 'Energy',
-  Utilities: 'Utilities'
+  Utilities: 'Utilities',
+  'Information Technology': 'Information Technology',
+  'Consumer Discretionary': 'Consumer Discretionary',
+  'Communication Services': 'Communication Services',
+  'Real Estate': 'Real Estate',
+  Other: 'Other'
 };
 
 interface Item {
@@ -47,7 +52,7 @@ function readColumn(
   right: number,
   top: number,
   bottom: number,
-  expected: number
+  expected?: number
 ): { name: string; weight: number }[] {
   const section = items.filter(
     (item) =>
@@ -55,31 +60,40 @@ function readColumn(
   );
   const labels = section.filter((item) => percent(item.text) === undefined);
   const weights = section.filter((item) => percent(item.text) !== undefined);
-  if (labels.length !== expected || weights.length !== expected) {
+  if (
+    weights.length === 0 ||
+    (expected !== undefined && weights.length !== expected)
+  ) {
     throw new Error('Unexpected WisdomTree allocation table structure');
   }
-  const used = new Set<number>();
-  return labels
-    .sort((a, b) => b.y - a.y)
-    .map((label) => {
-      const candidates = weights
-        .map((weight, index) => ({
-          weight,
-          index,
-          distance: Math.abs(weight.y - label.y)
-        }))
-        .filter(({ index, distance }) => !used.has(index) && distance <= 3)
-        .sort((a, b) => a.distance - b.distance);
-      if (candidates.length !== 1) {
-        throw new Error('Ambiguous WisdomTree allocation row');
-      }
-      used.add(candidates[0].index);
-      return { name: label.text, weight: percent(candidates[0].weight.text)! };
-    });
+  const grouped = weights.map(() => [] as Item[]);
+  for (const label of labels) {
+    const candidates = weights
+      .map((weight, index) => ({
+        index,
+        distance: Math.abs(weight.y - label.y)
+      }))
+      .filter(({ distance }) => distance <= 6);
+    if (candidates.length !== 1)
+      throw new Error('Unexpected WisdomTree allocation table structure');
+    grouped[candidates[0].index].push(label);
+  }
+  return weights.map((weight, index) => {
+    if (grouped[index].length === 0)
+      throw new Error('Unexpected WisdomTree allocation table structure');
+    return {
+      name: grouped[index]
+        .sort((a, b) => b.y - a.y)
+        .map((label) => label.text)
+        .join(' '),
+      weight: percent(weight.text)!
+    };
+  });
 }
 
 export function parseWisdomtreeFactsheet(
-  items: WisdomtreeTextItem[]
+  items: WisdomtreeTextItem[],
+  expectedIsin?: string
 ): WisdomtreeComposition {
   const textItems: Item[] = items
     .filter(
@@ -101,10 +115,9 @@ export function parseWisdomtreeFactsheet(
     return matches[0];
   };
 
-  const holdings = findUnique('Top 10 Holdings (% Weight)');
   const sectorsHeader = findUnique('Fund Sector Exposure (% Weight)');
   const countriesHeader = findUnique('Top 10 Countries (% Weight)');
-  if (!(holdings.x < sectorsHeader.x && sectorsHeader.x < countriesHeader.x)) {
+  if (!(sectorsHeader.x < countriesHeader.x)) {
     throw new Error('Unexpected WisdomTree column ordering');
   }
 
@@ -126,51 +139,71 @@ export function parseWisdomtreeFactsheet(
     throw new Error('Invalid or future WisdomTree allocation date');
   }
 
-  const listing = textItems.some((item) => item.text === 'GGRA.MI');
-  const isin = textItems.some((item) => item.text === ISIN);
-  if (!listing || !isin) throw new Error('WisdomTree fund identity mismatch');
+  const isins = [
+    ...new Set(
+      textItems.flatMap(
+        (item) => item.text.match(/\b[A-Z]{2}[A-Z0-9]{9}[0-9]\b/g) ?? []
+      )
+    )
+  ];
+  if (isins.length !== 1 || (expectedIsin && isins[0] !== expectedIsin))
+    throw new Error('WisdomTree fund identity mismatch');
+  const isin = isins[0];
 
   const bottom = source[0].y;
-  const sectorRows = readColumn(
-    textItems,
-    sectorsHeader.x,
-    countriesHeader.x,
-    sectorsHeader.y,
-    bottom,
-    10
-  );
-  const countryRows = readColumn(
-    textItems,
-    countriesHeader.x,
-    Infinity,
-    countriesHeader.y,
-    bottom,
-    10
-  );
-  const sectorExposures = sectorRows.map(({ name, weight }) => {
-    const normalized = SECTOR_LABELS[name];
-    if (!normalized) throw new Error(`Unknown WisdomTree sector: ${name}`);
-    return { name: normalized, weight };
-  });
-
-  const composition = normalizeEtfComposition({
-    countries: countryRows,
-    sectors: sectorExposures
-  });
+  const warnings: string[] = [];
+  const readDimension = (dimension: 'countries' | 'sectors') => {
+    try {
+      const rows = readColumn(
+        textItems,
+        dimension === 'countries' ? countriesHeader.x : sectorsHeader.x,
+        dimension === 'countries' ? Infinity : countriesHeader.x,
+        dimension === 'countries' ? countriesHeader.y : sectorsHeader.y,
+        bottom
+      );
+      if (dimension === 'countries')
+        return normalizeEtfComposition({ countries: rows });
+      if (
+        rows.some(({ name }) => name === 'Consumer…') &&
+        (!rows.some(({ name }) => name === 'Consumer Staples') ||
+          rows.some(({ name }) => name === 'Consumer Discretionary'))
+      ) {
+        throw new Error('Ambiguous truncated WisdomTree consumer sector');
+      }
+      return normalizeEtfComposition({
+        sectors: rows.map(({ name, weight }) => {
+          const normalized = SECTOR_LABELS[name];
+          if (!normalized)
+            throw new Error('Unknown WisdomTree sector: ' + name);
+          return { name: normalized, weight };
+        })
+      });
+    } catch (error) {
+      warnings.push(
+        dimension +
+          ': ' +
+          (error instanceof Error ? error.message : String(error))
+      );
+      return normalizeEtfComposition({});
+    }
+  };
+  const countryComposition = readDimension('countries');
+  const sectorComposition = readDimension('sectors');
   if (
-    composition.countries.length !== 10 ||
-    composition.sectors.length !== 10 ||
-    composition.unclassifiedCountryWeight !== 0 ||
-    composition.countryCoverage < 0.9 ||
-    composition.countryCoverage > 1 ||
-    composition.classifiedSectorCoverage < 0.98 ||
-    composition.sectorCoverage > 1
+    !countryComposition.countries.length &&
+    !sectorComposition.sectors.length &&
+    warnings.length
   ) {
-    throw new Error('Invalid WisdomTree allocation coverage');
+    throw new Error(warnings.join('; '));
   }
-
+  const composition = {
+    ...countryComposition,
+    sectors: sectorComposition.sectors,
+    sectorCoverage: sectorComposition.sectorCoverage
+  };
   return {
-    isin: ISIN,
+    isin,
+    warnings,
     asOfDate,
     countries: composition.countries,
     sectors: composition.sectors,
@@ -181,7 +214,8 @@ export function parseWisdomtreeFactsheet(
 }
 
 export async function parseWisdomtreePdf(
-  data: Uint8Array
+  data: Uint8Array,
+  expectedIsin?: string
 ): Promise<WisdomtreeComposition> {
   const pdfjs = await import('pdfjs-dist/legacy/build/pdf.mjs');
   const task = pdfjs.getDocument({
@@ -191,16 +225,22 @@ export async function parseWisdomtreePdf(
   });
   try {
     const document = await task.promise;
-    if (document.numPages < 3)
-      throw new Error('Incomplete WisdomTree factsheet');
-    const page = await document.getPage(3);
-    const content = await page.getTextContent();
-    return parseWisdomtreeFactsheet(
-      content.items.filter(
+    if (document.numPages > 20)
+      throw new Error('Unsupported WisdomTree factsheet length');
+    const pages: WisdomtreeTextItem[][] = [];
+    for (let number = 1; number <= document.numPages; number++) {
+      const page = await document.getPage(number);
+      const content = await page.getTextContent();
+      const items = content.items.filter(
         (item): item is typeof item & { str: string; transform: number[] } =>
           'str' in item && 'transform' in item
-      )
-    );
+      );
+      if (items.some((item) => item.str === 'Fund Sector Exposure (% Weight)'))
+        pages.push(items);
+    }
+    if (pages.length !== 1)
+      throw new Error('Missing or ambiguous WisdomTree allocation page');
+    return parseWisdomtreeFactsheet(pages[0], expectedIsin);
   } finally {
     await task.destroy();
   }

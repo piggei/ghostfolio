@@ -5,16 +5,13 @@ import { FetchService } from '@ghostfolio/api/services/fetch/fetch.service';
 import { Injectable, Logger } from '@nestjs/common';
 import { Prisma, SymbolProfile } from '@prisma/client';
 
+import { getEtfCompositionDiscovery } from '../etf-composition.discovery';
+import {
+  improvesComposition,
+  needsComposition
+} from '../etf-composition.quality';
 import { aggregateIsharesHoldings } from './ishares.aggregator';
 import { fetchIsharesHoldings } from './ishares.client';
-
-const FUND = {
-  isin: 'IE00B4L5Y983',
-  portfolioId: '251882',
-  symbols: ['SWDA.MI', 'IWDA.AS'],
-  pageUrl:
-    'https://www.ishares.com/uk/individual/en/products/251882/ishares-core-msci-world-ucits-etf-swda'
-};
 
 const MINIMUM_COVERAGE = 0.95;
 
@@ -48,39 +45,33 @@ export class IsharesDataEnhancerService implements DataEnhancerInterface {
       return response;
     }
 
-    const normalizedSymbol = symbol.toUpperCase();
+    const needsCountries = needsComposition(response.countries, 'countries');
 
-    if (!FUND.symbols.includes(normalizedSymbol)) {
-      return response;
-    }
-
-    if (response.isin && response.isin !== FUND.isin) {
-      return response;
-    }
-
-    if (response.isin !== FUND.isin && response.dataSource !== 'YAHOO') {
-      return response;
-    }
-
-    const needsCountries =
-      !Array.isArray(response.countries) || response.countries.length === 0;
-
-    const needsSectors =
-      !Array.isArray(response.sectors) || response.sectors.length === 0;
+    const needsSectors = needsComposition(response.sectors, 'sectors');
 
     if (!needsCountries && !needsSectors) {
       return response;
     }
 
     try {
+      const fund = await getEtfCompositionDiscovery(this.fetchService).discover(
+        this.getName() as 'ISHARES',
+        response,
+        symbol,
+        requestTimeout
+      );
+      if (!fund) return response;
+
       const document = await fetchIsharesHoldings({
         fetch: (input, init) => this.fetchService.fetch(input, init),
-        pageUrl: FUND.pageUrl,
-        portfolioId: FUND.portfolioId,
+        pageUrl: fund.pageUrl!,
+        portfolioId: fund.portfolioId!,
         requestTimeout
       });
 
       const { composition } = aggregateIsharesHoldings(document.holdings);
+
+      if (!response.isin) response.isin = fund.isin;
 
       const hasCountryCoverage =
         composition.countryCoverage + composition.unclassifiedCountryWeight >=
@@ -93,13 +84,21 @@ export class IsharesDataEnhancerService implements DataEnhancerInterface {
       if (
         needsCountries &&
         hasCountryCoverage &&
-        composition.countries.length > 0
+        improvesComposition(
+          response.countries,
+          composition.countries,
+          'countries'
+        )
       ) {
         response.countries =
           composition.countries as unknown as Prisma.JsonArray;
       }
 
-      if (needsSectors && hasSectorCoverage && composition.sectors.length > 0) {
+      if (
+        needsSectors &&
+        hasSectorCoverage &&
+        improvesComposition(response.sectors, composition.sectors, 'sectors')
+      ) {
         response.sectors = composition.sectors as unknown as Prisma.JsonArray;
       }
 

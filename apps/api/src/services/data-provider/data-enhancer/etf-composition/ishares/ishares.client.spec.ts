@@ -14,6 +14,11 @@ const CSV = [
   '"AAPL","APPLE","Information Technology","Equity","100.00","100.00","100.00","United States","USD"'
 ].join('\n');
 
+beforeEach(() =>
+  jest.spyOn(Date, 'now').mockReturnValue(Date.parse('2026-11-25T12:00:00Z'))
+);
+afterEach(() => jest.restoreAllMocks());
+
 describe('iShares holdings client', () => {
   it('extracts the holdings date from the official component', () => {
     expect(parseIsharesHoldingsDate(PAGE)).toBe('20261120');

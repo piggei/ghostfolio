@@ -236,3 +236,25 @@ describe('Vanguard holdings client', () => {
     expect(fetchPage).toHaveBeenCalledTimes(1);
   });
 });
+
+describe('Vanguard duplicate holding protection', () => {
+  it('rejects the same SEDOL repeated across pages', async () => {
+    const first = page({ count: 1, total: 2, cursor: 'next' });
+    const second = page({ count: 1, total: 2, cursor: null });
+    Object.assign(first.data.borHoldings[0].holdings.items[0], {
+      sedol1: 'B123456'
+    });
+    Object.assign(second.data.borHoldings[0].holdings.items[0], {
+      sedol1: 'B123456'
+    });
+    await expect(
+      fetchVanguardHoldings({
+        portId: 'any',
+        fetchPage: jest
+          .fn()
+          .mockResolvedValueOnce(first)
+          .mockResolvedValueOnce(second)
+      })
+    ).rejects.toThrow('Duplicate Vanguard holding');
+  });
+});

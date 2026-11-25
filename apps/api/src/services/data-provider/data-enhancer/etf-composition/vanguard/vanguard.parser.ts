@@ -1,6 +1,7 @@
 import { Big } from 'big.js';
 
 export interface VanguardHolding {
+  id?: string;
   country?: string;
   sector?: string;
   securityType: string;
@@ -62,6 +63,7 @@ export function parseVanguardHoldingsPage(
     const {
       bloombergIsoCountry,
       gicsSectorDescription,
+      icbIndustryDescription,
       marketValuePercentage,
       securityType
     } = item;
@@ -91,15 +93,23 @@ export function parseVanguardHoldingsPage(
       throw new Error('Invalid Vanguard sector');
     }
 
+    if (
+      icbIndustryDescription != null &&
+      typeof icbIndustryDescription !== 'string'
+    ) {
+      throw new Error('Invalid Vanguard ICB industry');
+    }
+    const sector = gicsSectorDescription || icbIndustryDescription;
     holdings.push({
+      id:
+        typeof item.sedol1 === 'string' && item.sedol1.trim()
+          ? item.sedol1
+          : undefined,
       country:
         typeof bloombergIsoCountry === 'string'
           ? bloombergIsoCountry
           : undefined,
-      sector:
-        typeof gicsSectorDescription === 'string'
-          ? gicsSectorDescription
-          : undefined,
+      sector: typeof sector === 'string' ? sector : undefined,
       securityType,
       weight: new Big(marketValuePercentage).div(100).toNumber()
     });

@@ -1,12 +1,14 @@
 import { FetchService } from '@ghostfolio/api/services/fetch/fetch.service';
 
 export const WISDOMTREE_FACTSHEET_URL =
-  'https://dataspanapi.wisdomtree.com/pdr/documents/FACTSHEET/UCITS/EU/EN-GB/IE00BZ56SW52/';
+  'https://dataspanapi.wisdomtree.com/pdr/documents/FACTSHEET/UCITS/EU/EN-GB/';
 
 export async function fetchWisdomtreeFactsheet({
+  isin,
   fetchService,
   requestTimeout
 }: {
+  isin: string;
   fetchService: Pick<FetchService, 'fetch'>;
   requestTimeout: number;
 }): Promise<Uint8Array> {
@@ -14,9 +16,14 @@ export async function fetchWisdomtreeFactsheet({
     throw new Error('Invalid WisdomTree timeout');
   }
 
-  const response = await fetchService.fetch(WISDOMTREE_FACTSHEET_URL, {
-    signal: AbortSignal.timeout(requestTimeout)
-  });
+  if (!/^[A-Z]{2}[A-Z0-9]{9}[0-9]$/.test(isin))
+    throw new Error('Invalid WisdomTree ISIN');
+  const response = await fetchService.fetch(
+    WISDOMTREE_FACTSHEET_URL + isin + '/',
+    {
+      signal: AbortSignal.timeout(requestTimeout)
+    }
+  );
   if (!response.ok) {
     throw new Error(`WisdomTree HTTP status ${response.status}`);
   }

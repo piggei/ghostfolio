@@ -1,0 +1,78 @@
+[
+  {
+    "str": "Top 10 Countries (% Weight)",
+    "transform": [6.96, 0, 0, 6.96, 387.48, 684.29]
+  },
+  {
+    "str": "92.54%",
+    "transform": [6, 0, 0, 6, 475.63, 641.04]
+  },
+  {
+    "str": "5.94%",
+    "transform": [6, 0, 0, 6, 444.19, 601.46]
+  },
+  {
+    "str": "1.52%",
+    "transform": [6, 0, 0, 6, 442.58, 561.89]
+  },
+  {
+    "str": "United States",
+    "transform": [6, 0, 0, 6, 396.38, 641.42]
+  },
+  {
+    "str": "Israel",
+    "transform": [6, 0, 0, 6, 416.62, 601.85]
+  },
+  {
+    "str": "Canada",
+    "transform": [6, 0, 0, 6, 411.22, 562.27]
+  },
+  {
+    "str": "Fund Sector Exposure (% Weight)",
+    "transform": [6.96, 0, 0, 6.96, 218.83, 684.29]
+  },
+  {
+    "str": "92.04%",
+    "transform": [6, 0, 0, 6, 316.22, 648.02]
+  },
+  {
+    "str": "3.44%",
+    "transform": [6, 0, 0, 6, 267.02, 616.56]
+  },
+  {
+    "str": "3.27%",
+    "transform": [6, 0, 0, 6, 266.93, 585.12]
+  },
+  {
+    "str": "1.25%",
+    "transform": [6.024, 0, 0, 6.024, 265.66, 553.68]
+  },
+  {
+    "str": "Information",
+    "transform": [6, 0, 0, 6, 223.2, 652.18]
+  },
+  {
+    "str": "Technology",
+    "transform": [6.024, 0, 0, 6.024, 223.51, 644.64]
+  },
+  {
+    "str": "Health Care",
+    "transform": [6, 0, 0, 6, 223.73, 616.94]
+  },
+  {
+    "str": "Industrials",
+    "transform": [6, 0, 0, 6, 226.54, 585.5]
+  },
+  {
+    "str": "Financials",
+    "transform": [6.024, 0, 0, 6.024, 227.86, 554.06]
+  },
+  {
+    "str": "NB: Sources for all tables/charts on these pages: WisdomTree UK, Bloomberg. All data as of 30/10/2026",
+    "transform": [6.96, 0, 0, 6.96, 37.392, 516]
+  },
+  {
+    "str": "IE00BJGWQN72",
+    "transform": [6.96, 0, 0, 6.96, 349.03, 454.03]
+  }
+]

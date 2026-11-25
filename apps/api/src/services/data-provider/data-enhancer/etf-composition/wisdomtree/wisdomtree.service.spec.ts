@@ -1,6 +1,11 @@
+import { getEtfCompositionDiscovery } from '../etf-composition.discovery';
 import { fetchWisdomtreeFactsheet } from './wisdomtree.client';
 import { parseWisdomtreePdf } from './wisdomtree.parser';
 import { WisdomtreeDataEnhancerService } from './wisdomtree.service';
+
+jest.mock('../etf-composition.discovery', () => ({
+  getEtfCompositionDiscovery: jest.fn()
+}));
 
 jest.mock('@ghostfolio/api/services/fetch/fetch.service', () => ({
   FetchService: jest.fn()
@@ -13,14 +18,8 @@ jest.mock('./wisdomtree.parser', () => ({ parseWisdomtreePdf: jest.fn() }));
 const composition = {
   isin: 'IE00BZ56SW52',
   asOfDate: new Date().toISOString().slice(0, 10),
-  countries: Array.from({ length: 10 }, (_, i) => ({
-    code: `C${i}`,
-    weight: i === 0 ? 0.9323 : 0
-  })),
-  sectors: Array.from({ length: 10 }, (_, i) => ({
-    name: `S${i}`,
-    weight: i === 0 ? 0.9997 : 0
-  })),
+  countries: [{ code: 'US', weight: 0.9323 }],
+  sectors: [{ name: 'Technology', weight: 0.9997 }],
   countryCoverage: 0.9323,
   sectorCoverage: 0.9997,
   missingCountryWeight: 0.0677
@@ -37,6 +36,15 @@ const service = new WisdomtreeDataEnhancerService(
 
 beforeEach(() => {
   jest.clearAllMocks();
+  (getEtfCompositionDiscovery as jest.Mock).mockReturnValue({
+    discover: jest.fn().mockImplementation(async (_issuer, response) => ({
+      isin: response.isin ?? 'IE00BZ56SW52',
+      portfolioId: '',
+      pageUrl: 'https://www.ishares.com/uk/individual/en/products//',
+      holdingsUrl:
+        'https://etf.deutsche-am.com/api/pdp/en-gb/etf/discovered/holdings'
+    }))
+  });
   (fetchWisdomtreeFactsheet as jest.Mock).mockResolvedValue(
     new Uint8Array([1])
   );
@@ -60,16 +68,7 @@ describe('WisdomTree enhancer', () => {
       symbol: 'GGRA.MI'
     });
     expect(result.sectors).toBe(sectors);
-    expect(result.countries).toHaveLength(10);
-  });
-
-  it('skips unsupported symbols and conflicting ISINs', async () => {
-    await service.enhance({ response: { ...profile }, symbol: 'SWDA.MI' });
-    await service.enhance({
-      response: { ...profile, isin: 'IE00B4L5Y983' },
-      symbol: 'GGRA.MI'
-    });
-    expect(fetchWisdomtreeFactsheet).not.toHaveBeenCalled();
+    expect(result.countries).toHaveLength(1);
   });
 
   it('rejects stale factsheets', async () => {

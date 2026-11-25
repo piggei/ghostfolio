@@ -10,6 +10,7 @@ describe('WisdomTree factsheet client', () => {
       })
     );
     const bytes = await fetchWisdomtreeFactsheet({
+      isin: 'IE00BZ56SW52',
       fetchService: { fetch } as any,
       requestTimeout: 30000
     });
@@ -23,6 +24,7 @@ describe('WisdomTree factsheet client', () => {
       .mockResolvedValue(new Response(null, { status: 403 }));
     await expect(
       fetchWisdomtreeFactsheet({
+        isin: 'IE00BZ56SW52',
         fetchService: { fetch } as any,
         requestTimeout: 30000
       })
@@ -37,6 +39,7 @@ describe('WisdomTree factsheet client', () => {
     );
     await expect(
       fetchWisdomtreeFactsheet({
+        isin: 'IE00BZ56SW52',
         fetchService: { fetch } as any,
         requestTimeout: 30000
       })

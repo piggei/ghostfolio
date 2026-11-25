@@ -5,10 +5,14 @@ import { FetchService } from '@ghostfolio/api/services/fetch/fetch.service';
 import { Injectable, Logger } from '@nestjs/common';
 import { Prisma, SymbolProfile } from '@prisma/client';
 
+import { getEtfCompositionDiscovery } from '../etf-composition.discovery';
+import {
+  improvesComposition,
+  needsComposition
+} from '../etf-composition.quality';
 import { fetchWisdomtreeFactsheet } from './wisdomtree.client';
 import { parseWisdomtreePdf } from './wisdomtree.parser';
 
-const FUND_ISIN = 'IE00BZ56SW52';
 const MINIMUM_COUNTRY_COVERAGE = 0.9; // Top 10 only, not a full composition
 const MINIMUM_SECTOR_COVERAGE = 0.95;
 const MAX_DOCUMENT_AGE_DAYS = 75;
@@ -42,31 +46,30 @@ export class WisdomtreeDataEnhancerService implements DataEnhancerInterface {
     if (response.assetClass !== 'EQUITY' || response.assetSubClass !== 'ETF') {
       return response;
     }
-    if (symbol.toUpperCase() !== 'GGRA.MI') {
-      return response;
-    }
-    if (response.isin && response.isin !== FUND_ISIN) {
-      return response;
-    }
-    if (response.isin !== FUND_ISIN && response.dataSource !== 'YAHOO') {
-      return response;
-    }
-
-    const needsCountries =
-      !Array.isArray(response.countries) || response.countries.length === 0;
-    const needsSectors =
-      !Array.isArray(response.sectors) || response.sectors.length === 0;
+    const needsCountries = needsComposition(response.countries, 'countries');
+    const needsSectors = needsComposition(response.sectors, 'sectors');
     if (!needsCountries && !needsSectors) {
       return response;
     }
 
     try {
+      const fund = await getEtfCompositionDiscovery(this.fetchService).discover(
+        this.getName() as 'WISDOMTREE',
+        response,
+        symbol,
+        requestTimeout
+      );
+      if (!fund) return response;
+
       const bytes = await fetchWisdomtreeFactsheet({
+        isin: fund.isin,
         fetchService: this.fetchService,
         requestTimeout
       });
-      const composition = await parseWisdomtreePdf(bytes);
-      if (composition.isin !== FUND_ISIN) {
+      const composition = await parseWisdomtreePdf(bytes, fund.isin);
+      if (composition.warnings?.length)
+        this.logger.warn(composition.warnings.join('; '));
+      if (composition.isin !== fund.isin) {
         throw new Error('Unexpected WisdomTree ISIN');
       }
       const timestamp = Date.parse(`${composition.asOfDate}T00:00:00Z`);
@@ -79,10 +82,16 @@ export class WisdomtreeDataEnhancerService implements DataEnhancerInterface {
         throw new Error('Stale or invalid WisdomTree factsheet');
       }
 
+      if (!response.isin) response.isin = fund.isin;
+
       // Keep the ten published country weights unchanged; the remainder is unknown.
       if (
         needsCountries &&
-        composition.countries.length === 10 &&
+        improvesComposition(
+          response.countries,
+          composition.countries,
+          'countries'
+        ) &&
         composition.countryCoverage >= MINIMUM_COUNTRY_COVERAGE &&
         composition.countryCoverage <= 1
       ) {
@@ -91,7 +100,7 @@ export class WisdomtreeDataEnhancerService implements DataEnhancerInterface {
       }
       if (
         needsSectors &&
-        composition.sectors.length === 10 &&
+        improvesComposition(response.sectors, composition.sectors, 'sectors') &&
         composition.sectorCoverage >= MINIMUM_SECTOR_COVERAGE &&
         composition.sectorCoverage <= 1
       ) {
