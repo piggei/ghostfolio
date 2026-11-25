@@ -1,5 +1,14 @@
 # Ghostfolio-NG Home Assistant Add-on Changelog
 
+## 3.100.7
+
+### Integration-specific changes
+
+- feat(data-provider): add WisdomTree ETF composition enhancer (f9516068c)
+- feat(data-provider): improve Xtrackers ETF composition parsing (d966d747e)
+- fix(data-provider): make justETF canonical parsing order-independent (74d6309da)
+- feat(data-provider): add experimental ISIN resolver (8103072be)
+
 ## 3.100.6
 
 ### Integration-specific changes

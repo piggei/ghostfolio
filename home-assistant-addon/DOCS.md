@@ -266,9 +266,9 @@ Ghostfolio application version.
 
 <!-- release-current:start -->
 
-Current add-on version: **3.100.6**.
-Ghostfolio NG: `integration-3.100.0-35`.
-Source image: `ghcr.io/piggei/ghostfolio-ng@sha256:68db0b1103820d243745f555114328f7575cce2499d0add11b20a21f2366c42c`.
+Current add-on version: **3.100.7**.
+Ghostfolio NG: `integration-3.100.0-37`.
+Source image: `ghcr.io/piggei/ghostfolio-ng@sha256:3751febab2e3c009c002083c0cd373c61f7ac6a61ab885c237f749049afee93f`.
 <!-- release-current:end -->
 
 ## Updates
