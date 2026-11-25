@@ -1,4 +1,8 @@
 import { isDataGatheringSupported } from '@ghostfolio/api/helper/data-source.helper';
+import {
+  compositionQuality,
+  improvesComposition
+} from '@ghostfolio/api/services/data-provider/data-enhancer/etf-composition/etf-composition.quality';
 import { DataProviderService } from '@ghostfolio/api/services/data-provider/data-provider.service';
 import { DataEnhancerInterface } from '@ghostfolio/api/services/data-provider/interfaces/data-enhancer.interface';
 import { ExchangeRateDataService } from '@ghostfolio/api/services/exchange-rate-data/exchange-rate-data.service';
@@ -111,8 +115,10 @@ export class DataGatheringService {
       }
 
       const symbolProfile = symbolProfiles.find(
-        ({ symbol: symbolProfileSymbol }) => {
-          return symbolProfileSymbol === symbol;
+        ({ symbol: symbolProfileSymbol, dataSource: profileDataSource }) => {
+          return (
+            symbolProfileSymbol === symbol && profileDataSource === dataSource
+          );
         }
       );
 
@@ -121,18 +127,71 @@ export class DataGatheringService {
       let enhancedAssetProfile = symbolProfile
         ? {
             ...assetProfile,
+            ...((symbolProfile.assetSubClass ?? assetProfile.assetSubClass) ===
+            'ETF'
+              ? {
+                  isin: symbolProfile.isin ?? assetProfile.isin,
+                  name: assetProfile.name ?? symbolProfile.name
+                }
+              : {}),
             assetClass: symbolProfile.assetClass ?? assetProfile.assetClass,
             assetSubClass:
               symbolProfile.assetSubClass ?? assetProfile.assetSubClass
           }
         : assetProfile;
 
+      if (enhancedAssetProfile.assetSubClass === 'ETF') {
+        for (const dimension of ['countries', 'sectors'] as const) {
+          const saved = compositionQuality(
+            symbolProfile?.[dimension],
+            dimension
+          );
+          if (
+            saved.valid &&
+            !improvesComposition(
+              symbolProfile?.[dimension],
+              enhancedAssetProfile[dimension],
+              dimension
+            )
+          ) {
+            enhancedAssetProfile[dimension] = symbolProfile![
+              dimension
+            ] as unknown as (typeof enhancedAssetProfile)[typeof dimension];
+          }
+        }
+      }
+
       for (const dataEnhancer of this.dataEnhancers) {
         try {
+          const previous = { ...enhancedAssetProfile };
           enhancedAssetProfile = await dataEnhancer.enhance({
             response: enhancedAssetProfile,
             symbol: symbolMapping?.[dataEnhancer.getName()] ?? symbol
           });
+          if (previous.assetSubClass === 'ETF') {
+            // Preserve identity supplied by the profile. Missing identities may
+            // only be assigned by the issuer flow after listing verification.
+            if (
+              !['ISHARES', 'VANGUARD', 'XTRACKERS', 'WISDOMTREE'].includes(
+                dataEnhancer.getName()
+              )
+            ) {
+              enhancedAssetProfile.isin = previous.isin;
+            }
+            for (const dimension of ['countries', 'sectors'] as const) {
+              const before = compositionQuality(previous[dimension], dimension);
+              if (
+                before.valid &&
+                !improvesComposition(
+                  previous[dimension],
+                  enhancedAssetProfile[dimension],
+                  dimension
+                )
+              ) {
+                enhancedAssetProfile[dimension] = previous[dimension];
+              }
+            }
+          }
         } catch (error) {
           this.logger.error(
             `Failed to enhance data for ${symbol} (${

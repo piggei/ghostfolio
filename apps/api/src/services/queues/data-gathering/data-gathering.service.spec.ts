@@ -66,6 +66,25 @@ describe('DataGatheringService', () => {
   describe('gatherAssetProfiles', () => {
     const assetProfileIdentifier = { dataSource: 'YAHOO', symbol: 'VWCE.DE' };
 
+    it('retains non-ETF identifier update behavior', async () => {
+      const identifier = { dataSource: 'YAHOO' as const, symbol: 'AAPL' };
+      symbolProfileService.getSymbolProfiles.mockResolvedValue([
+        { ...identifier, assetSubClass: 'STOCK', isin: 'US0378331005' }
+      ]);
+      dataProviderService.getAssetProfiles.mockResolvedValue({
+        AAPL: {
+          ...identifier,
+          assetSubClass: 'STOCK',
+          isin: 'INCOMING',
+          name: 'Incoming name'
+        }
+      });
+      await dataGatheringService.gatherAssetProfiles([identifier]);
+      expect(
+        prismaService.symbolProfile.upsert.mock.calls[0][0].update.isin
+      ).toBe('INCOMING');
+    });
+
     it('keeps the stored lists if the lists of the asset profile are empty', async () => {
       dataProviderService.getAssetProfiles.mockResolvedValue({
         'VWCE.DE': {
@@ -195,6 +214,54 @@ describe('DataGatheringService', () => {
     });
   });
 
+  describe('ETF stored profile protection', () => {
+    it.each([0.5, 1])(
+      'preserves saved identity and complete sectors across earlier enhancer mutations (%s coverage)',
+      async (incomingWeight) => {
+        const identifier = { dataSource: 'YAHOO' as const, symbol: 'ANY.MI' };
+        const sectors = [{ name: 'Technology', weight: 0.99 }];
+        symbolProfileService.getSymbolProfiles.mockResolvedValue([
+          {
+            ...identifier,
+            isin: 'IE00B4L5Y983',
+            assetClass: 'EQUITY',
+            assetSubClass: 'ETF',
+            sectors
+          }
+        ]);
+        dataProviderService.getAssetProfiles.mockResolvedValue({
+          asset: {
+            ...identifier,
+            name: 'iShares ETF',
+            sectors: [{ name: 'Energy', weight: 0.4 }]
+          }
+        });
+        const enhancer = {
+          getName: () => 'YAHOO',
+          enhance: jest.fn(async ({ response }) => {
+            response.isin = 'IE00BTJRMP35';
+            response.sectors = [{ name: 'Energy', weight: incomingWeight }];
+            return response;
+          })
+        };
+        const service = new DataGatheringService(
+          [enhancer] as any,
+          dataGatheringQueue as any,
+          dataProviderService as any,
+          null,
+          null,
+          prismaService as any,
+          null,
+          symbolProfileService as any
+        );
+        await service.gatherAssetProfiles([identifier]);
+        const { update } = prismaService.symbolProfile.upsert.mock.calls[0][0];
+        expect(update.isin).toBe('IE00B4L5Y983');
+        expect(update.sectors).toEqual(sectors);
+      }
+    );
+  });
+
   describe('Xtrackers real enhancer integration', () => {
     it('processes real Xtrackers enhancer through data gathering', async () => {
       const fetchService = {
@@ -202,6 +269,23 @@ describe('DataGatheringService', () => {
           Response.json({
             tables: [
               {
+                disclaimers: [
+                  {
+                    text:
+                      'Source: DWS ' +
+                      new Date()
+                        .toISOString()
+                        .slice(0, 10)
+                        .split('-')
+                        .reverse()
+                        .join('/')
+                  }
+                ],
+                downloadLinks: [
+                  {
+                    href: 'https://etf.deutsche-am.com/etfdata/export/GBR/ENG/excel/product/constituent/IE00BTJRMP35/'
+                  }
+                ],
                 columns: [
                   { key: 'column_1', value: '% Weight' },
                   { key: 'column_3', value: 'Country' },
@@ -250,14 +334,24 @@ describe('DataGatheringService', () => {
         'XMME.MI': {
           ...identifier,
           assetClass: 'EQUITY',
-          assetSubClass: 'ETF'
+          assetSubClass: 'ETF',
+          name: 'Xtrackers ETF',
+          isin: 'IE00BTJRMP35'
         }
       });
 
+      fetchService.fetch.mockResolvedValueOnce(
+        new Response(
+          '<loc>https://etf.deutsche-am.com/en-gb/IE00BTJRMP35-msci-emerging-markets-ucits-etf-1c/</loc>'
+        )
+      );
       await service.gatherAssetProfiles([identifier]);
 
-      expect(fetchService.fetch).toHaveBeenCalledTimes(1);
-      expect(fetchService.fetch.mock.calls[0][0]).toContain('IE00BTJRMP35');
+      expect(fetchService.fetch).toHaveBeenCalledTimes(2);
+      expect(fetchService.fetch.mock.calls[0][0]).toBe(
+        'https://etf.deutsche-am.com/en-gb/sitemap.xml'
+      );
+      expect(fetchService.fetch.mock.calls[1][0]).toContain('IE00BTJRMP35');
 
       expect(prismaService.symbolProfile.upsert).toHaveBeenCalledTimes(1);
 
@@ -281,6 +375,12 @@ describe('DataGatheringService', () => {
   });
 
   describe('iShares real enhancer integration', () => {
+    beforeEach(() =>
+      jest
+        .spyOn(Date, 'now')
+        .mockReturnValue(Date.parse('2026-11-25T12:00:00Z'))
+    );
+    afterEach(() => jest.restoreAllMocks());
     const identifier = {
       dataSource: 'YAHOO' as const,
       symbol: 'SWDA.MI'
@@ -322,6 +422,7 @@ describe('DataGatheringService', () => {
           ...identifier,
           assetClass: 'EQUITY',
           assetSubClass: 'ETF',
+          name: 'iShares ETF',
           isin: 'IE00B4L5Y983'
         }
       });
@@ -330,6 +431,19 @@ describe('DataGatheringService', () => {
     it('persists iShares allocations without equity renormalization', async () => {
       const fetch = jest
         .fn()
+        .mockResolvedValueOnce(
+          Response.json({ results: [{ portfolioId: '251882' }] })
+        )
+        .mockResolvedValueOnce(
+          new Response(
+            '<loc>https://www.ishares.com/uk/individual/en/products/251882/dynamic-product</loc>'
+          )
+        )
+        .mockResolvedValueOnce(
+          new Response(
+            '{&quot;value&quot;:&quot;IE00B4L5Y983&quot;,&quot;fullName&quot;:&quot;fundHeader.fundName.productIsin&quot;}'
+          )
+        )
         .mockResolvedValueOnce(new Response(page))
         .mockResolvedValueOnce(
           new Response(csv, {
@@ -341,9 +455,9 @@ describe('DataGatheringService', () => {
 
       await service.gatherAssetProfiles([identifier]);
 
-      expect(fetch).toHaveBeenCalledTimes(2);
+      expect(fetch).toHaveBeenCalledTimes(5);
 
-      const documentUrl = new URL(fetch.mock.calls[1][0]);
+      const documentUrl = new URL(fetch.mock.calls[4][0]);
 
       expect(documentUrl.searchParams.get('portfolioId')).toBe('251882');
       expect(documentUrl.searchParams.get('asOfDate')).toBe('20261120');
@@ -374,6 +488,7 @@ describe('DataGatheringService', () => {
           ...identifier,
           assetClass: 'EQUITY',
           assetSubClass: 'ETF',
+          name: 'iShares ETF',
           isin: 'IE00B4L5Y983',
           countries: existingCountries
         }
@@ -381,6 +496,19 @@ describe('DataGatheringService', () => {
 
       const fetch = jest
         .fn()
+        .mockResolvedValueOnce(
+          Response.json({ results: [{ portfolioId: '251882' }] })
+        )
+        .mockResolvedValueOnce(
+          new Response(
+            '<loc>https://www.ishares.com/uk/individual/en/products/251882/dynamic-product</loc>'
+          )
+        )
+        .mockResolvedValueOnce(
+          new Response(
+            '{&quot;value&quot;:&quot;IE00B4L5Y983&quot;,&quot;fullName&quot;:&quot;fundHeader.fundName.productIsin&quot;}'
+          )
+        )
         .mockResolvedValueOnce(new Response(page))
         .mockResolvedValueOnce(
           new Response(csv, {
@@ -399,12 +527,25 @@ describe('DataGatheringService', () => {
     it('does not persist partial allocations after a document failure', async () => {
       const fetch = jest
         .fn()
+        .mockResolvedValueOnce(
+          Response.json({ results: [{ portfolioId: '251882' }] })
+        )
+        .mockResolvedValueOnce(
+          new Response(
+            '<loc>https://www.ishares.com/uk/individual/en/products/251882/dynamic-product</loc>'
+          )
+        )
+        .mockResolvedValueOnce(
+          new Response(
+            '{&quot;value&quot;:&quot;IE00B4L5Y983&quot;,&quot;fullName&quot;:&quot;fundHeader.fundName.productIsin&quot;}'
+          )
+        )
         .mockResolvedValueOnce(new Response(page))
         .mockRejectedValueOnce(new Error('BlackRock unavailable'));
 
       await createService(fetch).gatherAssetProfiles([identifier]);
 
-      expect(fetch).toHaveBeenCalledTimes(2);
+      expect(fetch).toHaveBeenCalledTimes(5);
       expect(prismaService.symbolProfile.upsert).toHaveBeenCalledTimes(1);
 
       const { create, update } =
@@ -428,6 +569,7 @@ describe('DataGatheringService', () => {
             ...mappedIdentifier,
             assetClass: 'EQUITY',
             assetSubClass: 'ETF',
+            name: 'iShares ETF',
             isin
           }
         });
@@ -445,6 +587,19 @@ describe('DataGatheringService', () => {
       function mockDocument() {
         return jest
           .fn()
+          .mockResolvedValueOnce(
+            Response.json({ results: [{ portfolioId: '251882' }] })
+          )
+          .mockResolvedValueOnce(
+            new Response(
+              '<loc>https://www.ishares.com/uk/individual/en/products/251882/dynamic-product</loc>'
+            )
+          )
+          .mockResolvedValueOnce(
+            new Response(
+              '{&quot;value&quot;:&quot;IE00B4L5Y983&quot;,&quot;fullName&quot;:&quot;fundHeader.fundName.productIsin&quot;}'
+            )
+          )
           .mockResolvedValueOnce(new Response(page))
           .mockResolvedValueOnce(
             new Response(csv, {
@@ -460,7 +615,7 @@ describe('DataGatheringService', () => {
 
         await createService(fetch).gatherAssetProfiles([mappedIdentifier]);
 
-        expect(fetch).toHaveBeenCalledTimes(2);
+        expect(fetch).toHaveBeenCalledTimes(5);
 
         const { create, update, where } =
           prismaService.symbolProfile.upsert.mock.calls[0][0];
@@ -482,14 +637,16 @@ describe('DataGatheringService', () => {
         expect(update.sectors).toEqual([{ name: 'Technology', weight: 0.99 }]);
       });
 
-      it('rejects a mapped symbol with a conflicting ISIN', async () => {
+      it('preserves a mapped profile when no official issuer product matches its ISIN', async () => {
         mockMappedProfile('IE00BTJRMP35');
 
-        const fetch = jest.fn();
+        const fetch = jest
+          .fn()
+          .mockResolvedValue(Response.json({ results: [] }));
 
         await createService(fetch).gatherAssetProfiles([mappedIdentifier]);
 
-        expect(fetch).not.toHaveBeenCalled();
+        expect(fetch).toHaveBeenCalledTimes(1);
 
         const { create, update } =
           prismaService.symbolProfile.upsert.mock.calls[0][0];
@@ -501,22 +658,17 @@ describe('DataGatheringService', () => {
         expect(update.sectors).toBeUndefined();
       });
 
-      it('accepts an explicitly mapped Yahoo symbol without ISIN', async () => {
+      it('preserves a mapped profile if missing ISIN cannot be verified', async () => {
         mockMappedProfile();
-
-        const fetch = mockDocument();
-
+        const fetch = jest
+          .fn()
+          .mockResolvedValue(new Response('<html>No search callback</html>'));
         await createService(fetch).gatherAssetProfiles([mappedIdentifier]);
-
-        expect(fetch).toHaveBeenCalledTimes(2);
-
+        expect(fetch).toHaveBeenCalledTimes(1);
         const { create } = prismaService.symbolProfile.upsert.mock.calls[0][0];
-
         expect(create.symbol).toBe('CUSTOM.MI');
-        expect(create.countries).toEqual([
-          { code: 'US', weight: 0.6 },
-          { code: 'NL', weight: 0.39 }
-        ]);
+        expect(create.countries).toBeUndefined();
+        expect(create.isin).toBeUndefined();
       });
     });
   });
