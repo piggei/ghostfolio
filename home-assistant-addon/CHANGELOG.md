@@ -1,5 +1,17 @@
 # Ghostfolio-NG Home Assistant Add-on Changelog
 
+## 3.100.8
+
+### Integration-specific changes
+
+- fix(portfolio): preserve PnL history when adding empty accounts (f5130d8e5)
+- docs(ng): document ETF enrichment in all supported languages (ec2a595f1)
+- feat(data-provider): add Invesco and Amundi ETF compositions (62c1c5d6d)
+- fix(data-provider): verify Vanguard listings when justETF is incomplete (c4339f51e)
+- fix(data-gathering): preserve ETF identities and complete compositions (91bb320e8)
+- feat(data-provider): discover ETF compositions by verified identity (ab9a5a7b8)
+- fix(data-provider): verify unique justETF canonical identity (a365239e1)
+
 ## 3.100.7
 
 ### Integration-specific changes
